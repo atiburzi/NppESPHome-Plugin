@@ -126,8 +126,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCC_ExeOutput>..\Bin</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>14</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.23.14;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
+        <VerInfo_Build>15</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.23.15;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
         <VerInfo_Release>23</VerInfo_Release>
         <VerInfo_DLL>true</VerInfo_DLL>
     </PropertyGroup>
