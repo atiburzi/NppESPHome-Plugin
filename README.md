@@ -43,8 +43,12 @@ That’s how the idea for this plugin was born.
 ## What it doesn't do
 
 The plugin does not replace ESPHome but makes interaction with it easier.
+
 For it to work, ESPHome must be installed on the system and its executables must be included in the user or system PATH.
-Naturally, the plugin is designed for Notepad++, and therefore requires Notepad++ to be installed—version 8.0 or higher is needed to use the toolbar.
+
+Naturally, the plugin is designed for Notepad++, and therefore requires Notepad++ to be installed (version 8.0 or higher is needed to use the toolbar).
+
+
 
 
 
