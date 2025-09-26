@@ -4,7 +4,7 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
@@ -99,6 +99,7 @@
         <DCC_RangeChecking>true</DCC_RangeChecking>
         <DCC_ExeOutput>C:\Program Files\Notepad++\plugins\NppESPHome\</DCC_ExeOutput>
         <DCC_OutputDRCFile>true</DCC_OutputDRCFile>
+        <DCC_DcuOutput>..\Bin\__$(Platform)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -122,6 +123,7 @@
 explorer.exe /select,"$(OUTPUTPATH)"
 $(PostBuildEvent)]]></PostBuildEvent>
         <PostBuildEventCancelOnError>false</PostBuildEventCancelOnError>
+        <DCC_ExeOutput>..\Bin</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_Build>14</VerInfo_Build>
