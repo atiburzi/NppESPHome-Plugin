@@ -58,7 +58,7 @@ Naturally, the plugin is designed for Notepad++, and therefore requires Notepad+
 
 ## The Application
 
-In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the DLL file here: [Binary](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/bin)
+In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the DLL file here: [Binary](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin)
 
 Settings are stored in the Notepad++ plugin settings default folder.
 
