@@ -94,7 +94,7 @@ The following 3rd party libraries are required in order to compile the source:
   * [NppUISpy plugin for Notepad++ ver. 1.2 libraries](https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib) - Customized
   * [ComPort Library ver. 4.11](http://comport.sf.net/)
   * [LibYAML ver. 0.2.5](https://github.com/yaml/libyaml)
-  * [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl)
+  * [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl) - Only [TJvCreateProcess] component
 
 The libraries must in the Delphi default library search path.
 
