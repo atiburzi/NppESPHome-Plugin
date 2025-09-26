@@ -58,7 +58,7 @@ Naturally, the plugin is designed for Notepad++, and therefore requires Notepad+
 
 ## The Application
 
-In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the DLL file here: https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin
+In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the DLL file here: [Binary](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/bin)
 Settings are stored in the Notepad++ plugin settings default folder.
 
 ## The Source
@@ -90,6 +90,7 @@ NppESPHome plugin has been tested with the following versions but probably works
 
 The following 3rd party libraries are required in order to compile the source:
 
+  * [NppUISpy plugin for Notepad++ ver. 1.2 libraries] (https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib) - Customized
   * [ComPort Library ver. 4.11] (http://comport.sf.net/)
   * [LibYAML ver. 0.2.5] (https://github.com/yaml/libyaml)
   * [JEDI Visual Component Library ver 3.50] (https://github.com/project-jedi/jvcl)
