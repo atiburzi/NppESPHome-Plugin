@@ -72,8 +72,11 @@ To remove an ESPHome project from the known list, select it and press the button
 
 ## Installation
 
-In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the [DLL](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin) file to be put in the Notepad++ plugins folder.
-Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)
+In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the [DLL](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin).<br/>
+The plugin DLL file should be placed in the plugins subfolder of the Notepad++ Install Folder, under the subfolder with the same name of plugin binary name without file extension, as per this [guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually).<br/>
+
+Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)<br/>
+Moreover, remember that for the plugin to work, ESPHome must already be installed on the system [Installation Guide](https://www.esphome.io/guides/installing_esphome/); otherwise, the plugin will display an error message and automatically uninstall itself.<br/>
 
 Settings are stored in the Notepad++ plugin settings default folder in **NppESPHome.ini** file.
 
@@ -102,7 +105,7 @@ NppESPHome plugin has been tested with the following versions but probably works
   * Python 3.13.1
 
 
-### Dependencies
+### Dependencies to compile the source
 
 The following 3rd party libraries are required in order to compile the source:
 
@@ -111,7 +114,7 @@ The following 3rd party libraries are required in order to compile the source:
   * [LibYAML ver. 0.2.5](https://github.com/yaml/libyaml)
   * [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl) - Only TJvCreateProcess component
 
-The libraries must in the Delphi default library search path.
+Those libraries must in the Delphi default library search path.
 
 
 
