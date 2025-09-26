@@ -64,7 +64,7 @@ The selection and addition of a new project among the known projects can be done
 
 ![Select Project](Art/select.png)
 
-The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities.<br/>
+The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities. To be selected, a project must be part of the project known list.<br/>
 To add an ESPHome project to the known list, press the button "Add project" and select the YAML file of your project; it requires a valid YAML project file content and it is analized to retrieve required information.<br/>
 In case of an invalid content, an error will be shown and it will not added to the known list.<br/>
 To remove an ESPHome project from the known list, select it and press the button "Remove Project".
@@ -76,7 +76,7 @@ In case you just want to use the plugin as-is, and don't care to compile it your
 The plugin DLL file should be placed in the plugins subfolder of the Notepad++ Install Folder, under the subfolder with the same name of plugin binary name without file extension, as per this [guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually).<br/>
 
 Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)<br/>
-Moreover, remember that for the plugin to work, ESPHome must already be installed on the system [ESPHome Installation Guide](https://www.esphome.io/guides/installing_esphome/).<br/>
+Moreover, remember that for the plugin to work, ESPHome must already be installed on the system. Here you can find the [ESPHome Installation Guide](https://www.esphome.io/guides/installing_esphome/).
 If ESPHome is not found during Notepad++ startup, <ins>the plugin will display an error message and it automatically uninstall itself.</ins><br/>
 
 ## Plugin settings
