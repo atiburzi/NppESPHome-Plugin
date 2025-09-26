@@ -60,15 +60,15 @@ Naturally, the plugin is designed for Notepad++, and therefore requires Notepad+
 
 ### Select Project functionality
 
-When loaded, the plugin retrieve from the configuration file the current ESPHome project previusly selected. 
+When loaded, the plugin retrieve from the configuration file the current ESPHome project previusly selected.\ 
 The selection and addition of a new project among the known projects can be done through the "Select Project..." function, which will open the following dialog:
 
 ![Select Project](Art/select.png)
 
-The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities.
-To add an ESPHome project to the known list, press the button "Add project" and select the YAML file of your project; it requires a valid YAML project file content and it is analized to retrieve required information.
-In case of an invalid content, an error will be shown and it will not added to the known list.
-To remove an ESPHome project from the known list, select it and press the button "Remove project".
+The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities.\
+To add an ESPHome project to the known list, press the button "Add project" and select the YAML file of your project; it requires a valid YAML project file content and it is analized to retrieve required information.\
+In case of an invalid content, an error will be shown and it will not added to the known list.\
+To remove an ESPHome project from the known list, select it and press the button "Remove Project".
 
 
 ## Installation
