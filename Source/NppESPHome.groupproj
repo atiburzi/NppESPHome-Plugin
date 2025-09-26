@@ -1,0 +1,36 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{62BE3182-C663-45BA-BE85-5836D3D38EE1}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="NppESPHome.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="NppESPHome">
+        <MSBuild Projects="NppESPHome.dproj"/>
+    </Target>
+    <Target Name="NppESPHome:Clean">
+        <MSBuild Projects="NppESPHome.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="NppESPHome:Make">
+        <MSBuild Projects="NppESPHome.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="NppESPHome"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="NppESPHome:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="NppESPHome:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

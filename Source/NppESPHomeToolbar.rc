@@ -1,0 +1,47 @@
+Clean BITMAP "Resources\\Toolbar\\Clean.bmp"
+Clean_Dark ICON "Resources\\Toolbar\\Clean_Dark.ico"
+Clean_Light ICON "Resources\\Toolbar\\Clean_Light.ico"
+
+Compile BITMAP "Resources\\Toolbar\\Compile.bmp"
+Compile_Dark ICON "Resources\\Toolbar\\Compile_Dark.ico"
+Compile_Light ICON "Resources\\Toolbar\\Compile_Light.ico"
+
+Configure BITMAP "Resources\\Toolbar\\Configure2.bmp"
+Configure_Dark ICON "Resources\\Toolbar\\Configure2_Dark.ico"
+Configure_Light ICON "Resources\\Toolbar\\Configure2_Light.ico"
+
+Help BITMAP "Resources\\Toolbar\\Help.bmp"
+Help_Dark ICON "Resources\\Toolbar\\Help_Dark.ico"
+Help_Light ICON "Resources\\Toolbar\\Help_Light.ico"
+
+Open BITMAP "Resources\\Toolbar\\Open.bmp"
+Open_Dark ICON "Resources\\Toolbar\\Open_Dark.ico"
+Open_Light ICON "Resources\\Toolbar\\Open_Light.ico"
+
+OpenDeps BITMAP "Resources\\Toolbar\\OpenDeps.bmp"
+OpenDeps_Dark ICON "Resources\\Toolbar\\OpenDeps_Dark.ico"
+OpenDeps_Light ICON "Resources\\Toolbar\\OpenDeps_Light.ico"
+
+Run BITMAP "Resources\\Toolbar\\Run.bmp"
+Run_Dark ICON "Resources\\Toolbar\\Run_Dark.ico"
+Run_Light ICON "Resources\\Toolbar\\Run_Light.ico"
+
+Select BITMAP "Resources\\Toolbar\\Select.bmp"
+Select_Dark ICON "Resources\\Toolbar\\Select_Dark.ico"
+Select_Light ICON "Resources\\Toolbar\\Select_Light.ico"
+
+ShowLogs BITMAP "Resources\\Toolbar\\ShowLogs2.bmp"
+ShowLogs_Dark ICON "Resources\\Toolbar\\ShowLogs2_Dark.ico"
+ShowLogs_Light ICON "Resources\\Toolbar\\ShowLogs2_Light.ico"
+
+Upgrade BITMAP "Resources\\Toolbar\\Upgrade.bmp"
+Upgrade_Dark ICON "Resources\\Toolbar\\Upgrade_Dark.ico"
+Upgrade_Light ICON "Resources\\Toolbar\\Upgrade_Light.ico"
+
+Upload BITMAP "Resources\\Toolbar\\Upload2.bmp"
+Upload_Dark ICON "Resources\\Toolbar\\Upload2_Dark.ico"
+Upload_Light ICON "Resources\\Toolbar\\Upload2_Light.ico"
+
+Visit BITMAP "Resources\\Toolbar\\Visit.bmp"
+Visit_Dark ICON "Resources\\Toolbar\\Visit_Dark.ico"
+Visit_Light ICON "Resources\\Toolbar\\Visit_Light.ico"
