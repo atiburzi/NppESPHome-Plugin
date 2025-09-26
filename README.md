@@ -76,7 +76,10 @@ In case you just want to use the plugin as-is, and don't care to compile it your
 The plugin DLL file should be placed in the plugins subfolder of the Notepad++ Install Folder, under the subfolder with the same name of plugin binary name without file extension, as per this [guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually).<br/>
 
 Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)<br/>
-Moreover, remember that for the plugin to work, ESPHome must already be installed on the system [Installation Guide](https://www.esphome.io/guides/installing_esphome/); otherwise, the plugin will display an error message and automatically uninstall itself.<br/>
+Moreover, remember that for the plugin to work, ESPHome must already be installed on the system [ESPHome Installation Guide](https://www.esphome.io/guides/installing_esphome/).<br/>
+If ESPHome is not found during Notepad++ startup, <ins>the plugin will display an error message and it automatically uninstall itself.</ins><br/>
+
+## Plugin settings
 
 Settings are stored in the Notepad++ plugin settings default folder in **NppESPHome.ini** file.
 
