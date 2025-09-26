@@ -1,2 +1,2 @@
-MAIN_DARK ICON "Resources\\NppESPHome_Black.ico"
-MAIN_LIGHT ICON "Resources\\NppESPHome_White.ico"
+MAIN_DARK ICON "..\\Resources\\NppESPHome_Black.ico"
+MAIN_LIGHT ICON "..\\Resources\\NppESPHome_White.ico"

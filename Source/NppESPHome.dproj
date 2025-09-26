@@ -53,8 +53,8 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_DcuOutput>..\Bin\__$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_ExeOutput>..\Bin\__$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_E>false</DCC_E>
         <DCC_N>false</DCC_N>
         <DCC_S>false</DCC_S>
@@ -63,7 +63,7 @@
         <GenDll>true</GenDll>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>NppESPHome</SanitizedProjectName>
-        <DCC_UnitSearchPath>.\Lib;.\External;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\Lib;..\External;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=XXXX $(MSBuildProjectName);FileVersion=1.0.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=XXXX  $(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;PrivateBuild=</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -105,8 +105,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
-        <VerInfo_Keys>CompanyName=XXXXXX;FileDescription=AAAA $(MSBuildProjectName);FileVersion=1.0.0.35;InternalName=SSSSSSS;LegalCopyright=;LegalTrademarks=;OriginalFilename=AAAAAAA;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VVVV $(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=XXXXX</VerInfo_Keys>
-        <VerInfo_Build>35</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=XXXXXX;FileDescription=AAAA $(MSBuildProjectName);FileVersion=1.0.0.38;InternalName=SSSSSSS;LegalCopyright=;LegalTrademarks=;OriginalFilename=AAAAAAA;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VVVV $(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=XXXXX</VerInfo_Keys>
+        <VerInfo_Build>38</VerInfo_Build>
         <VerInfo_Release>0</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -133,19 +133,17 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Lib\NppPlugin.pas"/>
-        <DCCReference Include="Lib\NppPluginForms.pas">
+        <DCCReference Include="..\Lib\NppPlugin.pas"/>
+        <DCCReference Include="..\Lib\NppPluginForms.pas">
             <Form>NppPluginForm</Form>
         </DCCReference>
-        <DCCReference Include="Lib\NppPluginDockingForms.pas">
+        <DCCReference Include="..\Lib\NppPluginDockingForms.pas">
             <Form>NppPluginDockingForm</Form>
         </DCCReference>
-        <DCCReference Include="Lib\NppSupport.pas"/>
-        <DCCReference Include="Lib\NppMenuCmdID.pas"/>
-        <DCCReference Include="Lib\SciSupport.pas"/>
-        <DCCReference Include="Lib\FileVersionInfo.pas">
-            <Form>$R *.res</Form>
-        </DCCReference>
+        <DCCReference Include="..\Lib\NppSupport.pas"/>
+        <DCCReference Include="..\Lib\NppMenuCmdID.pas"/>
+        <DCCReference Include="..\Lib\SciSupport.pas"/>
+        <DCCReference Include="..\Lib\FileVersionInfo.pas"/>
         <DCCReference Include="ESPHomePlugin.pas"/>
         <DCCReference Include="UnitFormProjectSelection.pas">
             <Form>FormProjectSelection</Form>
@@ -162,11 +160,11 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <Form>FormToolbar</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <RcItem Include="Resources\NppESPHome_Black.ico">
+        <RcItem Include="..\Resources\NppESPHome_Black.ico">
             <ResourceType>ICON</ResourceType>
             <ResourceId>MAIN_DARK</ResourceId>
         </RcItem>
-        <RcItem Include="Resources\NppESPHome_White.ico">
+        <RcItem Include="..\Resources\NppESPHome_White.ico">
             <ResourceType>ICON</ResourceType>
             <ResourceId>MAIN_LIGHT</ResourceId>
         </RcItem>
@@ -191,8 +189,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
                     <Source Name="MainSource">NppESPHome.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k370.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp370.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="5">

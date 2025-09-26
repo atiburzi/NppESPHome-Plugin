@@ -19,6 +19,8 @@ library NppESPHome;
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
 {$ENDIF}
 
+
+
 {$R *.dres}
 
 uses
@@ -26,13 +28,13 @@ uses
   System.Classes,
   Winapi.Windows,
   Winapi.Messages,
-  NppPlugin in 'Lib\NppPlugin.pas',
-  NppPluginForms in 'Lib\NppPluginForms.pas' {NppPluginForm},
-  NppPluginDockingForms in 'Lib\NppPluginDockingForms.pas' {NppPluginDockingForm},
-  NppSupport in 'Lib\NppSupport.pas',
-  NppMenuCmdID in 'Lib\NppMenuCmdID.pas',
-  SciSupport in 'Lib\SciSupport.pas',
-  FileVersionInfo in 'Lib\FileVersionInfo.pas',
+  NppPlugin in '..\Lib\NppPlugin.pas',
+  NppPluginForms in '..\Lib\NppPluginForms.pas' {NppPluginForm},
+  NppPluginDockingForms in '..\Lib\NppPluginDockingForms.pas' {NppPluginDockingForm},
+  NppSupport in '..\Lib\NppSupport.pas',
+  NppMenuCmdID in '..\Lib\NppMenuCmdID.pas',
+  SciSupport in '..\Lib\SciSupport.pas',
+  FileVersionInfo in '..\Lib\FileVersionInfo.pas',
   ESPHomePlugin in 'ESPHomePlugin.pas',
   UnitFormProjectSelection in 'UnitFormProjectSelection.pas' {FormProjectSelection},
   UnitFormProjectConfiguration in 'UnitFormProjectConfiguration.pas' {FormProjectConfiguration},
