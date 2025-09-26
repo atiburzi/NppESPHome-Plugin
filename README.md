@@ -7,8 +7,7 @@ A Notepad++ plugin written in **Delphi** to directly interact with **ESPHome** a
 ## Why?
 
 After discovering the potential of ESPHome, I started working on several projects and immediately ran into the lack of a tool that would help me speed up the development workflow, including writing YAML code and performing related testing.
-Despite the power of the command line provided by both Python and ESPHome itself, I needed something that would save me from repeatedly rewriting the same commands, even if they were very simple.
-
+Despite the power of the command line provided by both Python and ESPHome itself, I needed something that would save me from repeatedly rewriting the same commands, even if they were very simple.<br/>
 At first, I developed a Windows application that acted as a wrapper, but I soon realized that by relying exclusively on Notepad++ for code editing, I could create a plugin that would make interaction with ESPHome commands immediate and straightforward.
 
 That’s how the idea for this plugin was born.
@@ -60,14 +59,14 @@ Naturally, the plugin is designed for Notepad++, and therefore requires Notepad+
 
 ### Select Project functionality
 
-When loaded, the plugin retrieve from the configuration file the current ESPHome project previusly selected.\ 
+When loaded, the plugin retrieve from the configuration file the current ESPHome project previusly selected.<br/>
 The selection and addition of a new project among the known projects can be done through the "Select Project..." function, which will open the following dialog:
 
 ![Select Project](Art/select.png)
 
-The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities.\
-To add an ESPHome project to the known list, press the button "Add project" and select the YAML file of your project; it requires a valid YAML project file content and it is analized to retrieve required information.\
-In case of an invalid content, an error will be shown and it will not added to the known list.\
+The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities.<br/>
+To add an ESPHome project to the known list, press the button "Add project" and select the YAML file of your project; it requires a valid YAML project file content and it is analized to retrieve required information.<br/>
+In case of an invalid content, an error will be shown and it will not added to the known list.<br/>
 To remove an ESPHome project from the known list, select it and press the button "Remove Project".
 
 
