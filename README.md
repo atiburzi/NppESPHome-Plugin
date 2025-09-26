@@ -50,3 +50,4 @@ Naturally, the plugin is designed for Notepad++, and therefore requires Notepad+
 
 
 
+
