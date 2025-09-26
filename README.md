@@ -58,9 +58,25 @@ Naturally, the plugin is designed for Notepad++, and therefore requires Notepad+
 
 ## The Application
 
-In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the DLL file here: [Binary](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin)
+### Select Project functionality
 
-Settings are stored in the Notepad++ plugin settings default folder.
+When loaded, the plugin retrieve from the configuration file the current ESPHome project previusly selected. 
+The selection and addition of a new project among the known projects can be done through the "Select Project..." function, which will open the following dialog:
+
+![Select Project](Art/select.png)
+
+The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities.
+To add an ESPHome project to the known list, press the button "Add project" and select the YAML file of your project; it requires a valid YAML project file content and it is analized to retrieve required information.
+In case of an invalid content, an error will be shown and it will not added to the known list.
+To remove an ESPHome project from the known list, select it and press the button "Remove project".
+
+
+## Installation
+
+In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the [DLL](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin) file to be put in the Notepad++ plugins folder.
+Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)
+
+Settings are stored in the Notepad++ plugin settings default folder in **NppESPHome.ini** file.
 
 ## The Source
 

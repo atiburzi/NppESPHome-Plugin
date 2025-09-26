@@ -19,8 +19,6 @@ library NppESPHome;
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
 {$ENDIF}
 
-
-
 {$R *.dres}
 
 uses
