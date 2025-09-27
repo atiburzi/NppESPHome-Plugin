@@ -57,7 +57,7 @@ Naturally, the plugin is designed for Notepad++, and therefore requires Notepad+
 
 ## The Application
 
-### Select Project functionality
+### "Select Project" functionality
 
 When loaded, the plugin retrieve from the configuration file the current ESPHome project previusly selected.<br/>
 The selection and addition of a new project among the known projects can be done through the "Select Project..." function, which will open the following dialog:
