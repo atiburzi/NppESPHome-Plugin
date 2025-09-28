@@ -2,7 +2,7 @@
 
 A **Notepad++** plugin written in **Delphi** to directly interact with **ESPHome** and easily manage related projects in Windows environment.
 
-![NppESPHome in action](Art/NppESPHome.png)
+![NppESPHome in action](Art/group.png)
 
 ## Why?
 
@@ -14,27 +14,27 @@ That’s how the idea for this plugin was born.
 
 ## Features
 
-* Streamlined workflow – Designed around the ESPHome project concept, the plugin ensures a smooth, intuitive, and productive development experience.
+* **Streamlined workflow** – Designed around the ESPHome project concept, the plugin ensures a smooth, intuitive, and productive development experience.
 
-* Project configuration dialogs – Quickly select and configure your current project with dedicated setup windows directly inside Notepad++, fully supporting Light or Dark modes.
+* **Project configuration dialogs** – Quickly select and configure your current project with dedicated setup windows directly inside Notepad++, fully supporting Light or Dark modes.
 
-* One-click ESPHome commands – Automatically generates command lines for Run, Compile, Upload, Clean, and Logs. All commands are accessible from the plugin menu or can be assigned to custom keyboard shortcuts in Notepad++.
+* **One-click ESPHome commands** – Automatically generates command lines for Run, Compile, Upload, Clean, and Logs. All commands are accessible from the plugin menu or can be assigned to custom keyboard shortcuts in Notepad++.
 
-* Smart YAML validation – Parses your project’s YAML file to check validity and detect whether it includes Online or WebServer features.
+* **Smart YAML validation** – Parses your project’s YAML file to check validity and detect whether it includes Online or WebServer features.
 
-* Flexible device communication – Configure ESP device communication ports with automatic detection of active serial and network connections, making uploads and interaction effortless.
+* **Flexible device communication** – Configure ESP device communication ports with automatic detection of active serial and network connections, making uploads and interaction effortless.
 
-* Command customization – Personalize options for each ESPHome command and save them with your project settings.
+* **Command customization** – Personalize options for each ESPHome command and save them with your project settings.
 
-* Advanced configuration – Control logging behavior, automatic console closing, and define custom command-line arguments for advanced workflows.
+* **Advanced configuration** – Control logging behavior, automatic console closing, and define custom command-line arguments for advanced workflows.
 
-* Auto-save integration – Automatically saves your project files before executing ESPHome commands, helping you keep focus on development.
+* **Auto-save integration** – Automatically saves your project files before executing ESPHome commands, helping you keep focus on development.
 
-* Multi-source management – Supports a project dependency file, enabling simultaneous editing of multiple sources within the same project, with multi-file open and save to boost productivity.
+* **Multi-source management** – Supports a project dependency file, enabling simultaneous editing of multiple sources within the same project, with multi-file open and save to boost productivity.
 
-* Custom Notepad++ toolbar – An integrated, customizable toolbar provides direct access to the plugin’s main commands and functions.
+* **Custom Notepad++ toolbar** – An integrated, customizable toolbar provides direct access to the plugin’s main commands and functions.
 
-* Extra utilities – Includes handy non-ESPHome features such as:
+* **Extra utilities** – Includes handy non-ESPHome features such as:
     - Opening the official ESPHome web documentation
     - Updating ESPHome to the latest version
     - Launching a command prompt or file explorer directly from the project folder
@@ -63,20 +63,29 @@ As it is built for Notepad++, the editor must also be installed—version 8.0 or
 
 ## The Application
 
-### "Select Project" functionality
+### "Select Project" command
 
-When loaded, the plugin retrieve from the configuration file the current ESPHome project previusly selected.<br/>
-The selection and addition of a new project among the known projects can be done through the "Select Project..." function, which will open the following dialog:
+When the plugin is loaded, it retrieves from the configuration file the ESPHome project previously selected.  
+You can select an existing project or add a new one to the list of known projects using the **"Select Project..."** function, which opens the following dialog:
 
 ![Select Project](Art/select.png)
 
-The combo box list contains all the known ESPHome projects, and the selected one represent the current project for all the other plugin functionalities. To be selected, a project must be part of the project known list.<br/>
-To add an ESPHome project to the known list, press the button "Add project" and select the YAML file of your project; it requires a valid YAML project file content and it is analized to retrieve required information.<br/>
-In case of an invalid content, an error will be shown and it will not added to the known list.<br/>
-To remove an ESPHome project from the known list, select it and press the button "Remove Project".
+The combo box displays all known ESPHome projects. The project currently selected in this list will be used across all plugin functionalities.  
+To be selectable, a project must first be added to the list of known projects.
+
+-   **Add a project:** click "Add Project" and choose the YAML file of your project. The file must contain valid ESPHome project content, which will be analyzed to extract the required information. If the file content is invalid, an error message will be shown and the project will not be added.
+    
+-   **Remove a project:** select it from the list and click "Remove Project".
 
 
-...to be completed...
+### "Configure Project" command
+
+Once the current project has been selected, you can proceed with its configuration by defining how the plugin should interact with ESPHome and with Notepad++.  
+For example, you can decide the type of auto-save behavior for project files, configure how to handle console windows opened by ESPHome commands, customize the command line for each action, and much more.
+
+![Configure Project](Art/configure.png)
+
+These settings, defined on a per-project basis, are stored in the plugin’s configuration file.
 
 
 ## Installation
@@ -119,3 +128,9 @@ The following additional 3rd party libraries are required in order to compile th
   * [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl)
 
 Those libraries must be placed in the Delphi default library search path.
+
+## Future enhancements
+An idea I am starting to explore is introducing a dockable window in Notepad++ that lists all ESPHome component constructs. This would allow users to insert them into the project code with a single click, reducing the need to constantly refer to the documentation.  
+These constructs would be kept outside the source code itself, most likely in an XML file, easily maintained with a simple text editor to stay aligned with new ESPHome releases.
+
+It is also worth mentioning that the plugin is already designed with multilingual support in mind. So far, I haven’t felt the need to implement it, but it could be added in the future without major effort.
