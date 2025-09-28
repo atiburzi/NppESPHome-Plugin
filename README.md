@@ -83,10 +83,19 @@ To be selectable, a project must first be added to the list of known projects.
 Once the current project has been selected, you can proceed with its configuration by defining how the plugin should interact with ESPHome and with Notepad++.  
 For example, you can decide the type of auto-save behavior for project files, configure how to handle console windows opened by ESPHome commands, customize the command line for each action, and much more.
 
-![Configure Project](Art/config.png)
+![Configure Project](Art/configure.png)
 
 These settings, defined on a per-project basis, are stored in the plugin’s configuration file.
 
+### "Run", "Compile", "Upload", "Logs" and "Clean" commands
+From the plugin menu, or through keyboard shortcuts in Notepad++, you can launch the five main ESPHome commands for the current project (**Run, Compile, Upload, Logs, Clean**).  
+Normally, when working from a Windows console, you would need to invoke the `esphome.exe` command line manually and provide the correct sequence of required parameters.
+
+![Configure Project](Art/console.png)
+
+The plugin automatically builds the command line with all the parameters required to run ESPHome, invoking the expected command.  
+Stored configurations, project files, and the command itself are used to open the ESPHome console and execute the selected action.
+The console (running in a Windows shell) can either remain open or close automatically, depending on the chosen settings.
 
 ## Installation
 
