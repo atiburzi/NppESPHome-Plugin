@@ -4,23 +4,23 @@ object FormProjectConfiguration: TFormProjectConfiguration
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Project Configuration'
-  ClientHeight = 708
-  ClientWidth = 604
+  ClientHeight = 409
+  ClientWidth = 602
   Color = clBtnFace
   ParentFont = True
   ShowHint = True
   OnCreate = FormCreate
   TextHeight = 15
   object ButtonClose: TButton
-    Left = 264
-    Top = 670
+    Left = 268
+    Top = 374
     Width = 75
     Height = 25
     Hint = 'Closes current window'
     Cancel = True
     Caption = 'Close'
     ModalResult = 1
-    TabOrder = 0
+    TabOrder = 2
   end
   object GroupBoxProject: TGroupBox
     Left = 8
@@ -28,7 +28,7 @@ object FormProjectConfiguration: TFormProjectConfiguration
     Width = 585
     Height = 129
     Caption = 'Current Project'
-    TabOrder = 1
+    TabOrder = 0
     object VirtualImageStatus: TVirtualImage
       Left = 516
       Top = 18
@@ -74,482 +74,681 @@ object FormProjectConfiguration: TFormProjectConfiguration
       OnClick = ButtonRefreshClick
     end
   end
-  object GroupBoxESPHome: TGroupBox
+  object GroupBoxOptions: TGroupBox
     Left = 8
-    Top = 147
+    Top = 143
     Width = 585
-    Height = 246
-    Caption = 'ESPHome Options'
-    TabOrder = 2
-    object LabelDevice: TLabel
-      Left = 393
-      Top = 32
-      Width = 73
-      Height = 15
-      Caption = 'Target device:'
-    end
-    object LabelAutoclose: TLabel
-      Left = 48
-      Top = 32
-      Width = 99
-      Height = 15
-      Caption = 'Autoclose Console'
-      FocusControl = CheckBoxOptionAutoclose
-    end
-    object LabelLogLevel: TLabel
-      Left = 197
-      Top = 32
-      Width = 53
-      Height = 15
-      Hint = 
-        'Log level reported into the console window during the ESPHome co' +
-        'mmand execution.'
-      Caption = 'Log Level:'
-    end
-    object LabelRunNoLogs: TLabel
-      Left = 256
-      Top = 32
-      Width = 89
-      Height = 15
-      Caption = 'Run with no logs'
-    end
-    object LabelOptionESPHomeAdditionalParameters: TLabel
-      Left = 24
-      Top = 204
-      Width = 175
-      Height = 15
-      Caption = 'Additional ESPHome parameters:'
-    end
-    object CheckBoxOptionAutoclose: TCheckBox
-      Left = 23
-      Top = 32
-      Width = 168
-      Height = 17
-      Hint = 
-        'Automatically closes the ESPHome command console when the comman' +
-        'ds complete successfully'
+    Height = 217
+    Caption = 'Options'
+    TabOrder = 1
+    object TreeViewOptions: TTreeView
+      Left = 19
+      Top = 28
+      Width = 190
+      Height = 171
+      Ctl3D = False
+      HideSelection = False
+      Images = VirtualImageListWhite
+      Indent = 20
+      ParentColor = True
+      ParentCtl3D = False
+      ReadOnly = True
+      RowSelect = True
+      ShowButtons = False
       TabOrder = 0
-      WordWrap = True
-      OnClick = CheckBoxOptionAutocloseClick
+      OnChange = TreeViewOptionsChange
+      OnCollapsing = TreeViewOptionsCollapsing
+      OnCustomDrawItem = TreeViewOptionsCustomDrawItem
+      Items.NodeData = {
+        070300000009540054007200650065004E006F00640065003D0000000B000000
+        0B00000001000000FFFFFFFF00000000000000000006000000010F4500530050
+        0048006F006D00650020004F007000740069006F006E00730000003D0000000E
+        0000000E00000008000000FFFFFFFF00000000000000000000000000010F4300
+        6F006E0073006F006C00650020004F007000740069006F006E00730000003500
+        0000000000000000000002000000FFFFFFFF0000000000000000000000000001
+        0B520075006E00200043006F006D006D0061006E00640000003D000000010000
+        000100000003000000FFFFFFFF00000000000000000000000000010F43006F00
+        6D00700069006C006500200043006F006D006D0061006E00640000003B000000
+        020000000200000004000000FFFFFFFF00000000000000000000000000010E55
+        0070006C006F0061006400200043006F006D006D0061006E0064000000370000
+        00030000000300000005000000FFFFFFFF00000000000000000000000000010C
+        4C006F0067007300200043006F006D006D0061006E0064000000390000000400
+        00000400000006000000FFFFFFFF00000000000000000000000000010D43006C
+        00650061006E00200043006F006D006D0061006E00640000003D0000000C0000
+        000C00000000000000FFFFFFFF00000000000000000000000000010F50007200
+        6F006A0065006300740020004F007000740069006F006E007300000041000000
+        0D0000000D00000007000000FFFFFFFF0000000000000000000000000001114E
+        006F00740065007000610064002B002B0020004F007000740069006F006E0073
+        00}
     end
-    object ComboBoxDevice: TJvImageComboBox
-      Left = 480
-      Top = 29
-      Width = 84
-      Height = 25
-      Hint = 
-        'Specify the serial port or host address to be used to upload fir' +
-        'mware or retrieve logs by RUN, UPLOAD or LOGS ESPHome commands (' +
-        '--device). '
-      Style = csOwnerDrawVariable
-      ButtonStyle = fsLighter
-      DroppedWidth = 145
-      ImageHeight = 0
-      ImageWidth = 0
-      Images = VirtualImageListBlack
-      ItemHeight = 19
-      ItemIndex = -1
+    object CardPanelOptions: TCardPanel
+      Left = 215
+      Top = 20
+      Width = 349
+      Height = 184
+      ActiveCard = CardUploadOptions
+      BevelOuter = bvNone
+      Caption = 'CardPanelOptions'
       ParentColor = True
       TabOrder = 1
-      OnChange = ComboBoxDeviceChange
-      Items = <>
-    end
-    object ComboBoxLogLevel: TJvImageComboBox
-      Left = 256
-      Top = 29
-      Width = 113
-      Height = 25
-      Hint = 
-        'Log level reported into the console window during the ESPHome co' +
-        'mmand execution.'
-      Style = csOwnerDrawVariable
-      ButtonStyle = fsDark
-      DroppedWidth = 145
-      ImageHeight = 0
-      ImageWidth = 0
-      IndentSelected = True
-      ItemHeight = 19
-      ItemIndex = -1
-      ParentColor = True
-      TabOrder = 2
-      OnChange = ComboBoxLogLevelChange
-      Items = <
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'Critical'
-        end
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'Error'
-        end
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'Warning'
-        end
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'Info'
-        end
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'Debug'
-        end>
-    end
-    object CardPanel: TCardPanel
-      Left = 23
-      Top = 93
-      Width = 541
-      Height = 92
-      ActiveCard = CardRun
-      Caption = 'CardPanel'
-      ParentColor = True
-      TabOrder = 3
-      object CardRun: TCard
-        Left = 1
-        Top = 1
-        Width = 539
-        Height = 90
-        Caption = 'CardRun'
+      object CardProjectOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardProjectOptions'
         CardIndex = 0
         ParentColor = True
         TabOrder = 0
-        object LabelOptionRunAdditionalParameters: TLabel
-          Left = 22
-          Top = 56
-          Width = 120
-          Height = 15
-          Caption = 'Additional parameters:'
-          FocusControl = EditOptionRunAdditionalParameters
+        ExplicitLeft = 1
+        ExplicitTop = 1
+        ExplicitWidth = 347
+        ExplicitHeight = 182
+        object LabelDependencies: TLabel
+          Left = 16
+          Top = 8
+          Width = 329
+          Height = 60
+          Caption = 
+            'Project files that depend on this project. They will open in Not' +
+            'epad++ with the '#39'Open Project File and Dependencies'#39' command and' +
+            ', if configured, will be saved automatically before any ESPHome ' +
+            'command runs:'
+          WordWrap = True
         end
-        object LabelOptionRunNoLogs: TLabel
-          Left = 48
-          Top = 16
-          Width = 106
-          Height = 15
-          Caption = 'No Logs (--no-logs)'
-          FocusControl = CheckBoxOptionRunNoLogs
-        end
-        object LabelOptionRunReset: TLabel
-          Left = 243
-          Top = 16
-          Width = 74
-          Height = 15
-          Caption = 'Reset (--reset)'
-          FocusControl = CheckBoxOptionRunReset
-        end
-        object EditOptionRunAdditionalParameters: TEdit
-          Left = 158
-          Top = 53
-          Width = 355
-          Height = 23
+        object ListBoxDependencies: TListBox
+          Left = 16
+          Top = 77
+          Width = 329
+          Height = 76
+          Hint = 
+            'Project files to be automatically opened and saved by Notepad++ ' +
+            'during development'
+          BevelInner = bvNone
+          BevelOuter = bvNone
+          ItemHeight = 15
+          MultiSelect = True
           ParentColor = True
           TabOrder = 0
-          OnChange = EditOptionRunAdditionalParametersChange
         end
-        object CheckBoxOptionRunNoLogs: TCheckBox
-          Left = 22
-          Top = 16
-          Width = 97
-          Height = 17
+        object ButtonAddDeps: TButton
+          Left = 210
+          Top = 159
+          Width = 65
+          Height = 21
+          Hint = 
+            'Add a new existing file(s) among the current project dependencie' +
+            's'
+          Caption = 'Add'
           TabOrder = 1
-          OnClick = CheckBoxOptionRunNoLogsClick
+          OnClick = ButtonAddDepsClick
         end
-        object CheckBoxOptionRunReset: TCheckBox
-          Left = 215
-          Top = 16
-          Width = 97
-          Height = 17
+        object ButtonRemoveDeps: TButton
+          Left = 281
+          Top = 159
+          Width = 65
+          Height = 21
+          Hint = 
+            'Remove the selected file(s) among the current project dependenci' +
+            'es'
+          Caption = 'Remove'
           TabOrder = 2
-          OnClick = CheckBoxOptionRunResetClick
+          OnClick = ButtonRemoveDepsClick
         end
       end
-      object CardCompile: TCard
-        Left = 1
-        Top = 1
-        Width = 539
-        Height = 90
-        Caption = 'CardCompile'
+      object CardESPHomeOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardESPHomeOptions'
         CardIndex = 1
         ParentColor = True
         TabOrder = 1
-        object LabelOptionCompileAdditionalParameters: TLabel
-          Left = 22
-          Top = 56
-          Width = 120
+        ExplicitLeft = 1
+        ExplicitTop = 1
+        ExplicitWidth = 347
+        ExplicitHeight = 182
+        object LabelLogLevel: TLabel
+          Left = 23
+          Top = 72
+          Width = 108
           Height = 15
-          Caption = 'Additional parameters:'
+          Hint = 
+            'Log level reported into the console window during the ESPHome co' +
+            'mmand execution.'
+          Caption = 'ESPHome Log Level:'
         end
-        object LabelOptionCompileGenerateOnly: TLabel
-          Left = 48
-          Top = 16
-          Width = 170
+        object LabelDevice: TLabel
+          Left = 23
+          Top = 11
+          Width = 128
           Height = 15
-          Caption = 'Generate Only (--only-generate)'
+          Caption = 'Target device (--device):'
+          FocusControl = ComboBoxDevice
         end
-        object EditOptionCompileAdditionalParameters: TEdit
-          Left = 158
-          Top = 53
-          Width = 355
-          Height = 23
+        object LabelOptionESPHomeAdditionalParameters: TLabel
+          Left = 23
+          Top = 110
+          Width = 273
+          Height = 30
+          Caption = 
+            'Manually specify additional command line switches'#13#10'for the ESPHo' +
+            'me command line:'
+        end
+        object LabelDeviceDesc: TLabel
+          Left = 23
+          Top = 34
+          Width = 251
+          Height = 15
+          Caption = 'Applicable to Run, Upload and Logs commands.'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsItalic]
+          ParentFont = False
+        end
+        object ComboBoxLogLevel: TJvImageComboBox
+          Left = 171
+          Top = 69
+          Width = 113
+          Height = 25
+          Hint = 
+            'Log level reported into the console window during the ESPHome co' +
+            'mmand execution.'
+          Style = csOwnerDrawVariable
+          ButtonStyle = fsDark
+          DroppedWidth = 145
+          ImageHeight = 0
+          ImageWidth = 0
+          IndentSelected = True
+          ItemHeight = 19
+          ItemIndex = -1
+          ParentColor = True
+          TabOrder = 1
+          OnChange = ComboBoxLogLevelChange
+          Items = <
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Critical'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Error'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Warning'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Info'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Debug'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Default'
+            end>
+        end
+        object ComboBoxDevice: TJvImageComboBox
+          Left = 171
+          Top = 8
+          Width = 113
+          Height = 25
+          Hint = 
+            'Specify the serial port or host address to be used to upload fir' +
+            'mware or retrieve logs by RUN, UPLOAD or LOGS ESPHome commands (' +
+            '--device). '
+          Style = csOwnerDrawVariable
+          ButtonStyle = fsLighter
+          DroppedWidth = 145
+          ImageHeight = 0
+          ImageWidth = 0
+          Images = VirtualImageListBlack
+          ItemHeight = 19
+          ItemIndex = -1
           ParentColor = True
           TabOrder = 0
-          OnChange = EditOptionCompileAdditionalParametersChange
+          OnChange = ComboBoxDeviceChange
+          Items = <>
         end
-        object CheckBoxOptionCompileGenerateOnly: TCheckBox
-          Left = 22
-          Top = 16
-          Width = 143
-          Height = 17
-          TabOrder = 1
-          OnClick = CheckBoxOptionCompileGenerateOnlyClick
+        object EditOptionESPHomeAdditionalParameters: TJvEdit
+          Left = 23
+          Top = 144
+          Width = 322
+          Height = 23
+          Flat = True
+          ParentFlat = False
+          ParentColor = True
+          TabOrder = 2
+          Text = ''
+          OnChange = EditOptionESPHomeAdditionalParametersChange
+        end
+        object LinkLabelESPHome: TLinkLabel
+          Left = 320
+          Top = 8
+          Width = 29
+          Height = 19
+          Caption = '<a href="https://esphome.io/guides/cli/#options">Help</a>'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          OnLinkClick = LinkLabelHelpLinkClick
         end
       end
-      object CardUpload: TCard
-        Left = 1
-        Top = 1
-        Width = 539
-        Height = 90
-        Caption = 'CardUpload'
+      object CardRunOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardRunOptions'
         CardIndex = 2
         ParentColor = True
         TabOrder = 2
-        object LabelOptionUploadAdditionalParameters: TLabel
+        ExplicitLeft = 1
+        ExplicitTop = 1
+        ExplicitWidth = 347
+        ExplicitHeight = 182
+        object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
-          Top = 56
-          Width = 120
-          Height = 15
-          Caption = 'Additional parameters:'
+          Top = 109
+          Width = 273
+          Height = 30
+          Caption = 
+            'Manually specify additional command line switches'#13#10'when "Run" co' +
+            'mmand is executed:'
         end
-        object EditOptionUploadAdditionalParameters: TEdit
-          Left = 158
-          Top = 53
-          Width = 355
-          Height = 23
-          ParentColor = True
+        object LabelOptionRunNoLogs: TLabel
+          Left = 50
+          Top = 10
+          Width = 232
+          Height = 30
+          Caption = 
+            'No Logs (Disable starting log view)'#13#10'Add "--no-logs" switch to "' +
+            'Run" command.'
+          FocusControl = CheckBoxOptionRunNoLogs
+        end
+        object LabelOptionRunReset: TLabel
+          Left = 50
+          Top = 59
+          Width = 249
+          Height = 30
+          Caption = 
+            'Reset (Reset the device before starting the logs)'#13#10'Add "--reset"' +
+            ' switch to "Run" command.'
+          FocusControl = CheckBoxOptionRunReset
+        end
+        object CheckBoxOptionRunNoLogs: TCheckBox
+          Left = 22
+          Top = 10
+          Width = 123
+          Height = 17
           TabOrder = 0
-          OnChange = EditOptionUploadAdditionalParametersChange
+          OnClick = CheckBoxOptionRunNoLogsClick
+        end
+        object CheckBoxOptionRunReset: TCheckBox
+          Left = 22
+          Top = 59
+          Width = 75
+          Height = 17
+          TabOrder = 1
+          OnClick = CheckBoxOptionRunResetClick
+        end
+        object EditOptionRunAdditionalParameters: TJvEdit
+          Left = 22
+          Top = 143
+          Width = 323
+          Height = 23
+          Flat = True
+          ParentFlat = False
+          AutoSize = False
+          ParentColor = True
+          TabOrder = 2
+          Text = ''
+          OnChange = EditOptionRunAdditionalParametersChange
+        end
+        object LinkLabelRunHelp: TLinkLabel
+          Left = 320
+          Top = 8
+          Width = 29
+          Height = 19
+          Caption = '<a href="https://esphome.io/guides/cli/#run-command">Help</a>'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          OnLinkClick = LinkLabelHelpLinkClick
         end
       end
-      object CardLogs: TCard
-        Left = 1
-        Top = 1
-        Width = 539
-        Height = 90
-        Caption = 'CardLogs'
+      object CardCompileOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardCompileOptions'
         CardIndex = 3
         ParentColor = True
         TabOrder = 3
-        object LabelOptionLogsAdditionalParameters: TLabel
-          Left = 22
-          Top = 56
-          Width = 120
-          Height = 15
-          Caption = 'Additional parameters:'
-        end
-        object LabelOptionLogsReset: TLabel
+        ExplicitTop = 10
+        object LabelOptionCompileGenerateOnly: TLabel
           Left = 45
-          Top = 16
-          Width = 74
-          Height = 15
-          Caption = 'Reset (--reset)'
-          FocusControl = CheckBoxOptionLogsReset
+          Top = 10
+          Width = 289
+          Height = 30
+          Caption = 
+            'Generate Only (doesn'#39't compile firmware)'#13#10'Add "--only-generate" ' +
+            'switch to "Compile" command.'
         end
-        object EditOptionLogsAdditionalParameters: TEdit
-          Left = 158
-          Top = 53
-          Width = 355
-          Height = 23
-          ParentColor = True
-          TabOrder = 0
-          OnChange = EditOptionLogsAdditionalParametersChange
-        end
-        object CheckBoxOptionLogsReset: TCheckBox
+        object CheckBoxOptionCompileGenerateOnly: TCheckBox
           Left = 22
-          Top = 16
-          Width = 97
+          Top = 10
+          Width = 131
           Height = 17
+          TabOrder = 0
+          OnClick = CheckBoxOptionCompileGenerateOnlyClick
+        end
+        object LinkLabelCompileHelp: TLinkLabel
+          Left = 320
+          Top = 8
+          Width = 29
+          Height = 19
+          Caption = 
+            '<a href="https://esphome.io/guides/cli/#compile-command">Help</a' +
+            '>'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 1
-          OnClick = CheckBoxOptionLogsResetClick
+          OnLinkClick = LinkLabelHelpLinkClick
         end
       end
-      object CardClean: TCard
-        Left = 1
-        Top = 1
-        Width = 539
-        Height = 90
-        Caption = 'CardClean'
+      object CardUploadOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardUploadOptions'
         CardIndex = 4
         ParentColor = True
         TabOrder = 4
-        object LabelOptionCleanAdditionalParameters: TLabel
-          Left = 22
-          Top = 56
-          Width = 120
-          Height = 15
-          Caption = 'Additional parameters:'
+        ExplicitLeft = 1
+        ExplicitTop = 1
+        ExplicitWidth = 347
+        ExplicitHeight = 182
+        object LabelOptionUploadAdditionalParameters: TLabel
+          Left = 26
+          Top = 8
+          Width = 273
+          Height = 30
+          Caption = 
+            'Manually specify additional command line switches'#13#10'when "Upload"' +
+            ' command is executed:'
         end
-        object EditOptionCleanAdditionalParameters: TEdit
-          Left = 158
-          Top = 53
-          Width = 355
+        object EditOptionUploadAdditionalParameters: TJvEdit
+          Left = 26
+          Top = 42
+          Width = 323
           Height = 23
+          Flat = True
+          ParentFlat = False
+          AutoSize = False
           ParentColor = True
           TabOrder = 0
-          OnChange = EditOptionCleanAdditionalParametersChange
+          Text = ''
+          OnChange = EditOptionUploadAdditionalParametersChange
+        end
+        object LinkLabelUploadOptions: TLinkLabel
+          Left = 320
+          Top = 8
+          Width = 29
+          Height = 19
+          Caption = '<a href="https://esphome.io/guides/cli/#upload-command">Help</a>'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          OnLinkClick = LinkLabelHelpLinkClick
         end
       end
-    end
-    object TabSet: TTabSet
-      Left = 25
-      Top = 61
-      Width = 539
-      Height = 32
-      AutoScroll = False
-      BackgroundColor = clBtnShadow
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -15
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      Images = VirtualImageListBlack
-      ParentBackground = True
-      ShrinkToFit = True
-      SelectedColor = clWindow
-      SoftTop = True
-      Style = tsSoftTabs
-      TabHeight = 32
-      Tabs.Strings = (
-        'Run'
-        'Compile'
-        'Upload'
-        'Logs'
-        'Clean')
-      TabIndex = 0
-      TabPosition = tpTop
-      UnselectedColor = clBtnFace
-      OnChange = TabSetChange
-    end
-    object EditOptionESPHomeAdditionalParameters: TEdit
-      Left = 205
-      Top = 201
-      Width = 358
-      Height = 23
-      ParentColor = True
-      TabOrder = 5
-      OnChange = EditOptionESPHomeAdditionalParametersChange
-    end
-  end
-  object GroupBoxNpp: TGroupBox
-    Left = 8
-    Top = 415
-    Width = 585
-    Height = 66
-    Caption = 'Notepad++ Options'
-    TabOrder = 3
-    object LabelAutosave: TLabel
-      Left = 25
-      Top = 27
-      Width = 187
-      Height = 15
-      Hint = 
-        'Select the way in which the project file(s) are auto saved befor' +
-        'e ESPHome commands are started'
-      Caption = 'Autosave before starting ESPHome:'
-    end
-    object ComboBoxOptionAutosave: TJvImageComboBox
-      Left = 232
-      Top = 24
-      Width = 332
-      Height = 25
-      Hint = 
-        'Select the way in which the project file(s) are auto saved befor' +
-        'e ESPHome commands are started'
-      Style = csOwnerDrawVariable
-      ButtonStyle = fsLighter
-      DroppedWidth = 332
-      ImageHeight = 0
-      ImageWidth = 0
-      ItemHeight = 19
-      ItemIndex = -1
-      ParentColor = True
-      TabOrder = 0
-      OnChange = ComboBoxOptionAutosaveChange
-      Items = <
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'None'
+      object CardLogsOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardLogsOptions'
+        CardIndex = 5
+        ParentColor = True
+        TabOrder = 5
+        ExplicitLeft = 1
+        ExplicitTop = 1
+        ExplicitWidth = 347
+        ExplicitHeight = 182
+        object LabelOptionLogsReset: TLabel
+          Left = 45
+          Top = 8
+          Width = 249
+          Height = 30
+          Caption = 
+            'Reset (Reset the device before starting the logs)'#13#10'Add "--reset"' +
+            ' switch to "Logs" command.'
         end
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'Current Project File Only'
+        object LabelOptionLogsAdditionalParameters: TLabel
+          Left = 22
+          Top = 59
+          Width = 273
+          Height = 30
+          Caption = 
+            'Manually specify additional command line switches'#13#10'when "Logs" c' +
+            'ommand is executed:'
         end
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'Current Project File & Dependencies (can flash)'
+        object CheckBoxOptionLogsReset: TCheckBox
+          Left = 22
+          Top = 8
+          Width = 97
+          Height = 17
+          TabOrder = 0
+          OnClick = CheckBoxOptionLogsResetClick
         end
-        item
-          Brush.Style = bsClear
-          Indent = 0
-          Text = 'All Opened Files (can save unwanted files)'
-        end>
-    end
-  end
-  object GroupBoxDependencies: TGroupBox
-    Left = 8
-    Top = 487
-    Width = 585
-    Height = 169
-    Hint = 
-      'Project files to be automatically opened and saved by Notepad++ ' +
-      'during development'
-    Caption = 'Project files dependencies'
-    TabOrder = 4
-    object ListBoxDependencies: TListBox
-      Left = 25
-      Top = 24
-      Width = 449
-      Height = 129
-      Hint = 
-        'Project files to be automatically opened and saved by Notepad++ ' +
-        'during development'
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      ItemHeight = 15
-      MultiSelect = True
-      ParentColor = True
-      TabOrder = 0
-    end
-    object ButtonAddDeps: TButton
-      Left = 497
-      Top = 32
-      Width = 65
-      Height = 25
-      Hint = 
-        'Add a new existing file(s) among the current project dependencie' +
-        's'
-      Caption = 'Add'
-      TabOrder = 1
-      OnClick = ButtonAddDepsClick
-    end
-    object ButtonRemoveDeps: TButton
-      Left = 497
-      Top = 60
-      Width = 65
-      Height = 25
-      Hint = 
-        'Remove the selected file(s) among the current project dependenci' +
-        'es'
-      Caption = 'Remove'
-      TabOrder = 2
-      OnClick = ButtonRemoveDepsClick
+        object EditOptionLogsAdditionalParameters: TJvEdit
+          Left = 22
+          Top = 92
+          Width = 323
+          Height = 23
+          Flat = True
+          ParentFlat = False
+          AutoSize = False
+          ParentColor = True
+          TabOrder = 1
+          Text = ''
+          OnChange = EditOptionLogsAdditionalParametersChange
+        end
+        object LinkLabelLogsOptions: TLinkLabel
+          Left = 320
+          Top = 8
+          Width = 29
+          Height = 19
+          Caption = '<a href="https://esphome.io/guides/cli/#logs-command">Help</a>'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          OnLinkClick = LinkLabelHelpLinkClick
+        end
+      end
+      object CardCleanOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardCleanOptions'
+        CardIndex = 6
+        ParentColor = True
+        TabOrder = 6
+        ExplicitLeft = 1
+        ExplicitTop = 1
+        ExplicitWidth = 347
+        ExplicitHeight = 182
+        object LabelOptionCleanAdditionalParameters: TLabel
+          Left = 22
+          Top = 8
+          Width = 186
+          Height = 30
+          Caption = 'Command "Clean" doesn'#39't support'#13#10'additional parameters.'
+        end
+        object LinkLabelHelpOptions: TLinkLabel
+          Left = 320
+          Top = 8
+          Width = 29
+          Height = 19
+          Caption = '<a href="https://esphome.io/guides/cli/#clean-command">Help</a>'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          OnLinkClick = LinkLabelHelpLinkClick
+        end
+      end
+      object CardNppOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardNppOptions'
+        CardIndex = 7
+        ParentColor = True
+        TabOrder = 7
+        ExplicitLeft = 1
+        ExplicitTop = 1
+        ExplicitWidth = 347
+        ExplicitHeight = 182
+        object LabelAutosave: TLabel
+          Left = 16
+          Top = 8
+          Width = 284
+          Height = 15
+          Hint = 
+            'Select the way in which the project file(s) are auto saved befor' +
+            'e ESPHome commands are started'
+          Caption = 'Autosave scope before starting ESPHome commands:'
+        end
+        object ComboBoxOptionAutosave: TJvImageComboBox
+          Left = 16
+          Top = 25
+          Width = 313
+          Height = 25
+          Hint = 
+            'Select the way in which the project file(s) are auto saved befor' +
+            'e ESPHome commands are started'
+          Style = csOwnerDrawVariable
+          ButtonStyle = fsLighter
+          DroppedWidth = 332
+          ImageHeight = 0
+          ImageWidth = 0
+          ItemHeight = 19
+          ItemIndex = -1
+          ParentColor = True
+          TabOrder = 0
+          OnChange = ComboBoxOptionAutosaveChange
+          Items = <
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'None'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Current Project File Only'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'Current Project File & Dependencies (can flash)'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'All Opened Files (can save unwanted files)'
+            end>
+        end
+      end
+      object CardConsoleOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 349
+        Height = 184
+        Caption = 'CardConsoleOptions'
+        CardIndex = 8
+        ParentColor = True
+        TabOrder = 8
+        ExplicitWidth = 185
+        ExplicitHeight = 41
+        object LabelAutoclose: TLabel
+          Left = 23
+          Top = 8
+          Width = 264
+          Height = 30
+          Caption = 
+            'Specify how the console should behave '#13#10'after ESPHome commands c' +
+            'omplete successfully:'
+        end
+        object ComboBoxAutoclose: TJvImageComboBox
+          Left = 23
+          Top = 44
+          Width = 298
+          Height = 25
+          Style = csOwnerDrawVariable
+          ButtonStyle = fsLighter
+          DroppedWidth = 298
+          ImageHeight = 0
+          ImageWidth = 0
+          ItemHeight = 19
+          ItemIndex = -1
+          ParentColor = True
+          TabOrder = 0
+          OnChange = ComboBoxAutocloseChange
+          Items = <
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'The console is left opened'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'The console is automatically closed'
+            end>
+        end
+      end
     end
   end
   object VirtualImageListBlack: TVirtualImageList
@@ -609,6 +808,26 @@ object FormProjectConfiguration: TFormProjectConfiguration
         CollectionIndex = 10
         CollectionName = 'wifi-offline'
         Name = 'wifi-offline'
+      end
+      item
+        CollectionIndex = 11
+        CollectionName = 'esphome'
+        Name = 'esphome'
+      end
+      item
+        CollectionIndex = 12
+        CollectionName = 'project'
+        Name = 'project'
+      end
+      item
+        CollectionIndex = 13
+        CollectionName = 'npp'
+        Name = 'npp'
+      end
+      item
+        CollectionIndex = 14
+        CollectionName = 'console'
+        Name = 'console'
       end>
     ImageCollection = ImageCollectionBlack
     Left = 200
@@ -1531,6 +1750,324 @@ object FormProjectConfiguration: TFormProjectConfiguration
               7AEE9BF4A1B82591EE3522E812753C8ABF4709893F0200C076476ED847965793
               54C7086C7784F80BC6898673CD739A950FB45046DE209C6B9EA36F5347474747
               470700FE0F3A9A9D8132511FDF0000000049454E44AE426082}
+          end>
+      end
+      item
+        Name = 'esphome'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              078849444154785EED9D5D4C536718C7FFF5EB2069C56847F7C106AE6A3BE7AC
+              CDFC8A365A3303735BB2858B26331833CD4CC40B975DB11B2F4C0C7AB799A817
+              CBE68CE21293B198B039CC344561996383A24E0BB35144A2305CA054A430E82E
+              4EBBC0D3737A4E399F85F797BC37FFB7AFBEEFF3EF793F9E734E01180C0683C1
+              6030180C06436FBC95C570FA5B60738C82B38DC35D76857E4410A7BF059C6D5C
+              F336D31EA7BF15406252E13571F46A3323E06CE36981E13571F46AA303162A18
+              40820A4932F54DAF369A338B0A0C7D6106180C33C060980106C30C30186680C1
+              30030C86196030C619E0091C86D3DF42E5094C3EB54E2E62D0CF49B771FA5BE0
+              091CA6F2F4C45B590C77D915C1B480D12595A0F35616D36E4F0F3C816A53069E
+              16CE360E4FA09A763FB729D9F857DA40CD5EF83E4F037231F8A992F326E472F0
+              53456313B44BC57A02D5683B5F45E549BCB21678E37DA0D00D38DCB4565B7AC2
+              406F18B8790178D04C6B27E3091C41DBF9CFA8AC06DA18E0AD2CC6ED33F7101F
+              14FEF70B5DC0B62ADE0033F0A019F8F908D0DB4E6B78385B022B762E41EB894E
+              5AA5146DCE0143774F670CFE8E53E6093E9257E28E537CDF84880F5A3074F734
+              95D54038484AE16CE38206A4829FB780D69883E12870EE23E12B619E751C23B1
+              D954568AFA578027502D187C809F76CC1A7C80EFDB3691656B24364B8BF381FA
+              06C47ADFA61290BCCCCD34ED8891A99F626353803C0352CFD3D02D9A50890457
+              D3E600F8DD4EAE20D6577E6CE963A6C5E61895FBDC91B4014E7F2B2241AFE8B4
+              2297429DB7994A50DAD7C19E3908D76FC5928DBFD22A8AB4010FFFF050694AE8
+              BDCF57825A7DED8BBC49258AB4014828FBE6CF64469ECEA112453AB8FC14243C
+              AF6743D52DAA64CF93CE6E842FDE435BED5C8C0C7118EEE7FB95B7308479F971
+              78CA47E1DEBE048B8B5FA24DB3E6C84AAA64CF8AF7AEE376DD062A4F44DA0000
+              70950671FF972D88C7688D7C9418F0AC3F8A6FF7DC406FBB8F560952E86AC487
+              5FADC2FC8553DFF32A3180B302456B428804BDB48A22CF80EC485001506040C7
+              E536D41E28015040AB241840D9C1767803EB68852CC40D50356632D60003B976
+              B209B5073C53083E0014A0FED03A5C3BD9442BCC84790DE8B8DC86A6E39BA89C
+              354DC737A1F5FC6F54360BE634E0597F3439EDA843FD21179E747653D90C98D3
+              809A3D37334E3BF6658D283F1642D52D7E6D293F16827D5923FDD8040AF0FDA7
+              F7A96806545D5092285B849F7476E3CB77C5B69151549C7D84A2D5C279E387A1
+              769CAD780180F0EEE7E31FBA656F5167EC227CFB47F16F6AA6E00340D16A172A
+              CE3EA2F2FF349F8950C968E419904D324E29376AE7520900607735650C7E8AA2
+              D52EBCBCE62A950100E18BE2D39A7CE878D3CB3CEB98F9927172191DE2A80400
+              D85C69A592285B3E71500900108F2DA692268CC466215CBF55CE4B80D206A895
+              8C93CBF080F0FFB7FC2D615D08B12B25315644254D91113B690358324E01D2B1
+              9336A0684D884A9A9257D04625207930934B57A8834A0000CB6C7DCF024EFF75
+              2A51A40D8804BD70953680933F052B626E7E9C4A0080AB27E46702AF7EFE984A
+              0000CEDA47254DE0AC80D31F92CA8442960100D07EC98F78CC92DC034B1565AC
+              2A1FA51200A0AF7D93E8377B225DA10E74FDBE99CA0000F7F6012A4D013ADEF4
+              128F59E4644221DB003D797DBBF8E3E135158E8C2674853A505321BC03028075
+              15AF52C968CC67C0A29222D85D6219CC02D4542C47CDEE86494674853A50B3BB
+              21197CE1BDBEDDD5844525FAEE8264A07CCA4847F8302637150100CFFA07F085
+              CF229A52C89E28F6D645B33260C6A6220060FEC202941DBC43E529E3DB7F23AB
+              E0EB88390D00006F603D7CFB336538E5E1DBDF08DF3E79B7320DC0BC0600806F
+              9F0F6507AF0388D22A1944CD1E7CC83640CF641CC51B588FBD7551897CFF64EC
+              CB1AB1B72EAA51F0E978D34B16C938E905C54C8FA5FC73FF219ACF4470A7BE00
+              F1C1E79018E373FB96D9DDE06C7FE3B5B201ACDDE95465BE175F84E5E3F44B3E
+              19216D80D8A3E6D9A286017AA286019C2D81F860C6592663258F744289218674
+              ECA40D28D9D840A529D113A68A7951ABAFAA24E3DA2FF9E1F48760738CD1AAAC
+              E85569507AA0B4AFAA27E322412F067BE6A4259D848AD32F9CBEBE79812AE645
+              ACAFFCD8D2C74C8BA1C9386BE14F5402926F224ABD0E6A0632F5D3BEFC3B2A29
+              C5420555E0AC09C107790BDDC08EAFCDFB9ED8701438B75B780AB239C692B380
+              AAA87F0520C3C2DD1BE607383C9583ADC6640A3E00BCE8917F10CC026D0CC85F
+              BA4BF40E5ACA04B1CBDC081E34670EFE82E713C85FBA8BCA6AA0FA7BAF0080C7
+              CD0358F9411E7AFE144E053CED9BF01301C959D06AA79FD2969E3070AF09B87C
+              14683CC1F7490CF73B4711FA46F5F95F7B4A36DC4DCB93E45AE1C790C3E4B209
+              391FFC14B968C2B4097E0A4FA01A9C357DA0662B9C35A1C54F1298036F65315C
+              A541531A6173FC0B576970FAFE681FC513A816FCAB167A17A7BFD5C86FBC3627
+              E1EC48502149A6BEE9D54673B439883164C30C30186680C130030C86196030CC
+              00836106180C33C0608C3740E8C68D903611A17A216D2242F54A9FF45001E30D
+              107A0950EC96660AB5DA68749B31F74825E838ABFCBF70AAA44D2AF1C6603018
+              0C0683C160301806F01F16B85F31632B91D00000000049454E44AE426082}
+          end>
+      end
+      item
+        Name = 'project'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0C9549444154785EED9D7D5854551EC7BFE0CB68326086CC083120322A3024B0
+              338636E5E6D02E418A6F5996BA65D6AEB46B6DBB3E95D6BAEEBA65F5C7A65BD6
+              B6BD6C5BF6B2668A055181898B89822F3DA043BCBF3838A3920C63252D30FBC7
+              C03E9C73EE853B77EE1D98DDFB799EF9E7737B1A39BF3BF7FCCEEFFCCE0CA0A0
+              A0A0A0A0A0A0A0A0E0778268E133B356CCC6B7F62DE8389B8A516354F465E1B8
+              DD080ABE8489BA7C547FB29EBEAAC045D282BD00DC92BFD49A7F2379690EFD76
+              0A0349CCDEC30C9C942F95BA1729CB4DF4DB2A0040F2B285CC80C9F1D22676D0
+              6FAD000011091799C192EB95B8E045FAED0319DF2761C3C2DFA16AFF165A237B
+              2B90BC88B6DEB1673D507B80746A6D0F2668A7C07EEA0279213009A685576C76
+              07A3F9E893B446728EEF838FBE20AAD4A473D9472134FC7D52062EA368E115B6
+              9202D84F4F279C4A0DE43C078C0B25B42846AB3CAFC6C3A46F6F988AA4C505B8
+              50DD465E083CC47F02527363D07A3C93D630AD02C2A2682B1ED32A202C92B640
+              47C31E5A0522E203D05E51882E17E9C22201E34AD24941F69F6803D8BE8A4642
+              D67DB40E34C405406F598D966333690DCBA3D23C7A687426CF8BC67E6607AD02
+              0D7101E83CC7FEE13A1330DD425BE9C8DE4A1BE052D355485AF832AD0309EF03
+              3033733B1C67C2680DCBA3B49196B028EEC75BDD81071093A5A575A0E05D00D4
+              33AF81EDD483B446720EA0619F489263CE65D3D2AECB4108EED847CAC0C1BB00
+              6822DF83CB4EA6AE2AB5FC777F3FE342810C8EF76AFCF27A242DE69824463EC2
+              03109F998AD6F20C5AC3B44A9E89978FE44540C40CDA028ED31FD32A10101E80
+              1FBE799733ED34E792CE1F643C461BE0624D040C393FA7F54847580062B2B468
+              39C6DE765CF9B93FD09900FD7CDA02ED8D9B6835D2111680C99357D18A3737F7
+              175C73C1370DD7D26AA4232C00088AA6CDB00E3EFAD2D2082AF3EABAEC7B75D7
+              CF080B4070D0595AA1328F36FEA5A51C385F4D3AB5A68714231F6177CC06AB1A
+              3B4C9DE8BA4C7ACBA39E2C683878E75E4F100612935E8BE632B23A3B909F6C9E
+              890BD519080A1657057607F742673888BCC72BE94B6211160000302C3C86AAFD
+              E47347150AAC2BF46F1A0A0095FB80FC27680BDCB271213E7FEA235AC3B86A37
+              BEFE6C115C8ED1F42551846A7B109556066B8199BEE42DC21E41003031EE4EA8
+              4248D7D50994EE249DDC5CE9044A5FA22D103BB78173F0A7CD3B8B8AB7964936
+              F800D0691F056BC10D9862E8C4AC653ED5DE8507A0F4F9062464EFA2352ADE06
+              9C36DACA07D7FBA9428019F3B3480920E1D6C3A82FF1698006E55C951A2E7B29
+              ADBD4178000020E7BDD59834B58BD69C8F033970DAB83F71D32DF9F874EBD784
+              33AFB7C0FAC95CC2C94143692CD2D76EA4B55084CF01FDA42EFB254E7EF0175A
+              63C97679CBD100B0E721A0B698746A4D0F1EB18FC396A06EC26B123B98AAAD4A
+              ED291C8A9DB3AE747A9A049CD44EA85AD38D47ECE3997F8300BC0F0000C4999B
+              D0501A43B8B02860DDA784929496724FE643937EFF4694FDED69C2CD79E0091C
+              79E58F840380BBDEF07DFDE2B4012FFD94B640D282FD38FD91D7DD7BDE3D82FA
+              B966EA0A6642E67B3C4845D133B40134332F3183BFD93D1A55FB7F4F38C053BA
+              F075F0D177A371D5BFEA0E2E84F9E1385A0F85B80094BF7504B1734B688DF2B7
+              3D1F53A9A9DCC72EBA00609A99BDE3DEB57CC294CCC153BA108B7125C7BE840B
+              7078BF3A15170000709EBF9D5979767502C51C77AA2F5CE9048A9EA52D30EDA6
+              E3F8F2D57F11CEFC701C9A394AE6E65C693B35F8F6256A8B0D30AFF76A22141F
+              00FBA90B8836FE95D6A8CC031C1C77AB584A777A023B90B1216E7487DC464A00
+              AD65FEEBD4E0DB97A82DF2AA5D467C0000E04CFE83D0243A692DD9A7C069F3E4
+              FD34D32DAFA2B9C04EB8B4BB97A3B94C4F38F4DDFD62B39EA1E0DA97709C0943
+              CA1D8207405C163490594B16E1AB0FF7D21AE65CDF27BDA267D867FFD5B1DFE1
+              52D3045202D01A9CB0579123AD3379321F39C9DFC41626D5DA1E3C728E4D8D39
+              F03D0000106DB2A2B5DC0FBBF2001232EF83B5F075C2A5AE780E27DFFD2DE120
+              51DA39144E1BF0FA32CF243C10BDA518B5C5EC7C44E1DB23A89F6B4D99183BC1
+              4D6BC9D11A1A99C10780BA2F7E4D2B24E7C83FF8E84B4BB92AC22DC72CB03CC6
+              5F99ED439A001CD9D98C38B3BCDB819362BFC7F88839B4C68C8C6226ED54A9B9
+              7375B930AE64FB57BB5C405D493E2959A4090000547FFA340C39BF4048C490CF
+              3DAF09D75F40B4518FC6030EC2272D36A1E928BB392C7583F0508C0BE50E78F3
+              9178CCBE7705AD0722CD1C40A3336E46F0D81F4115223EFDE8EDE9C1F71D1731
+              6EF236D4159EA42F0300E26E3A8E864369840B8B04D67D4628BFC1B54914957A
+              0EB6931CEDDD1EE40980BF50A97BD1E522FF067F1405F97054036F2CA32D60BC
+              47878ABFB7D21A923E82FC4DC6063D33F81133866FF0014F7B66325B1D4157C7
+              ADB4EA277003E01EC5F1E9E55023819E5EDE0C31700350BCAD06AA10F20F3B5F
+              0DD450FB05FEC451CD2ECA0060CCD8025AF523CF2D736DDA931833DE08D504F1
+              93704FDF24ECC6CBB01D3F485F06004CFBF109D41F4C259CDCFB1283C13909A7
+              B4C1768A3725933600D72D5987C6C3DBE1728CA12FF944B8DE8170432AAAF79E
+              237CCA7213AC05C7987619732E775A28277C9D1AC6352B50F1FA7BB4EE47BA00
+              24643D016B01BB0B25159E1A501400F2B4BC67C94FAE0554A1C09ADDFE5B0B5C
+              E904DEB89D6D1688995387E6236C817000D2CC01737263D070E80FB496944B4D
+              57618AE104AD515B6CE1DC979073778E86AF53237E5E362959A409C0D9F242BF
+              F4659EAB9A8A84CC35B446FCFC3FD30A9579ECF3580E9C36CF4E208DEEFA6214
+              6FABA1358DEF83A6BF79356ABF7893D6D294A3B701E7C96E13FE72745227ECA7
+              C97DC2612B47F3746A70E07B00B4491DB09F26DB3FA4FAC3F93A109217BF86CA
+              BD6B099776F7729CD8C57E858114DF59C1075FA746CA1DCFE2D4FB1C7B962CBE
+              3D8212B35F64061F129E98E43B1959F3F91AA625F0C4AE7F2226BD967080A78D
+              518E4601F0756A243A850E3E7C0A803665325A8FB34782A43E31C97732D2757E
+              3F290144A76772B6CB706D6BFA0A5FA7863E6329AD06437C00C2227673D6E1A5
+              BAFBFBE1EB4068389486B96B6F245CE9F30DD0CF671B744B77B2598A2FF0756A
+              E82D5528DDE1D5525C5C004CABE6A0E9C83C5ACB766292AF03A1FE30BBEE5F9A
+              B784494B01EE01134BC5DB6CA7862A04D07055E206475C00DAAAF6307BA0729F
+              98E4EC40B05E8DF4FB1F27DC96A06E1872D8CEB8DA6269D252BE0EC0F89BF7A3
+              F4F9065A0F85F759D0B036E7F27C831657070267736E685F732E35A708E58AAB
+              AF39977A9C854474E3370E3F34E76E7607E385F86FD15E3F8EF052A59D43C19B
+              96E6E4A3328F6CD432AFB7A0744711E1E4227DED2694BDFA14AD85C0F6500E46
+              67CD2E341C22AB8FE86BFF90E3D94FD3FF1EF4A3C4D9361D96C7DF477DC9C5FF
+              BA96A38D48C8BA05176B75C47F2B35536F6C41D53EAF329F81089F03E63D168F
+              331FB31BCCC695FE2B7A61900E849ACFD90E046B8119D3E6C9F7B5665A830BA1
+              1A9F0E81080F40FB99779889D7DFED1F18A403A1E9CB38DCB27101AD515F1205
+              D3EA0F393323B1A8353D98757B11EC55A1F8EA039FF25B617380F19E6854EE69
+              610230D28EA9C6A6D7A3A92C9E9403D8608D44D1E6A5A28FA9F606F7222AE900
+              F23755D197C42230003FDB808A37C9447A38DB3FC053875185B8D17559F8A77A
+              0420EC1FDBD5C9AE82E42A70094567621767FE28894B8CB0008C9FC8D6B5E98F
+              BFBF71DAD852B53FFA5325465800BEFFE11D5AA1A57C783B10B84A0BE1719CCD
+              4F23196101A8DC7516BAD96CE9AF986310FC414B397B5C150026C5895A0C0D27
+              C20200006327DDC559EAE5AA8BC80D571D3E5C7F015579EC91A9118EF000D415
+              9E846E369BF6C87532920FBE3ABCC630E406F84844780000C0DE7617D37E2EC7
+              C9483EF8EAF0536F388AD37B87392B108777017055B7233285FD0105A94F46F2
+              C1796272821BBD61C39C138BC7BB000040CD670FCB7A32920FBEAD45BDE515E6
+              C46400216E491E795D1BBE695C4C38679B67752CE57EF0403E7C88FD928CAB63
+              BF43CB519F8A61C38DF79F0000A82DFE07A239D252B93A105ACAB9177EDAC480
+              FF7D317101008070A3FF3A10B89A5EA75CD70A6BC16BB40E34C407E0E4CE6644
+              A715D21AE51C7D92BE50FE16F7FF6F42A4D71BE02311F1010080BB4BB239D352
+              A916677CDF0FA7B71CE03DB81760F816802D41BD884D675BD22BF33C0B265FC9
+              7F924D3BD59A1EB8DAEF24E5FF3B1133DA991F5C93EB9590F502FDF60A490B6E
+              63064A8E972641F929435E126EDDCD0C9894AFB121CA8F790E895CBFA8AAD674
+              F7FD60E8FF1CD26FE1CD5A311BDDDF6E84C33A07A3468BFF4167B7BB17C1C197
+              10A62BC0D785BFA22F2B2828282828282828282888E63F2179BC635094E3F700
+              00000049454E44AE426082}
+          end>
+      end
+      item
+        Name = 'npp'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              087549444154785EED9D7F681BE719C7BF97B8B9BA48ADABFDD08C1A4E9AD3C6
+              49AD26171A6C3C137B9825330BB4DAD6D9B09AD86DFF994889618304B6B28E6C
+              2C616374B0F98F12E384CDFBC108C9A065B4A56B1CD234E99AC8102FEB1207C9
+              D5527B61759DD873A4F9C7ED8FB31CBDEFDD49F743F79E4EBA0F3CE07B9EBBD3
+              DDF3BDF779DFBBF72403D54E34760CBC7F05FEE022B67DEBA774D8C34EC4DE6E
+              00D29AF1FE157A150F3B69E84810020092D70A5812882C280408B74CD0AB79D8
+              41737F9B22F90E94A175B4A36A98BBF55DDA0500C8CE715E1962815AF9C999DC
+              3778D8063DFAA18DF7AF408C0BF466EEE640B20E0D1D97C1FB57C0FB57D0B8E7
+              AFF42ABA89B4BE870DBE65F0FE1534745CA6C345913B5A65E2F36DF3EE33F466
+              EE466DC867A6A96FDD7BC1D27E8A5DFD39F307172BAB15C8A30BF224CD8C3836
+              F8964DEF478C0BF0071715DB6B5970EBA7F42EDC8CF20465330AB9BD3FB8A4AB
+              058871A160C7AB65E1D6EBF4AEDC8AF2E464338ABC9D3FB88468EC181D5445EC
+              ED3674E5D316882C544239529E986C46911088DCD59590E6FEB6D52B98FE4CE3
+              961B38E8F95CC7D8D1338070EB75534D5DAFF13EA96012C4B8802762AF22247E
+              ACD8B65416123FC613B1570B1E0753C4DEEED50E4B79B0A536B5E1218BA46B99
+              E36288BDDDAA231CBB6C47CF00F1F9723FA05C8FB5F1FE15DD7D52C9609D7CD9
+              48D87FBEB6E91D0E970C566527DF0E24EB8863E07DCA759C32F95818219702E5
+              41D86D6A25A85C4430518238DAA19B70CB0452171A683700A0F320107D0AB8FF
+              413A621D493A81A3D13EC227C6052C4DBD8499D4D77033F10522663721711A81
+              F0EBA8A93F8CC4E0241D2E867901029105CC246B69373A0F023B7B696F695982
+              889F378DD16E80911816939E8F7901E466A7E43B6F000F85686F899152B8EB13
+              F1CBC82C1D2168EE6FC3ECCD1F2375BE1DD9793A6A0CDE07D437DD40704B1F2E
+              0E9FA3C36629BD0087C6698F3D48D22C56D6F5E3678F9FA6430A9AFBDB70FDCC
+              5B9849DE4F877411886420B4F521F19B3FD221ABB8578035A41424EE34967142
+              B32C61B5347D7AF96DCD7E4B8B70CB0D3CBCA3D36AA9D1A20204C847871881C8
+              5DDD2D2110C940E86AB42BF9A8BC49792E0C0E03A8410287C6DFC1F7C6B7D36B
+              E0D18EAF80F7D15E25BC4F5ED7C6E4A3F20420E8400D1238384E0E592F0E9F43
+              B87594F0A9F1C89363A5EC6CB5A8640164380C2B44A80BFD805856E3B3911769
+              971D54581FA08124CD22E38B10C3D69038A5799F1012A77133514FBBEDA0F25B
+              0000705C1DF879B21504C2AF13CBF9148A9598EA1040A68358AAA93F4C2CE753
+              285662D896A091E746917E7F3B8087E81023C8F3552B4346CB8F181730717202
+              F73DB08899E40374B818EC5AC048DF59A4DF6F7730F900F034B1A4566AD47C85
+              C84EBE82B97FD76026596BE69D527602A43FD846BB1CA0781952F31562FAEA9E
+              B5BF6F7FF40C11D3013B01E8E6EF0C4F114B89C149446343E07DF28D57343664
+              E8C64B8C0BC413E1A9BF7F9188EB809D001B9F547F34C096B0A2155C39F502B2
+              F31CB2F31CAE9C7A8188156361E204B19C9DE38C4ECAB013E0DBC77761E3CE51
+              804BD321C6FC907698A2B9BF0DA9F776D16EA4CEEF33F2868495B2607C145436
+              48C77124DA4F7B75233FDE7E5375420AAB0FFC84AE2D7ACA59950A004092C680
+              752FE3E8E37F5EF31D48D6E1BEFF86359FA48A7101776F0C2379BE03D9B9C2B9
+              F3079710691DC6FAFA9F1412A2F04E0AE36E01F291A43170A803B830A4F5111C
+              DD925A8B897101CB53DFC727A9BD86EE0FF2098953F84CF83535313C01688E34
+              9139D19AFB36833C1741DCACB1EB845D8174EFCABF87958B9446B12F4F00022E
+              AC78F14BE86A4434368490384DF88D1012A7118D0D41E86AA4430A450C509925
+              48927E84A3D197693790F7CACBB5B79E2FFA9605EF031ADA4F831706E8BA9F8F
+              27008D24CD6299FBB2E64808AB424CFEE543CDB9650373C95E09A2E1B83AAC97
+              DEC1A1F17D74688DC4E02484AE46D5B965DE27972D1DC987D7028A2049630077
+              06E0CE10F70B39A2B163B872EA79CA3764E491065B019C9F0FD080FB089BDAAF
+              E29BBFFA2A1D59E3D79D4BD8B4FB59E2E52C312E2031488E9CC47858EFD50FA6
+              028CF49D45FA03E5B3937262F3EE51C47ED14EBB0100479A00DFE7FF87F95B3C
+              E1CF9FD4313A99C3B40F288FF980C25C7BBBF05B73F3B736AC7ED1FB1EF91338
+              462773980A60ADB5B1A2F831DE491F22966BEA0F2310C92010C9189ECC612A40
+              79CC0714E6B1CEE23FD6F4AF4BDB88C7CD89C149CC246B3193AC3552FB73B013
+              A07CE603D4B8838D3BB5EB7F3ED9390ED9C95768B7598A37396D8C75C26EE748
+              13B92CF6F694E27575762DA0D2B87AFAF7D8BAF724ED368A278059B2731CAEBE
+              F675DA6D144F0087F10470184F0087F10470184F0087F10470184F0087617B27
+              5CB2F9001DCFEF0B91F8D34524FEB08899C9CF6129B3990E1BC44A0E2D6D6C4C
+              003BE6030A3DBF57233D760D27F72F2033ABFCFAAA79ACE4906109B2633EA0D8
+              F3FB7CD2972E61E4D96089936F19760258BC5234D0B7CFF4D8358CECDB64BDF4
+              29B84D3B8CC24E003BE603F43CBF078093FB176C483E001CA71D4661274069E7
+              03F43FBFFFC71BEFDA54764E00207FBDCB04FA9AB03AC63A61A738F68D77F19F
+              7F7E89760300C4EE51EC7A713B6AEBEEB58ECC1DE077CF01B73E24562508B7DC
+              40EAC226DA6D06762DC0293E9950FFB6CAF69EB3D8F352BB93C9475508202D3F
+              42BB0000EDFBC9519903C9475508A085C3577E8EEA15208783C947D50BE070F2
+              51D5029441F251D5029441F251D5029441F2618B00B76FD21E77C130F9B02440
+              2092A15D00802BCAEF31B806C6C98725011E0CAA5FEAE70681BFFD56EEE4DC84
+              03C9B786533F5F6F87B9F65FD806B7CC2A4EC66DE6DAE423F72F4CCAE49F2798
+              3157273F875B45A888E4E7107BBB5D568E2CCF6495273B7A06106E99803FB8A4
+              72D2E56225FB768B87878787878787878787878719FE0F320CC96ADD8E45CE00
+              00000049454E44AE426082}
+          end>
+      end
+      item
+        Name = 'console'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              061749444154785EED9CC16B14571CC7BFDB6AD7D4ACCA4219ECD2EE2C5B942C
+              2E71164A4258E862691114DA58C86E0F7B08941EF6D2851EB48742A088B5F460
+              2F9E142D954A2DAD91FA0744EC41A91883B2A524D6081A35684C8C6C13B3EEF4
+              30D990FCDE4EF26667676767F3FBC0EF90EFCCECCCFCBEF3DEBCF7E6BD000CC3
+              300CC3300CC3300CC3300CC3300CC330B590C8E4A1F68C22182902D03D1DC148
+              116ACF2812993CBDCDE643CBA6A1C49E0A37D12AA1C49E42CBA6E96D37075A36
+              0D7FA02C5C74AB853F506E3E13D64BF22BD17426B472B56316C63D3701C6CB49
+              BCC0F510757831FBA86019B57B0CE357A254863F002473C08E3DC0D610DDEA0D
+              66EE03372F007F1EA75B0CD4EEDB18BFF20E95ADF00A152CF3ECD19B54026024
+              FFDDAC77930F18D79ECC01EF1FA45B0CCCEEDD02F60D98BAD346250040FC23AA
+              78971D7BA8626076EF16B06F80199BB650C5BB38588A9D338091820D701936C0
+              65D8009761035C860D701936C065D8009761035C860D701936C065D800976103
+              5C860D7019FB5FC48CCF7322876E51A5F9D0F5BB0086A0E3067CB8016C18C7D1
+              8EF115FB1CFC5B054A2AFE38F4058A4FE2989D7C1B4FFEDDB86C0F5B39B475F0
+              22DE32A08C11403F0DDF864121D9B274F527313BF9251E16F6DAFD28B37E0C28
+              EB17E0C3311C8D0FD14D6ED2FA06E8FA250003CD96F80AAD6B80AECF40C700BE
+              8B1FA39B9A89D66C0595318297BE9469F2BBFA93B666B669D934BAFA9354AE85
+              D633A08C11CC6F4EE1FB5D37E82674F527A1F68CE2EAA9CB280C9EADC9042D9B
+              4661F02CAE9EBA0CB567D4AE11AD55055592FF43649A6E426CFF6F285C3CB042
+              F30774C43EFE14C33FFDB24237A392FCF9D995798BEDFF1D858B9FACD024699D
+              1260967C2D1786127B2A241F00E6677D280C9E45BCF704DD2490C8E4AB261F00
+              0A170F20A44D40CB85E9A6B5107FCC3AEE97005DBF8BB9F6DD42F201209A1AC6
+              EDA1DD54165062D35076FE8A57B71FC6F0F1BBC0A279E5C79FE3E1AD1C1E15B6
+              D143046A98AAE87D03747D062F7DD5EB7C00E8EC3B82917387A8EC08F1DE93B8
+              79FE332AAF86F7AB201D03A6C9078091735F51C931366CFF864A6BE16D0374FD
+              92695373394AC70C95EA4E4079B9547559C0DB06000354A84ADBD6C754AA3BAF
+              079F534906EF1A50D62F480F2F2CCC6FA652B3E09C0173CFA8525F7C58BBEAA9
+              509AB3356229C5C2DC6B5492C1BE01C1C81C950000D7CE50A57E943122FDF403
+              C0F43DE7E7CA4FDD69ABA51F60DF802DCA7D2A013096F5FC75C658E65377F4D3
+              543125DE7BA26AE7C9098A633F52C979DC58A4273BFEA2E5C208280BC2F14E85
+              3F5096BEB6BAA2744C0B17E354B4BFF1829EDE949036211CEF740423C55AAA22
+              7B68D934FCEDE2C538116AF7183DBD80960BD7947CB57B6CC508A9964D2F9E4F
+              DC77B508468AF558C26A8D4699B0E3839FE9A997D0B2694453D72DAFDAF7B7AF
+              BEE63791C9D7746F216D029D7D871B5722B46CDAF1EAA85AA242DA84ADBABEB3
+              EF08FD4901631FF158D930FE734C834864F250BBC7108CFC275C88DDA02F39E3
+              6F713FD9301E1839EC3E5C0D2B098DC46E2B4CE65B4085D8BEF3C2F156A24AE9
+              B5DF0FF03A1BFDF2E3E69B0297A8641736C065D88085F95D5432656EF63D2AD9
+              C5FB066C6CBB46254B4CFE23FF31FDC99D14952CA107CF53A935B0DBDA72BA19
+              1A504A521DC8AA68B930A2A9EBB6DAD9F50CA32522A2E5C2E8EC3B8290F64038
+              66ADF007CAD55A284B2432F99A3A77D1D4B0D06CB64C34352CFCB89B21F32425
+              32F99A4A85DA332A0E45F48C0AFBAD1521ED41FDDAFC569D773A647B945A2E5C
+              93097643E601B1442D63204E876CB16ED4F85425024AA97E4F7E859D1F0E0927
+              723BCCDE03D568E4F55BE9555B229A1A4640290927742B64AB21D461AC48368C
+              92C654A5110F8F9541BD6578BF2326438D73762CB1ED2DF3D979ABB03E0C6804
+              A5175BA924C3FA30A038E5FCC4ACE78F225462B0D81FA0F5B5736199D62F01A5
+              075F53C93164C69408AD6FC0D4F83E2A5545E9984167DFB7D072EAE2BA091FB4
+              9C8A78EF49E9D9D5CF27F7528931A6A8980FD0AD3523A242BCF7C4AABDEABA8E
+              FFB422D5BEE7FADB754B2B25CD8636ACF4CCD7355DFDC9A5895656935F61B909
+              6AF798F4B814B38C265AA8CD300CC3300CC3300CC33498FF0152762422D2FFF2
+              6E0000000049454E44AE426082}
           end>
       end>
     Left = 344
@@ -2649,6 +3186,378 @@ object FormProjectConfiguration: TFormProjectConfiguration
               D0D0C5DB4CD770C8F070EAB36C5F840811224488F0FF212613B3AF7C8D920000
               000049454E44AE426082}
           end>
+      end
+      item
+        Name = 'esphome'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              08BC49444154785EED9C5B4C1CD719C7BF9961186CC74B6A28966DAAC56BB3D4
+              9BB836D4F5A526D84DA18902AE239148B1A59AE48587A6969ABAEA2DB554C934
+              B855ABB442AD645E1C3729A92A482D43A52650CB6088C10D2C8E63B6BB8BD76B
+              959B105861626C0FBB73A60F61ABF5E1CCEEB073A53EBFC7FFB7A399FDFE732E
+              F3CD390340A15028140A8542A1501E35185CB09A13AD11B7F70BB1BF3DF9456E
+              FB1A1EB8DE71D4FDBD4AEF37F0DFE19CF9677068CF466E27008099C7988DED06
+              345F0C0F551671A5C95A5754F6D73F5D5C96AC2563D53156C0E282D5ECDEC0EC
+              D4A225438A93B4644871926635B61BE012D825AD90A425438A93B46448719266
+              35B61BF0A8430DB0196A80CD50036C861A6033D4009BA106D80C35C0666C7B10
+              39D5117AA36095F26CD566FEA1F280D574DE8AF9A7EF33FF3859E3FD191EB302
+              4B0D38D11A716F7E3CFE56F926F680139E42931125A4F48EA3EE5B9F66BDFCDB
+              173CB7F1B85958968486F67063CD56E6C74E4B3C8E2821A56354F9D5CF0F15FF
+              148F998125C978AB3B14AEF852D6565C77323DFF898FBE7CC05B8CEB4663BA01
+              2B31F909AC30C154035672F213986D82690634B4871B8F3EC1FD04D793199894
+              A12D8460645686911984874DC597CF822F8F835A2F0B7B367078F8215A6EC8A7
+              CD1A134C31E0446BC4FD9D27D02DB50137308BE0D49518F44FC878C816F66EE4
+              E0E43E1EB6E5911F8B4409296FDF60379B313B229F512745B9B173A9927FA443
+              724CF20100FA276438D221416096DC0A5D02CB14E5C6CEE1BA111093A497E1C0
+              2822199048BE282978C811B80406DEAD11882DE1B30505EDF8F296D47D55062C
+              3D934E1ADAC38DA4E403009CBA12736CF20100444981535762B80C00006BB319
+              B6A13DDC88EB7A31DC808235F00CAEC1E280EBA46E478DFE09190626C9D7A9F6
+              DFF440BC537112EB69D4EE6C2DFCA83B06AD41F2DDE5345E28E1E1D707785CD6
+              CCE45D14F74FA35E2DEB8ED2B680E68BE1A1AACD7CA99EE403008CCC92EF2A27
+              A2F75A373CC6663DE7C93A78F652A81F8FE1A435C0A8B53356CFF3F560D4B57A
+              D7B15FC5359CB4065032670D0F69674D690DB83AA90CE39A5DB85DCCF8ABA57C
+              5FF7919C818F8EE50C47EA5743A47E357C742C67B8FB48CEC0ABA57C9FDBC58C
+              E3C7D9C5C5DBCA00AEE168EAD79B3A83979E2AE42AF48C039EE67BB8A419170F
+              62CB21E1635F3E578EC7488CCCC8BD47DBA5AF883170E131AD44EA57E3926644
+              0929572795612DEB4E334EA81A91488438D1CFD480CA22F6DA99AA9C2286815C
+              3C960A4581B9D77BA4E05F82F26E3CA60535033C1E8FA1394BDB05D9C9F132BE
+              AFF95B393B969B7C00008681DC370E08BB8F97F17D78CC4938D680CA22F6DA6B
+              BBF8FDB8BE5C5EDBC5EF7FA984BB8AEB4EC19106B87810CF54E514E17AA6FCB2
+              422871D2E09C8C230D6839245C4FD5ED0466E5DEFA0FA4614FF33DF034DF83FA
+              0FA4E1C0ACDC8BFF2E01C340EE1F2AB3A3B8EE041C6780DBC58CFBF23962D783
+              9022D69E7F10AC6E93CABBA2F2FF1E10BBA2F2CEEA36A9BCF6FC8320428AF8F0
+              519FE3CBE7F63BB11538CE806F6FCD52BD535FBC204DFAA75109AE27F04FA392
+              172F4893B89EE09527F99BB866379AA6544614E3B44E437B5ECAB95AE862974C
+              1D4766E4BE9AF72462CBC0F9737576CFBE4D5915B87EE73EBAB6EBED073B709D
+              84DA34540B9F2D28E8F298DCE3A8629C5656F320E01A00C0EF86628FE19A1ABF
+              F9577C3DAE0100AC15983C5C3383B5D90CFB9C27EB60F3C5F0101EC3496B8051
+              C538ADAC5BC512EFD0AE2822EA24D4BA299E650A71CD4CB4E42EAD011473496B
+              80D5C5B83BF7D1355C83C507335C53A3B4800BE11A00401C2996CE82B414E3D2
+              1A50FF7471D9DF6FC6BA4509116B3C46732F0612AE01007CBF8CBF8B6B6AFCF0
+              6BDC14AEC1E7EF7C6770CD0C4409295D51D9FF83678BF7E1311CC30756BDC5B8
+              E3657C9F5A09A2F6BC14F24FCB5E5C4FA6B4800BB53D2F107FF3A74FE23DBFF8
+              7061C9EC8884DA2CE8FFBE18776134EEC6B504AD8785F56ADD0B2C26BFF5B040
+              9C0101009CFD24E6C135BB719C01B745A5706446265630190672DB9E17BCEF54
+              0BDDC946941670A177AA85EED6C3C27AB512C6C88CDC775B542C9D0569C1D0E6
+              040674410000AE6C981B3AB68A615926E3172AC920A488DFFCEB037139063CB2
+              5D100080B800B9277B63015CCF94DFFBE58F97937C2B71A4010000EFFE3BBEE7
+              CDC1B86A85532B6F0EC67B9B061734BDCAB403C71A0000D034B850FE7ACFC280
+              5A8533150829A2D3930F5AC7002B8B7124DC2E66EC8F55D9D16D79DA5ECA0766
+              E5DEEF762E14E9E976D4C6002D2CA7189736A1A42F4D65821E0312B85DCCD82B
+              DBB36ED678B8C75D02939FC5329B60F109579494998E88FCE9D9EBF12D7A129F
+              408F0109B47C912BAD016A4BCD978B110658891106881252766EDB9AB29B4F19
+              A4984F5A032E8FC93DB89609BEFCB4A7720C465DAB21C5B8E3552507BBA2B27F
+              6A5E89E3B1E5E0CB4BBB4CD231E8BD565B8B716A8376FF840C473B88854EC7D1
+              5223C0DE8D4B4DD032A82E97B42D60B94CCFC3FBB8068B3B11497FCA69A4BACE
+              E01DF41EAEE9C5F0160029664E23B3088E3A7C935E4B8D003EC226BDA97925FE
+              F5ED5B32DF36A3C2D2331980DAC0EDCB63A1A5460097B0C41BDB49957C0080C1
+              A938B142AB17F2D974129DE3EBD4DEA0254C506BE676B077239732F91377118A
+              CEF175B86E04A6DD8A5A3E55D03F21435B4886C01D64D8B620ADF8F259D8B68E
+              855AAF7A9F9F60C57DAA20C1B99E50F8A9C295FDB18ECB63F1D1BA8A15F8B18E
+              042BD904B3930F5618002BD4042B920F660DC2387515DEE2961BF269B581D949
+              8812525A6EC8A7AD483E58D502129C688DB88B7263E7F46EF83383A979253E38
+              15EF8BCEF175667C96460DDB92D0D01E6E2C5803CF90CA1656D21595FDD3F3F0
+              BE59B39C74D8664002D5551429561F58758C1558320650D4A106D80C35C066A8
+              0136430DB0196A80CD50036C861A6033B61B40AA0F91B464487192960C29AE77
+              A58711D86E006913A0DA2BCD04461D63D66BC615475367F0D27060140D074691
+              96CDCDA0F3980FAFDF8C3575062FE1710A8542A15028140A8542B182FF0236D8
+              B1B715FD49230000000049454E44AE426082}
+          end>
+      end
+      item
+        Name = 'project'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0E8549444154785EED9D797413D51AC0BFC94C12041AF6AD2DD02D094B8B5244
+              4A9156A494450459E4081CD9C4F7445116ADBE0305ACA03EC1AD4F0105B1FA8E
+              2C4F5BD642A16507A5458BF0E8A34DD296AD1B7B495B1E6966797F3C3867E6DE
+              997692CCA40D27BF3F7F036972BF99BB7CF7BB09801F3F7EFCF8F1E3C78F1F3F
+              5E874085A7A4645A06756D45A4746F4D3CE164418F5E77018E65E1CE253BB76F
+              D148D39BE8C547054503F0D901EB8E0946EA05D47B4A652D4B1FBDCABDB8F439
+              E34EF49AAFA358003EDF5FB4FD05936E02EA95C2EE60B9CCCB4C4CF228F369F4
+              9A2FA341853B7C9C651BAF66E3030018F41A22B22D918D7A5F47910044762036
+              A14E0DFA75A6DA7C7EC0B60EF5BE8CC75DD0A7FBAD2B269AA8F751FFEE3127A4
+              5B9CA876896F137530228412B88A5A9629AD81C0194322AE0B2EF8289E3D012B
+              38CDE0207229AA33ACB4C78D0F009074CC0976072B7081AD35A4FD1EB34D207D
+              188F02B021DEB6B75B2B42CB7776070BA9F9345FB98DDDC141EA19FCB5C6846B
+              877DB4AF6420EA7D11B703F0767A69CFA7BA9123519F564043598DF0AEF584B4
+              F33494D772A806635B260375BE88DB01E8DF85D96FD0138231A4BC9683B40286
+              AF1421E9683DAA604057AAFB9707ADAFA0DED7702B00EB728A67C60691BD50BF
+              F29413EC0EFC6EF594DC0A06F22AF1C0F66D4FFC0375BE865B010832705FA22E
+              AF9281EC8B787FAD144947F1413DBC2DD972CD7EDBB7A8F7255C0EC057076DA9
+              519DC8B6A85F790A6F202529AB6121ED3CFE3712433473BF3E72AD2BEA7D0597
+              02B0FB8FF28ED19D89D7519F61A5E1C24DE5065E2952CFD0D8B4344047685A11
+              777D3647E45200CAABEBB6766BAD11AC8CEC0E56F5BBFF21760707AB72F1B120
+              BE0735C857A7A5B203F079962D7A7010391CF56905B42A03AF14E9162714DEC2
+              9FB6C73BB199A8F3056407A0732B6E8BD8B453A945972B883D71BD3B909D5767
+              59FE8AFAE68EAC007C7DE45AD7D860CA8C7AB1F9B937C8AD6020E7121EF8B036
+              04961669EEC80A40C5DDEA97519757C9406E05DE1F7B8B95A7F00018DB9341A8
+              6BEEC80A0000D11D354DD9F8F0605A7A01190B027484CCCFD37C90F586190ECA
+              5137C924C8C1799D984012FA7410BEFDAA3A0E7F2C9A39F2F603920A03CECED1
+              DE35E835827FBFF2543DA49D6F9ACFBC65AC1E620249813B5946DB66C4994C02
+              C9636ADAC55EBD3AD2090C70C2FF281382E3B8B337D923BBE6F43E8F5E731779
+              01F8FFC6CBE989264A30D7B6D77310B7F5BE57A7A1000093CD5A581D8F3F81CB
+              8E3BC66F9ED57B37EA97EEB2FD32269478015DC3B84B452DCBFC51C5E62E4C34
+              3D8D5E7315595D100080A50AA6DA1DACA0A50D3A0216442BF2996463D013F096
+              C8DF3C7E9529156BFC0D87AD65AF449193956A7C78B029342E821AB23DD7665F
+              75D0E2D1C02F3B001B67994A7697705B503F3B4A0BC101B25FC663664792101C
+              207C70ED0E96CBB9428E114800F832DB7A322184F2A8811AE289CE6440378A38
+              897A5770A9E596FF1E31A3F80E7B1FF562DD811A04076860C1001DAAE1C04576
+              DFE697C32C7C376F9B25615C043584EFD460580F2AE49DED16B7D71FB2C78087
+              ACDA6B9B3FAD37F915EA5FCBA957351D0D00F04DA20E12914DFAAA3A8E8E4D0F
+              7B0C5208C11FDF9567BB83666DED0E1632AC0CD8EBDD1BB30C3A02124329086A
+              2D6CB6CA3ACE39243DAC25FA1EE4E072000000BE3F6ABDF44C0FAA27DF95D570
+              10B7F5BF7CA5283181246C198B573AAEFFD3B974CD24F3477CB738A368D9FCFE
+              BA0FF80E00605AA6C3E3F54B7080068E4F6D816AC82872EE4E1A631E8FFAC670
+              A90B7AC8453B31154D0B070710B0608062E31C46F260BC9B2BB8C9DC411B1F56
+              70D42423B55CE00020E712ED71E3C38305606A3E9E8219114A3DFFEA0FD670D4
+              37865B015839CE78EA4419730CF5B3A3B460D0BBF55035C864B3165B7401001C
+              BBC26275A8EBE36C5962331EB1D485BBA41530D8BE84414F10D1C1E0F2BE04FE
+              A964D2A62539A5B29615DC52061D01CB44EE544F30E809481E8CB5271CBE4CE7
+              7F36D97C9CEF5EFDC11A3E38104F99A7E6D72B5AA921B52F31328C8A9CB7CD92
+              80FA86703B003386445C3F5DC561FBB1934C14F4E9E8F6CB622C88A6C0A043A6
+              9DF719EE3EB4192B900030340CB2C452E66A546A48ED4B8C0AD5FC82BA86F0A8
+              A516251ADF387F9DB98BFAE418659E82E0000DCC8EC25F2BFB0AB769FEB02E55
+              7C97BCCB36E5E960CAC8770000A9F9EA6D1889ED4B447522DB7E9069F904F552
+              78DC61AFDA639930ADAF763BEA53F33D1FF496C5E27D7F69357B2F213AA29540
+              02C08EBCE2BB8F77D218F82EAF9281A97B1C7CA5386B9ED1C12493B08BACAC65
+              E92119E1D8D4580C8F030000F0D3096B616C1085D509A9C1EE527AEEC20493A0
+              1AFBFD3DC56B66F4D5BCC377A0D0B4B3318203349039510706BDF046D95F4A1F
+              7A3DC1D4E878E05117F490DF6F32A36B1C2CDE212ACCB91BEC45B4F1010046F4
+              8485A8CBB07AFE04CAA1AC8685B402FC468F0D229F9DFE5D21B68B88A2480052
+              27F4BE74BC8C4B46BD92945433FF2DBF47C6A27EED41EB2174DAA96481B01CD2
+              0A18AC7ED5A027884423D968A18022010000787384F1E3748BF3B5AA3A0E1F99
+              3CA4E816733DEF366B9C3F2C5430F07EB4AF64E090207218DF810A05C28D6177
+              8817270CED4E45FC6D57F154D4F351640C40D9FA6BC9FBF7EBE9E85A1A0483A2
+              2B680098F68F11372B6B884F168F369E41AF03006C3C62C91FDE531BCD77E5B5
+              1C0CDDA25E4AA421B63EAF8741DD847B3D7F54311553628D9219595502E02DCE
+              1616B3E82E9D37928252F4E9A881CC89789E689395E9F1E128E355D483925D90
+              B779F9C70B26B4F10B6FB14DD6F80000176EB29061C5FF7E3B82188DBA87F86C
+              0058A770C50B00A0CE724B011A988CF96C0036CFED6D41B748FB74D04062289E
+              37F2167D3A6AB0451900C07D1DB317750FC1EE2225D87AB278F97D1606D43A98
+              36E835B9901A0DDDBE05719363C96FA60E0D3D8A5E0700D870D876262184ECCF
+              776AEF4B348458A5865707E18FF717CF8B0B2252D1837B9E52748BB956744FDB
+              7F717C4825DFAFDA6F796A6C4F32171D0B52F3EB45A7856A2255A9B1E1AC73DA
+              DF279AB7A2FE218A05E08B1C4BF2F870ED4AD42B454935732FA21D15141A1A5A
+              CDF76B732C8746876B9FE53B7B3D0763331C5E5B0B18F404644E6C81150B9CB8
+              4A17CF8C376109423E8A8C010B7614863CDB9D4A41BD9284B7255BFE594563EB
+              8137469887A31571069DBABB732852951AD936064B99A3281280811DC92C6FD4
+              653ED1850C153B19997D093FB336C94461FDB11A48A5CC7F2B670F6F9EDB5B50
+              A92186C75DD0FA43B6192343C91F519F9A5F0F79959E4D0C970DD6426F241D5D
+              52CDDC1B116DC4D2D13BF38AEFF643D2D1B9150C4CCBF47E3A5AAA52430C8F03
+              B033D756DDAF332998ED28958797AA40F8C5C26C7A6FB4712EDF25EFB24D9913
+              45FE8BEF40A1EFAC9042AA52E3A70BCED5CBC79ADF43BD181E751B5F64DBD6A2
+              8D0F123B45EE20753272640831072D095C35DEF8F3C932DAC67700006F4553AA
+              140A8054A5C60DA65A6EE3832701F8E7AFC59D077625B023414A9F98143B1969
+              D06B882E246075A0274A6134BA380B0E206076A4F2638154A546D645F645D435
+              04FE0A32B97B8FF939B0B546F0C9D4383129558130BCA736FAED744B1CDF6D9C
+              652AC9BE84AF3A170CD0295ABF2A55A971A0942E58FF92F920EA1BC2AD77B56C
+              B76DF0D0602A1EF56A9D9894AA4088EBAEC1EA70DECD354D40A7A50020DA60EE
+              323B92C42B351C2C77A60CB03AA5C6702B00911D211DED57D53E3129F6644575
+              22DB2565589608640A41A75B9D585962628832D352A902E19C8BCC9E8DB34C25
+              A86F0C9747A7A62CCE15FB062DA90A84DD79B63B9168716E3D07E9161A6AEA5D
+              FED8000010A0E3203184C2165D55B52C1D2BF21EE4E0DA3B59C1690E8C2BAE33
+              B623057343A5A69D8D21392D2DA2F7BE37C6245875CEDB6649487A4A9BC3776A
+              B1EEAC33F9D389E60F512F0797BAA094276D3FA18D0F12DF64A2065285B12343
+              C93153D32E0ACA62D6BF643EB8BB98FE95EFD4E0C865E715771B1F5C09C0ACEF
+              8B8DE323C897509F76DEE9B5A4173450813032CC89CD7E16269A9E3E7499C14E
+              782AC5B9EB4C4D250358A5862BC80E406420BB19ADBBB43B58D1EF745313A90A
+              84B8EE54D8F41F0AC7A1FED561C6E04DE7EA7788CD8CDCA5B2966536FFC77968
+              428CD1909C60F628C0B2C680A5FB6DDD5FECA9B98C06A0298FA98A55209C28A3
+              8B67C63590FE4D2A0C5C194F4DA239378FA90270E7AED18776CCED53805E7317
+              590158B2D39234B79F7635DF3565F90748E4616AEA39F6F15EE16E356E5321AB
+              0B6AA3D76025766A25B8E4925BC1608B336FA4C49546D61BBE7D9FC3925CE8E3
+              EF6D82033458AADA1BF5A94A232B002DF4B0197531816493562088A5168AABD9
+              32D43577640520658CA9ECB772A608F54A1DC470959840123BAE0A005052CD09
+              0FECF900B202000070BD16A68BA57ABDB9F7FA10B13C7CD12DE6FABBA3CDD891
+              A9E68EEC002C1E6D3C935BC9614B7BB54E464A2195873F7B43D3E806787304FF
+              240D10686839BDAA96C52A10943E192985541EFED815266FC998F0DF51EF0BB8
+              1480714F06DD3C73835B8B7AA54F464A217662B2C6C1B2759CC1E53C7C73C1E5
+              569B3FDCB8B0E00623288E022F0CC852E51FD997B9EFD01393BE84CB01000028
+              B313D899AC984012269BF106520AB1B2BFD26AE65ED22823B62FED4BB81580D7
+              4744FC28362D55AB0221269014DDCD2AB8CDBD853A5FC3AD000000FC798D1C25
+              362D55A30261753CBE0578A68ABE2A7662D2D7703B009F4D0EBB7CBA9239807A
+              A5BF416B7614BE05080070E52EE1B3032F1F8F5AEA2FC74CCF894D4B955A9C19
+              F4042C1880F7FD5925CEC35207F77C0D8F02002904FB5B05BB0AD5934C942203
+              F2EA782D36EDACAAE3E880966483473F7D09FCD976833DA76DB7FA7624DBA35E
+              0D765999758B4619DF40BDAFE2D913F000CB6DCD4CD4A941C10DA6FA516A7C50
+              2A00EF8C0ACFDC6573AAFAB3527607CBFDFB0E8BFD6C96AFA348000000168D34
+              4FDE69ADDF817A25A8AAE3E8AC4BDC8447ED975441A931804F4AA665504B0D2C
+              89ECAC19E4643CFC41670EEE5CAE21F62D1811F1C8FEA0B31F3F7EFCF8F1E3C7
+              8F1F3F4DC0FF00D528ADF4BF2C3FF80000000049454E44AE426082}
+          end>
+      end
+      item
+        Name = 'npp'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0A2C49444154785EED9D7F5014E719C79F77F7CE8B8A07C68A01311CC70F254A
+              45D3D22422DAFA8B685B138A43A73FC6D8649CCE38A974E8CC65867430A39D86
+              69D564D2CE18230A36A975A490D4AA60350695314A554C3014EE2729E132A633
+              928B408EBBDDB77F04CCDECBEDDDEDDEDEBB07B79FFFF6FB1C7BC7F3DDF7D977
+              DFE73D0048706ACF580F7576DBF8F60F6CBE3D27ADBF27E3B10691422251DD6C
+              AD787629FBB7F1638F97C785F9394CE0AB620BD5378B373293C1223C361A1844
+              7B1424B401A66458446A0B927139A9C5928435C0D2642FCE99CD4E27F5A57399
+              6C528B25096B40EA747F15A9810A6528610D2848653690DA38A9334134A63409
+              694075B3B52258F919A7280D1556353A32493D16D03360A733E5F5F33D373ABB
+              6D7C67B78DFFD3B9DE0BE44B22E5F07B3D576EFDC7CE7576DBF8D7CFF7DC20E3
+              E1C89B83F7909A10A38141A6645F03A9C7026A061CDCEC7F775D967E99D1C020
+              A381411BCDBAD507DFB54A4EDEBE16EB95D50FEB1F9B350D31460383D665E997
+              49394F75B3B56265862E87D44996CF6357D01805D40C284A43859168E1586362
+              8A482DD2F354353A323766A337493D1869498CAE6401D749EA4A43CD00A38199
+              F0D41D4C0BC7AC6928E0337F3A84FDD7DC386CA2AA1A1D991BB2B8EEB4244647
+              C6C42898CBA6D4B7F55A495D49A819A0349F0E61FF891EAEEE89826CFDF6EFE5
+              2E27E342AA9BAD156579BC2DD48D578C9205BA9CB3D7ADC3B12A4792AF40B938
+              1C0E4C6A000066B359D26770381CD83EC88FB43898FCBDE5E63E322EC4D2642F
+              CE9FC31D295910BEE687C3E3E5F1E54FF836E7A0EE9970EF2B0549BF7C386A4E
+              F656661961477A129A2FE76A8B048F97C77FB9CD648925A1AAD191397786FF45
+              53326C2A4AD3A5917125B8E6F6BB5D9FC3A9CF86757BC43E47A428624075B3B5
+              A2281D0E14CC6553C898D29CB2FBDA9E5FB770B550A3917431A235236A03AA9B
+              AD155B16A163726EA87268B8EDFFF54B3FC87B65FCB8F68CF5D09685ECB381AF
+              A28FC7CBE356173E6C7932F73932168AA892463BF910E49ED1D96DE369BE7F28
+              E4F41324BD98A4281D0E50FFE5773A635EE66822DB809A93BD95346A3E49CD5A
+              DF33C2E356173EECF1F2416758B46975E1C3A4160ED9576FC3C55EABD823FDEE
+              2BA3F0F75E0E3CDE18E405E306A82D0830A1AAD191993A93FBADC9081BBF9DC6
+              52BD0977B839B7CB03A7EF0CB1BBA9DE84CF5EB70E079B6AEEBE320A473EF493
+              B2B2F86119FC7149D0A75F1A66449B7421B20D107BB02A39F625F47FC193B2C2
+              60178C242D8357B306C988104B93BD3863967FCFCA0CB624DA7B95C7CBE35B9F
+              F1F68FFEC76EAB2DCBBE4CC6E522FB438919603E384C4AB101E341E0996DF087
+              C56F9321124B93BD78AD099FCD4E61268CD848B00FF223EFF5E16DBF7B3AF738
+              198B96C96BC07DB00B307A1B3868102B4B30569ABE99EA3F2776DF12E352BFDF
+              F6C11DDDDA684B8D1853C00021E1CDF8D70DDB70A42321D235A768903D0D8D4F
+              90091054820E6EC20B5D17E0375D13FA04E75C687D24D3568F97C7E75C687D2C
+              930F53CF800056830E6E82A52B60CA5A5B967DF9523F7751A805E39A1B772A79
+              B315632A1BF015088E9026F47FA17B51781C0CFB20F32B528B0553DF000000C0
+              FB854B18B565D9973BDC9C3BF0355FD3E1E6DC34AE7E481803104A01C3BD8051
+              E0F2C069E1B1905031A5490C03BE22A087706788DD2D3C16122AA63454A7A16F
+              6E32B43D9ECE162204C9648C06E452F6F176EB00B95CD1E1E6DC152B72D3855A
+              28AA1A1D996579BC6DC8877DEB1FCD9D41C6C3416D04BCB569DAC527E6B3ABD4
+              4A3E0080D3E97C4A781CACD404D342913ED3F74A5A12A3CB99CD4E97B3A7949A
+              018FA5EB96921A6D789E0F5B868269A110EE3195B3B59D9A011863D9E54E4136
+              0B0FF6969BFB4EF470751E2F8F3D5E1E9FE8E1EAA43C7855353A32852BC272B6
+              B65333E0AA3BF6BBCCC2811032399DCE8051607932F7B9C2FC1CA6303F8791DA
+              CF25F78F1A0D0CAA3D633D24D4C241CD809F9E1A2D797F806BE331FC978CD184
+              E7F91A529383A5C95EBC32832D21F5E2F968AB944D5CB2CB829C5950FC80EBE1
+              E5826DA41A2996267BF19A4CFE6CB086140080ED2E37D2EA64235AC44B500300
+              00E34E006617D42E7EE7BEB6D39902FA2193D84A6A55A323332BC55F5F3C9F59
+              15AEC1E3BEC7FB2FF5F3F5E1F60B853C492826BD014230EE04042900C80498CD
+              82DA7CD77848894D5FA1366F690690BCBC24202762BD6F39D8EE7223E4C31AB5
+              9BF0E400DFBFF2C74148F6353A8160E7D20C080099C88D5F2D0E26FF440F5717
+              6AF5341C1D6ECE7DA287AB6B7130F9646CA2251132654B10C62F416DC12E5206
+              C196970D26F48B7037618F97C7E75DDC3B0343FA4AB2EE0B097992504C610306
+              8143DF159B09C19811A566BE5BACB72CA597AC952012845280C517E085AEAD64
+              689CBDE5E6BE1607931FACB7ECF1F238D2E48366800808A500403D583EBC0996
+              AEFD60B91DB08604632604DB0BDAEAC287234D3ED02E416AF703C4E078F8F8C2
+              C7FC47DBCF7E594AC6C669FFC903FED376FC33E1E6ACAA4647E68EE5103073FA
+              F30D30493180DA0888877E80182C030FAF3531A5AFADD1B791B171D29218DDA6
+              6CE6A850DB5B6EEE13CE8E3ADC9C5B4AF281A601F1D00F08C7FA2C5DC8E5E487
+              92D0B4EA666B8550133670A4367380A60171D20F08098AA024937FE4E9CE10BB
+              DB3EC88FD807F911A9CD1CA069403CF403C2D1EAF4DB488D84FC431E7BCBCD7D
+              EB96E7CC58B73C6786D4F203340D88977E4030781E7BDE1FE0DA9E3FEF5B45C6
+              488C0606A5CFF4DDFF9260B4841D7262C899054D661CDB03373CD4DDE27EACC4
+              76756A2360AAB165113AB6AFA5B789D4A5A2192013A381414FE5E99E2675A968
+              06A88C6680CA6806A88C6680CA6806A88C6680CA6806A80CD52761A5FA0191AC
+              DF87A262217BEDE78B75A3A66466EE0C3D5A48C6A5407EE7402AB27F58AA016F
+              6D9A76F1F1F9BA097B29A3E194DD17D1FACD38CB52D9DE374AF5C30F3EC04CF8
+              FAAA5CA235805A098A453F20DCFABD906FCD43D71B371BE629997C25A066402C
+              FA0191ACDFC3D8957FFC87D373A22D7D2418E3CF494D2AD40C88453F2092F57B
+              0080374AF5C34A277F8C7A52900A350394EC074859BF2FCD62DB63517630C60D
+              D9D9D995A42E9588867030A4DE84D5E29F6586F647BEC1AE20750080A3B77D6D
+              FB3A7C859ED1AF4787D180E0AFDF37C02373C4AFCD4BFD7EDBD692BC5C529783
+              F8BB4C11721F64827E5BE56897FFE2AE76DF2A35930F8960809E4119A40600B0
+              EFDFA301B33235920F896080186A5FF9E388BF6382A066F221D10D503BF990C8
+              06C443F221910D8887E443221B100FC987581890314BF153528566F2211A03EC
+              83FC08A90100FC284FF629558776F2211A0306EEF19F901A00C0CE47A7C1B602
+              3D180DB2573954418DE443346B4135277B2BB72ED6ED27F5C9885AC987680C00
+              00F8C755EBDD252AFC0F01255133F9104D090200B83A00BF0CF64DC1C982DAC9
+              87684700A8F47F6494201E920F4A180063267C271D0E4C967234D64C09F83BA2
+              6AA18801E3D49CECAD3427C38EDCD9ACE9A19928E2FFD948138CF1AB4A74B234
+              3434343434343434343434E4F27F5A45735E986D21120000000049454E44AE42
+              6082}
+          end>
+      end
+      item
+        Name = 'console'
+        SourceImages = <
+          item
+            Image.Data = {
+              89504E470D0A1A0A0000000D4948445200000060000000600806000000E29877
+              38000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              07FE49444154785EEDDC6F6C13E71D07F0DFF9AE8490609274C948F86363EC00
+              6B5C31D0822AA5592695D24EEA4468B774DD0BC454A94CD1465ABFF0AA30A553
+              D3D154A32B2F90685556F2A6B4C28BE9FC82A14E1324EDAAA65BE60C9087CFBE
+              26AB1B33D22EA921809BBB7BF6064FE687CF7ECE778E63E7F9BCFC9E31CEF3CD
+              FD7BEE7100188661188661188661188661188661188629771C0ECCD01708F76C
+              B042775335B7C659CB57E2EDA52432A3DC9CBA4E3EFF3401477FFD58F36B78BB
+              51A616D0EB17BB5A9BE098BB9EAFC1DBCAC185696576740AF6BFD4E97A176FCB
+              976905F4FAC5AE1F6EE64E5A2B2CA6BDE7629448AAE4D4BFC88FCD2AC194C15A
+              2A839F626609161CE4A3B5098E2D95C10700B05658B8D6263886F37C182EA02F
+              10EE29D7637E36EE7ABEA62F10EEC1B95E867F6B0787C3E2836B0527CE134915
+              8E8CC9F0FE840AB16B2ADE5C12D6AEB4C0E3CD1638B07D19DE040000233139B2
+              B7BDD985733D0CEF018D55DC1A9C01001C1993E1AD0B72C90E3E0040EC9A0A47
+              FE2EC38B1F7D8D370164F9D9F5305C80D675FE1FC20A8E4AD6FB13997F89B47E
+              763D0C17A0259124382A5985DC8B0B56004387155064AC8022630514192BA0C8
+              580145C60A2832564091B1028A8C155064AC8022630514192BA0C858014566F8
+              8998244919E79D1D6FDCC0D1E243C824009C030241E02008204CC0C096893B5E
+              E30DD90164FBE18E6507BE51C5B5AC5E6159EFAAB3FCFF1199C3E130348686FE
+              319462012A8C039013C009A7EF1A6C4ADEA1685B43A5ECB9FF9BFCAE9DDB9C2B
+              F0763D964E012A790F38780D06DCE7F0A6622AFF730021E78190EFC12BEEDD8B
+              6DF0A1AC0B20E42B50C9B330E0EE588C039F529E05A8300E0AD701AFB8332EA6
+              F50E45DB7AFD6217CE69F5FAC52EEF50B40DE7F928BF73800AE390ACEA80231B
+              66F126EF50B46DCBBDCA5BEDEB0467BECB0BD397610E7F2647425FF2FB06F66C
+              FC00BF8E5679159065F05FFD53786877B3D0999EE92D416B0DECE9B0EC7FEE91
+              E63DE919ADF2294063F03D3EC9D6BE4E096A2D9F4C2455727682FCDEFBA8EB69
+              BC2D5D5F20DCD3E9B4BC8A073F65342EC73F890B0F1C7EC23189B76593F1CDF4
+              581405103209B7AAB7E2C1070078E32FE2D84376FEDB38C72E4C2BB3A12F896F
+              FA86D09F1A448F4FB2D52C979FB9BF9EFB995681E9F259AA58FA276142BE0285
+              DB9D69F00100AECEC1599C65E2AEE76B7EB45978BA7B1B4C489244244922DDDB
+              60E227DF129EA7197C00802B73DC799CE5520605C00BF0DB96208E530E3EE67A
+              1E678572758E7F1167B9947601849CD7BAD44C77715AC9B87798E9CA1C91F51E
+              FFA1E40B0078010799CC24C9173833DB1737D4EB38A351BA05A8E43DDA3BDCE5
+              3C5785B3C5A26005582B0C5F6065C741CE434F4AA500869791E7B25C800A9CD1
+              305C407456BD893300807D2D3C8ECCA3C238ED6F3F00C07A2BB70A676673D6F2
+              951E9F64C3792E860B98BAAE7E8E33008003DB97C13EF73DB076A5E1FF220372
+              02275A06CE886F6ADD3C99CDBE6A7E1067B918FE607D8170CFDEFB84DFE1BC90
+              5E0F920769E65F3C3EC9B6A7598D34565B04BCAD101249959C0C71ED349F2DC5
+              700100007FFC589C69A1BC5931EA3F73E4EB07DC1BA98EB7EF7C189E6A6D141A
+              715E489119E5E6D94FF92DB497A4A61C1F3E9E82FD89A49A714AC26CE119E5DF
+              38C33C3EC996CFE08FC4E4C8F171E54987C3C1391C0EEEF8B8F2E4484C8EE0D7
+              65E3ACE52B776D5042B45F6135650F802C3385663B13954F76EF6C7E0AE770FB
+              33ACB7AADE1D4DFC563D9F239154893FA23EA7F5C738724DC469198DCB717106
+              4ECCDE125ED7DA2374BD612EBD7EB16B47131C2BE4E168F092FC2C1EA8773E0C
+              4FAD5B69A9CFF758FFF625E5E55C5316FD01F1D053F7F1BFC439ADC88C72F3E1
+              EDAEBB1EE09B5A404A5F20DCE35805DD4DD596351B6B2CA65E83E313B07728DA
+              F6CC566EE4CE57D1BB38ADCCFE6087AB16E799183DD71D1D033BDE130A52C042
+              327A1576EAB2723CD7B38094C3672EFB3B37DDB31BE7B432EDBDA69C844BD90D
+              995CC4999684AC7FBA3997255F40B12DF90256085C0BCEB45805F25D9C1955F2
+              05DC9AE7FF86333D36D7C1E338D3E2ACB374E04C8FEB49C18FB3922F6060CFC6
+              0FB4260469B8EBF99AFE807808E7587F403C44FB6812BB3247E491981CC15740
+              407315E4F149B6E6DA797F4B3DEFCEF73ADB4CFECBF3A73D8F6EBA637909DCFE
+              9CB515CA7E571DECFD4E23AFEB0EB810376289A44A46E324189DB5FC22DBDC50
+              CE37A45D55B05068561EF405C23D6D6B2CBFD17B0F32FC991C11FFCB1D4CAD13
+              EAF58B5DAE3AD2DFBEEEEE3F4895CD2771253E1AE7A996A8E42C20188AA87A9A
+              2F34AD3B4ACCE3936C8F38D490DE128CA2F905495772E700672D5F49B32EF3F0
+              138EC9739364DF424D12C2ED63FD3FAF0A0FE13C9B9C058CC494619C155B43A5
+              ECC159262F75BADE5DC8CF3F125307690E3BE97216F0F39D9B3AFE3CA1FCE3CA
+              1C91F1B66271375876E14C4BEC9A701067859048AA84764A23DDA239B617D25F
+              2F44E757577105BD82D333A9972EE71E500EF25DB3A3C764421DC7198D2551C0
+              42A8E02D569CD1581205DC5BC955E3CC6CABAB6003CE68947D011E9F645B883B
+              F87C1FD4947D010D55CAAF70562834734A58D91760B7C2F77196C9C56965F6ED
+              4BCACB47C7C09E5A1571740CECA72E2BC7695757375401F5E5714AD95F867A7C
+              92ADB551F9486B822ED7445CCAC019F1CD5D76EEA75AD3327AE67FD2657CB372
+              94E979AE595FD2D39AA16510EF50B46D70382C4A924482A1889ACF77857BFD62
+              5730145125492283C36191665E8A4116D317B51986611886611886619805F63F
+              C2CC55F895F5CB040000000049454E44AE426082}
+          end>
       end>
     Left = 344
     Top = 88
@@ -2686,6 +3595,11 @@ object FormProjectConfiguration: TFormProjectConfiguration
         Name = 'none'
       end
       item
+        CollectionIndex = 6
+        CollectionName = 'question'
+        Name = 'question'
+      end
+      item
         CollectionIndex = 7
         CollectionName = 'serial'
         Name = 'serial'
@@ -2694,6 +3608,36 @@ object FormProjectConfiguration: TFormProjectConfiguration
         CollectionIndex = 8
         CollectionName = 'wifi'
         Name = 'wifi'
+      end
+      item
+        CollectionIndex = 9
+        CollectionName = 'wifi-disabled'
+        Name = 'wifi-disabled'
+      end
+      item
+        CollectionIndex = 10
+        CollectionName = 'wifi-offline'
+        Name = 'wifi-offline'
+      end
+      item
+        CollectionIndex = 11
+        CollectionName = 'esphome'
+        Name = 'esphome'
+      end
+      item
+        CollectionIndex = 12
+        CollectionName = 'project'
+        Name = 'project'
+      end
+      item
+        CollectionIndex = 13
+        CollectionName = 'npp'
+        Name = 'npp'
+      end
+      item
+        CollectionIndex = 14
+        CollectionName = 'console'
+        Name = 'console'
       end>
     ImageCollection = ImageCollectionWhite
     Left = 200

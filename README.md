@@ -1,13 +1,13 @@
 # NppESPHome-Plugin
 
-A Notepad++ plugin written in **Delphi** to directly interact with **ESPHome** and easily manage related projects in Windows environment.
+A **Notepad++** plugin written in **Delphi** to directly interact with **ESPHome** and easily manage related projects in Windows environment.
 
-![NppESPHome in action](Art/main.png)
+![NppESPHome in action](Art/NppESPHome.png)
 
 ## Why?
 
 After discovering the potential of ESPHome, I started working on several projects and immediately ran into the lack of a tool that would help me speed up the development workflow, including writing YAML code and performing related testing.
-Despite the power of the command line provided by both Python and ESPHome itself, I needed something that would save me from repeatedly rewriting the same commands, even if they were very simple.<br/>
+Despite the power of the command line provided by both Python and ESPHome itself, I needed something that would save me from repeatedly rewriting the same commands, even if they were very simple.
 At first, I developed a Windows application that acted as a wrapper, but I soon realized that by relying exclusively on Notepad++ for code editing, I could create a plugin that would make interaction with ESPHome commands immediate and straightforward.
 
 That’s how the idea for this plugin was born.
@@ -39,21 +39,27 @@ That’s how the idea for this plugin was born.
     - Updating ESPHome to the latest version
     - Launching a command prompt or file explorer directly from the project folder
 
-## What it doesn't do
+## What it does and doesn't do
 
-The plugin does not replace ESPHome but makes interaction with it easier.
-For it to work, ESPHome must be installed on the system and its executables must be included in the user or system PATH.
-Naturally, the plugin is designed for Notepad++, and therefore requires Notepad++ to be installed (version 8.0 or higher is needed to use the toolbar).
+The plugin does not replace ESPHome; instead, it simplifies interaction with it directly from Notepad++.  
+For the plugin to work, **ESPHome must already be installed on your system**, and its executable must be available in the user or system PATH.  
+As it is built for Notepad++, the editor must also be installed—version 8.0 or higher is required to enable toolbar functionality.
 
 ## Typical workflow
 
-1. Identify one or more existing ESPHome project, adding related YAML file in the "Select Project" plugin function.
-2. Select the current active project from the "Select Project" plugin function.
-3. Configure the current project setting the related applicable options for ESPHome and Notepad++.
-4. Load the project file(s) in Notepad++ for the related development (Open Project File & Dependencies function).
-5. Make your changes.
-6. Start your Run, Compile, Upload ESPHome commands as needed, from the menù or assign to those functionalities dedicated keybard shortcuts.
-7. Enjoy the other commands/functions of the plugin to support your development.
+1.   Select one or more existing ESPHome projects by adding the corresponding YAML file through the **"Select Project"** plugin command.
+    
+2.   Choose the active project using the **"Select Project"** plugin command.
+    
+3.   Configure the current project by setting the relevant options for ESPHome and Notepad++ using the **"Configure Project"** command.
+    
+4.   Open the project file(s) in Notepad++ for development with the **"Open Project File & Dependencies"** function.
+    
+5.   Apply your changes.
+    
+6.   Execute "**Run**", "**Compile**", or "**Upload**" ESPHome commands as needed—either from the menu or through custom keyboard shortcuts.
+    
+7.   Explore the additional plugin commands and features to further support your development.
 
 ## The Application
 
@@ -70,57 +76,46 @@ In case of an invalid content, an error will be shown and it will not added to t
 To remove an ESPHome project from the known list, select it and press the button "Remove Project".
 
 
+...to be completed...
+
+
 ## Installation
 
 In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the [DLL](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin).<br/>
 The plugin DLL file should be placed in the plugins subfolder of the Notepad++ Install Folder, under the subfolder with the same name of plugin binary name without file extension, as per this [guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually).<br/>
 
 Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)<br/>
-Moreover, remember that for the plugin to work, ESPHome must already be installed on the system. Here you can find the [ESPHome Installation Guide](https://www.esphome.io/guides/installing_esphome/).
+Moreover, remember that for the plugin to work, ESPHome must already be installed on the system. 
+Here you can find the [ESPHome Installation Guide](https://www.esphome.io/guides/installing_esphome/).
 If ESPHome is not found during Notepad++ startup, <ins>the plugin will display an error message and it automatically uninstall itself.</ins><br/>
 
 ## Plugin settings
-
 Settings are stored in the Notepad++ plugin settings default folder in **NppESPHome.ini** file.
 
 ## The Source
-
-[The source](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Source) is available primarily so you can build your own custom versions.
-
-I will accept [pull requests](https://github.com/atiburzi/NppESPHome-Plugin/pulls) for bug fixes provided I can reproduce the problem or it is obvious.  
-Pull requests for new features or other changes should be backed by well argued use cases. Start by [creating an issue](https://github.com/atiburzi/NppESPHome-Plugin/issues).
+[The source](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Source) (written in Delphi) is available primarily so you can build your own custom versions.
+I will accept [pull requests](https://github.com/atiburzi/NppESPHome-Plugin/pulls) for bug fixes that I can reproduce or are obvious.  
+Pull requests for new features or other changes should be backed by well argued use cases. 
+Start by [creating an issue](https://github.com/atiburzi/NppESPHome-Plugin/issues).
 
 ### License
-
 The source code is released under the MPL 2.0 license:
-
 > Copyright © 2025 Andrea Tiburzi  
 > This Source Code Form is subject to the terms of the Mozilla Public  
 > License, v. 2.0. If a copy of the MPL was not distributed with this  
 > file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-### Requirements
-
-NppESPHome plugin has been tested with the following versions but probably works with older (and newer) versions too:
-
+### Environment
+NppESPHome plugin has been compiled with Delphi 12 and tested with the following versions but probably works with older (and newer) versions too:
   * Notepad++ 8.8.3
   * ESPHome 2025.3.0
-  * Python 3.13.1
-
 
 ### Dependencies to compile the source
+Libraries to interact to Notepad++ have been partially taken from [NppUISpy plugin for Notepad++ ver. 1.2](https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib) and modified to make them working for the plugin.
 
-The following 3rd party libraries are required in order to compile the source:
-
-  * [NppUISpy plugin for Notepad++ ver. 1.2 libraries](https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib) - Customized
+The following additional 3rd party libraries are required in order to compile the source:
   * [ComPort Library ver. 4.11](http://comport.sf.net/)
   * [LibYAML ver. 0.2.5](https://github.com/yaml/libyaml)
-  * [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl) - Only TJvCreateProcess component
+  * [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl)
 
-Those libraries must in the Delphi default library search path.
-
-
-
-
-
-
+Those libraries must be placed in the Delphi default library search path.

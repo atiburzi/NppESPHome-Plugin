@@ -382,7 +382,7 @@ begin
         end;
       scCompile:
         begin
-          Switch := Trim(GetOption(csKeyCompileExtraParameters, csDefaultEmpty));
+          Switch := csDefaultEmpty;
           if GetOption(csKeyCompileGenerateOnly, False) then
             Switch := Concat('--only-generate ', Switch);
         end;
@@ -402,7 +402,7 @@ begin
         end;
       scClean:
         begin
-          Switch := Trim(GetOption(csKeyCleanExtraParameters, csDefaultEmpty));
+          Switch := csDefaultEmpty;
         end;
     end;
 

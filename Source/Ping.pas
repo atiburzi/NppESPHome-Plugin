@@ -73,7 +73,7 @@ var
   HIcmp: THandle;
   SendData: string;
   Buffer: Pointer;
-  IcmpRes: Cardinal;
+  IcmpRes: cardinal;
   WSAData: TWSAData;
   AnsiHost: AnsiString;
 begin

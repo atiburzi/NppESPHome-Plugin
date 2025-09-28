@@ -19,6 +19,7 @@ const
   ciLogLevelWarning = 2;
   ciLogLevelInfo = 3;
   ciLogLevelDebug = 4;
+  ciLogLevelDefault = 5;
 
 const
   csDefaultEmpty = '';
@@ -42,14 +43,10 @@ const
   csKeyRunExtraParameters = 'RunExtraParameters';
 
   csKeyCompileGenerateOnly = 'CompileGenerateOnly';
-  csKeyCompileExtraParameters = 'CompileExtraParameters';
-
   csKeyUploadExtraParameters = 'UploadExtraParameters';
 
   csKeyLogsReset = 'LogsReset';
   csKeyLogsExtraParameters = 'LogsExtraParameters';
-
-  csKeyCleanExtraParameters = 'CleanExtraParameters';
 
   csKeyDependencyPrefix = 'Dependency';
 

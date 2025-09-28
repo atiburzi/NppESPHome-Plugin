@@ -7,83 +7,90 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForms, Vcl.StdCtrls, Vcl.ComCtrls, JvExStdCtrls, JvCheckBox, Vcl.BaseImageCollection,
   Vcl.ImageCollection, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, Vcl.VirtualImage, JvCombobox, JvListComb, Vcl.Buttons, JvExControls, JvButton,
   JvTransparentButton, Vcl.NumberBox, Vcl.WinXCtrls, JvExComCtrls, JvComCtrls, Vcl.Tabs, Vcl.DockTabSet, Vcl.WinXPanels, Vcl.ExtCtrls, Vcl.Grids, Vcl.ValEdit,
-  JvListView;
+  JvListView, JvEdit;
 
 type
   TFormProjectConfiguration = class(TNppPluginForm)
     ButtonClose: TButton;
     GroupBoxProject: TGroupBox;
-    GroupBoxESPHome: TGroupBox;
-    CheckBoxOptionAutoclose: TCheckBox;
-    LabelDevice: TLabel;
-    GroupBoxNpp: TGroupBox;
-    LabelAutosave: TLabel;
-    GroupBoxDependencies: TGroupBox;
-    ListBoxDependencies: TListBox;
-    ButtonAddDeps: TButton;
-    ButtonRemoveDeps: TButton;
     ButtonRefresh: TButton;
     MemoProject: TMemo;
     VirtualImageListBlack: TVirtualImageList;
     ImageCollectionBlack: TImageCollection;
-    LabelAutoclose: TLabel;
     FileOpenDialogDependency: TFileOpenDialog;
     VirtualImageStatus: TVirtualImage;
     LabelStatus: TLabel;
     ImageCollectionWhite: TImageCollection;
-    LabelLogLevel: TLabel;
-    ComboBoxDevice: TJvImageComboBox;
     VirtualImageListWhite: TVirtualImageList;
-    ComboBoxLogLevel: TJvImageComboBox;
-    ComboBoxOptionAutosave: TJvImageComboBox;
-    LabelRunNoLogs: TLabel;
-    CardPanel: TCardPanel;
-    TabSet: TTabSet;
-    CardRun: TCard;
-    CardCompile: TCard;
-    CardUpload: TCard;
-    CardLogs: TCard;
-    CardClean: TCard;
     LabelOptionRunAdditionalParameters: TLabel;
-    EditOptionRunAdditionalParameters: TEdit;
     CheckBoxOptionRunNoLogs: TCheckBox;
     LabelOptionRunNoLogs: TLabel;
     CheckBoxOptionRunReset: TCheckBox;
     LabelOptionRunReset: TLabel;
-    LabelOptionCompileAdditionalParameters: TLabel;
-    EditOptionCompileAdditionalParameters: TEdit;
     LabelOptionCleanAdditionalParameters: TLabel;
-    EditOptionCleanAdditionalParameters: TEdit;
-    LabelOptionLogsAdditionalParameters: TLabel;
-    EditOptionLogsAdditionalParameters: TEdit;
-    LabelOptionUploadAdditionalParameters: TLabel;
-    EditOptionUploadAdditionalParameters: TEdit;
+    GroupBoxOptions: TGroupBox;
+    TreeViewOptions: TTreeView;
+    CardPanelOptions: TCardPanel;
+    CardProjectOptions: TCard;
+    CardESPHomeOptions: TCard;
+    ListBoxDependencies: TListBox;
+    ButtonAddDeps: TButton;
+    ButtonRemoveDeps: TButton;
+    LabelDependencies: TLabel;
+    CardRunOptions: TCard;
+    CardCompileOptions: TCard;
+    CardUploadOptions: TCard;
+    CardLogsOptions: TCard;
+    CardCleanOptions: TCard;
+    CardNppOptions: TCard;
+    LabelLogLevel: TLabel;
+    ComboBoxLogLevel: TJvImageComboBox;
+    LabelDevice: TLabel;
+    ComboBoxDevice: TJvImageComboBox;
+    LabelAutosave: TLabel;
+    ComboBoxOptionAutosave: TJvImageComboBox;
     LabelOptionESPHomeAdditionalParameters: TLabel;
-    EditOptionESPHomeAdditionalParameters: TEdit;
-    CheckBoxOptionCompileGenerateOnly: TCheckBox;
-    LabelOptionCompileGenerateOnly: TLabel;
+    ComboBoxAutoclose: TJvImageComboBox;
+    LabelAutoclose: TLabel;
     CheckBoxOptionLogsReset: TCheckBox;
     LabelOptionLogsReset: TLabel;
+    CheckBoxOptionCompileGenerateOnly: TCheckBox;
+    LabelOptionCompileGenerateOnly: TLabel;
+    EditOptionESPHomeAdditionalParameters: TJvEdit;
+    EditOptionRunAdditionalParameters: TJvEdit;
+    LinkLabelRunHelp: TLinkLabel;
+    LinkLabelCompileHelp: TLinkLabel;
+    CardConsoleOptions: TCard;
+    LinkLabelESPHome: TLinkLabel;
+    LabelOptionUploadAdditionalParameters: TLabel;
+    EditOptionUploadAdditionalParameters: TJvEdit;
+    EditOptionLogsAdditionalParameters: TJvEdit;
+    LabelOptionLogsAdditionalParameters: TLabel;
+    LinkLabelLogsOptions: TLinkLabel;
+    LinkLabelUploadOptions: TLinkLabel;
+    LinkLabelHelpOptions: TLinkLabel;
+    LabelDeviceDesc: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
-    procedure CheckBoxOptionAutocloseClick(Sender: TObject);
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
     procedure ButtonRefreshClick(Sender: TObject);
     procedure ComboBoxDeviceChange(Sender: TObject);
     procedure ComboBoxOptionAutosaveChange(Sender: TObject);
     procedure ButtonAddDepsClick(Sender: TObject);
     procedure ButtonRemoveDepsClick(Sender: TObject);
-    procedure TabSetChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
     procedure ComboBoxLogLevelChange(Sender: TObject);
     procedure EditOptionESPHomeAdditionalParametersChange(Sender: TObject);
     procedure CheckBoxOptionRunResetClick(Sender: TObject);
     procedure EditOptionRunAdditionalParametersChange(Sender: TObject);
     procedure CheckBoxOptionCompileGenerateOnlyClick(Sender: TObject);
-    procedure EditOptionCompileAdditionalParametersChange(Sender: TObject);
     procedure EditOptionUploadAdditionalParametersChange(Sender: TObject);
     procedure CheckBoxOptionLogsResetClick(Sender: TObject);
     procedure EditOptionLogsAdditionalParametersChange(Sender: TObject);
-    procedure EditOptionCleanAdditionalParametersChange(Sender: TObject);
+    procedure TreeViewOptionsCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
+    procedure TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
+    procedure TreeViewOptionsCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure ComboBoxAutocloseChange(Sender: TObject);
+    procedure LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
   private
     procedure RefreshNetworkStatus;
     procedure PopulateComboDevice;
@@ -99,7 +106,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ESPHomeShared, NppSupport, Registry, Math;
+  ESPHomeShared, NppSupport, Registry, Math,Winapi.ShellAPI;
 
 procedure TFormProjectConfiguration.ButtonAddDepsClick(Sender: TObject);
 var
@@ -164,12 +171,6 @@ begin
   end;
 end;
 
-procedure TFormProjectConfiguration.CheckBoxOptionAutocloseClick(Sender: TObject);
-begin
-  inherited;
-  ProjectList.Current.SetOption(csKeyESPHomeAutoClose, CheckBoxOptionAutoclose.Checked);
-end;
-
 procedure TFormProjectConfiguration.CheckBoxOptionCompileGenerateOnlyClick(Sender: TObject);
 begin
   inherited;
@@ -200,18 +201,6 @@ begin
   ProjectList.Current.SetOption(csKeyNppAutosave, ComboBoxOptionAutosave.ItemIndex);
 end;
 
-procedure TFormProjectConfiguration.EditOptionCleanAdditionalParametersChange(Sender: TObject);
-begin
-  inherited;
-  ProjectList.Current.SetOption(csKeyCleanExtraParameters, EditOptionCleanAdditionalParameters.Text);
-end;
-
-procedure TFormProjectConfiguration.EditOptionCompileAdditionalParametersChange(Sender: TObject);
-begin
-  inherited;
-  ProjectList.Current.SetOption(csKeyCompileExtraParameters, EditOptionCompileAdditionalParameters.Text);
-end;
-
 procedure TFormProjectConfiguration.EditOptionESPHomeAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
@@ -236,6 +225,12 @@ begin
   ProjectList.Current.SetOption(csKeyUploadExtraParameters, EditOptionUploadAdditionalParameters.Text);
 end;
 
+procedure TFormProjectConfiguration.ComboBoxAutocloseChange(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyESPHomeAutoClose, (ComboBoxAutoclose.ItemIndex = 1));
+end;
+
 procedure TFormProjectConfiguration.ComboBoxDeviceChange(Sender: TObject);
 begin
   inherited;
@@ -251,10 +246,18 @@ end;
 procedure TFormProjectConfiguration.FormCreate(Sender: TObject);
 begin
   inherited;
+
+  TreeViewOptions.FullExpand;
+  TreeViewOptions.Selected := TreeViewOptions.Items[0];
+
   MemoProject.Text := ProjectList.Current.Description;
 
-  CheckBoxOptionAutoclose.Checked := ProjectList.Current.GetOption(csKeyESPHomeAutoClose, True);
-  ComboBoxLogLevel.ItemIndex := ProjectList.Current.GetOption(csKeyESPHomeLogLevel, ciLogLevelError);
+  if ProjectList.Current.GetOption(csKeyESPHomeAutoClose, True) then
+    ComboBoxAutoclose.ItemIndex := 1
+  else
+    ComboBoxAutoclose.ItemIndex := 0;
+
+  ComboBoxLogLevel.ItemIndex := ProjectList.Current.GetOption(csKeyESPHomeLogLevel, ciLogLevelDefault);
   EditOptionESPHomeAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyESPHomeExtraParameters, csDefaultEmpty);
   ComboBoxOptionAutosave.ItemIndex := ProjectList.Current.GetOption(csKeyNppAutosave, ciAutoSaveAllFiles);
 
@@ -263,27 +266,26 @@ begin
   EditOptionRunAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyRunExtraParameters, csDefaultEmpty);
 
   CheckBoxOptionCompileGenerateOnly.Checked := ProjectList.Current.GetOption(csKeyCompileGenerateOnly, False);
-  EditOptionCompileAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyCompileExtraParameters, csDefaultEmpty);
 
   EditOptionUploadAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyUploadExtraParameters, csDefaultEmpty);
 
   CheckBoxOptionLogsReset.Checked := ProjectList.Current.GetOption(csKeyLogsReset, False);
   EditOptionLogsAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyLogsExtraParameters, csDefaultEmpty);
 
-  EditOptionCleanAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyCleanExtraParameters, csDefaultEmpty);
-
   PopulateComboDevice;
   RefreshNetworkStatus;
 
   ProjectList.Current.LoadOptionDependencies;
   ListBoxDependencies.Items.AddStrings(ProjectList.Current.OptionDependencies);
+
+  ToggleDarkMode;
 end;
 
-procedure TFormProjectConfiguration.TabSetChange(Sender: TObject; NewTab: Integer; var AllowChange: Boolean);
+procedure TFormProjectConfiguration.LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 begin
   inherited;
-  CardPanel.Cards[NewTab].Active := True;
-  AllowChange := True;
+  if LinkType = sltURL then
+    ShellExecute(0, 'open', PChar(Link), nil, nil, SW_SHOWNORMAL);
 end;
 
 procedure TFormProjectConfiguration.ToggleDarkMode;
@@ -291,34 +293,40 @@ var
   DarkModeColors: TNppDarkModeColors;
 begin
   inherited ToggleDarkMode;
-  if (Plugin.IsDarkModeEnabled) then
+  if Plugin.IsDarkModeEnabled then
   begin
     DarkModeColors := Default(TNppDarkModeColors);
     Plugin.GetDarkModeColors(@DarkModeColors);
+
     Self.Color := TColor(DarkModeColors.Background);
     Self.Font.Color := TColor(DarkModeColors.Text);
+
     Icon.Handle := LoadImage(HInstance, resMainIconLight, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
     ComboBoxDevice.Images := VirtualImageListWhite;
     VirtualImageStatus.ImageCollection := ImageCollectionWhite;
-    TabSet.Font.Color := TColor(DarkModeColors.Text);
-    TabSet.SelectedColor := TColor(DarkModeColors.hotEdge);
-    TabSet.UnselectedColor := TColor(DarkModeColors.softerBackground);
-    TabSet.BackgroundColor := TColor(DarkModeColors.Background);
-    TabSet.Images := VirtualImageListWhite;
+    TreeViewOptions.Images := VirtualImageListWhite;
+
   end
   else
   begin
     Self.Color := clBtnFace;
     Self.Font.Color := clWindowText;
+
     Icon.Handle := LoadImage(HInstance, resMainIconDark, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
     ComboBoxDevice.Images := VirtualImageListBlack;
     VirtualImageStatus.ImageCollection := ImageCollectionBlack;
-    TabSet.Font.Color := clWindowText;
-    TabSet.SelectedColor := clWindow;
-    TabSet.UnselectedColor := clBtnFace;
-    TabSet.BackgroundColor := clBtnFace;
-    TabSet.Images := VirtualImageListBlack;
+    TreeViewOptions.Images := VirtualImageListBlack;
   end;
+
+  TreeViewOptions.Color := Self.Color;
+  TreeViewOptions.Font.Color := Self.Font.Color;
+
+  LabelDeviceDesc.Font.Color := Self.Font.Color;
+  EditOptionRunAdditionalParameters.Font.Color := Self.Font.Color;
+  EditOptionESPHomeAdditionalParameters.Font.Color := Self.Font.Color;
+  EditOptionUploadAdditionalParameters.Font.Color := Self.Font.Color;
+  EditOptionLogsAdditionalParameters.Font.Color := Self.Font.Color;
+
 end;
 
 resourcestring
@@ -408,6 +416,35 @@ begin
     for Index := 0 to ComboBoxDevice.GetCount - 1 do
       if ComboBoxDevice.GetItemText(Index) = ProjectList.Current.GetOption(csKeyESPHomeTargetDevice, '') then
         ComboBoxDevice.ItemIndex := Index;
+  end;
+end;
+
+procedure TFormProjectConfiguration.TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
+begin
+  inherited;
+  CardProjectOptions.CardPanel.ActiveCardIndex:= TreeViewOptions.Selected.StateIndex;
+end;
+
+procedure TFormProjectConfiguration.TreeViewOptionsCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
+begin
+  inherited;
+  AllowCollapse := False;
+end;
+
+
+
+procedure TFormProjectConfiguration.TreeViewOptionsCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  inherited;
+  if cdsSelected in State then
+  begin
+    TreeViewOptions.Canvas.Brush.Color := clNavy;
+    TreeViewOptions.Canvas.Font.Color  := Self.Font.Color;
+  end
+  else
+  begin
+    TreeViewOptions.Canvas.Brush.Color := Self.Color;
+    TreeViewOptions.Canvas.Font.Color  := Self.Font.Color;
   end;
 end;
 
