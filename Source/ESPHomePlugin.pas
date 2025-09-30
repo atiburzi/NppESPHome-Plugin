@@ -43,9 +43,9 @@ type
 
   public
     constructor Create; override;
-
-  public
     procedure UpdatePluginMenu;
+    function CheckESPHome: Boolean;
+    function CheckCurrentProject: Boolean;
 
   end;
 
@@ -58,9 +58,24 @@ var
 
 implementation
 
+{$B-}
+
 uses
   JvCreateProcess, Winapi.ShellAPI, UnitFormProjectSelection, UnitFormProjectConfiguration,
   UnitFormTemplates, UnitFormToolbar, UnitFormAbout, Vcl.Controls, IniFiles;
+
+resourcestring
+  rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.' +
+                                  #13#10'Please (re)install ESPHome following the instructions available on the following web page:' +
+                                  #13#13#10'https://www.esphome.io/guides/installing_esphome/';
+
+  rsNoProjectSelected = 'No ESPHome project is currently selected.' +
+                        #13#13#10'To use this command, please select the current project and try again.' +
+                        #13#10'You can select it through the menù command:' +
+                        #13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+
+  rsNoWebserverOnCurrentProject  = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
+                                   #13#13#10'Visit command cannot work and it is ignored.';
 
 const
   csMenuEmptyLine = '-';
@@ -208,12 +223,6 @@ begin
   inherited Create;
   Plugin := Self;
   PluginName := rsPluginName;
-
-  if not FileExists(ExpandFileName(FindFileInPath('esphome.exe'))) then
-  begin
-    MessageBox(0, PWideChar(rsInvalidESPHomeInstallation), PWideChar(rsMessageBoxError), MB_ICONERROR or MB_OK);
-    Exit;
-  end;
 
   AddFuncItem(rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79));
   AddFuncItem(rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79));
@@ -432,79 +441,50 @@ end;
 
 procedure TESPHomePlugin.ConfigureProject;
 begin
-  if not Assigned(ProjectList.Current) then
+  if CheckCurrentProject then
   begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
-    Exit;
+    FormProjectConfiguration := TFormProjectConfiguration.Create(Self);
+    FormProjectConfiguration.ShowModal;
+    FreeAndNil(FormProjectConfiguration);
   end;
-
-  FormProjectConfiguration := TFormProjectConfiguration.Create(Self);
-  FormProjectConfiguration.ShowModal;
-  FreeAndNil(FormProjectConfiguration);
 end;
 
 procedure TESPHomePlugin.CommandRun;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
-    Exit;
-  end;
-
-  ExecuteESPHomeCommand(scRun);
+  if CheckESPHome and CheckCurrentProject then
+    ExecuteESPHomeCommand(scRun);
 end;
 
 procedure TESPHomePlugin.CommandCompile;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
-    Exit;
-  end;
-
-  ExecuteESPHomeCommand(scCompile);
+  if CheckESPHome and CheckCurrentProject then
+    ExecuteESPHomeCommand(scCompile);
 end;
 
 procedure TESPHomePlugin.CommandUpload;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
-    Exit;
-  end;
-  ExecuteESPHomeCommand(scUpload);
+  if CheckESPHome and CheckCurrentProject then
+    ExecuteESPHomeCommand(scUpload);
 end;
 
 procedure TESPHomePlugin.CommandShowLogs;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
-    Exit;
-  end;
-  ExecuteESPHomeCommand(scLogs);
+  if CheckESPHome and CheckCurrentProject then
+    ExecuteESPHomeCommand(scLogs);
 end;
 
 procedure TESPHomePlugin.CommandClean;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
-    Exit;
-  end;
-
-  ExecuteESPHomeCommand(scClean);
+  if CheckESPHome and CheckCurrentProject then
+    ExecuteESPHomeCommand(scClean);
 end;
 
 procedure TESPHomePlugin.CommandVisit;
 var
   URL: string;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
+  if not CheckCurrentProject then
     Exit;
-  end;
 
   if not ProjectList.Current.HasWebServer then
   begin
@@ -523,6 +503,9 @@ procedure TESPHomePlugin.CommandUpgrade;
 var
   JvCreateProcess: TJvCreateProcess;
 begin
+  if not CheckESPHome then
+    Exit;
+
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
   JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & %s --version & pause', [ShortFileName(ESPHomeExecutable)]);
@@ -539,11 +522,8 @@ procedure TESPHomePlugin.CommandShellPrompt;
 var
   JvCreateProcess: TJvCreateProcess;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
+  if not CheckCurrentProject then
     Exit;
-  end;
 
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
@@ -555,11 +535,8 @@ end;
 
 procedure TESPHomePlugin.OpenProject;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
+  if not CheckCurrentProject then
     Exit;
-  end;
   OpenFile(ProjectList.Current.FileName);
 end;
 
@@ -567,11 +544,8 @@ procedure TESPHomePlugin.OpenProjectAndDependencies;
 var
   FileName: string;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
+  if not CheckCurrentProject then
     Exit;
-  end;
 
   OpenFile(ProjectList.Current.FileName);
   ProjectList.Current.LoadOptionDependencies;
@@ -579,7 +553,6 @@ begin
     if FileExists(FileName) then
       OpenFile(FileName);
   SwitchToFile(ProjectList.Current.FileName);
-
 end;
 
 procedure TESPHomePlugin.SaveProject;
@@ -607,11 +580,8 @@ end;
 
 procedure TESPHomePlugin.CommandExplorer;
 begin
-  if not Assigned(ProjectList.Current) then
-  begin
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK);
+  if not CheckCurrentProject then
     Exit;
-  end;
 
   if ProjectList.Current.FileName <> '' then
     ShellExecute(0, 'open', PChar(ExtractFilePath(ProjectList.Current.FileName)), nil, nil, SW_SHOWNORMAL);
@@ -666,6 +636,24 @@ begin
       end;
     end;
   end;
+end;
+
+function TESPHomePlugin.CheckESPHome: Boolean;
+begin
+  Result := False;
+  if not FileExists(ExpandFileName(FindFileInPath('esphome.exe'))) then
+    MessageBox(0, PWideChar(rsInvalidESPHomeInstallation), PWideChar(rsMessageBoxError), MB_ICONERROR or MB_OK)
+  else
+    Result := True;
+end;
+
+function TESPHomePlugin.CheckCurrentProject: Boolean;
+begin
+  Result := False;
+  if not Assigned(ProjectList.Current) then
+    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK)
+  else
+    Result := True;
 end;
 
 

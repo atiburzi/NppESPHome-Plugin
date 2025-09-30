@@ -76,12 +76,7 @@ resourcestring
   rsMessageBoxWarning = 'ESPHome Plugin Warning';
   rsMessageBoxInfo = 'ESPHome Plugin Information';
   rsESPHomeDocURL = 'https://www.esphome.io/components/';
-  rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system, plugin will be automatically disabled/removed.' +
-                                  #13#10'Please (re)install ESPHome following the instructions available on the following web guide, then setup "NppESPHomePlugin" again.' +
-                                  #13#10'Please ensure that the ESPHome executable has been added to the user/system PATH.' +
-                                  #13#13#10'https://www.esphome.io/guides/installing_esphome/';
-  rsNoProjectSelected = 'No ESPHome project is currently selected.'#13#10'Please select one and try again.'#13#10'(Plugins -> NppESPHome -> Select Project...)';
-  rsNoWebserverOnCurrentProject  = 'Selected ESPHome project (%s) does not have Webserver component enabled.'#13#13#10'Visit command cannot work and is ignored.';
+
 
 type
   PProject = ^TProject;

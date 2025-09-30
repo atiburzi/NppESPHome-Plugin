@@ -116,10 +116,10 @@
     <File Path="..\Resources\NppESPHome_Black.ico"/>
     <File Path="..\Resources\NppESPHome_White.ico"/>
     <File Path="ESPHomePlugin.pas"/>
-    <File Path="UnitFormProjectConfiguration.pas"/>
-    <File Path="UnitFormProjectConfiguration.dfm"/>
     <File Path="UnitFormProjectSelection.pas"/>
     <File Path="UnitFormProjectSelection.dfm"/>
+    <File Path="UnitFormProjectConfiguration.pas"/>
+    <File Path="UnitFormProjectConfiguration.dfm"/>
     <File Path="ESPHomeShared.pas"/>
     <File Path="UnitFormAbout.pas"/>
     <File Path="UnitFormAbout.dfm"/>

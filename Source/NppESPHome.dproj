@@ -5,7 +5,7 @@
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
@@ -112,8 +112,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
-        <VerInfo_Keys>CompanyName=XXXXXX;FileDescription=AAAA $(MSBuildProjectName);FileVersion=1.0.23.41;InternalName=SSSSSSS;LegalCopyright=;LegalTrademarks=;OriginalFilename=AAAAAAA;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VVVV $(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=XXXXX;PrivateBuild=</VerInfo_Keys>
-        <VerInfo_Build>41</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=XXXXXX;FileDescription=AAAA $(MSBuildProjectName);FileVersion=1.0.23.42;InternalName=SSSSSSS;LegalCopyright=;LegalTrademarks=;OriginalFilename=AAAAAAA;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VVVV $(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=XXXXX;PrivateBuild=</VerInfo_Keys>
+        <VerInfo_Build>42</VerInfo_Build>
         <VerInfo_Release>23</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -136,8 +136,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <VerInfo_Keys>CompanyName=Andrea Tiburzi;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.1.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=NppESPHome;ProductName=NppESPHome;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>20</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.23.20;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
+        <VerInfo_Build>22</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.23.22;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
         <VerInfo_Release>23</VerInfo_Release>
         <VerInfo_DLL>true</VerInfo_DLL>
     </PropertyGroup>

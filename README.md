@@ -105,15 +105,15 @@ The plugin DLL file should be placed in the plugins subfolder of the Notepad++ I
 Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)<br/>
 Moreover, remember that for the plugin to work, ESPHome must already be installed on the system. 
 Here you can find the [ESPHome Installation Guide](https://www.esphome.io/guides/installing_esphome/).
-If ESPHome is not found during Notepad++ startup, <ins>the plugin will display an error message and it automatically uninstall itself.</ins><br/>
+If ESPHome is not found during Notepad++ startup, <ins>the plugin will display an error message.</ins><br/>
 
 ## Plugin settings
 Settings are stored in the Notepad++ plugin settings default folder in **NppESPHome.ini** file.
 
 ## The Source
 [The source](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Source) (written in Delphi) is available primarily so you can build your own custom versions.
-I will accept [pull requests](https://github.com/atiburzi/NppESPHome-Plugin/pulls) for bug fixes that I can reproduce or are obvious.  
-Pull requests for new features or other changes should be backed by well argued use cases. 
+I accept [pull requests](https://github.com/atiburzi/NppESPHome-Plugin/pulls) for bug fixes that I can reproduce or are obvious.  
+Pull requests for new features or other changes are very welcome. 
 Start by [creating an issue](https://github.com/atiburzi/NppESPHome-Plugin/issues).
 
 ### License
@@ -124,12 +124,12 @@ The source code is released under the MPL 2.0 license:
 > file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ### Environment
-NppESPHome plugin has been compiled with Delphi 12 and tested with the following versions but probably works with older (and newer) versions too:
+NppESPHome plugin has been compiled with Delphi 12 and tested with the following versions but probably it works with older (and newer) versions too:
   * Notepad++ 8.8.3
   * ESPHome 2025.3.0
 
 ### Dependencies to compile the source
-Libraries to interact to Notepad++ have been partially taken from [NppUISpy plugin for Notepad++ ver. 1.2](https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib) and modified to make them working for the plugin.
+Libraries to implement Notepad++ plugin have been partially taken from [NppUISpy plugin for Notepad++ ver. 1.2](https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib) and modified to make them working for the case.
 
 The following additional 3rd party libraries are required in order to compile the source:
   * [ComPort Library ver. 4.11](http://comport.sf.net/)
