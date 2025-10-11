@@ -3,7 +3,7 @@ unit ESPHomeShared;
 interface
 
 uses
-  System.Classes, System.Generics.Collections, Winapi.Windows, IniFiles;
+  System.Classes, System.Generics.Collections, Winapi.Windows, Vcl.ComCtrls, XMLIntf, IniFiles;
 
 const
   PingTimeout = 3 * 1000;
@@ -29,6 +29,9 @@ const
 
   csKeyCurrentProject = 'CurrentProject';
   csKeyToolbarBitmap = 'ToolbarBitmap';
+  csKeyToolbarSequence = 'ToolbarSequence';
+  csKeyToolbarConfig = 'ToolbarConfig';
+  csKeyTemplateWindow = 'TemplateWindow';
 
   csKeyNppAutosave = 'NppAutosave';
   csKeyDependenciesCount = 'DependenciesCount';
@@ -55,6 +58,9 @@ const
   resMainIconLight = 'MAIN_LIGHT';
 
 const
+  DarkModeSuffix: array [False..True] of string = ('_light', '_dark');
+
+const
   scRun = 0;
   scCompile = 1;
   scUpload = 2;
@@ -72,10 +78,47 @@ resourcestring
   rsDefaultWiFi = 'WiFi';
 
 resourcestring
+  rsAnyCategory = '(Any Category)';
+
+resourcestring
   rsMessageBoxError = 'ESPHome Plugin Error';
   rsMessageBoxWarning = 'ESPHome Plugin Warning';
   rsMessageBoxInfo = 'ESPHome Plugin Information';
   rsESPHomeDocURL = 'https://www.esphome.io/components/';
+
+
+resourcestring
+  rsMenuSelectProject = 'Select Project...';
+  rsMenuSelectProjectCurrent = 'Change "%s" project...';
+  rsMenuConfigProject = 'Configure Project...';
+  rsMenuOpenProjectFile = 'Open Project file';
+  rsMenuOpenProjectFileAndDeps = 'Open Project file and dependencies';
+  rsMenuCommandRun = 'Run';
+  rsMenuCommandCompile = 'Compile';
+  rsMenuCommandUpload = 'Upload';
+  rsMenuCommandShowLogs = 'Show Logs';
+  rsMenuCommandClean = 'Clean';
+  rsMenuCommandVisit = 'Visit Device Web Server';
+  rsMenuOpenESPHomeDocs = 'Show ESPHome online documentation';
+  rsMenuUpgradeESPHome = 'Check and upgrade ESPHome version';
+  rsMenuOpenCmdShell = 'Open a CMD shell in the project folder';
+  rsMenuOpenExplorer = 'Open an Explorer window from the project folder';
+  rsMenuTemplates = 'Hide/Show Templates window';
+  rsMenuToolbar = 'Configure Toolbar...';
+  rsMenuAbout = 'About...';
+
+resourcestring
+  rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.' +
+                                  #13#10'Please (re)install ESPHome following the instructions available on the following web page:' +
+                                  #13#13#10'https://www.esphome.io/guides/installing_esphome/';
+
+  rsNoProjectSelected = 'No ESPHome project is currently selected.' +
+                        #13#13#10'To use this command, please select the current project and try again.' +
+                        #13#10'You can select it through the menù command:' +
+                        #13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+
+  rsNoWebserverOnCurrentProject  = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
+                                   #13#13#10'Visit command cannot work and it is ignored.';
 
 
 type
@@ -143,15 +186,37 @@ type
     procedure LoadConfig;
     procedure SaveConfig;
     procedure CheckOnlineStatus;
-    function GetProject(const FileName: string): TProject;
+    function GetProjectFromFileName(const FileName: string): TProject;
+    function GetProjectFromUIName(const UIName: string): TProject;
+  end;
+
+type
+  TTemplate = record
+    Name: string;
+    Category: string;
+    Description: string;
+    YAML: string;
+  end;
+
+  PTemplateList = ^TTemplateList;
+  TTemplateList = class(TList<TTemplate>)
+    FXMLDoc: IXMLDocument;
+    constructor Create(const AFileName: string);
+    procedure Refresh;
+    procedure RetrieveTemplates(S: TStrings; const Category: string; const Filter: string); overload;
+    procedure RetrieveTemplates(S: TListItems; const Category: string; const Filter: string); overload;
+    procedure RetrieveCategories(S: TStrings);
+    function IndexOfName(const AName: string): NativeInt;
   end;
 
 var
   ProjectList: TProjectList;
-  ESPHomeExecutable: string;
+  TemplateList: TTemplateList;
 
 var
   ConfigFile: TIniFile = nil;
+  ESPHomeExeFile: string;
+  TemplateFile: string;
 
   PingThreadCount: Integer = 0;
 
@@ -167,7 +232,7 @@ function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, System.RegularExpressions;
+  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, System.RegularExpressions, Xml.XMLDoc;
 
 type
   TPingThread = class(TThread)
@@ -470,7 +535,7 @@ end;
 function TProjectList.GetCurrent: TProject;
 begin
   if not Assigned(FCurrent) then
-    FCurrent := GetProject(ConfigFile.ReadString(csSectionGeneral, csKeyCurrentProject, csDefaultEmpty));
+    FCurrent := GetProjectFromFileName(ConfigFile.ReadString(csSectionGeneral, csKeyCurrentProject, csDefaultEmpty));
   Result := FCurrent;
 end;
 
@@ -514,7 +579,7 @@ begin
   Sections := TStringList.Create;
   ConfigFile.ReadSections(Sections);
   for FileName in Sections do
-    if (FileName <> csSectionGeneral) and (Self.GetProject(FileName) = nil) then
+    if (FileName <> csSectionGeneral) and (Self.GetProjectFromFileName(FileName) = nil) then
       ConfigFile.EraseSection(FileName);
   Sections.Free;
 end;
@@ -527,7 +592,7 @@ begin
     P.CheckOnlineStatus;
 end;
 
-function TProjectList.GetProject(const FileName: string): TProject;
+function TProjectList.GetProjectFromFileName(const FileName: string): TProject;
 var
   P: TProject;
 begin
@@ -537,6 +602,115 @@ begin
     begin
       Result := P;
       Exit;
+    end;
+end;
+
+function TProjectList.GetProjectFromUIName(const UIName: string): TProject;
+var
+  P: TProject;
+begin
+  Result := nil;
+  for P in Self do
+    if P.UIName = UIName then
+    begin
+      Result := P;
+      Exit;
+    end;
+end;
+
+constructor TTemplateList.Create(const AFileName: string);
+begin
+  inherited Create;
+  if FileExists(AFileName) then
+  begin
+    FXMLDoc := TXMLDocument.Create(nil);
+    FXMLDoc.FileName := AFileName;
+    Refresh;
+  end;
+end;
+
+
+
+procedure TTemplateList.Refresh;
+var
+  Index: Integer;
+  RootNode: IXMLNode;
+  Template: TTemplate;
+begin
+  Self.Clear;
+  FXMLDoc.Active := True;
+  FXMLDoc.Refresh;
+  RootNode := FXMLDoc.DocumentElement;
+  if Assigned(RootNode) then
+    for Index := 0 to RootNode.ChildNodes.Count - 1 do
+    begin
+      Template.Name := RootNode.ChildNodes[Index].ChildNodes['Name'].Text;
+      Template.Category := RootNode.ChildNodes[Index].ChildNodes['Category'].Text;
+      Template.Description := RootNode.ChildNodes[Index].ChildNodes['Description'].Text;
+      Template.YAML := RootNode.ChildNodes[Index].ChildNodes['YAML'].Text;
+      if Self.IndexOfName(Template.Name) < 0 then
+        Self.Add(Template);
+    end;
+end;
+
+procedure TTemplateList.RetrieveTemplates(S: TStrings; const Category: string; const Filter: string);
+var
+  Item: string;
+  List: TStringList;
+  Template: TTemplate;
+begin
+  S.Clear;
+  List := TStringList.Create(dupIgnore, True, False);
+  for Template in Self do
+    if ((Category = '') or (Category = rsAnyCategory) or (Template.Category = Category)) and
+        ((Filter = '') or ContainsText(Template.Name, Filter)) then
+      List.Add(Format('%s [%s]', [Template.Name, Template.Category]));
+  for Item in List do
+    S.Add(Item);
+  List.Free;
+end;
+
+procedure TTemplateList.RetrieveTemplates(S: TListItems; const Category: string; const Filter: string);
+var
+  Item: TListItem;
+  Template: TTemplate;
+begin
+  S.Clear;
+  for Template in Self do
+    if ((Category = '') or (Category = rsAnyCategory) or (Template.Category = Category)) and
+        ((Filter = '') or ContainsText(Template.Name, Filter)) then
+      begin
+        Item := S.Add;
+        Item.Caption := Template.Name;
+        Item.SubItems.Add(Template.Category);
+      end;
+end;
+
+procedure TTemplateList.RetrieveCategories(S: TStrings);
+var
+  Category: string;
+  Template: TTemplate;
+  Categories: TStringList;
+begin
+  S.Clear;
+  Categories := TStringList.Create(dupIgnore, True, False);
+  for Template in Self do
+    Categories.Add(Template.Category);
+  for Category in Categories do
+    S.Add(Category);
+  Categories.Free;
+end;
+
+function TTemplateList.IndexOfName(const AName: string): NativeInt;
+var
+  Index: NativeInt;
+begin
+  Result := -1;
+  for Index := 0 to Self.Count - 1 do
+    if AName = Self.Items[Index].Name then
+    begin
+      Result := Index;
+      Exit
     end;
 end;
 
@@ -564,14 +738,17 @@ end;
 
 procedure ModuleInitialize;
 begin
-  ESPHomeExecutable := ExpandFileName(FindFileInPath('esphome.exe'));
+  ESPHomeExeFile := ExpandFileName(FindFileInPath('esphome.exe'));
   ConfigFile := TIniFile.Create(IncludeTrailingPathDelimiter(Plugin.GetPluginConfigDir) + ChangeFileExt(Plugin.GetName, '.ini'));
+  TemplateFile := IncludeTrailingPathDelimiter(Plugin.GetPluginConfigDir) + ChangeFileExt(Plugin.GetName, '.xml');
   ProjectList := TProjectList.Create;
+  TemplateList := TTemplateList.Create(TemplateFile);
   ProjectList.CheckOnlineStatus;
 end;
 
 procedure ModuleFinalize;
 begin
+  if Assigned(TemplateList) then TemplateList.Free;
   if Assigned(ProjectList) then ProjectList.Free;
   if Assigned(ConfigFile) then ConfigFile.Free;
 end;

@@ -37,13 +37,13 @@ type
   // Plugin metaclass
   // Eleminates the need to edit the file NppPluginInclude.pas for every new plugin
   TNppPluginClass = class of TNppPlugin;
-
   PFuncPluginCmd = procedure; cdecl;
 
+  PFuncItem = ^TFuncItem;
   TFuncItem = record
-    ItemName: array [0 .. FNITEM_NAMELEN - 1] of nppChar;
+    ItemName: array [0..FNITEM_NAMELEN - 1] of nppChar;
     Func: PFuncPluginCmd;
-    CmdID: cardinal;
+    CmdID: Cardinal;
     Checked: Boolean;
     ShortcutKey: PShortcutKey;
   end;
@@ -123,7 +123,7 @@ type
     procedure BeNotified(SN: PSCNotification);
     procedure SetInfo(ANppData: TNppData); virtual;
     function GetFuncsArray(out FuncsCount: integer): Pointer;
-    function GetFuncByIndex(const Index: Integer): Pointer;
+    function GetFuncByIndex(const Index: Integer): PFuncItem;
     function GetName: nppPChar;
     function GetCurrentScintilla: HWND;
 
@@ -343,7 +343,7 @@ begin
   Result := FFuncArray;
 end;
 
-function TNppPlugin.GetFuncByIndex(const Index: Integer): Pointer;
+function TNppPlugin.GetFuncByIndex(const Index: Integer): PFuncItem;
 begin
   Result := nil;
   if Index < Length(FFuncArray) then

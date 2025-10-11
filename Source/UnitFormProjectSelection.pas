@@ -4,21 +4,23 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForms, Vcl.ComCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForms, Vcl.ComCtrls, Vcl.Buttons, JvExButtons, JvButtons, JvBitBtn, Vcl.ExtCtrls;
 
 type
   TFormProjectSelection = class(TNppPluginForm)
     GroupBoxCurrentProject: TGroupBox;
-    ComboBoxProject: TComboBoxEx;
+    ComboBoxProject: TComboBox;
     ButtonAddProject: TButton;
     ButtonRemoveProject: TButton;
-    ButtonClose: TButton;
     FileOpenDialogProject: TFileOpenDialog;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ComboBoxProjectChange(Sender: TObject);
     procedure ButtonAddProjectClick(Sender: TObject);
     procedure ButtonRemoveProjectClick(Sender: TObject);
     procedure ToggleDarkMode; override;
+    procedure ButtonCloseClick(Sender: TObject);
+    procedure ButtonCancelClick(Sender: TObject);
   private
     procedure RefreshComboBox;
   public
@@ -47,7 +49,7 @@ begin
   inherited;
   if FileOpenDialogProject.Execute(Self.Handle) then
   begin
-    if Assigned(ProjectList.GetProject(FileOpenDialogProject.FileName)) then
+    if Assigned(ProjectList.GetProjectFromFileName(FileOpenDialogProject.FileName)) then
     begin
       MessageBox(Handle, PWideChar(Format(rsProjectAlreadyExists,
         [ExtractFileName(FileOpenDialogProject.FileName)])),
@@ -75,6 +77,12 @@ end;
 resourcestring
   rsKnownProjectRemoval = 'Project "%s" will be removed from the known list. Are you sure?';
   rsRemoveProjectFile = 'Remove selected Project';
+
+procedure TFormProjectSelection.ButtonCloseClick(Sender: TObject);
+begin
+  inherited;
+  ModalResult := mrCancel;
+end;
 
 procedure TFormProjectSelection.ButtonRemoveProjectClick(Sender: TObject);
 var
@@ -122,14 +130,20 @@ end;
 procedure TFormProjectSelection.ComboBoxProjectChange(Sender: TObject);
 begin
   inherited;
-  if (ComboBoxProject.ItemIndex >= 0) and (ComboBoxProject.ItemsEx.Count > 0) then
-    ProjectList.Current := ComboBoxProject.ItemsEx[ComboBoxProject.ItemIndex].Data;
+  if (ComboBoxProject.ItemIndex >= 0) and (ComboBoxProject.Items.Count > 0) then
+    ProjectList.Current := ProjectList.GetProjectFromUIName(ComboBoxProject.Items[ComboBoxProject.ItemIndex]);
 end;
 
 procedure TFormProjectSelection.FormCreate(Sender: TObject);
 begin
   inherited;
   RefreshComboBox;
+end;
+
+procedure TFormProjectSelection.ButtonCancelClick(Sender: TObject);
+begin
+  inherited;
+  ModalResult := mrCancel;
 end;
 
 procedure TFormProjectSelection.RefreshComboBox;
@@ -139,7 +153,7 @@ begin
   ComboBoxProject.Clear;
   for P in ProjectList do
     if P.IsValid then
-      ComboBoxProject.AddItem(P.UIName, P);
+      ComboBoxProject.Items.Add(P.UIName);
   if Assigned(ProjectList.Current) then
     ComboBoxProject.ItemIndex := ComboBoxProject.Items.IndexOf(ProjectList.Current.UIName);
 end;

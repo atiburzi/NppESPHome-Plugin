@@ -1,19 +1,32 @@
 ﻿[Closed Files]
-File_0=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\Ping.pas',0,1,36,92,87,0,0,,
-File_1=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\VCL\Vcl.ComCtrls.pas',0,1,1566,1,1694,0,0,{{18569,0},{18620,22},{''}}{{18623,0},{18674,22},{''}}{{18740,0},{18906,22},{''}}{{19043,0},{19119,22},{''}},
-File_2=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\VCL\Vcl.Graphics.pas',0,1,2657,1,2703,0,0,,
-File_3=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\source\rtl\win\Winapi.ShellAPI.pas',0,1,1,1,19,0,0,,
-File_4=TSourceModule,'H:\Documenti\Embarcadero\Studio\23.0\CatalogRepository\VirtualTreeView-12-64bit\source\VirtualTrees.BaseTree.pas',0,1,1614,9,1652,0,0,,
-File_5=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\RTL\SYS\System.pas',0,1,22429,1,22464,0,0,,
+File_0=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectConfiguration.pas',0,1,1,1,1,0,0,,
+File_1=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\source\rtl\common\System.Classes.pas',0,1,7278,83,7280,0,0,,
+File_2=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPlugin.pas',0,1,483,1,517,0,0,,
+File_3=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppSupport.pas',0,1,1070,1,1104,0,0,,
+File_4=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPluginDockingForms.pas',0,1,26,67,55,0,0,,
+File_5=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\VCL\Vcl.StdCtrls.pas',0,1,5027,15,5071,0,0,{{1775,4}
+File_6=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormTemplates.pas',0,1,1,87,112,0,0,,
+File_7=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectSelection.dfm',0,1,1,38,25,0,0,,
+File_8=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormToolbar.pas',0,1,83,1,189,0,0,,
+File_9=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\RTL\SYS\System.pas',0,1,22432,1,22464,0,0,,
+File_10=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\VCL\Vcl.VirtualImageList.pas',0,1,458,1,492,0,0,,
+File_11=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\RTL\SYS\System.SysUtils.pas',0,1,6854,1,6901,0,0,,
+File_12=TSourceModule,'c:\program files (x86)\embarcadero\studio\23.0\SOURCE\VCL\Vcl.ImgList.pas',0,1,1641,1,1673,0,0,,
 
 [Modules]
-Module0=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dproj
-Module1=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas
-Module2=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomeShared.pas
-Module3=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectConfiguration.pas
-Module4=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormAbout.pas
+Module0=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectSelection.pas
+Module1=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitColorButton.pas
+Module2=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dproj
+Module3=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas
+Module4=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomeShared.pas
 Count=5
 EditWindowCount=1
+
+[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectSelection.pas]
+ModuleType=TSourceModule
+
+[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitColorButton.pas]
+ModuleType=TSourceModule
 
 [H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dproj]
 ModuleType=TBaseProject
@@ -24,15 +37,9 @@ ModuleType=TSourceModule
 [H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomeShared.pas]
 ModuleType=TSourceModule
 
-[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectConfiguration.pas]
-ModuleType=TSourceModule
-
-[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormAbout.pas]
-ModuleType=TSourceModule
-
 [EditWindow0]
 ViewCount=5
-CurrentEditView=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dpr
+CurrentEditView=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectSelection.pas
 View0=0
 View1=1
 View2=2
@@ -46,13 +53,13 @@ State=0
 Left=0
 Top=0
 Width=9948
-Height=9390
+Height=9386
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=9948
-ClientHeight=9390
-TBDockHeight=4638
-LRDockWidth=3773
+ClientHeight=9386
+TBDockHeight=9386
+LRDockWidth=9948
 Dockable=1
 StayOnTop=0
 DockedToMainForm=1
@@ -60,67 +67,67 @@ BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
 LeftPanelSize=1896
 LeftPanelClients=PropertyInspector,DockSite3
-LeftPanelData=00000800010100000000AF100000000000000168070000000000000100000000570E000009000000446F636B53697465330100000000A91D00001100000050726F7065727479496E73706563746F72FFFFFFFF
+LeftPanelData=00000800010100000000AC100000000000000168070000000000000100000000570E000009000000446F636B53697465330100000000A41D00001100000050726F7065727479496E73706563746F72FFFFFFFF
 RightPanelSize=1997
 RightPanelClients=DockSite2,DockSite4
-RightPanelData=00000800010100000000AF1000000000000001CD0700000000000001000000004912000009000000446F636B53697465320100000000A91D000009000000446F636B5369746534FFFFFFFF
+RightPanelData=00000800010100000000AC1000000000000001CD0700000000000001000000004912000009000000446F636B53697465320100000000A41D000009000000446F636B5369746534FFFFFFFF
 BottomPanelSize=1491
 BottomPanelClients=DockSite1,MessageView
 BottomPanelData=0000080001020100000009000000446F636B5369746531154500000000000002D3050000000000000100000000154500000F0000004D65737361676556696577466F726DFFFFFFFF
 BottomMiddlePanelSize=0
 BottomMiddlePanelClients=DockSite0,GraphDrawingModel
-BottomMiddelPanelData=0000080001020200000009000000446F636B536974653010000000477261706844726177696E6756696577AF29000000000000029F0C000000000000FFFFFFFF
+BottomMiddelPanelData=0000080001020200000009000000446F636B536974653010000000477261706844726177696E67566965779B1D00000000000002F206000000000000FFFFFFFF
 
 [View0]
 CustomEditViewType=TEditView
+Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas
+CursorX=86
+CursorY=622
+TopLine=588
+LeftCol=1
+Elisions={{93,0},{180,11},{'Virtual Procedures'}}
+Bookmarks=
+EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas
+
+[View1]
+CustomEditViewType=TEditView
 Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dpr
-CursorX=57
-CursorY=25
+CursorX=1
+CursorY=1
 TopLine=1
 LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dpr
 
-[View1]
-CustomEditViewType=TEditView
-Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas
-CursorX=35
-CursorY=408
-TopLine=353
-LeftCol=1
-Elisions={{68,0},{150,11},{'Virtual Procedures'}}
-Bookmarks=
-EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas
-
 [View2]
 CustomEditViewType=TEditView
-Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectConfiguration.pas
-CursorX=49
-CursorY=331
-TopLine=284
+Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitColorButton.pas
+CursorX=4
+CursorY=224
+TopLine=160
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=Borland.FormDesignerView
+EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitColorButton.pas
 
 [View3]
 CustomEditViewType=TEditView
-Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormAbout.pas
-CursorX=45
-CursorY=39
-TopLine=1
+Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectSelection.pas
+CursorX=155
+CursorY=161
+TopLine=161
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormAbout.pas
+EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjectSelection.pas
 
 [View4]
 CustomEditViewType=TEditView
 Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomeShared.pas
-CursorX=1
-CursorY=51
-TopLine=176
+CursorX=39
+CursorY=538
+TopLine=469
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -175,7 +182,7 @@ MaxWidth=8932
 MaxHeight=8524
 ClientWidth=10000
 ClientHeight=10043
-BottomPanelSize=9130
+BottomPanelSize=9125
 BottomPanelClients=EditWindow0
 BottomPanelData=0000080000000000000000000000000000000000000000000000000100000000000000000C0000004564697457696E646F775F30FFFFFFFF
 
@@ -226,11 +233,11 @@ State=0
 Left=0
 Top=0
 Width=1997
-Height=2824
+Height=2819
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1997
-ClientHeight=2824
+ClientHeight=2819
 TBDockHeight=7152
 LRDockWidth=1997
 Dockable=1
@@ -245,18 +252,18 @@ State=0
 Left=0
 Top=829
 Width=1896
-Height=3862
+Height=3857
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1896
-ClientHeight=3862
+ClientHeight=3857
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=7195
+TBDockHeight=7190
 LRDockWidth=1896
 Dockable=1
 StayOnTop=0
-SplitPos=166
+SplitPos=184
 
 [frmDesignPreview]
 PercentageSizes=1
@@ -267,11 +274,11 @@ State=0
 Left=0
 Top=0
 Width=1997
-Height=7019
+Height=7014
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1997
-ClientHeight=7019
+ClientHeight=7014
 TBDockHeight=5957
 LRDockWidth=2510
 Dockable=1
@@ -284,7 +291,7 @@ Visible=0
 Docked=1
 State=0
 Left=-3446
-Top=592
+Top=591
 Width=276
 Height=362
 MaxLeft=-1
@@ -295,8 +302,8 @@ TBDockHeight=362
 LRDockWidth=276
 Dockable=1
 StayOnTop=0
-Name=8
-Description=8
+Name=40
+Description=110
 filter=1
 
 [DebugLogView]
@@ -472,11 +479,11 @@ State=0
 Left=0
 Top=0
 Width=1997
-Height=7019
+Height=7014
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1997
-ClientHeight=7019
+ClientHeight=7014
 TBDockHeight=4881
 LRDockWidth=7148
 Dockable=1
@@ -491,12 +498,12 @@ State=0
 Left=748
 Top=1665
 Width=2857
-Height=3152
+Height=3210
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2857
-ClientHeight=3152
-TBDockHeight=3152
+ClientHeight=3210
+TBDockHeight=3210
 LRDockWidth=2857
 Dockable=1
 StayOnTop=0
@@ -508,7 +515,7 @@ Visible=0
 Docked=1
 State=0
 Left=-374
-Top=-154
+Top=-155
 Width=1846
 Height=3143
 MaxLeft=-1
@@ -612,11 +619,11 @@ State=0
 Left=0
 Top=0
 Width=1997
-Height=7019
+Height=7014
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1997
-ClientHeight=7019
+ClientHeight=7014
 TBDockHeight=4881
 LRDockWidth=5307
 Dockable=1
@@ -714,7 +721,7 @@ ClientWidth=1997
 ClientHeight=4595
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=7195
+TBDockHeight=7190
 LRDockWidth=1997
 Dockable=1
 StayOnTop=0
@@ -740,7 +747,7 @@ ClientWidth=1896
 ClientHeight=3557
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=7195
+TBDockHeight=7190
 LRDockWidth=1896
 Dockable=1
 StayOnTop=0
@@ -759,14 +766,14 @@ State=0
 Left=0
 Top=1047
 Width=1997
-Height=2824
+Height=2819
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1997
-ClientHeight=2824
+ClientHeight=2819
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=7195
+TBDockHeight=7190
 LRDockWidth=1997
 Dockable=1
 StayOnTop=0

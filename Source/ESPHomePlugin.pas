@@ -9,10 +9,20 @@ uses
   SciSupport, NppSupport, NppMenuCmdID, NppPlugin, NppPluginForms, NppPluginDockingForms,
   ESPHomeShared;
 
-{$R NppESPHomeToolbar.res}
+const
+  csPluginName = 'NppESPHome';
+  csMenuEmptyLine = '-';
 
 type
-  // Plugin class
+  TFuncMapRecord = record
+    ID: string;
+    MenuName: string;
+    FuncAddress: PFuncPluginCmd;
+    ShortcutKey: PShortcutKey;
+    HasToolbar: Boolean;
+  end;
+
+type
   TESPHomePlugin = class(TNppPlugin)
   private
     procedure SelectProject;
@@ -34,12 +44,14 @@ type
     procedure CommandExplorer;
     procedure CommandToolbar;
     procedure CommandAbout;
+    procedure CommandTemplates;
 
   protected
     procedure DoNppnReady; override;
     procedure DoNppnShutdown; override;
     procedure DoNppnShortcutRemapped; override;
     procedure DoNppnToolbarModification; override;
+    procedure DoNppnDarkModeChanged; override;
 
   public
     constructor Create; override;
@@ -54,7 +66,8 @@ var
   Plugin: TESPHomePlugin;
   // Class type to create in startup code
   PluginClass: TNppPluginClass = TESPHomePlugin;
-
+  // Mapping of the Functions configuration
+  FuncMapping: array of TFuncMapRecord;
 
 implementation
 
@@ -62,7 +75,7 @@ implementation
 
 uses
   JvCreateProcess, Winapi.ShellAPI, UnitFormProjectSelection, UnitFormProjectConfiguration,
-  UnitFormTemplates, UnitFormToolbar, UnitFormAbout, Vcl.Controls, IniFiles;
+  UnitFormTemplates, UnitFormToolbar, UnitFormAbout, Vcl.Controls, IniFiles, System.RegularExpressions;
 
 resourcestring
   rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.' +
@@ -76,9 +89,6 @@ resourcestring
 
   rsNoWebserverOnCurrentProject  = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
                                    #13#13#10'Visit command cannot work and it is ignored.';
-
-const
-  csMenuEmptyLine = '-';
 
 {$REGION 'Virtual Procedures'}
 
@@ -162,6 +172,11 @@ begin
   Plugin.CommandAbout;
 end;
 
+procedure _CommandTemplates; cdecl;
+begin
+  Plugin.CommandTemplates;
+end;
+
 {$ENDREGION}
 
 function ShortcutToString(const S: PShortcutKey): string;
@@ -198,65 +213,38 @@ begin
   end;
 end;
 
-resourcestring
-  rsPluginName = 'NppESPHome';
-  rsMenuSelectProject = 'Select Project...';
-  rsMenuSelectProjectCurrent = 'Change "%s" project...';
-  rsMenuConfigProject = 'Configure Project...';
-  rsMenuOpenProjectFile = 'Open Project file';
-  rsMenuOpenProjectFileAndDeps = 'Open Project file and dependencies';
-  rsMenuCommandRun = 'Run';
-  rsMenuCommandCompile = 'Compile';
-  rsMenuCommandUpload = 'Upload';
-  rsMenuCommandLogs = 'Show Logs';
-  rsMenuCommandClean = 'Clean';
-  rsMenuCommandVisit = 'Visit Device Web Server';
-  rsMenuOpenESPHomeDocs = 'Show ESPHome online documentation';
-  rsMenuUpgradeESPHome = 'Check and upgrade ESPHome version';
-  rsMenuOpenCmdShell = 'Open a CMD shell in the project folder';
-  rsMenuOpenExplorer = 'Open an Explorer window from the project folder';
-  rsMenuToolbar = 'Toolbar configuration...';
-  rsMenuAbout = 'About...';
 
 constructor TESPHomePlugin.Create;
+var
+  Index: Integer;
 begin
   inherited Create;
   Plugin := Self;
-  PluginName := rsPluginName;
+  PluginName := csPluginName;
 
-  AddFuncItem(rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79));
-  AddFuncItem(rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79));
-  AddFuncItem(csMenuEmptyLine, nil);
-  AddFuncItem(rsMenuOpenProjectFile, _OpenProject);
-  AddFuncItem(rsMenuOpenProjectFileAndDeps, _OpenProjectAndDependencies);
-  AddFuncItem(csMenuEmptyLine, nil);
-  AddFuncItem(rsMenuCommandRun, _CommandRun, MakeShortcutKey(false, false, false, $78));
-  AddFuncItem(rsMenuCommandCompile, _CommandCompile, MakeShortcutKey(false, false, false, $77));
-  AddFuncItem(rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(true, false, false, $77));
-  AddFuncItem(rsMenuCommandLogs, _CommandShowLogs, nil);
-  AddFuncItem(rsMenuCommandClean, _CommandClean, nil);
-  AddFuncItem(rsMenuCommandVisit, _CommandVisit, nil);
-  AddFuncItem(csMenuEmptyLine, nil);
-  AddFuncItem(rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(true, false, false, $70));
-  AddFuncItem(rsMenuUpgradeESPHome, _CommandUpgrade, nil);
-  AddFuncItem(csMenuEmptyLine, nil);
-  AddFuncItem(rsMenuOpenCmdShell, _CommandShellPrompt, nil);
-  AddFuncItem(rsMenuOpenExplorer, _CommandExplorer, nil);
-  AddFuncItem(csMenuEmptyLine, nil);
-  AddFuncItem(rsMenuToolbar, _CommandToolbar, nil);
-  AddFuncItem(rsMenuAbout, _CommandAbout, nil);
+  for Index := 0 to Length(FuncMapping) - 1 do
+    with FuncMapping[Index] do
+      AddFuncItem(MenuName, FuncAddress, ShortcutKey);
+
 end;
 
 procedure TESPHomePlugin.DoNppnReady;
 begin
   inherited;
   ModuleInitialize;
+  FormTemplates := TFormTemplates.Create(Plugin, 19);
+  if ConfigFile.ReadBool(csSectionGeneral, csKeyTemplateWindow, False) then
+    FormTemplates.Show
+  else
+    FormTemplates.Hide;
   UpdatePluginMenu;
 end;
 
 procedure TESPHomePlugin.DoNppnShutdown;
 begin
   ModuleFinalize;
+  if Assigned(FormTemplates) then
+    FormTemplates.Free;
   inherited;
 end;
 
@@ -267,55 +255,77 @@ end;
 
 procedure TESPHomePlugin.DoNppnToolbarModification;
 var
+  IniFile: TIniFile;
+
+  Index, Count: Integer;
+  ToolbarConfig, DefaultConfig: string;
+  Item, Pattern: string;
+  Parts: TArray<string>;
+  Regex: TRegEx;
+
+
   Bitmap: TBitmap;
   IconLight, IconDark: TIcon;
   IconData: TToolbarIconsWithDarkMode;
-  IniFile: TIniFile;
-  ToolBarBitmap: Int64;
-
-  procedure LoadResource(const MenuIdx: Integer; const BaseResourceName: string);
-  begin
-    Bitmap := TBitmap.Create;
-    IconLight := TIcon.Create;
-    IconDark := TIcon.Create;
-    Bitmap.LoadFromResourceName(HInstance, BaseResourceName);
-    Bitmap.PixelFormat := pf8Bit;
-    IconLight.LoadFromResourceName(HInstance, Concat(BaseResourceName, '_Light'));
-    IconDark.LoadFromResourceName(HInstance, Concat(BaseResourceName, '_Dark'));
-    IconData.ToolbarBmp := Bitmap.Handle;
-    IconData.ToolbarIcon := IconDark.Handle;
-    IconData.ToolbarIconDarkMode := IconLight.Handle;
-    Bitmap.TransparentMode := tmAuto;
-    Bitmap.TransparentColor := TColor($FFFFFF);
-    Bitmap.Transparent := True;
-    AddToolbarIconEx(CmdIdFromMenuItemIdx(MenuIdx), IconData);
-  end;
-
 begin
   inherited;
-
   if IsNppMinVersion(8, 0) then
   begin
+    Count := 0;
+    DefaultConfig := '';
+    for Index := 0 to Length(FuncMapping) - 1 do
+      if FuncMapping[Index].HasToolbar then
+      begin
+        DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
+        Inc(Count);
+      end;
 
     IniFile := TIniFile.Create(IncludeTrailingPathDelimiter(Plugin.GetPluginConfigDir) + ChangeFileExt(Plugin.GetName, '.ini'));
-    ToolBarBitmap := IniFile.ReadInt64(csSectionGeneral, csKeyToolbarBitmap, 65535);
+    ToolbarConfig := IniFile.ReadString(csSectionGeneral, csKeyToolbarConfig, DefaultConfig);
     IniFile.Free;
 
-    if GetBit(ToolBarBitmap, 0) then LoadResource(0, 'Select');
-    if GetBit(ToolBarBitmap, 1) then LoadResource(1, 'Configure');
-    if GetBit(ToolBarBitmap, 2) then LoadResource(3, 'Open');
-    if GetBit(ToolBarBitmap, 3) then LoadResource(4, 'OpenDeps');
-    if GetBit(ToolBarBitmap, 4) then LoadResource(6, 'Run');
-    if GetBit(ToolBarBitmap, 5) then LoadResource(7, 'Compile');
-    if GetBit(ToolBarBitmap, 6) then LoadResource(8, 'Upload');
-    if GetBit(ToolBarBitmap, 7) then LoadResource(9, 'ShowLogs');
-    if GetBit(ToolBarBitmap, 8) then LoadResource(10, 'Clean');
-    if GetBit(ToolBarBitmap, 9) then LoadResource(11, 'Visit');
-    if GetBit(ToolBarBitmap, 10) then LoadResource(13, 'Help');
-    if GetBit(ToolBarBitmap, 11) then LoadResource(14, 'Upgrade');
-  end
+    Pattern := Format('^(?:\d+:[01];){%d}$', [Count]);
+    Regex := TRegEx.Create(Pattern);
+    if not Regex.IsMatch(ToolbarConfig) then
+      ToolbarConfig := DefaultConfig;
+
+    for Item in ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty) do
+    begin
+      if Item <> '' then
+      begin
+        Parts := Item.Split([':']);
+        if Length(Parts) = 2 then
+        begin
+          Val(Parts[0], Index, Count);
+          if (Count = 0) and (Index < Length(FuncMapping)) and (Parts[1] = '1') then
+          begin
+            Bitmap := TBitmap.Create;
+            IconLight := TIcon.Create;
+            IconDark := TIcon.Create;
+            Bitmap.LoadFromResourceName(HInstance, FuncMapping[Index].ID);
+            Bitmap.PixelFormat := pf8Bit;
+            IconLight.LoadFromResourceName(HInstance, Concat(FuncMapping[Index].ID, DarkModeSuffix[False]));
+            IconDark.LoadFromResourceName(HInstance, Concat(FuncMapping[Index].ID, DarkModeSuffix[True]));
+            IconData.ToolbarBmp := Bitmap.Handle;
+            IconData.ToolbarIcon := IconDark.Handle;
+            IconData.ToolbarIconDarkMode := IconLight.Handle;
+            Bitmap.TransparentMode := tmAuto;
+            Bitmap.TransparentColor := TColor($FFFFFF);
+            Bitmap.Transparent := True;
+            AddToolbarIconEx(CmdIdFromMenuItemIdx(Index), IconData);
+          end;
+        end;
+      end;
+    end;
+
+  end;
 end;
 
+procedure TESPHomePlugin.DoNppnDarkModeChanged;
+begin
+  if Assigned(FormTemplates) then
+    FormTemplates.ToggleDarkMode;
+end;
 
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
@@ -325,7 +335,7 @@ var
   CommandLine, Switch, Device: string;
   ESPHomeProcess: TJvCreateProcess;
 begin
-  if not Assigned(ProjectList.Current) or not FileExists(ESPHomeExecutable) then
+  if not Assigned(ProjectList.Current) or not FileExists(ESPHomeExeFile) then
     Exit;
 
   with ProjectList.Current do
@@ -344,9 +354,9 @@ begin
     else
       CommandLine := '/k';
 
-    CommandLine := Format('%s %s', [CommandLine, ShortFileName(ESPHomeExecutable)]);
+    CommandLine := Format('%s %s', [CommandLine, ShortFileName(ESPHomeExeFile)]);
 
-    case GetOption(csKeyESPHomeLogLevel, ciLogLevelError) of
+    case GetOption(csKeyESPHomeLogLevel, ciLogLevelDefault) of
       ciLogLevelCritical:
         Switch := 'CRITICAL';
       ciLogLevelError:
@@ -508,7 +518,7 @@ begin
 
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
-  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & %s --version & pause', [ShortFileName(ESPHomeExecutable)]);
+  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & %s --version & pause', [ShortFileName(ESPHomeExeFile)]);
   JvCreateProcess.Run;
   JvCreateProcess.Free;
 end;
@@ -601,6 +611,17 @@ begin
   FreeAndNil(FormAbout);
 end;
 
+procedure TESPHomePlugin.CommandTemplates;
+begin
+  if not Assigned(FormTemplates) then
+    Exit;
+  if FormTemplates.Visible then
+    FormTemplates.Hide
+  else
+    FormTemplates.Show;
+  ConfigFile.WriteBool(csSectionGeneral, csKeyTemplateWindow, FormTemplates.Visible);
+end;
+
 procedure TESPHomePlugin.UpdatePluginMenu;
 var
   Index: Integer;
@@ -641,7 +662,7 @@ end;
 function TESPHomePlugin.CheckESPHome: Boolean;
 begin
   Result := False;
-  if not FileExists(ExpandFileName(FindFileInPath('esphome.exe'))) then
+  if not FileExists(ESPHomeExeFile) then
     MessageBox(0, PWideChar(rsInvalidESPHomeInstallation), PWideChar(rsMessageBoxError), MB_ICONERROR or MB_OK)
   else
     Result := True;
@@ -656,5 +677,41 @@ begin
     Result := True;
 end;
 
+procedure SetFuncMapRecord(const Index: Integer; const ID, MenuName: string; const FuncAddress: PFuncPluginCmd; const ShortcutKey: PShortcutKey;
+  const HasToolbar: Boolean = False);
+begin
+  FuncMapping[Index].ID := ID;
+  FuncMapping[Index].MenuName := MenuName;
+  FuncMapping[Index].FuncAddress := FuncAddress;
+  FuncMapping[Index].ShortcutKey := ShortcutKey;
+  FuncMapping[Index].HasToolbar := HasToolbar;
+end;
+
+initialization
+  SetLength(FuncMapping, 23);
+
+  SetFuncMapRecord(0, 'select', rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79), true);
+  SetFuncMapRecord(1, 'configure', rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79), true);
+  SetFuncMapRecord(2, '', csMenuEmptyLine, nil, nil);
+  SetFuncMapRecord(3, 'open', rsMenuOpenProjectFile, _OpenProject, nil, true);
+  SetFuncMapRecord(4, 'opendeps', rsMenuOpenProjectFileAndDeps, _OpenProjectAndDependencies, nil, true);
+  SetFuncMapRecord(5, '', csMenuEmptyLine, nil, nil);
+  SetFuncMapRecord(6, 'run', rsMenuCommandRun, _CommandRun, MakeShortcutKey(false, false, false, $78), true);
+  SetFuncMapRecord(7, 'compile', rsMenuCommandCompile, _CommandCompile, MakeShortcutKey(false, false, false, $77), true);
+  SetFuncMapRecord(8, 'upload', rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(true, false, false, $77), true);
+  SetFuncMapRecord(9, 'showlogs', rsMenuCommandShowLogs, _CommandShowLogs, nil, true);
+  SetFuncMapRecord(10, 'clean', rsMenuCommandClean, _CommandClean, nil, true);
+  SetFuncMapRecord(11, 'visit', rsMenuCommandVisit, _CommandVisit, nil, true);
+  SetFuncMapRecord(12, '', csMenuEmptyLine, nil, nil);
+  SetFuncMapRecord(13, 'help', rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(true, false, false, $70), true);
+  SetFuncMapRecord(14, 'upgrade', rsMenuUpgradeESPHome, _CommandUpgrade, nil, true);
+  SetFuncMapRecord(15, '', csMenuEmptyLine, nil, nil);
+  SetFuncMapRecord(16, 'cmdshell', rsMenuOpenCmdShell, _CommandShellPrompt, nil);
+  SetFuncMapRecord(17, 'explorer', rsMenuOpenExplorer, _CommandExplorer, nil);
+  SetFuncMapRecord(18, '', csMenuEmptyLine, nil, nil);
+  SetFuncMapRecord(19, 'templates', rsMenuTemplates, _CommandTemplates, nil, true);
+  SetFuncMapRecord(20, '', csMenuEmptyLine, nil, nil);
+  SetFuncMapRecord(21, 'toolbar', rsMenuToolbar, _CommandToolbar, nil);
+  SetFuncMapRecord(22, 'about', rsMenuAbout, _CommandAbout, nil);
 
 end.

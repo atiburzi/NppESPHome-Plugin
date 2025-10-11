@@ -37,6 +37,7 @@ type
     FDlgId:   Integer;
     FOnDock:  TNotifyEvent;
     FOnFloat: TNotifyEvent;
+    FOnClose:  TNotifyEvent;
 
     procedure RemoveControlParent(AControl: TControl);
 
@@ -47,6 +48,7 @@ type
     // @todo: change caption and stuff....
     procedure OnWM_NOTIFY(var Msg: TWMNotify); message WM_NOTIFY;
 
+    property  OnClose: TNotifyEvent  read FOnClose write FOnClose;
     property  OnDock: TNotifyEvent  read FOnDock  write FOnDock;
     property  OnFloat: TNotifyEvent read FOnFloat write FOnFloat;
 
@@ -178,7 +180,7 @@ end;
 procedure TNppPluginDockingForm.Hide;
 begin
   SendMessage(Self.Plugin.NppData.NppHandle, NPPM_DMMHIDE, 0, LPARAM(Self.Handle));
-  // inherited Hide;
+  inherited Hide;
   DoHide;
 end;
 
@@ -196,6 +198,7 @@ begin
     if (Msg.NMHdr.code = DMN_CLOSE) then
     begin
       DoHide;
+      if Assigned(FOnClose) then FOnClose(Self);
     end
 
     else if ((Msg.NMHdr.code and $ffff) = DMN_FLOAT) then

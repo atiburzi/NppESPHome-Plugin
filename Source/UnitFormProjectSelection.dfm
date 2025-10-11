@@ -22,17 +22,17 @@ object FormProjectSelection: TFormProjectSelection
     Height = 97
     Caption = 'Current Project'
     TabOrder = 0
-    object ComboBoxProject: TComboBoxEx
+    object ComboBoxProject: TComboBox
       Left = 16
-      Top = 24
+      Top = 22
       Width = 570
-      Height = 24
-      ItemsEx.SortType = stText
-      ItemsEx = <>
-      Style = csExDropDownList
+      Height = 26
+      Style = csOwnerDrawFixed
+      DropDownCount = 10
+      ItemHeight = 20
+      ParentColor = True
       TabOrder = 0
       OnChange = ComboBoxProjectChange
-      DropDownCount = 10
     end
     object ButtonAddProject: TButton
       Left = 312
@@ -59,15 +59,14 @@ object FormProjectSelection: TFormProjectSelection
       OnClick = ButtonRemoveProjectClick
     end
   end
-  object ButtonClose: TButton
-    Left = 240
-    Top = 112
-    Width = 129
-    Height = 26
-    Hint = 'Close this dialog window'
+  object Button1: TButton
+    Left = 272
+    Top = 119
+    Width = 81
+    Height = 25
     Cancel = True
-    Caption = '&Close'
-    ModalResult = 1
+    Caption = 'Cancel'
+    ModalResult = 8
     TabOrder = 1
   end
   object FileOpenDialogProject: TFileOpenDialog

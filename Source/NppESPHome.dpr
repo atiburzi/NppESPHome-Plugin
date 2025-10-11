@@ -38,7 +38,8 @@ uses
   UnitFormProjectConfiguration in 'UnitFormProjectConfiguration.pas' {FormProjectConfiguration},
   ESPHomeShared in 'ESPHomeShared.pas',
   UnitFormAbout in 'UnitFormAbout.pas' {FormAbout},
-  UnitFormToolbar in 'UnitFormToolbar.pas' {FormToolbar};
+  UnitFormToolbar in 'UnitFormToolbar.pas' {FormToolbar},
+  UnitFormTemplates in 'UnitFormTemplates.pas' {FormTemplates};
 
 {$R *.res}
 
