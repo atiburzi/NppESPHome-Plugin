@@ -34,6 +34,8 @@ That’s how the idea for this plugin was born.
 
 * **Custom Notepad++ toolbar** – An integrated, customizable toolbar provides direct access to the plugin’s main commands and functions.
 
+* **Templates for ESPHome Components** – A dockable window displays a customizable list of ESPHome components, allowing for quick insertion into code template blocks and accelerating development.
+
 * **Extra utilities** – Includes handy non-ESPHome features such as:
     - Opening the official ESPHome web documentation
     - Updating ESPHome to the latest version
@@ -139,7 +141,4 @@ The following additional 3rd party libraries are required in order to compile th
 Those libraries must be placed in the Delphi default library search path.
 
 ## Future enhancements
-An idea I am starting to explore is introducing a dockable window in Notepad++ that lists all ESPHome component constructs. This would allow users to insert them into the project code with a single click, reducing the need to constantly refer to the documentation.  
-These constructs would be kept outside the source code itself, most likely in an XML file, easily maintained with a simple text editor to stay aligned with new ESPHome releases.
-
-It is also worth mentioning that the plugin is already designed with multilingual support in mind. So far, I haven’t felt the need to implement it, but it could be added in the future without major effort.
+The plugin is already designed with multilingual support in mind. So far, I haven’t felt the need to implement it, but it could be added in the future without major effort.
