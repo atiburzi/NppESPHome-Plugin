@@ -92,12 +92,12 @@ These settings, defined on a per-project basis, are stored in the plugin’s con
 
 ### "Run", "Compile", "Upload", "Logs" and "Clean" commands
 
-![Configure Project](Art/menu.png)
+![NppESPHome Menu](Art/menu.png)
 
 From the plugin menu, or through keyboard shortcuts in Notepad++, you can launch the five main ESPHome commands for the current project (**Run, Compile, Upload, Logs, Clean**).  
 Normally, when working from a Windows console, you would need to invoke the `esphome.exe` command line manually and provide the correct sequence of required parameters.
 
-![Configure Project](Art/console.png)
+![Console Window](Art/console.png)
 
 The plugin automatically builds the command line with all the parameters required to run ESPHome, invoking the expected command.  
 Stored configurations, project files, and the command itself are used to open the ESPHome console and execute the selected action.
