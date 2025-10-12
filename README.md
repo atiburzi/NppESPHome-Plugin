@@ -16,7 +16,7 @@ That’s how the idea for this plugin was born.
 
 * **Streamlined workflow** – Designed around the ESPHome project concept, the plugin ensures a smooth, intuitive, and productive development experience.
 
-* **Project configuration dialogs** – Quickly select and configure your current project with dedicated setup windows directly inside Notepad++, fully supporting Light or Dark modes.
+* **Project configuration dialogs** – Quickly select and configure your current project with dedicated setup windows directly inside Notepad++.
 
 * **One-click ESPHome commands** – Automatically generates command lines for Run, Compile, Upload, Clean, and Logs. All commands are accessible from the plugin menu or can be assigned to custom keyboard shortcuts in Notepad++.
 
@@ -35,6 +35,8 @@ That’s how the idea for this plugin was born.
 * **Custom Notepad++ toolbar** – An integrated, customizable toolbar provides direct access to the plugin’s main commands and functions.
 
 * **Templates for ESPHome Components** – A dockable window displays a customizable list of ESPHome components, allowing for quick insertion into code template blocks and accelerating development.
+  
+* **Full support for Light or Dark modes** - Any window, as well as the toolbar has been developed to support both Notepad++ dark and light modes.
 
 * **Extra utilities** – Includes handy non-ESPHome features such as:
     - Opening the official ESPHome web documentation
@@ -44,10 +46,10 @@ That’s how the idea for this plugin was born.
 ## What it does and doesn't do
 
 The plugin does not replace ESPHome; instead, it simplifies interaction with it directly from Notepad++.  
-For the plugin to work, **ESPHome must already be installed on your system**, and its executable must be available in the user or system PATH.  
-As it is built for Notepad++, the editor must also be installed—version 8.0 or higher is required to enable toolbar functionality.
+For the plugin to work, **ESPHome must already be installed on your system**.  
+As it is built for Notepad++, the editor must also be installed; version 8.0 or higher is recommended and required to enable toolbar functionality.
 
-## Typical workflow
+## Typical workflow for ESPHome projects
 
 1.   Select one or more existing ESPHome projects by adding the corresponding YAML file through the **"Select Project"** plugin command.
     
@@ -55,32 +57,31 @@ As it is built for Notepad++, the editor must also be installed—version 8.0 or
     
 3.   Configure the current project by setting the relevant options for ESPHome and Notepad++ using the **"Configure Project"** command.
     
-4.   Open the project file(s) in Notepad++ for development with the **"Open Project File & Dependencies"** function.
+4.   Open the project file(s) in Notepad++ for development with  **"Open Project File"** or **"Open Project File & Dependencies"** commands.
     
-5.   Apply your changes.
+5.   Develop you code.
     
-6.   Execute "**Run**", "**Compile**", or "**Upload**" ESPHome commands as needed—either from the menu or through custom keyboard shortcuts.
+6.   While coding invoke "**Run**", "**Compile**", or "**Upload**" ESPHome commands as needed, either from the menu or through custom keyboard shortcuts.
     
 7.   Explore the additional plugin commands and features to further support your development.
 
-## The Application
+## The Application windows
 
-### "Select Project" command
+### "Select Project" menù command
+*(default shortkey Alt+Shift+F9)*
 
-When the plugin is loaded, it retrieves from the configuration file the ESPHome project previously selected.  
-You can select an existing project or add a new one to the list of known projects using the **"Select Project..."** function, which opens the following dialog:
 
-![Select Project](Art/select.png)
+When the plugin is loaded, it reads from the configuration file the list of previously added ESPHome projects and identifies the **active project** — the one to which all remaining plugin commands will apply.
 
-The combo box displays all known ESPHome projects. The project currently selected in this list will be used across all plugin functionalities.  
-To be selectable, a project must first be added to the list of known projects.
+By selecting the **"Select Project"** command from the **"Plugins → NppESPHome"** menu, the following window appears. From here, you can choose the active project from the list of known projects or add a new one by clicking **"Add Project"** and loading the corresponding YAML file from your system.
 
--   **Add a project:** click "Add Project" and choose the YAML file of your project. The file must contain valid ESPHome project content, which will be analyzed to extract the required information. If the file content is invalid, an error message will be shown and the project will not be added.
-    
--   **Remove a project:** select it from the list and click "Remove Project".
+If you wish to remove a project from the list of known projects, use the **"Remove Project"** button.
+
+![Select Project Window](Art/select.png)
 
 
 ### "Configure Project" command
+*(default shortkey Ctrl+F10)*
 
 Once the current project has been selected, you can proceed with its configuration by defining how the plugin should interact with ESPHome and with Notepad++.  
 For example, you can decide the type of auto-save behavior for project files, configure how to handle console windows opened by ESPHome commands, customize the command line for each action, and much more.
@@ -90,10 +91,13 @@ For example, you can decide the type of auto-save behavior for project files, co
 These settings, defined on a per-project basis, are stored in the plugin’s configuration file.
 
 ### "Run", "Compile", "Upload", "Logs" and "Clean" commands
+
+![NppESPHome Menu](Art/menu.png)
+
 From the plugin menu, or through keyboard shortcuts in Notepad++, you can launch the five main ESPHome commands for the current project (**Run, Compile, Upload, Logs, Clean**).  
 Normally, when working from a Windows console, you would need to invoke the `esphome.exe` command line manually and provide the correct sequence of required parameters.
 
-![Configure Project](Art/console.png)
+![Console Window](Art/console.png)
 
 The plugin automatically builds the command line with all the parameters required to run ESPHome, invoking the expected command.  
 Stored configurations, project files, and the command itself are used to open the ESPHome console and execute the selected action.
@@ -102,7 +106,7 @@ The console (running in a Windows shell) can either remain open or close automat
 ## Installation
 
 In case you just want to use the plugin as-is, and don't care to compile it yourself, you can download the [DLL](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin).<br/>
-The plugin DLL file should be placed in the plugins subfolder of the Notepad++ Install Folder, under the subfolder with the same name of plugin binary name without file extension, as per this [guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually).<br/>
+The plugin DLL file must be placed in the plugins subfolder of the Notepad++ Install Folder, under the subfolder with the same name of plugin binary name without file extension, as per this [guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually).<br/>
 
 Pay attention to use the DLL plugin architecture corresponding to the Notepad++ architecture in use. (x32/x64)<br/>
 Moreover, remember that for the plugin to work, ESPHome must already be installed on the system. 
