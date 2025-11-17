@@ -81,10 +81,12 @@ type
     Splitter: TSplitter;
     VirtualStringTreeTemplates: TVirtualStringTree;
     PopupMenuTemplates: TPopupMenu;
-    EditTemplatesXMLFile: TMenuItem;
-    ReloadXMLFileConfiguration: TMenuItem;
+    PopupMenuEditTemplatesXMLFile: TMenuItem;
+    PopupMenuReloadXMLFileConfiguration: TMenuItem;
     StaticTextDescription: TJvStaticText;
     ButtonMenuTemplates: TSpeedButton;
+    PopUpMenuN4: TMenuItem;
+    PopupMenuDownloadTemplates: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
@@ -109,11 +111,13 @@ type
     procedure ComboBoxCategoriesChange(Sender: TObject);
     procedure VirtualStringTreeTemplatesDblClick(Sender: TObject);
     procedure EditTextFilterRightButtonClick(Sender: TObject);
-    procedure EditTemplatesXMLFileClick(Sender: TObject);
-    procedure ReloadXMLFileConfigurationClick(Sender: TObject);
+    procedure PopupMenuEditTemplatesXMLFileClick(Sender: TObject);
+    procedure PopupMenuReloadXMLFileConfigurationClick(Sender: TObject);
     procedure VirtualStringTreeTemplatesGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
       var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
     procedure ButtonMenuTemplatesClick(Sender: TObject);
+    procedure PopupMenuDownloadTemplatesClick(Sender: TObject);
+    procedure PopupMenuTemplatesPopup(Sender: TObject);
   private
     { Private declarations }
   public
@@ -134,7 +138,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math;
+  System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils;
 
 procedure TFormProjects.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -146,7 +150,7 @@ end;
 procedure TFormProjects.FormCreate(Sender: TObject);
 begin
   VirtualStringTreeProjects.NodeDataSize := SizeOf(TProjectNode);
-  VirtualStringTreeTemplates.NodeDataSize := SizeOf(TTemplate);  
+  VirtualStringTreeTemplates.NodeDataSize := SizeOf(TTemplate);
   RefreshProjectsList;
   RefreshCategoryList;
   RefreshTemplatesList;
@@ -533,7 +537,7 @@ begin
   end;
 end;
 
-procedure TFormProjects.ReloadXMLFileConfigurationClick(Sender: TObject);
+procedure TFormProjects.PopupMenuReloadXMLFileConfigurationClick(Sender: TObject);
 begin
   inherited;
   TemplateList.Refresh;
@@ -543,13 +547,29 @@ begin
   VirtualStringTreeTemplates.EndUpdate;
 end;
 
+procedure TFormProjects.PopupMenuTemplatesPopup(Sender: TObject);
+begin
+  inherited;
+  PopupMenuDownloadTemplates.Enabled := not (TFile.Exists(TemplateFile) and (TFile.GetSize(TemplateFile) > 0));
+end;
+
 procedure TFormProjects.ComboBoxCategoriesChange(Sender: TObject);
 begin
   inherited;
   RefreshTemplatesList(EditTextFilter.Text, ComboBoxCategories.Text);
 end;
 
-procedure TFormProjects.EditTemplatesXMLFileClick(Sender: TObject);
+procedure TFormProjects.PopupMenuDownloadTemplatesClick(Sender: TObject);
+begin
+  if MessageBox(Self.Handle, PWideChar(rsConfirmOverwriteTemplates), PWideChar(rsMessageBoxWarning), MB_YESNO or MB_ICONWARNING) = IDYES then
+  begin
+    DownloadTemplateFileFromGitHub;
+    PopupMenuReloadXMLFileConfigurationClick(nil);
+    MessageBox(Self.Handle, PWideChar(rsTemplatesXMLDownloaded), PWideChar(rsMessageBoxInfo), MB_OK or MB_ICONINFORMATION);
+  end;
+end;
+
+procedure TFormProjects.PopupMenuEditTemplatesXMLFileClick(Sender: TObject);
 begin
   inherited;
   Plugin.OpenFile(TemplateFile, False);

@@ -31,9 +31,6 @@ Coordinates=270,304,107,36
 [ToolButtonOpenDeps]
 Coordinates=122,304,138,36
 
-[EditTemplatesXMLFile]
-Coordinates=684,1,144,36
-
 [PopupMenuShowLogs]
 Coordinates=684,56,143,36
 
@@ -60,9 +57,6 @@ Coordinates=10,10,140,124
 
 [PopupMenuVisit]
 Coordinates=575,343,108,36
-
-[ReloadXMLFileConfiguration]
-Coordinates=386,343,179,36
 
 [ActionClean]
 Coordinates=297,343,84,36
@@ -190,4 +184,10 @@ Visible=True
 
 []
 Coordinates=47,491,91,36
+
+[PopupMenuEditTemplatesXMLFile]
+Coordinates=684,1,144,36
+
+[PopupMenuReloadXMLFileConfiguration]
+Coordinates=386,343,179,36
 

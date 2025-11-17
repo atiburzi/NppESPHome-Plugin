@@ -126,6 +126,11 @@ resourcestring
   rsKnownProjectRemoval = 'Project "%s" will be removed from the known list. Are you sure?';
   rsRemoveProjectFile = 'Remove selected Project';
 
+resourcestring
+  rsTemplatesNotFound = 'No "NppESPHome.xml" templates file has been found on your system. Do you want to download the default one from GitHub portal?';
+  rsConfirmOverwriteTemplates = 'You are going to overwrite your "NppESPHome.xml" templates file with the one available on GitHub. Any modification done on the original XML will be lost. Are you sure you want to continue?';
+  rsTemplatesXMLDownloaded = 'Default XML Templates file downloaded from GitHub.';
+
 type
   PProject = ^TProject;
   TProject = class
@@ -232,6 +237,7 @@ function FindFileInPath(const FileName: string): string;
 
 procedure ModuleInitialize;
 procedure ModuleFinalize;
+procedure DownloadTemplateFileFromGitHub;
 
 function GetBit(const Value: Int64; BitPos: ShortInt): Boolean;
 function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
@@ -239,7 +245,8 @@ function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, Xml.XMLDoc, System.NetEncoding;
+  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, Xml.XMLDoc,
+  System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent;
 
 type
   TPingThread = class(TThread)
@@ -646,6 +653,16 @@ end;
 constructor TTemplateList.Create(const AFileName: string);
 begin
   inherited Create;
+  if not FileExists(TemplateFile) then
+  begin
+    if MessageBox(0, PWideChar(rsTemplatesNotFound), PWideChar(rsMessageBoxWarning), MB_YESNO or MB_ICONWARNING) = IDYES then
+    begin
+      DownloadTemplateFileFromGitHub;
+      MessageBox(0, PWideChar(rsTemplatesXMLDownloaded), PWideChar(rsMessageBoxInfo), MB_OK or MB_ICONINFORMATION);
+    end
+    else
+      TFile.Create(TemplateFile);
+  end;
   if FileExists(AFileName) then
   begin
     FXMLDoc := TXMLDocument.Create(nil);
@@ -664,23 +681,26 @@ var
   Template: TTemplate;
 begin
   Self.Clear;
-  try
-    FXMLDoc.Active := True;
-    FXMLDoc.Refresh;
-    RootNode := FXMLDoc.DocumentElement;
-    if Assigned(RootNode) then
-      for Index := 0 to RootNode.ChildNodes.Count - 1 do
-      begin
-        Template.Name := RootNode.ChildNodes[Index].ChildNodes['Name'].Text;
-        Template.Category := RootNode.ChildNodes[Index].ChildNodes['Category'].Text;
-        Template.Description := RootNode.ChildNodes[Index].ChildNodes['Description'].Text;
-        Template.YAML := TNetEncoding.HTML.Decode(RootNode.ChildNodes[Index].ChildNodes['YAML'].Text);
-        if Self.IndexOfName(Template.Name) < 0 then
-          Self.Add(Template);
-      end;
-  except
-    on E: Exception do
-      MessageBox(0, PWideChar(Format(rsErrorReadingTemplateFile, [E.Message])), PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+  if TFile.GetSize(TemplateFile) > 0 then
+  begin
+    try
+      FXMLDoc.Active := True;
+      FXMLDoc.Refresh;
+      RootNode := FXMLDoc.DocumentElement;
+      if Assigned(RootNode) then
+        for Index := 0 to RootNode.ChildNodes.Count - 1 do
+        begin
+          Template.Name := RootNode.ChildNodes[Index].ChildNodes['Name'].Text;
+          Template.Category := RootNode.ChildNodes[Index].ChildNodes['Category'].Text;
+          Template.Description := RootNode.ChildNodes[Index].ChildNodes['Description'].Text;
+          Template.YAML := TNetEncoding.HTML.Decode(RootNode.ChildNodes[Index].ChildNodes['YAML'].Text);
+          if Self.IndexOfName(Template.Name) < 0 then
+            Self.Add(Template);
+        end;
+    except
+      on E: Exception do
+        MessageBox(0, PWideChar(Format(rsErrorReadingTemplateFile, [E.Message])), PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+    end;
   end;
 end;
 
@@ -765,6 +785,30 @@ begin
   Result := '';
   if GetShortPathName(PChar(LongFileName), ShortName, MAX_PATH) > 0 then
     Result := ShortName;
+end;
+
+resourcestring
+  rsTemplatesGitHubUrl = 'https://raw.githubusercontent.com/atiburzi/NppESPHome-Plugin/refs/heads/main/Templates/NppESPHome.xml';
+
+procedure DownloadTemplateFileFromGitHub;
+var
+  HTTP: TNetHTTPClient;
+  Response: IHTTPResponse;
+  FileStream: TFileStream;
+begin
+  HTTP := TNetHTTPClient.Create(nil);
+  try
+    Response := HTTP.Get(rsTemplatesGitHubUrl);
+    FileStream := TFileStream.Create(TemplateFile, fmCreate);
+    try
+      Response.ContentStream.Position := 0;
+      FileStream.CopyFrom(Response.ContentStream, Response.ContentStream.Size);
+    finally
+      FileStream.Free;
+    end;
+  finally
+    HTTP.Free;
+  end;
 end;
 
 procedure ModuleInitialize;

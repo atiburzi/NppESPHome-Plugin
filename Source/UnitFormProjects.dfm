@@ -2989,15 +2989,23 @@ object FormProjects: TFormProjects
   object PopupMenuTemplates: TPopupMenu
     MenuAnimation = [maLeftToRight]
     TrackButton = tbLeftButton
+    OnPopup = PopupMenuTemplatesPopup
     Left = 248
     Top = 168
-    object EditTemplatesXMLFile: TMenuItem
+    object PopupMenuEditTemplatesXMLFile: TMenuItem
       Caption = 'Edit Templates XML file'
-      OnClick = EditTemplatesXMLFileClick
+      OnClick = PopupMenuEditTemplatesXMLFileClick
     end
-    object ReloadXMLFileConfiguration: TMenuItem
+    object PopupMenuReloadXMLFileConfiguration: TMenuItem
       Caption = 'Reload XML file configuration'
-      OnClick = ReloadXMLFileConfigurationClick
+      OnClick = PopupMenuReloadXMLFileConfigurationClick
+    end
+    object PopUpMenuN4: TMenuItem
+      Caption = '-'
+    end
+    object PopupMenuDownloadTemplates: TMenuItem
+      Caption = 'Download Templates file from GitHub'
+      OnClick = PopupMenuDownloadTemplatesClick
     end
   end
 end
