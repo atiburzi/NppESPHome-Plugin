@@ -4,8 +4,8 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
@@ -137,8 +137,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <VerInfo_Release>25</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>37</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.25.37;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
+        <VerInfo_Build>38</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.25.38;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
         <VerInfo_Release>25</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
