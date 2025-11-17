@@ -34,12 +34,12 @@ uses
   SciSupport in '..\Lib\SciSupport.pas',
   FileVersionInfo in '..\Lib\FileVersionInfo.pas',
   ESPHomePlugin in 'ESPHomePlugin.pas',
-  UnitFormProjectSelection in 'UnitFormProjectSelection.pas' {FormProjectSelection},
-  UnitFormProjectConfiguration in 'UnitFormProjectConfiguration.pas' {FormProjectConfiguration},
+  UnitFormSelection in 'UnitFormSelection.pas' {FormSelection},
+  UnitFormConfig in 'UnitFormConfig.pas' {FormConfiguration},
   ESPHomeShared in 'ESPHomeShared.pas',
   UnitFormAbout in 'UnitFormAbout.pas' {FormAbout},
   UnitFormToolbar in 'UnitFormToolbar.pas' {FormToolbar},
-  UnitFormTemplates in 'UnitFormTemplates.pas' {FormTemplates};
+  UnitFormProjects in 'UnitFormProjects.pas' {FormProjects};
 
 {$R *.res}
 
@@ -93,13 +93,18 @@ begin
   Result := BasePlugin.GetName;
 end;
 
-function isUnicode : Boolean; cdecl; export;
+function isUnicode: Boolean; cdecl; export;
 begin
   Result := true;
 end;
 
 exports
-  setInfo, getName, getFuncsArray, beNotified, messageProc, isUnicode;
+  setInfo,
+  getName,
+  getFuncsArray,
+  beNotified,
+  messageProc,
+  isUnicode;
 
 begin
   // Propagate DLL entry point to RTL
@@ -107,3 +112,4 @@ begin
   // Create plugin instance
   DLLEntryPoint(DLL_PROCESS_ATTACH);
 end.
+

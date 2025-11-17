@@ -1,12 +1,12 @@
-unit ESPHomePlugin;
+﻿unit ESPHomePlugin;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.DateUtils,
-  System.IOUtils, System.Math, System.Types, System.Classes, System.Generics.Defaults,
-  System.Generics.Collections, Vcl.Graphics,
-  SciSupport, NppSupport, NppMenuCmdID, NppPlugin, NppPluginForms, NppPluginDockingForms,
+  Winapi.Windows, System.SysUtils, System.StrUtils,
+  System.Classes,
+  Vcl.Graphics,
+  NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms,
   ESPHomeShared;
 
 const
@@ -24,7 +24,7 @@ type
 
 type
   TESPHomePlugin = class(TNppPlugin)
-  private
+  public
     procedure SelectProject;
     procedure ConfigureProject;
     procedure OpenProject;
@@ -44,7 +44,7 @@ type
     procedure CommandExplorer;
     procedure CommandToolbar;
     procedure CommandAbout;
-    procedure CommandTemplates;
+    procedure CommandShowHide;
 
   protected
     procedure DoNppnReady; override;
@@ -52,10 +52,13 @@ type
     procedure DoNppnShortcutRemapped; override;
     procedure DoNppnToolbarModification; override;
     procedure DoNppnDarkModeChanged; override;
+    procedure DoNppnBufferActivated; override;
 
   public
     constructor Create; override;
+    procedure UpdateProjectList;
     procedure UpdatePluginMenu;
+
     function CheckESPHome: Boolean;
     function CheckCurrentProject: Boolean;
 
@@ -74,21 +77,19 @@ implementation
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, UnitFormProjectSelection, UnitFormProjectConfiguration,
-  UnitFormTemplates, UnitFormToolbar, UnitFormAbout, Vcl.Controls, IniFiles, System.RegularExpressions;
+  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig,
+  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions;
 
 resourcestring
   rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.' +
-                                  #13#10'Please (re)install ESPHome following the instructions available on the following web page:' +
-                                  #13#13#10'https://www.esphome.io/guides/installing_esphome/';
+    #13#10'Please (re)install ESPHome following the instructions available on the following web page:' +
+    #13#13#10'https://www.esphome.io/guides/installing_esphome/';
 
-  rsNoProjectSelected = 'No ESPHome project is currently selected.' +
-                        #13#13#10'To use this command, please select the current project and try again.' +
-                        #13#10'You can select it through the men� command:' +
-                        #13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+  rsNoProjectSelected = 'No ESPHome project is currently selected.' + #13#13#10'To use this command, please select the current project and try again.' +
+    #13#10'You can select it through the menù command:' + #13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
 
-  rsNoWebserverOnCurrentProject  = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
-                                   #13#13#10'Visit command cannot work and it is ignored.';
+  rsNoWebserverOnCurrentProject = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
+    #13#13#10'Visit command cannot work and it is ignored.';
 
 {$REGION 'Virtual Procedures'}
 
@@ -172,9 +173,9 @@ begin
   Plugin.CommandAbout;
 end;
 
-procedure _CommandTemplates; cdecl;
+procedure _CommandShowHide; cdecl;
 begin
-  Plugin.CommandTemplates;
+  Plugin.CommandShowHide;
 end;
 
 {$ENDREGION}
@@ -182,7 +183,7 @@ end;
 function ShortcutToString(const S: PShortcutKey): string;
 var
   Parts: TArray<string>;
-  KeyName: array[0..255] of Char;
+  KeyName: array [0 .. 255] of Char;
 begin
   SetLength(Parts, 0);
   if S.IsCtrl then
@@ -213,7 +214,6 @@ begin
   end;
 end;
 
-
 constructor TESPHomePlugin.Create;
 var
   Index: Integer;
@@ -232,19 +232,19 @@ procedure TESPHomePlugin.DoNppnReady;
 begin
   inherited;
   ModuleInitialize;
-  FormTemplates := TFormTemplates.Create(Plugin, 19);
-  if ConfigFile.ReadBool(csSectionGeneral, csKeyTemplateWindow, False) then
-    FormTemplates.Show
+  FormProjects := TFormProjects.Create(Plugin, 19);
+  if ConfigFile.ReadBool(csSectionGeneral, csKeyProjectWindow, False) then
+    FormProjects.Show
   else
-    FormTemplates.Hide;
+    FormProjects.Hide;
   UpdatePluginMenu;
 end;
 
 procedure TESPHomePlugin.DoNppnShutdown;
 begin
   ModuleFinalize;
-  if Assigned(FormTemplates) then
-    FormTemplates.Free;
+  if Assigned(FormProjects) then
+    FormProjects.Free;
   inherited;
 end;
 
@@ -256,14 +256,11 @@ end;
 procedure TESPHomePlugin.DoNppnToolbarModification;
 var
   IniFile: TIniFile;
-
   Index, Count: Integer;
   ToolbarConfig, DefaultConfig: string;
   Item, Pattern: string;
   Parts: TArray<string>;
   Regex: TRegEx;
-
-
   Bitmap: TBitmap;
   IconLight, IconDark: TIcon;
   IconData: TToolbarIconsWithDarkMode;
@@ -323,14 +320,19 @@ end;
 
 procedure TESPHomePlugin.DoNppnDarkModeChanged;
 begin
-  if Assigned(FormTemplates) then
-    FormTemplates.ToggleDarkMode;
+  if Assigned(FormProjects) then
+    FormProjects.ToggleDarkMode;
+end;
+
+procedure TESPHomePlugin.DoNppnBufferActivated;
+begin
+  if Assigned(FormProjects) then
+    FormProjects.CurrentDocumentChanged;
 end;
 
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
-  CommandStr: array [scRun..scClean] of string =
-              ('run', 'compile', 'upload', 'logs', 'clean');
+  CommandStr: array [scRun .. scClean] of string = ('run', 'compile', 'upload', 'logs', 'clean');
 var
   CommandLine, Switch, Device: string;
   ESPHomeProcess: TJvCreateProcess;
@@ -443,9 +445,9 @@ end;
 
 procedure TESPHomePlugin.SelectProject;
 begin
-  FormProjectSelection := TFormProjectSelection.Create(Self);
-  FormProjectSelection.ShowModal;
-  FreeAndNil(FormProjectSelection);
+  FormSelection := TFormSelection.Create(Self);
+  FormSelection.ShowModal;
+  FreeAndNil(FormSelection);
   UpdatePluginMenu;
 end;
 
@@ -453,9 +455,9 @@ procedure TESPHomePlugin.ConfigureProject;
 begin
   if CheckCurrentProject then
   begin
-    FormProjectConfiguration := TFormProjectConfiguration.Create(Self);
-    FormProjectConfiguration.ShowModal;
-    FreeAndNil(FormProjectConfiguration);
+    FormConfiguration := TFormConfig.Create(Self);
+    FormConfiguration.ShowModal;
+    FreeAndNil(FormConfiguration);
   end;
 end;
 
@@ -498,7 +500,8 @@ begin
 
   if not ProjectList.Current.HasWebServer then
   begin
-    MessageBox(0, PWideChar(Format(rsNoWebserverOnCurrentProject, [ProjectList.Current.FriendlyName])), PWideChar(rsMessageBoxWarning), MB_ICONWARNING or MB_OK);
+    MessageBox(0, PWideChar(Format(rsNoWebserverOnCurrentProject, [ProjectList.Current.FriendlyName])), PWideChar(rsMessageBoxWarning),
+      MB_ICONWARNING or MB_OK);
     Exit;
   end;
 
@@ -592,7 +595,6 @@ procedure TESPHomePlugin.CommandExplorer;
 begin
   if not CheckCurrentProject then
     Exit;
-
   if ProjectList.Current.FileName <> '' then
     ShellExecute(0, 'open', PChar(ExtractFilePath(ProjectList.Current.FileName)), nil, nil, SW_SHOWNORMAL);
 end;
@@ -611,17 +613,62 @@ begin
   FreeAndNil(FormAbout);
 end;
 
-procedure TESPHomePlugin.CommandTemplates;
+procedure TESPHomePlugin.CommandShowHide;
 begin
-  if not Assigned(FormTemplates) then
+  if not Assigned(FormProjects) then
     Exit;
-  if FormTemplates.Visible then
-    FormTemplates.Hide
+  if FormProjects.Visible then
+    FormProjects.Hide
   else
-    FormTemplates.Show;
-  ConfigFile.WriteBool(csSectionGeneral, csKeyTemplateWindow, FormTemplates.Visible);
+    FormProjects.Show;
+  ConfigFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
 end;
 
+procedure TESPHomePlugin.UpdateProjectList;
+begin
+  if Assigned(FormProjects) then
+    FormProjects.RefreshProjectsList;
+  UpdatePluginMenu;
+end;
+
+(* ************ Explanation ***************
+  This procedure is part of a Delphi plugin (likely for Notepad++ since it uses NPP handles and messages) that
+  updates the plugin’s menu. Here’s a step‐by‐step explanation of what it does:
+
+  1. It begins by obtaining the handle to the plugin menu. This is done by
+  sending a Windows message (NPPM_GETMENUHANDLE) to the main Notepad++ window (using NppData.NppHandle). If the menu handle returned is valid (not 0), it
+  proceeds.
+
+  2. The procedure then loops through all the top‑level menu items (using GetMenuItemCount on the plugin menu). For each menu item, it retrieves the
+  text (using GetMenuString) into a character buffer.
+
+  3. The retrieved menu text is processed by removing any ampersand characters (used for mnemonic
+  definitions) and trimming spaces. It then extracts the left part of the string with a length equal to the plugin’s name. This is done so it can check if the
+  current menu item belongs to this plugin (by comparing it case‑insensitively with the Plugin.PluginName).
+
+  4. Once it finds the matching menu item, it gets
+  that item’s submenu with GetSubMenu. This submenu is where the plugin’s commands (or submenu items) are registered.
+
+  5. Inside the submenu, it prepares new
+  text for the first menu item (the item at index 0). The new menu text depends on whether a current project is assigned. If there is a current project
+  (ProjectList.Current is assigned), it uses a formatted string (rsMenuSelectProjectCurrent) that includes the project’s friendly name. Otherwise, it resorts to a
+  default text (rsMenuSelectProject).
+
+  6. The code then retrieves the function item (using GetFuncByIndex(0)) associated with this menu command, and if found,
+  it attempts to get the shortcut key (by sending the message NPPM_GETSHORTCUTBYCMDID with the command ID). If a shortcut is found, it appends the shortcut key
+  (converted to a string via ShortcutToString) to the menu text. A tab character (#09) is used to separate the main text from the shortcut text.
+
+  7. The
+  procedure uses ModifyMenu to update the first menu item in the submenu with the new text. The update is based on parameters that specify the position
+  (MF_BYPOSITION) and string update (MF_STRING), and it reuses the original menu item ID.
+
+  8. Finally, the menu bar is redrawn (using DrawMenuBar) so that the
+  changes become visible immediately in the Notepad++ interface.
+
+  In summary, this code scans through the plugin’s menu to locate the correct submenu, then
+  dynamically updates its first item—changing its label to either indicate the currently selected project (including its friendly name) or a default “select
+  project” message, and appending any associated shortcut key.
+*)
 procedure TESPHomePlugin.UpdatePluginMenu;
 var
   Index: Integer;
@@ -688,30 +735,31 @@ begin
 end;
 
 initialization
-  SetLength(FuncMapping, 23);
 
-  SetFuncMapRecord(0, 'select', rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79), true);
-  SetFuncMapRecord(1, 'configure', rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79), true);
-  SetFuncMapRecord(2, '', csMenuEmptyLine, nil, nil);
-  SetFuncMapRecord(3, 'open', rsMenuOpenProjectFile, _OpenProject, nil, true);
-  SetFuncMapRecord(4, 'opendeps', rsMenuOpenProjectFileAndDeps, _OpenProjectAndDependencies, nil, true);
-  SetFuncMapRecord(5, '', csMenuEmptyLine, nil, nil);
-  SetFuncMapRecord(6, 'run', rsMenuCommandRun, _CommandRun, MakeShortcutKey(false, false, false, $78), true);
-  SetFuncMapRecord(7, 'compile', rsMenuCommandCompile, _CommandCompile, MakeShortcutKey(false, false, false, $77), true);
-  SetFuncMapRecord(8, 'upload', rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(true, false, false, $77), true);
-  SetFuncMapRecord(9, 'showlogs', rsMenuCommandShowLogs, _CommandShowLogs, nil, true);
-  SetFuncMapRecord(10, 'clean', rsMenuCommandClean, _CommandClean, nil, true);
-  SetFuncMapRecord(11, 'visit', rsMenuCommandVisit, _CommandVisit, nil, true);
-  SetFuncMapRecord(12, '', csMenuEmptyLine, nil, nil);
-  SetFuncMapRecord(13, 'help', rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(true, false, false, $70), true);
-  SetFuncMapRecord(14, 'upgrade', rsMenuUpgradeESPHome, _CommandUpgrade, nil, true);
-  SetFuncMapRecord(15, '', csMenuEmptyLine, nil, nil);
-  SetFuncMapRecord(16, 'cmdshell', rsMenuOpenCmdShell, _CommandShellPrompt, nil);
-  SetFuncMapRecord(17, 'explorer', rsMenuOpenExplorer, _CommandExplorer, nil);
-  SetFuncMapRecord(18, '', csMenuEmptyLine, nil, nil);
-  SetFuncMapRecord(19, 'templates', rsMenuTemplates, _CommandTemplates, nil, true);
-  SetFuncMapRecord(20, '', csMenuEmptyLine, nil, nil);
-  SetFuncMapRecord(21, 'toolbar', rsMenuToolbar, _CommandToolbar, nil);
-  SetFuncMapRecord(22, 'about', rsMenuAbout, _CommandAbout, nil);
+SetLength(FuncMapping, 23);
+
+SetFuncMapRecord(0, 'select', rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79), True);
+SetFuncMapRecord(1, 'configure', rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79), True);
+SetFuncMapRecord(2, '', csMenuEmptyLine, nil, nil);
+SetFuncMapRecord(3, 'open', rsMenuOpenProjectFile, _OpenProject, nil, True);
+SetFuncMapRecord(4, 'opendeps', rsMenuOpenProjectFileAndDeps, _OpenProjectAndDependencies, nil, True);
+SetFuncMapRecord(5, '', csMenuEmptyLine, nil, nil);
+SetFuncMapRecord(6, 'run', rsMenuCommandRun, _CommandRun, MakeShortcutKey(False, False, False, $78), True);
+SetFuncMapRecord(7, 'compile', rsMenuCommandCompile, _CommandCompile, MakeShortcutKey(False, False, False, $77), True);
+SetFuncMapRecord(8, 'upload', rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(True, False, False, $77), True);
+SetFuncMapRecord(9, 'showlogs', rsMenuCommandShowLogs, _CommandShowLogs, nil, True);
+SetFuncMapRecord(10, 'clean', rsMenuCommandClean, _CommandClean, nil, True);
+SetFuncMapRecord(11, 'visit', rsMenuCommandVisit, _CommandVisit, nil, True);
+SetFuncMapRecord(12, '', csMenuEmptyLine, nil, nil);
+SetFuncMapRecord(13, 'help', rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(True, False, False, $70), True);
+SetFuncMapRecord(14, 'upgrade', rsMenuUpgradeESPHome, _CommandUpgrade, nil, True);
+SetFuncMapRecord(15, '', csMenuEmptyLine, nil, nil);
+SetFuncMapRecord(16, 'cmdshell', rsMenuOpenCmdShell, _CommandShellPrompt, nil);
+SetFuncMapRecord(17, 'explorer', rsMenuOpenExplorer, _CommandExplorer, nil);
+SetFuncMapRecord(18, '', csMenuEmptyLine, nil, nil);
+SetFuncMapRecord(19, 'showhide', rsMenuShowHide, _CommandShowHide, nil, True);
+SetFuncMapRecord(20, '', csMenuEmptyLine, nil, nil);
+SetFuncMapRecord(21, 'toolbar', rsMenuToolbar, _CommandToolbar, nil);
+SetFuncMapRecord(22, 'about', rsMenuAbout, _CommandAbout, nil);
 
 end.

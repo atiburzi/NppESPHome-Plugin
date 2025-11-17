@@ -24,6 +24,8 @@ object FormAbout: TFormAbout
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
+    ExplicitWidth = 383
+    ExplicitHeight = 256
     object ImageIcon: TImage
       Left = 16
       Top = 0

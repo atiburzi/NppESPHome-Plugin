@@ -4,7 +4,7 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
@@ -112,8 +112,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
-        <VerInfo_Keys>CompanyName=XXXXXX;FileDescription=AAAA $(MSBuildProjectName);FileVersion=1.0.23.55;InternalName=SSSSSSS;LegalCopyright=;LegalTrademarks=;OriginalFilename=AAAAAAA;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VVVV $(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=XXXXX;PrivateBuild=</VerInfo_Keys>
-        <VerInfo_Build>55</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=XXXXXX;FileDescription=AAAA $(MSBuildProjectName);FileVersion=1.0.23.69;InternalName=SSSSSSS;LegalCopyright=;LegalTrademarks=;OriginalFilename=AAAAAAA;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=VVVV $(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=XXXXX;PrivateBuild=</VerInfo_Keys>
+        <VerInfo_Build>69</VerInfo_Build>
         <VerInfo_Release>23</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -137,8 +137,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <VerInfo_Release>25</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>33</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.25.33;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
+        <VerInfo_Build>37</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.25.37;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ Plugin designed to act as a wrapper for ESPHome commandline in Windows.</VerInfo_Keys>
         <VerInfo_Release>25</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
@@ -157,11 +157,11 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="..\Lib\SciSupport.pas"/>
         <DCCReference Include="..\Lib\FileVersionInfo.pas"/>
         <DCCReference Include="ESPHomePlugin.pas"/>
-        <DCCReference Include="UnitFormProjectSelection.pas">
-            <Form>FormProjectSelection</Form>
+        <DCCReference Include="UnitFormSelection.pas">
+            <Form>FormSelection</Form>
         </DCCReference>
-        <DCCReference Include="UnitFormProjectConfiguration.pas">
-            <Form>FormProjectConfiguration</Form>
+        <DCCReference Include="UnitFormConfig.pas">
+            <Form>FormConfiguration</Form>
         </DCCReference>
         <DCCReference Include="ESPHomeShared.pas"/>
         <DCCReference Include="UnitFormAbout.pas">
@@ -172,8 +172,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <Form>FormToolbar</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="UnitFormTemplates.pas">
-            <Form>FormTemplates</Form>
+        <DCCReference Include="UnitFormProjects.pas">
+            <Form>FormProjects</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <RcItem Include="..\Resources\NppESPHome_Black.ico">
@@ -211,14 +211,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <RcItem Include="..\Resources\Toolbar\Configure.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>configure</ResourceId>
-        </RcItem>
-        <RcItem Include="..\Resources\Toolbar\Configure_Dark.ico">
-            <ResourceType>ICON</ResourceType>
-            <ResourceId>configure_dark</ResourceId>
-        </RcItem>
-        <RcItem Include="..\Resources\Toolbar\Configure_Light.ico">
-            <ResourceType>ICON</ResourceType>
-            <ResourceId>configure_light</ResourceId>
         </RcItem>
         <RcItem Include="..\Resources\Toolbar\Help.bmp">
             <ResourceType>BITMAP</ResourceType>
@@ -292,18 +284,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <ResourceType>ICON</ResourceType>
             <ResourceId>showlogs_light</ResourceId>
         </RcItem>
-        <RcItem Include="..\Resources\Toolbar\Templates.bmp">
-            <ResourceType>BITMAP</ResourceType>
-            <ResourceId>templates</ResourceId>
-        </RcItem>
-        <RcItem Include="..\Resources\Toolbar\Templates_Dark.ico">
-            <ResourceType>ICON</ResourceType>
-            <ResourceId>templates_dark</ResourceId>
-        </RcItem>
-        <RcItem Include="..\Resources\Toolbar\Templates_Light.ico">
-            <ResourceType>ICON</ResourceType>
-            <ResourceId>templates_light</ResourceId>
-        </RcItem>
         <RcItem Include="..\Resources\Toolbar\Upgrade.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>upgrade</ResourceId>
@@ -339,6 +319,26 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <RcItem Include="..\Resources\Toolbar\Visit_Light.ico">
             <ResourceType>ICON</ResourceType>
             <ResourceId>visit_light</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Configure_Dark.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>configure_dark</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Configure_Light.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>configure_light</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\ShowHide.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>showhide</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\ShowHide_Dark.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>showhide_dark</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\ShowHide_Light.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>showhide_light</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -383,6 +383,12 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 </DeployFile>
                 <DeployFile LocalName="..\Bin\Win32\NppESPHome.dll" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
+                        <RemoteName>NppESPHome.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\Bin\Win64\NppESPHome.dll" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
                         <RemoteName>NppESPHome.dll</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>

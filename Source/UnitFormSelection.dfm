@@ -1,4 +1,4 @@
-object FormProjectSelection: TFormProjectSelection
+object FormSelection: TFormSelection
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
@@ -59,13 +59,13 @@ object FormProjectSelection: TFormProjectSelection
       OnClick = ButtonRemoveProjectClick
     end
   end
-  object Button1: TButton
-    Left = 272
+  object ButtonClose: TButton
+    Left = 273
     Top = 119
     Width = 81
     Height = 25
     Cancel = True
-    Caption = 'Cancel'
+    Caption = 'Close'
     ModalResult = 8
     TabOrder = 1
   end
@@ -82,7 +82,7 @@ object FormProjectSelection: TFormProjectSelection
         FileMask = '*.yml'
       end>
     Options = [fdoStrictFileTypes, fdoForceFileSystem, fdoFileMustExist]
-    Left = 40
-    Top = 88
+    Left = 80
+    Top = 64
   end
 end

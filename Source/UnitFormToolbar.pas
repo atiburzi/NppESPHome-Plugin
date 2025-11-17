@@ -3,9 +3,9 @@ unit UnitFormToolbar;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.VirtualImage, Vcl.BaseImageCollection, Vcl.ImageCollection, NppPlugin, NppPluginForms,
-  Vcl.ExtCtrls, Vcl.ComCtrls, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, JvExComCtrls, JvListView, JvDotNetControls;
+  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ImageCollection, NppPlugin, NppPluginForms,
+  Vcl.ComCtrls, Vcl.ImgList, Vcl.VirtualImageList, System.ImageList, Vcl.BaseImageCollection;
 
 type
   TFormToolbar = class(TNppPluginForm)

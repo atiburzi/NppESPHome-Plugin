@@ -1,16 +1,16 @@
-unit UnitFormProjectConfiguration;
+unit UnitFormConfig;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForms, Vcl.StdCtrls, Vcl.ComCtrls, JvExStdCtrls, JvCheckBox, Vcl.BaseImageCollection,
-  Vcl.ImageCollection, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, Vcl.VirtualImage, JvCombobox, JvListComb, Vcl.Buttons, JvExControls, JvButton,
-  JvTransparentButton, Vcl.NumberBox, Vcl.WinXCtrls, JvExComCtrls, JvComCtrls, Vcl.Tabs, Vcl.DockTabSet, Vcl.WinXPanels, Vcl.ExtCtrls, Vcl.Grids, Vcl.ValEdit,
-  JvListView, JvEdit;
+  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForms, Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.ImageCollection, Vcl.ImgList, Vcl.VirtualImageList, Vcl.VirtualImage, JvCombobox, JvListComb,
+  Vcl.WinXPanels, Vcl.ExtCtrls,
+  JvEdit, Vcl.BaseImageCollection, System.ImageList, JvExStdCtrls;
 
 type
-  TFormProjectConfiguration = class(TNppPluginForm)
+  TFormConfig = class(TNppPluginForm)
     ButtonClose: TButton;
     GroupBoxProject: TGroupBox;
     ButtonRefresh: TButton;
@@ -99,7 +99,7 @@ type
   end;
 
 var
-  FormProjectConfiguration: TFormProjectConfiguration;
+  FormConfiguration: TFormConfig;
 
 implementation
 
@@ -108,7 +108,7 @@ implementation
 uses
   ESPHomeShared, NppSupport, Registry, Math,Winapi.ShellAPI;
 
-procedure TFormProjectConfiguration.ButtonAddDepsClick(Sender: TObject);
+procedure TFormConfig.ButtonAddDepsClick(Sender: TObject);
 var
   I: Integer;
 begin
@@ -125,7 +125,7 @@ begin
   end;
 end;
 
-procedure TFormProjectConfiguration.ButtonRefreshClick(Sender: TObject);
+procedure TFormConfig.ButtonRefreshClick(Sender: TObject);
 var
   Timeout: Integer;
 begin
@@ -145,7 +145,7 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TFormProjectConfiguration.ButtonRemoveDepsClick(Sender: TObject);
+procedure TFormConfig.ButtonRemoveDepsClick(Sender: TObject);
 var
   I, Sel: Integer;
   Deleted: Boolean;
@@ -171,79 +171,79 @@ begin
   end;
 end;
 
-procedure TFormProjectConfiguration.CheckBoxOptionCompileGenerateOnlyClick(Sender: TObject);
+procedure TFormConfig.CheckBoxOptionCompileGenerateOnlyClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyCompileGenerateOnly, CheckBoxOptionCompileGenerateOnly.Checked);
 end;
 
-procedure TFormProjectConfiguration.CheckBoxOptionLogsResetClick(Sender: TObject);
+procedure TFormConfig.CheckBoxOptionLogsResetClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyLogsReset, CheckBoxOptionLogsReset.Checked);
 end;
 
-procedure TFormProjectConfiguration.CheckBoxOptionRunNoLogsClick(Sender: TObject);
+procedure TFormConfig.CheckBoxOptionRunNoLogsClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyRunNoLogs, CheckBoxOptionRunNoLogs.Checked);
 end;
 
-procedure TFormProjectConfiguration.CheckBoxOptionRunResetClick(Sender: TObject);
+procedure TFormConfig.CheckBoxOptionRunResetClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyRunReset, CheckBoxOptionRunReset.Checked);
 end;
 
-procedure TFormProjectConfiguration.ComboBoxOptionAutosaveChange(Sender: TObject);
+procedure TFormConfig.ComboBoxOptionAutosaveChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyNppAutosave, ComboBoxOptionAutosave.ItemIndex);
 end;
 
-procedure TFormProjectConfiguration.EditOptionESPHomeAdditionalParametersChange(Sender: TObject);
+procedure TFormConfig.EditOptionESPHomeAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyESPHomeExtraParameters, EditOptionESPHomeAdditionalParameters.Text);
 end;
 
-procedure TFormProjectConfiguration.EditOptionLogsAdditionalParametersChange(Sender: TObject);
+procedure TFormConfig.EditOptionLogsAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyLogsExtraParameters, EditOptionLogsAdditionalParameters.Text);
 end;
 
-procedure TFormProjectConfiguration.EditOptionRunAdditionalParametersChange(Sender: TObject);
+procedure TFormConfig.EditOptionRunAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyRunExtraParameters, EditOptionRunAdditionalParameters.Text);
 end;
 
-procedure TFormProjectConfiguration.EditOptionUploadAdditionalParametersChange(Sender: TObject);
+procedure TFormConfig.EditOptionUploadAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyUploadExtraParameters, EditOptionUploadAdditionalParameters.Text);
 end;
 
-procedure TFormProjectConfiguration.ComboBoxAutocloseChange(Sender: TObject);
+procedure TFormConfig.ComboBoxAutocloseChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyESPHomeAutoClose, (ComboBoxAutoclose.ItemIndex = 1));
 end;
 
-procedure TFormProjectConfiguration.ComboBoxDeviceChange(Sender: TObject);
+procedure TFormConfig.ComboBoxDeviceChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyESPHomeTargetDevice, ComboBoxDevice.Items[ComboBoxDevice.ItemIndex].Text);
 end;
 
-procedure TFormProjectConfiguration.ComboBoxLogLevelChange(Sender: TObject);
+procedure TFormConfig.ComboBoxLogLevelChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyESPHomeLogLevel, ComboBoxLogLevel.ItemIndex);
 end;
 
-procedure TFormProjectConfiguration.FormCreate(Sender: TObject);
+procedure TFormConfig.FormCreate(Sender: TObject);
 begin
   inherited;
 
@@ -281,14 +281,14 @@ begin
   ToggleDarkMode;
 end;
 
-procedure TFormProjectConfiguration.LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
+procedure TFormConfig.LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 begin
   inherited;
   if LinkType = sltURL then
     ShellExecute(0, 'open', PChar(Link), nil, nil, SW_SHOWNORMAL);
 end;
 
-procedure TFormProjectConfiguration.ToggleDarkMode;
+procedure TFormConfig.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
 begin
@@ -337,7 +337,7 @@ resourcestring
   rsImageHintDisabled = 'Device doesn''have wifi capabbilities';
   rsImageHintUnknown = 'Device status is unknown';
 
-procedure TFormProjectConfiguration.RefreshNetworkStatus;
+procedure TFormConfig.RefreshNetworkStatus;
 begin
 
   with ProjectList.Current do
@@ -385,7 +385,7 @@ begin
 
 end;
 
-procedure TFormProjectConfiguration.PopulateComboDevice;
+procedure TFormConfig.PopulateComboDevice;
 var
   Index: Integer;
   ComPorts: TStringList;
@@ -419,13 +419,13 @@ begin
   end;
 end;
 
-procedure TFormProjectConfiguration.TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
+procedure TFormConfig.TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
 begin
   inherited;
   CardProjectOptions.CardPanel.ActiveCardIndex:= TreeViewOptions.Selected.StateIndex;
 end;
 
-procedure TFormProjectConfiguration.TreeViewOptionsCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
+procedure TFormConfig.TreeViewOptionsCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
 begin
   inherited;
   AllowCollapse := False;
@@ -433,7 +433,7 @@ end;
 
 
 
-procedure TFormProjectConfiguration.TreeViewOptionsCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+procedure TFormConfig.TreeViewOptionsCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
 begin
   inherited;
   if cdsSelected in State then

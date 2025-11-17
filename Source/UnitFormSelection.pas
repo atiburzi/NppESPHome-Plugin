@@ -1,26 +1,24 @@
-unit UnitFormProjectSelection;
+unit UnitFormSelection;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForms, Vcl.ComCtrls, Vcl.Buttons, JvExButtons, JvButtons, JvBitBtn, Vcl.ExtCtrls;
+  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForms;
 
 type
-  TFormProjectSelection = class(TNppPluginForm)
+  TFormSelection = class(TNppPluginForm)
     GroupBoxCurrentProject: TGroupBox;
     ComboBoxProject: TComboBox;
     ButtonAddProject: TButton;
     ButtonRemoveProject: TButton;
     FileOpenDialogProject: TFileOpenDialog;
-    Button1: TButton;
+    ButtonClose: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ComboBoxProjectChange(Sender: TObject);
     procedure ButtonAddProjectClick(Sender: TObject);
     procedure ButtonRemoveProjectClick(Sender: TObject);
     procedure ToggleDarkMode; override;
-    procedure ButtonCloseClick(Sender: TObject);
-    procedure ButtonCancelClick(Sender: TObject);
   private
     procedure RefreshComboBox;
   public
@@ -29,7 +27,7 @@ type
   end;
 
 var
-  FormProjectSelection: TFormProjectSelection;
+  FormSelection: TFormSelection;
 
 implementation
 
@@ -38,11 +36,7 @@ implementation
 uses
   ESPHomeShared, ESPHomePlugin, NppSupport, Math;
 
-resourcestring
-  rsProjectAlreadyExists = 'Project "%s" already exists among the configured projects. Please select another project.';
-  rsInvalidProjectFile = '"%s" is an invalid ESPHome project file. Valid project files contains at least the "esphome" entry in the YAML file.';
-
-procedure TFormProjectSelection.ButtonAddProjectClick(Sender: TObject);
+procedure TFormSelection.ButtonAddProjectClick(Sender: TObject);
 var
   Project: TProject;
 begin
@@ -63,6 +57,7 @@ begin
       ProjectList.Current := Project;
       ProjectList.SaveConfig;
       RefreshComboBox;
+      ESPHomePlugin.Plugin.UpdateProjectList;
     end
     else
     begin
@@ -74,17 +69,7 @@ begin
   end;
 end;
 
-resourcestring
-  rsKnownProjectRemoval = 'Project "%s" will be removed from the known list. Are you sure?';
-  rsRemoveProjectFile = 'Remove selected Project';
-
-procedure TFormProjectSelection.ButtonCloseClick(Sender: TObject);
-begin
-  inherited;
-  ModalResult := mrCancel;
-end;
-
-procedure TFormProjectSelection.ButtonRemoveProjectClick(Sender: TObject);
+procedure TFormSelection.ButtonRemoveProjectClick(Sender: TObject);
 var
   I: Integer;
 begin
@@ -102,11 +87,12 @@ begin
         ProjectList.Current := nil;
       ProjectList.SaveConfig;
       RefreshComboBox;
+      ESPHomePlugin.Plugin.UpdateProjectList;
     end;
   end;
 end;
 
-procedure TFormProjectSelection.ToggleDarkMode;
+procedure TFormSelection.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
 begin
@@ -127,26 +113,21 @@ begin
   end;
 end;
 
-procedure TFormProjectSelection.ComboBoxProjectChange(Sender: TObject);
+procedure TFormSelection.ComboBoxProjectChange(Sender: TObject);
 begin
   inherited;
   if (ComboBoxProject.ItemIndex >= 0) and (ComboBoxProject.Items.Count > 0) then
     ProjectList.Current := ProjectList.GetProjectFromUIName(ComboBoxProject.Items[ComboBoxProject.ItemIndex]);
+  ESPHomePlugin.Plugin.UpdateProjectList;
 end;
 
-procedure TFormProjectSelection.FormCreate(Sender: TObject);
+procedure TFormSelection.FormCreate(Sender: TObject);
 begin
   inherited;
   RefreshComboBox;
 end;
 
-procedure TFormProjectSelection.ButtonCancelClick(Sender: TObject);
-begin
-  inherited;
-  ModalResult := mrCancel;
-end;
-
-procedure TFormProjectSelection.RefreshComboBox;
+procedure TFormSelection.RefreshComboBox;
 var
   P: TProject;
 begin

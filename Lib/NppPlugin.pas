@@ -25,9 +25,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils,
-  System.Types, System.Classes, Vcl.Dialogs, Vcl.Forms,
-
-  SciSupport, NppSupport, NppMenuCmdID;
+  System.Types, Vcl.Forms, SciSupport, NppSupport, NppMenuCmdID;
 
 const
   FNITEM_NAMELEN = 64;

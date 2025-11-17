@@ -25,8 +25,8 @@ unit NppPluginDockingForms;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Types, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms,
 
   NppSupport, NppPlugin, NppPluginForms;
 
@@ -87,46 +87,37 @@ implementation
 // Create / Destroy
 // -----------------------------------------------------------------------------
 
-// Hide constructor
+// Hide constructors
 constructor TNppPluginDockingForm.Create(NppParent: TNppPlugin);
 begin
   MessageBox(0, 'Do not use this constructor', 'Plugin Framework error', MB_OK);
   Halt(1);
 end;
 
-
-// Hide constructor
 constructor TNppPluginDockingForm.Create(AOwner: TNppPluginForm);
 begin
   MessageBox(0, 'Do not use this constructor', 'Plugin Framework error', MB_OK);
   Halt(1);
 end;
 
-
 // Constructor for main dialogs
 constructor TNppPluginDockingForm.Create(NppParent: TNppPlugin; DlgId: Integer);
 begin
   inherited Create(NppParent);
-
   FDlgId := DlgId;
-  CmdId  := Self.Plugin.CmdIdFromMenuItemIdx(DlgId);
-
+  CmdId := Self.Plugin.CmdIdFromMenuItemIdx(DlgId);
   RegisterDockingForm(FNppDefaultDockingMask);
   RemoveControlParent(Self);
 end;
-
 
 // Constructor for sub dialogs
 constructor TNppPluginDockingForm.Create(AOwner: TNppPluginForm; DlgId: Integer);
 begin
   inherited Create(AOwner);
-
   FDlgId := DlgId;
-
   RegisterDockingForm(FNppDefaultDockingMask);
   RemoveControlParent(Self);
 end;
-
 
 // -----------------------------------------------------------------------------
 // (De-)Initialization
@@ -160,7 +151,6 @@ begin
   StringToWideChar('', FTbData.AdditionalInfo, 1);
 
   SendMessage(Self.Plugin.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, LPARAM(@FTbData));
-
   Visible := true;
 end;
 
@@ -194,27 +184,25 @@ begin
   if (Self.Plugin.NppData.NppHandle = Msg.NMHdr.hwndFrom) then
   begin
     Msg.Result := 0;
-
     if (Msg.NMHdr.code = DMN_CLOSE) then
     begin
       DoHide;
-      if Assigned(FOnClose) then FOnClose(Self);
+      if Assigned(FOnClose) then
+        FOnClose(Self);
     end
-
-    else if ((Msg.NMHdr.code and $ffff) = DMN_FLOAT) then
+    else if ((Msg.NMHdr.code and $FFFF) = DMN_FLOAT) then
     begin
-      if Assigned(FOnFloat) then FOnFloat(Self);
+      if Assigned(FOnFloat) then
+        FOnFloat(Self);
     end
-
-    else if ((Msg.NMHdr.code and $ffff) = DMN_DOCK) then
+    else if ((Msg.NMHdr.code and $FFFF) = DMN_DOCK) then
     begin
-      if Assigned(FOnDock) then FOnDock(Self);
+      if Assigned(FOnDock) then
+        FOnDock(Self);
     end;
   end;
-
   inherited;
 end;
-
 
 // -----------------------------------------------------------------------------
 // Worker methods
@@ -224,7 +212,6 @@ procedure TNppPluginDockingForm.UpdateDisplayInfo;
 begin
   UpdateDisplayInfo('');
 end;
-
 
 procedure TNppPluginDockingForm.UpdateDisplayInfo(Info: String);
 begin
@@ -241,28 +228,25 @@ end;
 // looking for the prevoius component, while in a floating state.
 // I still don't know why the pointer climbs up to the docking dialog that holds
 // this one but this works for now.
+
 procedure TNppPluginDockingForm.RemoveControlParent(AControl: TControl);
 var
   WinCtrl: TWinControl;
-  i:       integer;
-  r:       NativeInt;
-
+  Index: Integer;
+  Result: NativeInt;
 begin
   if (AControl is TWinControl) then
   begin
     WinCtrl := AControl as TWinControl;
     WinCtrl.HandleNeeded;
-
-    r := GetWindowLong(WinCtrl.Handle, GWL_EXSTYLE);
-
-    if (r and WS_EX_CONTROLPARENT = WS_EX_CONTROLPARENT) then
-      SetWindowLong(WinCtrl.Handle, GWL_EXSTYLE, r and not WS_EX_CONTROLPARENT);
+    Result := GetWindowLong(WinCtrl.Handle, GWL_EXSTYLE);
+    if (Result and WS_EX_CONTROLPARENT = WS_EX_CONTROLPARENT) then
+      SetWindowLong(WinCtrl.Handle, GWL_EXSTYLE, Result and not WS_EX_CONTROLPARENT);
   end;
-
-  for i := AControl.ComponentCount-1 downto 0 do
+  for Index := AControl.ComponentCount - 1 downto 0 do
   begin
-    if (AControl.Components[i] is TControl) then
-      RemoveControlParent(AControl.Components[i] as TControl);
+    if (AControl.Components[Index] is TControl) then
+      RemoveControlParent(AControl.Components[Index] as TControl);
   end;
 end;
 

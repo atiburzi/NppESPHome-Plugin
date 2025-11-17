@@ -31,7 +31,7 @@ const
   csKeyToolbarBitmap = 'ToolbarBitmap';
   csKeyToolbarSequence = 'ToolbarSequence';
   csKeyToolbarConfig = 'ToolbarConfig';
-  csKeyTemplateWindow = 'TemplateWindow';
+  csKeyProjectWindow = 'ProjectWindow';
 
   csKeyNppAutosave = 'NppAutosave';
   csKeyDependenciesCount = 'DependenciesCount';
@@ -103,7 +103,7 @@ resourcestring
   rsMenuUpgradeESPHome = 'Check and upgrade ESPHome version';
   rsMenuOpenCmdShell = 'Open a CMD shell in the project folder';
   rsMenuOpenExplorer = 'Open an Explorer window from the project folder';
-  rsMenuTemplates = 'Hide/Show Templates window';
+  rsMenuShowHide = 'Hide/Show ESPHome Plugin window';
   rsMenuToolbar = 'Configure Toolbar...';
   rsMenuAbout = 'About...';
 
@@ -120,6 +120,11 @@ resourcestring
   rsNoWebserverOnCurrentProject  = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
                                    #13#13#10'Visit command cannot work and it is ignored.';
 
+resourcestring
+  rsProjectAlreadyExists = 'Project "%s" already exists among the configured projects. Please select another project.';
+  rsInvalidProjectFile = '"%s" is an invalid ESPHome project file. Valid project files contains at least the "esphome" entry in the YAML file.';
+  rsKnownProjectRemoval = 'Project "%s" will be removed from the known list. Are you sure?';
+  rsRemoveProjectFile = 'Remove selected Project';
 
 type
   PProject = ^TProject;
@@ -141,6 +146,7 @@ type
     function GetFriendlyName: string;
     function GetHostName: string;
     function GetDescription: string;
+    function GetOptionDeps: TStringList;
 
   public
     constructor Create(const AFileName: string; ACheck: Boolean = False);
@@ -166,7 +172,7 @@ type
     procedure SetOption(const Option: string; const Value: Integer); overload;
     procedure SetOption(const Option: string; const Value: string); overload;
 
-    property OptionDependencies: TStringList read FOptionDeps;
+    property OptionDependencies: TStringList read GetOptionDeps;
     procedure LoadOptionDependencies;
     procedure SaveOptionDependencies;
 
@@ -186,11 +192,12 @@ type
     procedure LoadConfig;
     procedure SaveConfig;
     procedure CheckOnlineStatus;
-    function GetProjectFromFileName(const FileName: string): TProject;
+    function GetProjectFromFileName(const FileName: string; const IncludeDeps: boolean = False): TProject;
     function GetProjectFromUIName(const UIName: string): TProject;
   end;
 
 type
+  PTemplate = ^TTemplate;
   TTemplate = record
     Name: string;
     Category: string;
@@ -232,7 +239,7 @@ function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, System.RegularExpressions, Xml.XMLDoc;
+  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, Xml.XMLDoc, System.NetEncoding;
 
 type
   TPingThread = class(TThread)
@@ -325,12 +332,12 @@ begin
         FChecked := not FWiFi;
         if ACheck then
           CheckOnlineStatus;
+        LoadOptionDependencies;
       end;
       SubstitutionMap.Free;
     end;
   end;
 end;
-
 
 procedure TProject.CheckOnlineStatus;
 begin
@@ -432,6 +439,11 @@ begin
   end
   else
     Result := SetupString(Result, rsFieldWiFi, rsFieldDisabled);
+end;
+
+function TProject.GetOptionDeps: TStringList;
+begin
+  Result := FOptionDeps;
 end;
 
 function TProject.GetOption(const Option: string; const Default: Boolean): Boolean;
@@ -592,17 +604,30 @@ begin
     P.CheckOnlineStatus;
 end;
 
-function TProjectList.GetProjectFromFileName(const FileName: string): TProject;
+function TProjectList.GetProjectFromFileName(const FileName: string; const IncludeDeps: boolean = False): TProject;
 var
+  S: string;
   P: TProject;
 begin
   Result := nil;
   for P in Self do
+  begin
     if SameText(P.FileName, ExpandFileName(FileName)) then
     begin
       Result := P;
       Exit;
     end;
+    if IncludeDeps then
+    begin
+      for S in P.OptionDependencies do
+        if SameText(ExpandFileName(S), ExpandFileName(FileName)) then
+        begin
+          Result := P;
+          Exit;
+        end;
+    end;
+  end;
+
 end;
 
 function TProjectList.GetProjectFromUIName(const UIName: string): TProject;
@@ -629,7 +654,8 @@ begin
   end;
 end;
 
-
+resourcestring
+  rsErrorReadingTemplateFile = 'The following error has been encountered reading the XML Template file:'#13#13#10'%s.';
 
 procedure TTemplateList.Refresh;
 var
@@ -638,19 +664,24 @@ var
   Template: TTemplate;
 begin
   Self.Clear;
-  FXMLDoc.Active := True;
-  FXMLDoc.Refresh;
-  RootNode := FXMLDoc.DocumentElement;
-  if Assigned(RootNode) then
-    for Index := 0 to RootNode.ChildNodes.Count - 1 do
-    begin
-      Template.Name := RootNode.ChildNodes[Index].ChildNodes['Name'].Text;
-      Template.Category := RootNode.ChildNodes[Index].ChildNodes['Category'].Text;
-      Template.Description := RootNode.ChildNodes[Index].ChildNodes['Description'].Text;
-      Template.YAML := RootNode.ChildNodes[Index].ChildNodes['YAML'].Text;
-      if Self.IndexOfName(Template.Name) < 0 then
-        Self.Add(Template);
-    end;
+  try
+    FXMLDoc.Active := True;
+    FXMLDoc.Refresh;
+    RootNode := FXMLDoc.DocumentElement;
+    if Assigned(RootNode) then
+      for Index := 0 to RootNode.ChildNodes.Count - 1 do
+      begin
+        Template.Name := RootNode.ChildNodes[Index].ChildNodes['Name'].Text;
+        Template.Category := RootNode.ChildNodes[Index].ChildNodes['Category'].Text;
+        Template.Description := RootNode.ChildNodes[Index].ChildNodes['Description'].Text;
+        Template.YAML := TNetEncoding.HTML.Decode(RootNode.ChildNodes[Index].ChildNodes['YAML'].Text);
+        if Self.IndexOfName(Template.Name) < 0 then
+          Self.Add(Template);
+      end;
+  except
+    on E: Exception do
+      MessageBox(0, PWideChar(Format(rsErrorReadingTemplateFile, [E.Message])), PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+  end;
 end;
 
 procedure TTemplateList.RetrieveTemplates(S: TStrings; const Category: string; const Filter: string);

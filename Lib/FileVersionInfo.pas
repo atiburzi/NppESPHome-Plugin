@@ -24,7 +24,7 @@ unit FileVersionInfo;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes;
+  Winapi.Windows, System.SysUtils;
 
 
 const
