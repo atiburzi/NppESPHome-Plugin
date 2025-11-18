@@ -2,7 +2,7 @@
 
 A **Notepad++** plugin written in **Delphi** to directly interact with **ESPHome** and easily manage related projects in Windows environment.
 
-![NppESPHome in action](Art/group.png)
+![NppESPHome in action](Art/main2.png)
 
 ## Why?
 
@@ -22,6 +22,8 @@ That’s how the idea for this plugin was born.
 
 * **Smart YAML validation** – Parses your project’s YAML file to check validity and detect whether it includes Online or WebServer features.
 
+* **ESPHome Components Templates** – A customizable, filterable collection of YAML templates for ESPHome components, ready to be inserted into your code with a double-click.
+
 * **Flexible device communication** – Configure ESP device communication ports with automatic detection of active serial and network connections, making uploads and interaction effortless.
 
 * **Command customization** – Personalize options for each ESPHome command and save them with your project settings.
@@ -30,12 +32,12 @@ That’s how the idea for this plugin was born.
 
 * **Auto-save integration** – Automatically saves your project files before executing ESPHome commands, helping you keep focus on development.
 
+* **Multi-project management** – Floating window supporting multiple projects management and inh project dependency file, enabling simultaneous editing of multiple sources within the same project, with multi-file open and save to boost productivity.
+
 * **Multi-source management** – Supports a project dependency file, enabling simultaneous editing of multiple sources within the same project, with multi-file open and save to boost productivity.
 
 * **Custom Notepad++ toolbar** – An integrated, customizable toolbar provides direct access to the plugin’s main commands and functions.
-
-* **Templates for ESPHome Components** – A dockable window displays a customizable list of ESPHome components, allowing for quick insertion into code template blocks and accelerating development.
-  
+ 
 * **Full support for Light or Dark modes** - Any window, as well as the toolbar has been developed to support both Notepad++ dark and light modes.
 
 * **Extra utilities** – Includes handy non-ESPHome features such as:
