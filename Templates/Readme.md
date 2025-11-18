@@ -1,0 +1,1 @@
+NppESPHome Plugin Templates file
