@@ -41,11 +41,11 @@ That’s how the idea for this plugin was born.
 * **Full support for Light or Dark modes** - Any window, as well as the toolbar has been developed to support both Notepad++ dark and light modes.
 
 * **Extra utilities** – Includes handy non-ESPHome features such as:
-    - Opening the official ESPHome web documentation
-    - Updating ESPHome to the latest version
+    - Opening the official ESPHome web documentation with a click
+    - Updating ESPHome to the latest version with a click
     - Launching a command prompt or file explorer directly from the project folder
 
-## What it does and doesn't do
+## What the plugin does and doesn't do
 
 The plugin does not replace ESPHome; instead, it simplifies interaction with it directly from Notepad++.  
 For the plugin to work, **ESPHome must already be installed on your system**.  
@@ -61,9 +61,9 @@ As it is built for Notepad++, the editor must also be installed; version 8.0 or 
     
 4.   Open the project file(s) in Notepad++ for development with  **"Open Project File"** or **"Open Project File & Dependencies"** commands.
     
-5.   Develop you code.
+5.   Develop your code.
     
-6.   While coding invoke "**Run**", "**Compile**", or "**Upload**" ESPHome commands as needed, either from the menu or through custom keyboard shortcuts.
+6.   While coding, invoke "**Run**", "**Compile**", or "**Upload**" ESPHome commands as needed, either from the menu or through custom keyboard shortcuts.
     
 7.   Explore the additional plugin commands and features to further support your development.
 
