@@ -689,5 +689,505 @@ script:
 
 ]]></YAML>
 </Component>
+
+<Component>
+  <Name>Factory Reset</Name>
+  <Category>Core</Category>
+  <Description>Factory reset component to clear all stored ESPHome preferences from flash and reboot the node, with optional fast power‑cycle reset and automation trigger.</Description>
+  <YAML><![CDATA[
+factory_reset:
+  resets_required: 5
+  max_delay: 10s
+  on_increment:
+    - logger.log:
+        format: "Fast power cycle count now %u, target %u"
+        args: [x, target]
+
+switch:
+  - platform: factory_reset
+    name: "Factory Reset Switch"
+
+button:
+  - platform: factory_reset
+    name: "Factory Reset Button"
+
+esp8266:
+  restore_from_flash: true
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Script</Name>
+  <Category>Core</Category>
+  <Description>Defines a sequence of steps (actions) that can be executed from anywhere in the ESPHome configuration, optionally with parameters and control over concurrent executions.</Description>
+  <YAML><![CDATA[
+script:
+  - id: my_script                 # Script identifier
+    mode: restart                 # Behavior if script is executed again while running (single, restart, queued, parallel)
+    max_runs: 3                   # Maximum concurrent executions (0 = unlimited)
+    parameters:                   # Optional parameters the script can receive (all mandatory if set)
+      delay_ms: int
+    then:                         # Actions to perform in the script
+      - switch.turn_on: my_switch
+      - delay: !lambda 'return delay_ms;'
+      - switch.turn_off: my_switch
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Network</Name>
+  <Category>Core</Category>
+  <Description>Core network settings for ESPHome devices including IPv6 and performance options.</Description>
+  <YAML><![CDATA[
+network:
+  enable_ipv6: true              # Enable IPv6 support
+  min_ipv6_addr_count: 2         # Minimum number of IPv6 addresses before network is considered ready
+  enable_high_performance: true  # Enable optimizations for higher network performance
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>mDNS</Name>
+  <Category>Network</Category>
+  <Description>Enables multicast DNS (mDNS) to announce the node on the local network for device discovery by Home Assistant and ESPHome dashboard.</Description>
+  <YAML><![CDATA[
+mdns:
+  disabled: false            # Set to true to disable mDNS (default: false)
+  services:                  # Optional list of additional mDNS services to expose
+    - service: "_custom_service"    # Service name (required)
+      protocol: "_tcp"              # Service protocol: _udp or _tcp (required)
+      port: 8080                   # Optional port number
+      txt:                         # Optional additional text records
+        txt_key_1: "txt_value_1"
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>WireGuard</Name>
+  <Category>Network</Category>
+  <Description>WireGuard VPN client for ESP32, ESP8266, and BK72xx microcontrollers with custom implementation supporting secure VPN tunnels to a remote peer.</Description>
+  <YAML><![CDATA[
+wireguard:
+  address: x.y.z.w                          # Local VPN IPv4 address (required)
+  private_key: AaBbCcDd...=                 # Private key of the device (required)
+  peer_endpoint: wg.server.example          # Hostname or IP of remote WireGuard peer (required)
+  peer_public_key: EeFfGgHh...=             # Public key of the remote peer (required)
+
+  # Optional parameters
+  netmask: 255.255.255.255                  # Netmask for the address (default 255.255.255.255)
+  peer_port: 51820                          # UDP port of remote peer (default 51820)
+  peer_preshared_key: XxYyZzWw...=         # Pre-shared key for additional encryption layer (optional)
+  peer_allowed_ips:                         # List of allowed IPs for peer tunnel access (defaults to device address/32)
+    - x.y.z.0/24
+    - l.m.n.o/32
+  peer_persistent_keepalive: 25s            # Keepalive interval to maintain connection (default 0s disabled)
+  
+  reboot_timeout: 15min                     # Time to wait before rebooting if peer unreachable (default 15 min)
+  require_connection_to_proceed: false      # Wait for connection before proceeding boot (default false)
+  update_interval: 10s                      # How often to check connection status (default 10s)
+  id: wireguard1                           # Optional ID for code generation
+  
+# Binary sensors for WireGuard status and enabled state
+binary_sensor:
+  - platform: wireguard
+    status:
+      name: "WireGuard Status"
+  - platform: wireguard
+    enabled:
+      name: "WireGuard Enabled"
+
+# Sensor for latest handshake time
+sensor:
+  - platform: wireguard
+    latest_handshake:
+      name: "WireGuard Latest Handshake"
+
+# Text sensor exposing the configured WireGuard address
+text_sensor:
+  - platform: wireguard
+    address:
+      name: "WireGuard Address"
+
+# Available actions:
+# wireguard.disable - disables the VPN link
+# wireguard.enable  - enables and starts connection to peer
+
+# Available conditions:
+# wireguard.enabled     - checks if WireGuard is enabled
+# wireguard.peer_online - checks if remote peer is online
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>StatsD</Name>
+  <Category>Networking</Category>
+  <Description>StatsD protocol client to send sensor and binary sensor metrics to a StatsD server for aggregation and monitoring.</Description>
+  <YAML><![CDATA[
+statsd:
+  host: REPLACEME                    # IP address of the StatsD server (required)
+  port: 8125                        # UDP port of the StatsD server (default 8125)
+  prefix: ""                       # Optional prefix to prepend to all metric names
+  update_interval: 10s             # How often to send metrics (default 10 seconds)
+
+  sensors:                         # List of sensors to send metrics for (optional)
+    - id: some_sensor              # Sensor ID to report
+      name: test1.sensor           # Metric name
+
+  binary_sensors:                  # List of binary sensors to send metrics for (optional)
+    - id: some_binary_sensor       # Binary sensor ID to report
+      name: test1.binary_sensor    # Metric name
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>UDP</Name>
+  <Category>Networking</Category>
+  <Description>Allows sending and receiving data over the network using the User Datagram Protocol (UDP), including multicast and broadcast support.</Description>
+  <YAML><![CDATA[
+udp:
+  id: udp1                             # Optional ID for the UDP component
+  port:
+    listen_port: 18511                # Port to listen on for incoming UDP packets (required)
+    broadcast_port: 18512             # Port to send UDP packets to (required)
+  addresses:                         # Optional list of IP addresses to broadcast data to
+    - 255.255.255.255                # Default broadcast address to local network
+    - 208.87.135.110
+  listen_address: 239.0.60.53        # Optional multicast address to listen to; disables listening on broadcast address if set
+
+# Action to write data to UDP port
+on_receive:
+  then:
+    - logger.log:
+        format: "Received %s"
+        args: [format_hex_pretty(data).c_str()]
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Packet Transport</Name>
+  <Category>Communication</Category>
+  <Description>Enables ESPHome nodes to communicate directly by transmitting sensor and binary sensor states over supported transport channels (SX126x, SX127x, UART Bus, UDP) with optional encryption and replay protection.</Description>
+  <YAML><![CDATA[
+packet_transport:
+  platform: udp                     # Transport platform: udp, sx126x, sx127x, uart_bus, etc.
+  id: transport1                   # Optional ID for component instance
+  update_interval: 15s             # Interval between broadcasts (default 15 seconds)
+  encryption: "REPLACEME"          # Optional encryption key for secure transmission
+  rolling_code_enable: false       # Enable rolling code to mitigate replay attacks (requires encryption)
+  ping_pong_enable: false          # Enable ping-pong challenge-response for additional security
+  ping_pong_recycle_time: 10min   # How often the ping-pong key is regenerated (consumer only)
+
+  binary_sensors:                  # List of binary sensor IDs to broadcast
+    - binary_sensor_1
+    - binary_sensor_2
+
+  sensors:                        # List of sensor IDs to broadcast
+    - sensor_1
+    - sensor_2
+
+  providers:                      # List of provider device names with optional encryption keys
+    - name: device1
+      encryption: "REPLACEME"
+    - name: device2
+
+# Consumer example: receiving from provider
+binary_sensor:
+  - platform: packet_transport
+    provider: device1
+    id: binary_sensor_1
+    remote_id: remote_binary_sensor_1
+
+sensor:
+  - platform: packet_transport
+    provider: device1
+    id: sensor_1
+    remote_id: remote_sensor_1
+
+# Connection status binary sensor (when ping-pong enabled)
+binary_sensor:
+  - platform: packet_transport
+    provider: device1
+    type: status
+    name: "Device 1 connection status"
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>ESP32 BLE Beacon</Name>
+  <Category>Bluetooth</Category>
+  <Description>Creates a Bluetooth Low Energy (BLE) Beacon using the ESP32 device, transmitting iBeacon packets for device tracking and location services.</Description>
+  <YAML><![CDATA[
+esp32_ble_beacon:
+  type: iBeacon                      # Current supported beacon type
+  uuid: 'c29ce823-e67a-4e71-bff2-abaa32e77a98'  # Unique identifier for the beacon
+
+  # Optional advanced settings
+  major: 10167                      # iBeacon major identifier for grouping beacons
+  minor: 61958                      # iBeacon minor identifier within a group
+  min_interval: 100ms               # Minimum advertising interval in milliseconds (20-10240)
+  max_interval: 100ms               # Maximum advertising interval in milliseconds (20-10240)
+  measured_power: -59               # RSSI at 1 meter for calibration (-128 to 0)
+  tx_power: 3                      # Transmit power in dBm (-12, -9, -6, -3, 0, 3, 6, 9)
+
+  # Optional ID for code generation
+  id: ble_beacon_1
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>BLE Client</Name>
+  <Category>Bluetooth</Category>
+  <Description>Manages connections to Bluetooth Low Energy devices to query and control them. Does not directly expose sensors but enables integration with other components. Supports up to 3 devices due to ESP32 BLE stack limitations.</Description>
+  <YAML><![CDATA[
+ble_client:
+  - mac_address: XX:XX:XX:XX:XX:XX   # MAC address of BLE device to connect to (required)
+    id: ble_device_1                # ID for code generation and references
+    auto_connect: true              # Automatically connect when device is found (default true)
+
+    # Automations triggered on BLE client events
+    on_connect:
+      then:
+        - lambda: |-
+            ESP_LOGD("ble_client", "Connected to BLE device");
+    on_disconnect:
+      then:
+        - lambda: |-
+            ESP_LOGD("ble_client", "Disconnected from BLE device");
+    on_passkey_request:
+      then:
+        - ble_client.passkey_reply:
+            id: ble_device_1
+            passkey: 123456
+    on_passkey_notification:
+      then:
+        - logger.log:
+            format: "Enter this passkey on your BLE device: %06d"
+            args: [passkey]
+    on_numeric_comparison_request:
+      then:
+        - logger.log:
+            format: "Compare this passkey with the one on your BLE device: %06d"
+            args: [passkey]
+        - ble_client.numeric_comparison_reply:
+            id: ble_device_1
+            accept: true
+
+# Actions to control BLE connection and communication
+# ble_client.connect - connect to device (if auto_connect false)
+# ble_client.disconnect - disconnect device
+# ble_client.ble_write - write byte array or lambda-evaluated data to BLE characteristic
+
+# Example usage of ble_write action:
+#
+# switch:
+#   - platform: template
+#     name: "My Switch"
+#     turn_on_action:
+#       - ble_client.ble_write:
+#           id: ble_device_1
+#           service_uuid: "F61E3BE9-2826-A81B-970A-4D4DECFABBAE"
+#           characteristic_uuid: "6490FAFE-0734-732C-8705-91B653A081FC"
+#           value: [0x01, 0xAB, 0xFF]
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>ESP32 BLE Tracker</Name>
+  <Category>Bluetooth</Category>
+  <Description>Provides a global Bluetooth Low Energy (BLE) tracker hub for ESP32 devices to scan and track BLE devices on the network, supporting advanced scan parameters and automations based on received advertisements.</Description>
+  <YAML><![CDATA[
+esp32_ble_tracker:
+  max_connections: 3              # Maximum number of BLE connection slots (default 3, max 9 on esp-idf)
+  scan_parameters:
+    interval: 320ms               # Time spent scanning each BLE channel (default 320ms)
+    window: 30ms                  # Time actively listening per scan interval (default 30ms)
+    duration: 5min                # Total scan duration for debugging (default 5min)
+    active: true                  # Whether to actively send scan requests (default true)
+    continuous: true              # Whether to scan continuously or only on command (default true)
+    software_coexistence: true    # Prioritize BLE over Wi-Fi on connection start (default true)
+
+  # Automations triggered on BLE data reception events
+  on_ble_advertise:
+    - mac_address:
+        - XX:XX:XX:XX:XX:XX      # Filter for specific MAC addresses (optional)
+      then:
+        - lambda: |-
+            ESP_LOGD("ble_adv", "New BLE device");
+            ESP_LOGD("ble_adv", " address: %s", x.address_str().c_str());
+            ESP_LOGD("ble_adv", " name: %s", x.get_name().c_str());
+            // Additional logging of advertised services and data
+
+  on_ble_manufacturer_data_advertise:
+    - mac_address: XX:XX:XX:XX:XX:XX
+      manufacturer_id: 0590        # Manufacturer ID
+      then:
+        - lambda: |-
+            if (x[0] != 0x7b || x[1] != 0x61) return;
+            int value = x[2] + (x[3] << 8);
+            id(ble_sensor).publish_state(value);
+
+  on_ble_service_data_advertise:
+    - mac_address: XX:XX:XX:XX:XX:XX
+      service_uuid: 181A
+      then:
+        - lambda: 'id(ble_sensor).publish_state(x[0]);'
+
+  on_scan_end:
+    - then:
+        - lambda: |-
+            ESP_LOGD("ble_auto", "The scan has ended!");
+
+# Actions to control scanning
+# esp32_ble_tracker.start_scan - start BLE scan
+# esp32_ble_tracker.stop_scan  - stop BLE scan
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>BLE Server</Name>
+  <Category>Bluetooth</Category>
+  <Description>Sets up a BLE GATT server on ESP32, exposing device info and custom services with characteristics to allow data exchange and control via BLE clients.</Description>
+  <YAML><![CDATA[
+esp32_ble_server:
+  manufacturer: "Orange"                    # Manufacturer name (default ESPHome)
+  model: "ESP32 Model X"                    # Model name (default project or board name)
+  appearance: 0                            # Appearance value in advertising data (default 0)
+  firmware_version: "1.0.0"                # Firmware version (default ESPHome version)
+  manufacturer_data: [0x4C, 0, 0x23, 77, 0xF0]  # Manufacturer-specific advertising data
+
+  on_connect:
+    - lambda: |-
+        ESP_LOGD("BLE", "Connection from %d", id);
+
+  on_disconnect:
+    - lambda: |-
+        ESP_LOGD("BLE", "Disconnection from %d", id);
+
+  services:
+    - uuid: "2a24b789-7aab-4535-af3e-ee76a35cc42d"    # Service UUID
+      advertise: false                                # Whether to advertise this service
+      characteristics:
+        - uuid: "cad48e28-7fbe-41cf-bae9-d77a6c233423"  # Characteristic UUID
+          id: test_characteristic
+          description: "Sample description"
+          read: true
+          write: false
+          broadcast: false
+          notify: false
+          indicate: false
+          write_no_response: false
+          value:
+            data: "Hello, World!"
+            type: string
+            string_encoding: utf-8
+          descriptors:
+            - uuid: "cad48e28-7fbe-41cf-bae9-d77a6c211423"
+              id: test_descriptor
+              value:
+                data: "Hello, World Descriptor!"
+          on_write:
+            then:
+              - lambda: |-
+                  ESP_LOGD("BLE", "Characteristic written by client");
+                  
+# Actions
+
+# ble_server.characteristic.set_value - set characteristic value
+# ble_server.characteristic.notify - notify clients of characteristic update
+# ble_server.descriptor.set_value - set descriptor value
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Bluetooth Proxy</Name>
+  <Category>Bluetooth</Category>
+  <Description>Enables ESPHome devices to act as Bluetooth Low Energy (BLE) proxies, extending the Bluetooth coverage for Home Assistant by relaying BLE data and managing active connections with devices.</Description>
+  <YAML><![CDATA[
+bluetooth_proxy:
+  active: true                         # Enable proxying of active BLE connections (default true)
+  cache_services: true                 # Cache GATT services in flash for faster active connections (default true on ESP-IDF)
+  connection_slots: 3                  # Maximum number of BLE connection slots to use (default 3, max 9 on ESP-IDF framework)
+
+# Note:
+# - ESP32 platform should use the ESP-IDF framework for better performance and memory usage
+# - Disable Web Server component when enabling the Bluetooth Proxy to avoid memory issues
+# - Bluetooth Proxy depends on esp32_ble_tracker component being enabled
+
+# Recommended esp32_ble_tracker scan parameters for improved reception performance:
+# esp32_ble_tracker:
+#   scan_parameters:
+#     interval: 1100ms
+#     window: 1100ms
+#     active: true
+
+# Warning:
+# Avoid placing ESP nodes near network equipment to reduce EMI interference for best Bluetooth signal reception.
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Improv via BLE</Name>
+  <Category>Bluetooth</Category>
+  <Description>Implements the open Improv standard for configuring Wi-Fi on ESP32 devices via Bluetooth Low Energy (BLE) to receive credentials securely.</Description>
+  <YAML><![CDATA[
+esp32_improv:
+  authorizer: binary_sensor_id          # Binary sensor to authorize provisioning (required). Use 'none' to skip authorization.
+  authorized_duration: 1min             # Time before authorization times out (default 1 minute)
+  status_indicator: output_id           # Optional output for user feedback
+  identify_duration: 10s                # Duration to identify the device (default 10 seconds)
+  wifi_timeout: 1min                    # Time to wait before starting Improv service after Wi-Fi disconnect (default 1 minute)
+
+  # Automations triggered on Improv process events
+  on_start:
+    then:
+      - logger.log: "Improv awaiting authorization/authorized"
+
+  on_provisioned:
+    then:
+      - logger.log: "Improv provisioned"
+
+  on_provisioning:
+    then:
+      - logger.log: "Improv provisioning"
+
+  on_stop:
+    then:
+      - logger.log: "Improv stopped"
+
+  on_state:
+    then:
+      - if:
+          condition:
+            lambda: 'return state == improv::STATE_AUTHORIZED;'
+          then:
+            - logger.log: "Improv state is STATE_AUTHORIZED"
+
+# Status Indicator Patterns:
+# - solid: service active and waiting for authorization
+# - blinking once/sec: awaiting Wi-Fi credentials
+# - blinking 3 times/sec: identify command used
+# - blinking 5 times/sec: credentials being verified and saved
+# - off: service not running
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Nordic UART Service (NUS)</Name>
+  <Category>Bluetooth</Category>
+  <Description>Provides a Bluetooth Low Energy (BLE) UART interface based on the Nordic UART Service for streaming logs or enabling custom bidirectional communication.</Description>
+  <YAML><![CDATA[
+ble_nus:
+  type: logs    # Mode of operation; set to 'logs' to stream ESPHome logs over BLE UART
+
+# Usage:
+# To view logs over BLE, run:
+# esphome logs your_config.yaml --device BLE
+# Or connect to a specific BLE address:
+# esphome logs your_config.yaml --device 00:11:22:33:44:55
+]]></YAML>
+</Component>
+
+
+
    
 </Components>  
