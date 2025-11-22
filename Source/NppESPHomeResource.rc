@@ -1,5 +1,5 @@
-main_dark ICON "..\\Resources\\NppESPHome_Black.ico"
-main_light ICON "..\\Resources\\NppESPHome_White.ico"
+main_dark ICON "..\\Resources\\NppESPHome_Dark.ico"
+main_light ICON "..\\Resources\\NppESPHome_Light.ico"
 clean BITMAP "..\\Resources\\Toolbar\\Clean.bmp"
 clean_dark ICON "..\\Resources\\Toolbar\\Clean_Dark.ico"
 clean_light ICON "..\\Resources\\Toolbar\\Clean_Light.ico"

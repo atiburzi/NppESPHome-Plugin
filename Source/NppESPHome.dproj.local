@@ -36,12 +36,12 @@
     <Transaction>2025/08/27 00:03:05.000.185,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Project2.png</Transaction>
     <Transaction>2025/08/27 00:03:05.000.219,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Run2.png</Transaction>
     <Transaction>2025/08/27 00:03:05.000.138,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Options.png</Transaction>
-    <Transaction>2025/08/27 00:03:05.000.275,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\ShowLogs.png</Transaction>
+    <Transaction>2025/08/27 00:03:05.000.073,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Compile.png</Transaction>
     <Transaction>2025/08/27 00:03:05.000.152,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Options2.png</Transaction>
     <Transaction>2025/08/27 00:03:05.000.286,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\ShowLogs2.png</Transaction>
     <Transaction>2025/08/27 00:03:05.000.264,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\ShowLogs.bmp</Transaction>
     <Transaction>2025/08/27 00:03:05.000.298,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Upgrade.bmp</Transaction>
-    <Transaction>2025/08/27 00:03:05.000.073,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Compile.png</Transaction>
+    <Transaction>2025/08/27 00:03:05.000.275,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\ShowLogs.png</Transaction>
     <Transaction>2025/08/27 00:03:05.000.195,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Run.bmp</Transaction>
     <Transaction>2025/08/27 00:03:05.000.350,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Upload.png</Transaction>
     <Transaction>2025/08/27 00:03:05.000.323,=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome2\Resources\SVG\Upgrade2.png</Transaction>
@@ -219,8 +219,8 @@
     <File Path="..\Resources\Toolbar\Visit.bmp"/>
     <File Path="..\Resources\Toolbar\Visit_Dark.ico"/>
     <File Path="..\Resources\Toolbar\Visit_Light.ico"/>
-    <File Path="..\Resources\NppESPHome_Black.ico"/>
-    <File Path="..\Resources\NppESPHome_White.ico"/>
+    <File Path="..\Resources\NppESPHome_Dark.ico"/>
+    <File Path="..\Resources\NppESPHome_Light.ico"/>
     <File Path="ESPHomePlugin.pas"/>
     <File Path="UnitFormSelection.pas"/>
     <File Path="UnitFormSelection.dfm"/>

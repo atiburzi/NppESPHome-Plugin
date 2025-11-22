@@ -124,8 +124,8 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCC_ExeOutput>..\Bin\$(Platform)</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_Build>41</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.41;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Build>42</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.42;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_Build>41</VerInfo_Build>
@@ -166,11 +166,11 @@ $(PostBuildEvent)]]></PostBuildEvent>
             <Form>FormProjects</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <RcItem Include="..\Resources\NppESPHome_Black.ico">
+        <RcItem Include="..\Resources\NppESPHome_Dark.ico">
             <ResourceType>ICON</ResourceType>
             <ResourceId>main_dark</ResourceId>
         </RcItem>
-        <RcItem Include="..\Resources\NppESPHome_White.ico">
+        <RcItem Include="..\Resources\NppESPHome_Light.ico">
             <ResourceType>ICON</ResourceType>
             <ResourceId>main_light</ResourceId>
         </RcItem>
