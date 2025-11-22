@@ -93,10 +93,17 @@ These settings, defined on a per-project basis, are stored in the plugin’s con
 ### Floating window
 *(toggle through toolbar icon or menu command)*
 
-This floating window is composed by two sections: on the top there are the known projects (including their dependencies) through which is possible to see/select the current project very easily. It also includes a toolbar from which is possible to launch the ESPHome commands or access the other functionalities.
-On the bottom part, there is the templates section: from there is possibile to filter/select preconfigured templates to easily insert YAML commands into your code with a simple double click on the template item.
+A compact, dockable control center:
+- The top section lists your projects and dependencies, with quick access to ESPHome commands and other functionalities.
+- The bottom section hosts the template browser for inserting component snippets into your code with a simple doubble click.
 
 ![Configure Project](Art/main.png)
+
+Templates are loaded from a fully customizable XML file.
+If the file "NppESPHome.xml" is not found in your plugin configuration folder when the plugin starts, you’ll be prompted to download a basic template set from the internet.
+I recommend doing so — you can then freely edit and expand it to build your own custom templates.
+
+Additional template-management functions are available through the three-dot menu next to the filters in the template panel.
 
 ### "Run", "Compile", "Upload", "Logs" and "Clean" commands
 
