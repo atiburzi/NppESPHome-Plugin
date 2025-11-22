@@ -3,7 +3,9 @@
 
 A **Notepad++** plugin written in **Delphi** to directly interact with **ESPHome** and easily manage related projects in Windows environment.
 
-![NppESPHome in action](Art/main2.png)
+<p align="center">
+  <img src="Art/main2.png" width="600"><br>
+</p>
 
 ## Why?
 
@@ -77,8 +79,10 @@ By selecting the **"Select Project"** command from the **"Plugins → NppESPHome
 
 If you wish to remove a project from the list of known projects, use the **"Remove Project"** button.
 
-![Select Project Window](Art/select.png)
-
+<p align="center">
+  <img src="Art/select.png" width="400"><br>
+  <em>Select Project Window</em>
+</p>
 
 ### "Configure Project" window
 *(default command shortkey Ctrl+F10)*
@@ -86,7 +90,10 @@ If you wish to remove a project from the list of known projects, use the **"Remo
 Once the current project has been selected, you can proceed with its configuration by defining how the plugin should interact with ESPHome and with Notepad++.  
 For example, you can decide the type of auto-save behavior for project files, configure how to handle console windows opened by ESPHome commands, customize the command line for each action, and much more.
 
-![Configure Project](Art/config.png)
+<p align="center">
+  <img src="Art/config.png" width="400"><br>
+  <em>Configure Project Window</em>
+</p>
 
 These settings, defined on a per-project basis, are stored in the plugin’s configuration file.
 
@@ -97,7 +104,10 @@ A compact, dockable control center:
 - The top section lists your projects and dependencies, with quick access to ESPHome commands and other functionalities.
 - The bottom section hosts the template browser for inserting component snippets into your code with a simple doubble click.
 
-![Configure Project](Art/main.png)
+<p align="center">
+  <img src="Art/main.png" width="300"><br>
+  <em>Floating Window</em>
+</p>
 
 Templates are loaded from a fully customizable XML file.
 If the file "NppESPHome.xml" is not found in your plugin configuration folder when the plugin starts, you’ll be prompted to download a basic template from GitHub.
@@ -107,12 +117,18 @@ Additional template-management functions are available through the three-dot men
 
 ### "Run", "Compile", "Upload", "Logs" and "Clean" commands
 
-![Configure Project](Art/menu.png)
+<p align="center">
+  <img src="Art/menu.png" width="300"><br>
+  <em>Plugin Menù</em>
+</p>
 
 From the plugin menu, or through keyboard shortcuts in Notepad++, you can launch the five main ESPHome commands for the current project (**Run, Compile, Upload, Logs, Clean**).  
 Normally, when working from a Windows console, you would need to invoke the `esphome.exe` command line manually and provide the correct sequence of required parameters.
 
-![Configure Project](Art/console.png)
+<p align="center">
+  <img src="Art/console.png" width="400"><br>
+  <em>ESPHome Console</em>
+</p>
 
 The plugin automatically builds the command line with all the parameters required to run ESPHome, invoking the expected command.  
 Stored configurations, project files, and the command itself are used to open the ESPHome console and execute the selected action.
