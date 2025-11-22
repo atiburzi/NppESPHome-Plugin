@@ -100,8 +100,8 @@ A compact, dockable control center:
 ![Configure Project](Art/main.png)
 
 Templates are loaded from a fully customizable XML file.
-If the file "NppESPHome.xml" is not found in your plugin configuration folder when the plugin starts, you’ll be prompted to download a basic template set from the internet.
-I recommend doing so — you can then freely edit and expand it to build your own custom templates.
+If the file "NppESPHome.xml" is not found in your plugin configuration folder when the plugin starts, you’ll be prompted to download a basic template from GitHub.
+I recommend doing so — you can then freely edit and expand it to build your own custom templates and speedup your development.
 
 Additional template-management functions are available through the three-dot menu next to the filters in the template panel.
 
