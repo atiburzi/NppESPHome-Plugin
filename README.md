@@ -3,7 +3,7 @@
 
 A **Notepad++** plugin written in **Delphi** to directly interact with **ESPHome** and easily manage related projects in Windows environment.
 
-![NppESPHome in action](Art/group.png)
+![NppESPHome in action](Art/main2.png)
 
 ## Why?
 
