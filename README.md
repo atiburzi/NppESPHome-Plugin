@@ -143,6 +143,7 @@ The following additional 3rd party libraries are required in order to compile th
   * [ComPort Library ver. 4.11](http://comport.sf.net/)
   * [LibYAML ver. 0.2.5](https://github.com/yaml/libyaml)
   * [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl)
+  * [JAM Software Virtual-TreeView ver 8.2](https://github.com/JAM-Software/Virtual-TreeView)
 
 Those libraries must be placed in the Delphi default library search path.
 
