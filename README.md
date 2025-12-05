@@ -1,7 +1,7 @@
 
 # NppESPHome-Plugin
 
-A **Notepad++** plugin written in **Delphi** to directly interact with **ESPHome** and easily manage related projects in Windows environment.
+A **Notepad++** plugin written in **Delphi** to directly interact with **[ESPHome](https://github.com/esphome/esphome)** and easily manage related projects in Windows environment.
 
 <p align="center">
   <img src="Art/main2.png" width="600"><br>
