@@ -3,4 +3,9 @@ __recovery
 __Win64
 __Win32
 External
-
+*.dcu
+*.exe
+*.identcache
+*.local
+*.stat
+*.res
