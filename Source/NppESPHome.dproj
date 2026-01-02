@@ -4,8 +4,8 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
@@ -110,8 +110,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
-        <VerInfo_Build>46</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.46;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Build>47</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.47;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -133,8 +133,10 @@ explorer.exe /select,"$(OUTPUTPATH)"
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_Build>0</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.1.38.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
         <VerInfo_AutoIncVersion>false</VerInfo_AutoIncVersion>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <VerInfo_Release>38</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -1366,7 +1368,7 @@ explorer.exe /select,"$(OUTPUTPATH)"
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
+        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>True</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -1374,7 +1376,7 @@ explorer.exe /select,"$(OUTPUTPATH)"
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
+        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>True</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>

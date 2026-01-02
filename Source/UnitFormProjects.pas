@@ -87,12 +87,13 @@ type
     ButtonMenuTemplates: TSpeedButton;
     PopUpMenuN4: TMenuItem;
     PopupMenuDownloadTemplates: TMenuItem;
+    PopupMenuN5: TMenuItem;
+    PopupMenuRemoveProject: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
       var ImageIndex: TImageIndex);
     procedure VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
-    procedure VirtualStringTreeProjectsChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure ActionOpenExecute(Sender: TObject);
     procedure ActionOpenDepsExecute(Sender: TObject);
     procedure ActionAddProjectExecute(Sender: TObject);
@@ -118,6 +119,9 @@ type
     procedure ButtonMenuTemplatesClick(Sender: TObject);
     procedure PopupMenuDownloadTemplatesClick(Sender: TObject);
     procedure PopupMenuTemplatesPopup(Sender: TObject);
+    procedure VirtualStringTreeProjectsNodeClick(Sender: TBaseVirtualTree;
+      const HitInfo: THitInfo);
+    procedure VirtualStringTreeProjectsDblClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -296,26 +300,23 @@ begin
   Repaint;
 end;
 
-procedure TFormProjects.VirtualStringTreeProjectsChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
-var
-  Data: PProjectNode;
-begin
-  inherited;
-  ProjectList.Current := nil;
-  if Assigned(Node) then
-  begin
-    Data := Sender.GetNodeData(Node);
-    if Assigned(Data) then
-      ProjectList.Current := Data^.Project;
-  end;
-  RefreshToolbar;
-  ESPHomePlugin.Plugin.UpdatePluginMenu;
-end;
-
 procedure TFormProjects.VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
 begin
   inherited;
   Allowed := False;
+end;
+
+procedure TFormProjects.VirtualStringTreeProjectsDblClick(Sender: TObject);
+var
+  S: string;
+  Node: PVirtualNode;
+begin
+  inherited;
+  S := '';
+  Node := TVirtualStringTree(Sender).FocusedNode;
+  if Assigned(Node) then
+    S := PProjectNode(Node.GetData)^.FileName;
+  ESPHomePlugin.Plugin.OpenProjectAndDependencies(S);
 end;
 
 procedure TFormProjects.VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
@@ -349,6 +350,23 @@ begin
   inherited;
   Data := Sender.GetNodeData(Node);
   CellText := Data^.Caption;
+end;
+
+procedure TFormProjects.VirtualStringTreeProjectsNodeClick(
+  Sender: TBaseVirtualTree; const HitInfo: THitInfo);
+var
+  Data: PProjectNode;
+begin
+  inherited;
+  ProjectList.Current := nil;
+  if Assigned(HitInfo.HitNode) then
+  begin
+    Data := Sender.GetNodeData(HitInfo.HitNode);
+    if Assigned(Data) then
+      ProjectList.Current := Data^.Project;
+  end;
+  RefreshToolbar;
+  ESPHomePlugin.Plugin.UpdatePluginMenu;
 end;
 
 procedure TFormProjects.VirtualStringTreeTemplatesChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -592,12 +610,20 @@ procedure TFormProjects.CurrentDocumentChanged;
 var
   P: TProject;
   FileName: string;
+  Node: PVirtualNode;
 begin
   FileName := PlugIn.GetFullCurrentPath;
   P := ProjectList.GetProjectFromFileName(FileName, True);
   if Assigned(P) then
     ProjectList.Current := P;
   ESPHomePlugin.Plugin.UpdateProjectList;
+
+  Node := GetVirtualNodeFromFileName(FileName);
+  if Assigned(Node) then
+  begin
+    VirtualStringTreeProjects.ClearSelection;
+    VirtualStringTreeProjects.AddToSelection(Node, True);
+  end;
 end;
 
 function TFormProjects.GetVirtualNodeFromFileName(const FileName: string): PVirtualNode;

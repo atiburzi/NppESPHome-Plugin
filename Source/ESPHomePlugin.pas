@@ -50,7 +50,7 @@ type
     procedure SelectProject;
     procedure ConfigureProject;
     procedure OpenProject;
-    procedure OpenProjectAndDependencies;
+    procedure OpenProjectAndDependencies(CurrentFile: string = '');
     procedure SaveProject;
     procedure SaveProjectAndDependencies;
 
@@ -414,7 +414,7 @@ begin
 
     CommandLine := Format(CommandLine, [Switch]);
 
-    CommandLine := Format('%s %s', [CommandLine, ShortFileName(ESPHomeExeFile)]);
+    CommandLine := Format('%s "%s"', [CommandLine, ExpandFileName(ESPHomeExeFile)]);
 
     case GetOption(csKeyESPHomeLogLevel, ciLogLevelDefault) of
       ciLogLevelCritical:
@@ -486,7 +486,7 @@ begin
     end;
 
     CommandLine := Trim(Format('%s %s %s', [CommandLine, CommandStr[Command], Switch]));
-    CommandLine := Trim(Format('%s %s', [CommandLine, ShortFileName(ExpandFileName(FileName))]));
+    CommandLine := Trim(Format('%s "%s"', [CommandLine, ExpandFileName(FileName)]));
 
     if GetOption(csKeyESPHomeAutoClose, True) then
       CommandLine := Concat(CommandLine, ' || pause');
@@ -579,7 +579,7 @@ begin
 
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
-  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & %s --version & pause', [ShortFileName(ESPHomeExeFile)]);
+  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & "%s" --version & pause', [ExpandFileName(ESPHomeExeFile)]);
   JvCreateProcess.Run;
   JvCreateProcess.Free;
 end;
@@ -611,7 +611,7 @@ begin
   OpenFile(ProjectList.Current.FileName);
 end;
 
-procedure TESPHomePlugin.OpenProjectAndDependencies;
+procedure TESPHomePlugin.OpenProjectAndDependencies(CurrentFile: string = '');
 var
   FileName: string;
 begin
@@ -623,7 +623,11 @@ begin
   for FileName in ProjectList.Current.OptionDependencies do
     if FileExists(FileName) then
       OpenFile(FileName);
-  SwitchToFile(ProjectList.Current.FileName);
+
+  if CurrentFile = '' then
+    CurrentFile := ProjectList.Current.FileName;
+
+  SwitchToFile(CurrentFile);
 end;
 
 procedure TESPHomePlugin.SaveProject;
