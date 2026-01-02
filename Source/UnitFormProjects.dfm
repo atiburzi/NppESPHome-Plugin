@@ -289,6 +289,7 @@ object FormProjects: TFormProjects
         TabOrder = 0
         OnChange = EditTextFilterChange
         OnRightButtonClick = EditTextFilterRightButtonClick
+        ExplicitWidth = 333
       end
       object ComboBoxCategories: TComboBox
         Left = 115
@@ -301,6 +302,7 @@ object FormProjects: TFormProjects
         Sorted = True
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
+        ExplicitWidth = 333
       end
       object VirtualStringTreeTemplates: TVirtualStringTree
         Left = 5

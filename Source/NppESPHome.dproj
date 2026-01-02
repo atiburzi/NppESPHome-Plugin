@@ -4,7 +4,7 @@
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
@@ -110,6 +110,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
+        <VerInfo_Build>46</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.46;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -117,19 +119,22 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
-        <PostBuildEvent><![CDATA[cmd.exe /c upx.exe -9 "$(OUTPUTPATH)"
+        <PostBuildEvent><![CDATA[start /wait upx.exe -9 "$(OUTPUTPATH)"
 explorer.exe /select,"$(OUTPUTPATH)"
-$(PostBuildEvent)]]></PostBuildEvent>
+]]></PostBuildEvent>
         <PostBuildEventCancelOnError>false</PostBuildEventCancelOnError>
         <DCC_ExeOutput>..\Bin\$(Platform)</DCC_ExeOutput>
+        <PostBuildEventExecuteWhen>TargetOutOfDate</PostBuildEventExecuteWhen>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_Build>42</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.42;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Build>0</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_AutoIncVersion>false</VerInfo_AutoIncVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>41</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.41;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Build>0</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_AutoIncVersion>false</VerInfo_AutoIncVersion>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -1361,7 +1366,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>cmd.exe /c upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
+        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>True</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -1369,7 +1374,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>cmd.exe /c upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
+        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>True</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>

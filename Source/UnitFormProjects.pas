@@ -138,7 +138,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils;
+  System.Types, System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils;
 
 procedure TFormProjects.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -526,15 +526,16 @@ end;
 
 procedure TFormProjects.RefreshToolbar;
 begin
-  if Assigned(ProjectList.Current) then
-  begin
-    ToolButtonOpenDeps.Enabled := ProjectList.Current.OptionDependencies.Count > 0;
-    ToolButtonVisit.Enabled := ProjectList.Current.HasWebServer;
-  end
-  else
-  begin
+  ToolButtonSettings.Enabled := Assigned(ProjectList.Current);
+  ToolButtonOpen.Enabled := Assigned(ProjectList.Current);
+  ToolButtonRun.Enabled := Assigned(ProjectList.Current);
+  ToolButtonCompile.Enabled := Assigned(ProjectList.Current);
+  ToolButtonUpload.Enabled := Assigned(ProjectList.Current);
+  ToolButtonShowLogs.Enabled := Assigned(ProjectList.Current);
+  ToolButtonClean.Enabled := Assigned(ProjectList.Current);
 
-  end;
+  ToolButtonOpenDeps.Enabled := Assigned(ProjectList.Current) and (ProjectList.Current.OptionDependencies.Count > 0);
+  ToolButtonVisit.Enabled := Assigned(ProjectList.Current) and ProjectList.Current.HasWebServer;
 end;
 
 procedure TFormProjects.PopupMenuReloadXMLFileConfigurationClick(Sender: TObject);
