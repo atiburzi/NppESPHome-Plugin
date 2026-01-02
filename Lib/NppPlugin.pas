@@ -27,34 +27,21 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils,
   System.Types, Vcl.Forms, SciSupport, NppSupport, NppMenuCmdID;
 
-const
-  FNITEM_NAMELEN = 64;
-  C_NO_LANGUAGE = -1;
 
 type
   // Plugin metaclass
   // Eleminates the need to edit the file NppPluginInclude.pas for every new plugin
   TNppPluginClass = class of TNppPlugin;
-  PFuncPluginCmd = procedure; cdecl;
-
-  PFuncItem = ^TFuncItem;
-  TFuncItem = record
-    ItemName: array [0..FNITEM_NAMELEN - 1] of nppChar;
-    Func: PFuncPluginCmd;
-    CmdID: Cardinal;
-    Checked: Boolean;
-    ShortcutKey: PShortcutKey;
-  end;
 
   // Plugin base class
   TNppPlugin = class(TObject)
   private
     FPluginName: nppString;
-    FPluginMajorVersion: integer;
-    FPluginMinorVersion: integer;
-    FPluginReleaseNumber: integer;
-    FPluginBuildNumber: integer;
-    FPluginCopyRight: string;
+    FPluginMajorVersion: Integer;
+    FPluginMinorVersion: Integer;
+    FPluginReleaseNumber: Integer;
+    FPluginBuildNumber: Integer;
+    FPluginCopyright: string;
     FSCNotification: PSCNotification;
     FFuncArray: array of TFuncItem;
 
@@ -64,11 +51,11 @@ type
     // Internal utils
     procedure GetVersionInfo;
 
-    function AddFuncItem(Name: nppString; Func: PFuncPluginCmd): integer; overload;
-    function AddFuncItem(Name: nppString; Func: PFuncPluginCmd; ShortcutKey: PShortcutKey): integer; overload;
+    function AddFuncItem(ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer; overload;
+    function AddFuncItem(ItemIndex: Integer; ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer; overload;
 
-    procedure AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIcons);
-    procedure AddToolbarIconEx(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode);
+    procedure AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIcons); overload;
+    procedure AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode); overload;
 
     // Notepad++ notification handlers
     procedure DoNppnReady; virtual;
@@ -104,8 +91,8 @@ type
 
     // Basic plugin properties
     property PluginName: nppString read FPluginName write FPluginName;
-    property PluginMajorVersion: integer read FPluginMajorVersion write FPluginMajorVersion;
-    property PluginMinorVersion: integer read FPluginMinorVersion write FPluginMinorVersion;
+    property PluginMajorVersion: Integer read FPluginMajorVersion write FPluginMajorVersion;
+    property PluginMinorVersion: Integer read FPluginMinorVersion write FPluginMinorVersion;
     property SCNotification: PSCNotification read FSCNotification;
 
   public
@@ -119,25 +106,27 @@ type
     // Plugin interface methods
     procedure MessageProc(var Msg: TMessage); virtual;
     procedure BeNotified(SN: PSCNotification);
-    procedure SetInfo(ANppData: TNppData); virtual;
-    function GetFuncsArray(out FuncsCount: integer): Pointer;
+    procedure SetInfo(NppData: TNppData); virtual;
+    function GetFuncsArray(out FuncsCount: Integer): Pointer;
     function GetFuncByIndex(const Index: Integer): PFuncItem;
     function GetName: nppPChar;
     function GetCurrentScintilla: HWND;
 
     // Utils and Npp message wrappers
-    function CmdIdFromMenuItemIdx(MenuItemIdx: integer): cardinal;
-    procedure CheckMenuItem(MenuItemIdx: integer; State: Boolean; Delayed: Boolean = true);
-    procedure PerformMenuCommand(MenuCmdId: cardinal; Param: integer = 0; Delayed: Boolean = true);
+    function CmdIdFromMenuItemIdx(MenuItemIdx: Integer): cardinal;
+    procedure CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
+    procedure EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
+    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
+    procedure PerformMenuCommand(MenuCmdId: cardinal; Param: Integer = 0; Delayed: Boolean = true);
 
-    function GetMajorVersion: integer;
-    function GetMinorVersion: integer;
-    function GetReleaseNumber: integer;
-    function GetBuildNumber: integer;
+    function GetMajorVersion: Integer;
+    function GetMinorVersion: Integer;
+    function GetReleaseNumber: Integer;
+    function GetBuildNumber: Integer;
     function GetCopyRight: string;
 
-    function GetNppVersion(var MajorVersion, MinorVersion: integer): integer;
-    function IsNppMinVersion(AMajorVersion, AMinorVersion: integer): Boolean;
+    function GetNppVersion(var MajorVersion, MinorVersion: Integer): Integer;
+    function IsNppMinVersion(AMajorVersion, AMinorVersion: Integer): Boolean;
     function IsDarkModeEnabled: Boolean;
 
     function GetNppDir: string;
@@ -152,33 +141,34 @@ type
     function GetFileNameWithoutExt: string;
     function GetFileNameExt: string;
 
-    function GetEncoding: integer;
-    function GetEOLFormat: integer;
-    function GetLanguageType: integer; // see TNppLang
+    function GetToolbarHandle: HWND;
+    function GetEncoding: Integer;
+    function GetEOLFormat: Integer;
+    function GetLanguageType: Integer; // see TNppLang
     function GetLanguageName(ALangType: TNppLang): string;
     function GetLanguageDesc(ALangType: TNppLang): string;
 
-    function GetCurrentViewIdx: integer; overload;
-    function GetCurrentViewIdx(ScHandle: HWND): integer; overload;
-    function GetCurrentDocIndex(AViewIdx: integer): integer;
+    function GetCurrentViewIdx: Integer; overload;
+    function GetCurrentViewIdx(ScHandle: HWND): Integer; overload;
+    function GetCurrentDocIndex(AViewIdx: Integer): Integer;
     function GetCurrentLine: NativeInt;
     function GetCurrentColumn: LongInt;
 
     function GetCurrentBufferId: NativeInt;
-    function GetBufferIdFromPos(AViewIdx, ADocIdx: integer): NativeInt;
-    function GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: integer): integer;
+    function GetBufferIdFromPos(AViewIdx, ADocIdx: Integer): NativeInt;
+    function GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: Integer): Integer;
     function GetFullPathFromBufferId(ABufferId: NativeInt): string;
-    function GetCurrentBufferDirty(AViewIdx: integer): Boolean;
+    function GetCurrentBufferDirty(AViewIdx: Integer): Boolean;
     function GetDarkModeColors(PColors: PNppDarkModeColors): Boolean;
 
-    function GetOpenFilesCnt(CntType: integer): integer;
-    function GetOpenFiles(CntType: integer): TStringDynArray;
+    function GetOpenFilesCnt(CntType: Integer): Integer;
+    function GetOpenFiles(CntType: Integer): TStringDynArray;
 
-    function GetLineCount(AViewIdx: integer): NativeInt;
-    function GetCurrentPos(AViewIdx: integer): NativeInt;
-    function GetLineFromPosition(AViewIdx: integer; APosition: NativeInt): NativeInt;
-    function GetFirstVisibleLine(AViewIdx: integer): NativeInt;
-    function GetLinesOnScreen(AViewIdx: integer): NativeInt;
+    function GetLineCount(AViewIdx: Integer): NativeInt;
+    function GetCurrentPos(AViewIdx: Integer): NativeInt;
+    function GetLineFromPosition(AViewIdx: Integer; APosition: NativeInt): NativeInt;
+    function GetFirstVisibleLine(AViewIdx: Integer): NativeInt;
+    function GetLinesOnScreen(AViewIdx: Integer): NativeInt;
 
     procedure GetFilePos(out FileName: string; out Line: NativeInt; out Column: LongInt);
     function GetCurrentWord: string;
@@ -197,7 +187,7 @@ type
 implementation
 
 uses
-  FileVersionInfo;
+  FileVersionInfo, Math, Winapi.CommCtrl;
 
 // =============================================================================
 // Class TNppPlugin
@@ -214,12 +204,12 @@ end;
 
 destructor TNppPlugin.Destroy;
 var
-  i: integer;
+  Index: Integer;
 begin
-  for i := 0 to Length(FFuncArray) - 1 do
+  for Index := 0 to Length(FFuncArray) - 1 do
   begin
-    if Assigned(FFuncArray[i].ShortcutKey) then
-      Dispose(FFuncArray[i].ShortcutKey);
+    if Assigned(FFuncArray[Index].ShortcutKey) then
+      Dispose(FFuncArray[Index].ShortcutKey);
   end;
   inherited;
 end;
@@ -234,7 +224,6 @@ procedure TNppPlugin.BeforeDestruction;
 begin
   Application.Handle := 0;
   Application.Terminate;
-
   inherited;
 end;
 
@@ -244,98 +233,63 @@ end;
 
 procedure TNppPlugin.MessageProc(var Msg: TMessage);
 var
-  hm: HMENU;
-  i: integer;
+  Menu: HMENU;
+  Index: Integer;
 begin
   if (Msg.Msg = WM_CREATE) then
   begin
-    hm := GetMenu(NppData.NppHandle);
-    for i := 0 to Pred(Length(FFuncArray)) do
-    begin
-      if (FFuncArray[i].ItemName[0] = '-') then
-        ModifyMenu(hm, FFuncArray[i].CmdID, MF_BYCOMMAND or MF_SEPARATOR, 0, nil);
-    end;
+    Menu := GetMenu(NppData.NppHandle);
+    for Index := 0 to Length(FFuncArray) - 1 do
+      if (FFuncArray[Index].ItemName[0] = '-') then
+        ModifyMenu(Menu, FFuncArray[Index].CmdID, MF_BYCOMMAND or MF_SEPARATOR, 0, nil);
   end;
   Dispatch(Msg);
 end;
 
 procedure TNppPlugin.BeNotified(SN: PSCNotification);
 begin
-  // Provide notification data to derived classes
   FSCNotification := SN;
-
   case SN.nmhdr.code of
-    // Notepad++ notifications
-    NPPN_READY:
-      DoNppnReady;
-    NPPN_FILEBEFORELOAD:
-      DoNppnFileBeforeLoad;
-    NPPN_FILELOADFAILED:
-      DoNppnFileLoadFailed;
-    NPPN_SNAPSHOTDIRTYFILELOADED:
-      DoNppnSnapshotDirtyFileLoaded;
-    NPPN_FILEBEFOREOPEN:
-      DoNppnFileBeforeOpen;
-    NPPN_FILEOPENED:
-      DoNppnFileOpened;
-    NPPN_FILEBEFORECLOSE:
-      DoNppnFileBeforeClose;
-    NPPN_FILECLOSED:
-      DoNppnFileClosed;
-    NPPN_FILEBEFORESAVE:
-      DoNppnFileBeforeSave;
-    NPPN_FILESAVED:
-      DoNppnFileSaved;
-    NPPN_FILEBEFORERENAME:
-      DoNppnFileBeforeRename;
-    NPPN_FILERENAMECANCEL:
-      DoNppnFileRenameCancel;
-    NPPN_FILERENAMED:
-      DoNppnFileRenamed;
-    NPPN_FILEBEFOREDELETE:
-      DoNppnFileBeforeDelete;
-    NPPN_FILEDELETEFAILED:
-      DoNppnFileDeleteFailed;
-    NPPN_FILEDELETED:
-      DoNppnFileDeleted;
-    NPPN_BEFORESHUTDOWN:
-      DoNppnBeforeShutDown;
-    NPPN_CANCELSHUTDOWN:
-      DoNppnCancelShutDown;
-    NPPN_SHUTDOWN:
-      DoNppnShutdown;
-    NPPN_BUFFERACTIVATED:
-      DoNppnBufferActivated;
-    NPPN_LANGCHANGED:
-      DoNppnLangChanged;
-    NPPN_READONLYCHANGED:
-      DoNppnReadOnlyChanged;
-    NPPN_DOCORDERCHANGED:
-      DoNppnDocOrderChanged;
-    NPPN_SHORTCUTREMAPPED:
-      DoNppnShortcutRemapped;
-    NPPN_WORDSTYLESUPDATED:
-      DoNppnWordStylesUpdated;
-    NPPN_TBMODIFICATION:
-      DoNppnToolbarModification;
-    NPPN_DARKMODECHANGED:
-      DoNppnDarkModeChanged;
-    NPPN_CMDLINEPLUGINMSG:
-      DoNppnCmdLinePluginMsg;
-    NPPN_EXTERNALLEXERBUFFER:
-      DoNppExternalLexerBuffer;
-    NPPN_GLOBALMODIFIED:
-      DoNppGlobalModified;
+    NPPN_READY: DoNppnReady;
+    NPPN_FILEBEFORELOAD: DoNppnFileBeforeLoad;
+    NPPN_FILELOADFAILED: DoNppnFileLoadFailed;
+    NPPN_SNAPSHOTDIRTYFILELOADED: DoNppnSnapshotDirtyFileLoaded;
+    NPPN_FILEBEFOREOPEN: DoNppnFileBeforeOpen;
+    NPPN_FILEOPENED: DoNppnFileOpened;
+    NPPN_FILEBEFORECLOSE: DoNppnFileBeforeClose;
+    NPPN_FILECLOSED: DoNppnFileClosed;
+    NPPN_FILEBEFORESAVE: DoNppnFileBeforeSave;
+    NPPN_FILESAVED: DoNppnFileSaved;
+    NPPN_FILEBEFORERENAME: DoNppnFileBeforeRename;
+    NPPN_FILERENAMECANCEL: DoNppnFileRenameCancel;
+    NPPN_FILERENAMED: DoNppnFileRenamed;
+    NPPN_FILEBEFOREDELETE: DoNppnFileBeforeDelete;
+    NPPN_FILEDELETEFAILED: DoNppnFileDeleteFailed;
+    NPPN_FILEDELETED: DoNppnFileDeleted;
+    NPPN_BEFORESHUTDOWN: DoNppnBeforeShutDown;
+    NPPN_CANCELSHUTDOWN: DoNppnCancelShutDown;
+    NPPN_SHUTDOWN: DoNppnShutdown;
+    NPPN_BUFFERACTIVATED: DoNppnBufferActivated;
+    NPPN_LANGCHANGED: DoNppnLangChanged;
+    NPPN_READONLYCHANGED: DoNppnReadOnlyChanged;
+    NPPN_DOCORDERCHANGED: DoNppnDocOrderChanged;
+    NPPN_SHORTCUTREMAPPED: DoNppnShortcutRemapped;
+    NPPN_WORDSTYLESUPDATED: DoNppnWordStylesUpdated;
+    NPPN_TBMODIFICATION: DoNppnToolbarModification;
+    NPPN_DARKMODECHANGED: DoNppnDarkModeChanged;
+    NPPN_CMDLINEPLUGINMSG: DoNppnCmdLinePluginMsg;
+    NPPN_EXTERNALLEXERBUFFER: DoNppExternalLexerBuffer;
+    NPPN_GLOBALMODIFIED: DoNppGlobalModified;
   end;
 end;
 
-procedure TNppPlugin.SetInfo(ANppData: TNppData);
+procedure TNppPlugin.SetInfo(NppData: TNppData);
 begin
-  Self.NppData := ANppData;
+  Self.NppData := NppData;
   Application.Handle := NppData.NppHandle;
 end;
 
-function TNppPlugin.GetFuncsArray(out FuncsCount: integer): Pointer;
+function TNppPlugin.GetFuncsArray(out FuncsCount: Integer): Pointer;
 begin
   FuncsCount := Length(FFuncArray);
   Result := FFuncArray;
@@ -355,7 +309,7 @@ end;
 
 function TNppPlugin.GetCurrentScintilla: HWND;
 var
-  Idx: integer;
+  Idx: Integer;
 begin
   Result := NppData.ScintillaMainHandle;
   SendMessage(NppData.NppHandle, NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@Idx));
@@ -371,7 +325,6 @@ procedure TNppPlugin.GetVersionInfo;
 var
   lptstrFilename: string;
   wLangId: Word;
-
 begin
   wLangId := wLangIdEnglish;
   lptstrFilename := GetPluginDllPath;
@@ -379,29 +332,30 @@ begin
   if not FileExists(lptstrFilename) then
     exit;
 
-  TFileVersionInfo.GetNumericVersionInfo(lptstrFilename, nfvitFileVersion, FPluginMajorVersion, FPluginMinorVersion, FPluginReleaseNumber, FPluginBuildNumber);
-  TFileVersionInfo.GetVersionInfo(lptstrFilename, fvitLegalCopyright, wLangId, FPluginCopyRight);
+  TFileVersionInfo.GetNumericVersionInfo(lptstrFilename, nfvitFileVersion, FPluginMajorVersion, FPluginMinorVersion,
+    FPluginReleaseNumber, FPluginBuildNumber);
+  TFileVersionInfo.GetVersionInfo(lptstrFilename, fvitLegalCopyright, wLangId, FPluginCopyright);
 end;
 
-function TNppPlugin.AddFuncItem(Name: nppString; Func: PFuncPluginCmd): integer;
-var
-  i: integer;
+function TNppPlugin.AddFuncItem(ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
 begin
-  i := Length(FFuncArray);
-  SetLength(FFuncArray, i + 1);
-  StringToWideChar(Name, FFuncArray[i].ItemName, Length(FFuncArray[i].ItemName));
-  FFuncArray[i].Func := Func;
-  FFuncArray[i].ShortcutKey := nil;
-  Result := i;
+  Result := Length(FFuncArray);
+  SetLength(FFuncArray, Result + 1);
+  StringToWideChar(ItemName, FFuncArray[Result].ItemName, Length(FFuncArray[Result].ItemName));
+  FFuncArray[Result].Func := Func;
+  FFuncArray[Result].ShortcutKey := ShortcutKey;
+  FFuncArray[Result].Checked := Checked;
 end;
 
-function TNppPlugin.AddFuncItem(Name: nppString; Func: PFuncPluginCmd; ShortcutKey: PShortcutKey): integer;
-var
-  i: integer;
+function TNppPlugin.AddFuncItem(ItemIndex: Integer; ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
 begin
-  i := AddFuncItem(Name, Func);
-  FFuncArray[i].ShortcutKey := ShortcutKey;
-  Result := i;
+  if Length(FFuncArray) <= ItemIndex then
+    SetLength(FFuncArray, ItemIndex + 1);
+  StringToWideChar(ItemName, FFuncArray[ItemIndex].ItemName, Length(FFuncArray[ItemIndex].ItemName));
+  FFuncArray[ItemIndex].Func := Func;
+  FFuncArray[ItemIndex].ShortcutKey := ShortcutKey;
+  FFuncArray[ItemIndex].Checked := Checked;
+  Result := ItemIndex;
 end;
 
 procedure TNppPlugin.AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIcons);
@@ -409,7 +363,7 @@ begin
   SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON_DEPRECATED, WPARAM(CmdID), LPARAM(@ToolbarIcon));
 end;
 
-procedure TNppPlugin.AddToolbarIconEx(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode);
+procedure TNppPlugin.AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode);
 begin
   SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON_FORDARKMODE, WPARAM(CmdID), LPARAM(@ToolbarIcon));
 end;
@@ -418,12 +372,53 @@ end;
 // Utils and message wrapper methods
 // -----------------------------------------------------------------------------
 
-function TNppPlugin.CmdIdFromMenuItemIdx(MenuItemIdx: integer): cardinal;
+function TNppPlugin.CmdIdFromMenuItemIdx(MenuItemIdx: Integer): cardinal;
 begin
   Result := FFuncArray[MenuItemIdx].CmdID;
 end;
 
-procedure TNppPlugin.CheckMenuItem(MenuItemIdx: integer; State: Boolean; Delayed: Boolean = true);
+function EnumChildProc(Wnd: HWND; LParam: LPARAM): BOOL; stdcall;
+var
+  ClassName: array[0..255] of Char;
+begin
+  GetClassName(Wnd, ClassName, SizeOf(ClassName));
+  if StrComp(ClassName, TOOLBARCLASSNAME) = 0 then
+  begin
+    PCardinal(LParam)^ := Wnd;
+    Result := False;
+  end
+  else
+    Result := True;
+end;
+
+function TNppPlugin.GetToolbarHandle: HWND;
+begin
+  Result := 0;
+  EnumChildWindows(NppData.NppHandle, @EnumChildProc, LPARAM(@Result));
+end;
+
+procedure TNppPlugin.EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
+var
+  PluginMenu: HMENU;
+begin
+  PluginMenu := HMENU(SendMessage(NppData.NppHandle, NPPM_GETMENUHANDLE, NPPPLUGINMENU, 0));
+  if PluginMenu <> 0 then
+  begin
+    Winapi.Windows.EnableMenuItem(PluginMenu, CmdIdFromMenuItemIdx(MenuItemIdx), MF_BYCOMMAND or IfThen(State, MF_ENABLED, MF_GRAYED));
+    DrawMenuBar(NppData.NppHandle);
+  end;
+end;
+
+procedure TNppPlugin.EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
+var
+  Toolbar: HMENU;
+begin
+  Toolbar := GetToolbarHandle;
+  if Toolbar <> 0 then
+    SendMessage(Toolbar, TB_ENABLEBUTTON, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
+end;
+
+procedure TNppPlugin.CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
 begin
   if Delayed then
     PostMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State))
@@ -431,7 +426,7 @@ begin
     SendMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
 end;
 
-procedure TNppPlugin.PerformMenuCommand(MenuCmdId: cardinal; Param: integer = 0; Delayed: Boolean = true);
+procedure TNppPlugin.PerformMenuCommand(MenuCmdId: cardinal; Param: Integer = 0; Delayed: Boolean = true);
 begin
   if Delayed then
     PostMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
@@ -439,22 +434,22 @@ begin
     SendMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
 end;
 
-function TNppPlugin.GetMajorVersion: integer;
+function TNppPlugin.GetMajorVersion: Integer;
 begin
   Result := FPluginMajorVersion;
 end;
 
-function TNppPlugin.GetMinorVersion: integer;
+function TNppPlugin.GetMinorVersion: Integer;
 begin
   Result := FPluginMinorVersion;
 end;
 
-function TNppPlugin.GetReleaseNumber: integer;
+function TNppPlugin.GetReleaseNumber: Integer;
 begin
   Result := FPluginReleaseNumber;
 end;
 
-function TNppPlugin.GetBuildNumber: integer;
+function TNppPlugin.GetBuildNumber: Integer;
 begin
   Result := FPluginBuildNumber;
 end;
@@ -464,17 +459,17 @@ begin
   Result := FPluginCopyRight;
 end;
 
-function TNppPlugin.GetVarSizeStringValue(DirType: cardinal; MaxSize: cardinal = $0000FFFF): string;
-var // NTFS limit for path length
+function TNppPlugin.GetVarSizeStringValue(DirType: Cardinal; MaxSize: Cardinal = $0000FFFF): string;
+var
   Buf: nppString;
-  BufLen: cardinal;
+  BufLen: Cardinal;
   RetVal: LRESULT;
 begin
   Result := '';
   BufLen := 256; // The start value for this algorithm has to be a power of 2
   repeat
     SetLength(Buf, BufLen);
-    RetVal := SendMessage(NppData.NppHandle, DirType, WPARAM(BufLen), LPARAM(nppPChar(Buf)));
+    RetVal := SendMessage(NppData.NppHandle, DirType, WPARAM(BufLen), LParam(nppPChar(Buf)));
     if RetVal <> 0 then
       break;
     if BufLen >= MaxSize then
@@ -484,7 +479,7 @@ begin
   SetString(Result, nppPChar(Buf), StrLen(nppPChar(Buf)));
 end;
 
-function TNppPlugin.GetNppVersion(var MajorVersion, MinorVersion: integer): integer;
+function TNppPlugin.GetNppVersion(var MajorVersion, MinorVersion: Integer): Integer;
 var
   Version: LRESULT;
 begin
@@ -498,10 +493,10 @@ begin
   Result := MajorVersion;
 end;
 
-function TNppPlugin.IsNppMinVersion(AMajorVersion, AMinorVersion: integer): Boolean;
+function TNppPlugin.IsNppMinVersion(AMajorVersion, AMinorVersion: Integer): Boolean;
 var
-  MajorVersion: integer;
-  MinorVersion: integer;
+  MajorVersion: Integer;
+  MinorVersion: Integer;
 begin
   GetNppVersion(MajorVersion, MinorVersion);
   if MajorVersion > AMajorVersion then
@@ -527,8 +522,7 @@ end;
 function TNppPlugin.GetPluginDir: string;
 var
   szBuf: string;
-  dwBufLen: DWORD;
-  dwRet: DWORD;
+  dwRet, dwBufLen: DWORD;
 begin
   Result := '';
   dwBufLen := MAX_PATH;
@@ -593,17 +587,17 @@ begin
   Result := GetVarSizeStringValue(NPPM_GETEXTPART);
 end;
 
-function TNppPlugin.GetEncoding: integer;
+function TNppPlugin.GetEncoding: Integer;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERENCODING, WPARAM(GetCurrentBufferId), LPARAM(0));
 end;
 
-function TNppPlugin.GetEOLFormat: integer;
+function TNppPlugin.GetEOLFormat: Integer;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERFORMAT, WPARAM(GetCurrentBufferId), LPARAM(0));
 end;
 
-function TNppPlugin.GetLanguageType: integer;
+function TNppPlugin.GetLanguageType: Integer;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERLANGTYPE, WPARAM(GetCurrentBufferId), LPARAM(0));
   if Result = -1 then
@@ -634,12 +628,12 @@ begin
   SetLength(Result, BufLen);
 end;
 
-function TNppPlugin.GetCurrentViewIdx: integer;
+function TNppPlugin.GetCurrentViewIdx: Integer;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTVIEW, WPARAM(0), LPARAM(0));
 end;
 
-function TNppPlugin.GetCurrentViewIdx(ScHandle: HWND): integer;
+function TNppPlugin.GetCurrentViewIdx(ScHandle: HWND): Integer;
 begin
   if ScHandle = NppData.ScintillaMainHandle then
     Result := MAIN_VIEW
@@ -651,7 +645,7 @@ begin
     Result := -1;
 end;
 
-function TNppPlugin.GetCurrentDocIndex(AViewIdx: integer): integer;
+function TNppPlugin.GetCurrentDocIndex(AViewIdx: Integer): Integer;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTDOCINDEX, WPARAM(0), LPARAM(AViewIdx));
 end;
@@ -671,21 +665,18 @@ begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTBUFFERID, WPARAM(0), LPARAM(0));
 end;
 
-function TNppPlugin.GetBufferIdFromPos(AViewIdx, ADocIdx: integer): NativeInt;
+function TNppPlugin.GetBufferIdFromPos(AViewIdx, ADocIdx: Integer): NativeInt;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERIDFROMPOS, WPARAM(ADocIdx), LPARAM(AViewIdx));
 end;
 
-function TNppPlugin.GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: integer): integer;
+function TNppPlugin.GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: Integer): Integer;
 var
   Pos: LRESULT;
-
 begin
   Result := -1;
   ADocIdx := -1;
-
-  Pos := SendMessage(NppData.NppHandle, NPPM_GETPOSFROMBUFFERID, WPARAM(ABufferId), LPARAM(MAIN_VIEW));
-
+  Pos := SendMessage(NppData.NppHandle, NPPM_GETPOSFROMBUFFERID, WPARAM(ABufferId), LParam(MAIN_VIEW));
   if Pos <> -1 then
   begin
     Result := Pos shr 30;
@@ -696,19 +687,16 @@ end;
 function TNppPlugin.GetFullPathFromBufferId(ABufferId: NativeInt): string;
 var
   BufLen: LRESULT;
-
 begin
   BufLen := SendMessage(NppData.NppHandle, NPPM_GETFULLPATHFROMBUFFERID, WPARAM(ABufferId), LPARAM(0));
   SetLength(Result, BufLen);
-
   if BufLen = -1 then
     exit;
-
   BufLen := SendMessage(NppData.NppHandle, NPPM_GETFULLPATHFROMBUFFERID, WPARAM(ABufferId), LPARAM(nppPChar(Result)));
   SetLength(Result, BufLen);
 end;
 
-function TNppPlugin.GetCurrentBufferDirty(AViewIdx: integer): Boolean;
+function TNppPlugin.GetCurrentBufferDirty(AViewIdx: Integer): Boolean;
 begin
   case AViewIdx of
     MAIN_VIEW:
@@ -727,15 +715,15 @@ begin
     Result := SendMessage(NppData.NppHandle, NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LPARAM(PColors)) > 0;
 end;
 
-function TNppPlugin.GetOpenFilesCnt(CntType: integer): integer;
+function TNppPlugin.GetOpenFilesCnt(CntType: Integer): Integer;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETNBOPENFILES, WPARAM(0), LPARAM(CntType));
 end;
 
-function TNppPlugin.GetOpenFiles(CntType: integer): TStringDynArray;
+function TNppPlugin.GetOpenFiles(CntType: Integer): TStringDynArray;
 var
-  Cnt: integer;
-  Idx: integer;
+  Cnt: Integer;
+  Idx: Integer;
   Buffer: array of nppPChar;
 begin
   Cnt := GetOpenFilesCnt(CntType);
@@ -760,7 +748,7 @@ begin
   end;
 end;
 
-function TNppPlugin.GetLineCount(AViewIdx: integer): NativeInt;
+function TNppPlugin.GetLineCount(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
@@ -772,7 +760,7 @@ begin
   end;
 end;
 
-function TNppPlugin.GetCurrentPos(AViewIdx: integer): NativeInt;
+function TNppPlugin.GetCurrentPos(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
@@ -784,7 +772,7 @@ begin
   end;
 end;
 
-function TNppPlugin.GetLineFromPosition(AViewIdx: integer; APosition: NativeInt): NativeInt;
+function TNppPlugin.GetLineFromPosition(AViewIdx: Integer; APosition: NativeInt): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
@@ -796,7 +784,7 @@ begin
   end;
 end;
 
-function TNppPlugin.GetFirstVisibleLine(AViewIdx: integer): NativeInt;
+function TNppPlugin.GetFirstVisibleLine(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
@@ -808,7 +796,7 @@ begin
   end;
 end;
 
-function TNppPlugin.GetLinesOnScreen(AViewIdx: integer): NativeInt;
+function TNppPlugin.GetLinesOnScreen(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
@@ -834,8 +822,8 @@ end;
 
 function TNppPlugin.OpenFile(FileName: string; ReadOnly: Boolean = false): Boolean;
 var
-  Cnt: integer;
-  Ret: integer;
+  Cnt: Integer;
+  Ret: Integer;
   FileNames: TStringDynArray;
 
 begin
@@ -848,7 +836,7 @@ begin
     begin
       // Activate document tab and exit
       SwitchToFile(FileName);
-      exit(true);
+      Exit(true);
     end;
   end;
 

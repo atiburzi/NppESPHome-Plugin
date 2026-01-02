@@ -74,6 +74,13 @@ const
   csIconProject = 'profile';
 
 resourcestring
+  rsConsoleCommandRun = 'ESPHome - Run';
+  rsConsoleCommandCompile = 'ESPHome - Compile';
+  rsConsoleCommandUpload = 'ESPHome - Upload';
+  rsConsoleCommandLogs = 'ESPHome - Show Logs';
+  rsConsoleCommandClean = 'ESPHome - Clean';
+
+resourcestring
   rsDefaultNone = 'None';
   rsDefaultWiFi = 'WiFi';
 
@@ -85,7 +92,6 @@ resourcestring
   rsMessageBoxWarning = 'ESPHome Plugin Warning';
   rsMessageBoxInfo = 'ESPHome Plugin Information';
   rsESPHomeDocURL = 'https://www.esphome.io/components/';
-
 
 resourcestring
   rsMenuSelectProject = 'Select Project...';

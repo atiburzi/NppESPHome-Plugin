@@ -200,11 +200,11 @@ object FormProjects: TFormProjects
         TabOrder = 0
         TreeOptions.PaintOptions = [toHideFocusRect, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toFullVertGridLines]
         TreeOptions.SelectionOptions = [toFullRowSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval]
-        OnChange = VirtualStringTreeProjectsChange
         OnCollapsing = VirtualStringTreeProjectsCollapsing
-        OnDblClick = ActionOpenDepsExecute
+        OnDblClick = VirtualStringTreeProjectsDblClick
         OnGetText = VirtualStringTreeProjectsGetText
         OnGetImageIndex = VirtualStringTreeProjectsGetImageIndex
+        OnNodeClick = VirtualStringTreeProjectsNodeClick
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
         Columns = <>
@@ -289,6 +289,7 @@ object FormProjects: TFormProjects
         TabOrder = 0
         OnChange = EditTextFilterChange
         OnRightButtonClick = EditTextFilterRightButtonClick
+        ExplicitWidth = 333
       end
       object ComboBoxCategories: TComboBox
         Left = 115
@@ -301,6 +302,7 @@ object FormProjects: TFormProjects
         Sorted = True
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
+        ExplicitWidth = 333
       end
       object VirtualStringTreeTemplates: TVirtualStringTree
         Left = 5
@@ -2914,6 +2916,12 @@ object FormProjects: TFormProjects
     end
     object PopupMenuSettings: TMenuItem
       Action = ActionSettings
+    end
+    object PopupMenuN5: TMenuItem
+      Caption = '-'
+    end
+    object PopupMenuRemoveProject: TMenuItem
+      Action = ActionRemoveProject
     end
   end
   object ActionList: TActionList

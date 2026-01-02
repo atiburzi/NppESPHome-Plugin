@@ -134,8 +134,8 @@ begin
 
   Count := 0;
   DefaultConfig := '';
-  for Index := 0 to Length(FuncMapping) - 1 do
-    if FuncMapping[Index].HasToolbar then
+  for Index := 0 to Length(ToolbarIconItemKey) - 1 do
+    if ToolbarIconItemKey[Index] <> '' then
     begin
       DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
       Inc(Count);
@@ -145,6 +145,7 @@ begin
 
   Pattern := Format('^(?:\d+:[01];){%d}$', [Count]);
   Regex := TRegEx.Create(Pattern);
+
   if not Regex.IsMatch(ToolbarConfig) then
     ToolbarConfig := DefaultConfig;
 
@@ -158,13 +159,13 @@ begin
       if Length(Parts) = 2 then
       begin
         Val(Parts[0], Index, Count);
-        if (Count = 0) and (Index < Length(FuncMapping)) then
+        if (Count = 0) and (Index < Length(ToolbarIconItemKey)) then
         begin
-          Node := TreeViewToolbar.Items.Add(nil, FuncMapping[Index].MenuName);
+          Node := TreeViewToolbar.Items.Add(nil, Plugin.GetFuncByIndex(Index).ItemName);
           if Assigned(Node) then
           begin
             Node.StateIndex := Index;
-            Node.ImageIndex := TreeViewToolbar.Images.GetIndexByName(FuncMapping[Index].ID + Pattern);
+            Node.ImageIndex := TreeViewToolbar.Images.GetIndexByName(ToolbarIconItemKey[Index] + Pattern);
             Node.SelectedIndex := Node.ImageIndex;
             Node.Checked := (Parts[1] = '1');
           end;

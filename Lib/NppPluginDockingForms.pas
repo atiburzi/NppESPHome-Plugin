@@ -34,23 +34,23 @@ uses
 type
   TNppPluginDockingForm = class(TNppPluginForm)
   private
-    FDlgId:   Integer;
-    FOnDock:  TNotifyEvent;
+    FDlgId: Integer;
+    FOnDock: TNotifyEvent;
     FOnFloat: TNotifyEvent;
-    FOnClose:  TNotifyEvent;
+    FOnClose: TNotifyEvent;
 
     procedure RemoveControlParent(AControl: TControl);
 
   protected
-    FTbData:                TTbData;
+    FTbData: TTbData;
     FNppDefaultDockingMask: Cardinal;
 
     // @todo: change caption and stuff....
     procedure OnWM_NOTIFY(var Msg: TWMNotify); message WM_NOTIFY;
 
-    property  OnClose: TNotifyEvent  read FOnClose write FOnClose;
-    property  OnDock: TNotifyEvent  read FOnDock  write FOnDock;
-    property  OnFloat: TNotifyEvent read FOnFloat write FOnFloat;
+    property OnClose: TNotifyEvent read FOnClose write FOnClose;
+    property OnDock: TNotifyEvent read FOnDock write FOnDock;
+    property OnFloat: TNotifyEvent read FOnFloat write FOnFloat;
 
   public
     CmdId: Integer;
@@ -60,15 +60,15 @@ type
     constructor Create(NppParent: TNppPlugin; DlgId: Integer); overload; virtual;
     constructor Create(AOwner: TNppPluginForm; DlgId: Integer); overload; virtual;
 
-    procedure   Show;
-    procedure   Hide;
+    procedure Show;
+    procedure Hide;
 
-    procedure   RegisterDockingForm(MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
+    procedure RegisterDockingForm(MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
 
-    procedure   UpdateDisplayInfo; overload;
-    procedure   UpdateDisplayInfo(Info: string); overload;
+    procedure UpdateDisplayInfo; overload;
+    procedure UpdateDisplayInfo(Info: string); overload;
 
-    property    DlgID: Integer read FDlgid;
+    property DlgID: Integer read FDlgid;
 
   end;
 

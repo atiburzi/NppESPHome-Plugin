@@ -4,7 +4,7 @@ object FormToolbar: TFormToolbar
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Toolbar configuration'
-  ClientHeight = 561
+  ClientHeight = 553
   ClientWidth = 358
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

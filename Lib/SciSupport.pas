@@ -32,7 +32,6 @@ interface
 uses
   Winapi.Windows;
 
-
 type
   uptr_t        = NativeUInt;
   sptr_t        = NativeInt;

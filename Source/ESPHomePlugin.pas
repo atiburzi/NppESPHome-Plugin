@@ -13,22 +13,44 @@ const
   csPluginName = 'NppESPHome';
   csMenuEmptyLine = '-';
 
-type
-  TFuncMapRecord = record
-    ID: string;
-    MenuName: string;
-    FuncAddress: PFuncPluginCmd;
-    ShortcutKey: PShortcutKey;
-    HasToolbar: Boolean;
-  end;
+const
+  ItemID_SelectProject = 0;
+  ItemID_ConfigureProject = 1;
+  ItemID_MenuSeparator1 = 2;
+  ItemID_OpenProject = 3;
+  ItemID_OpenProjectAndDependencies = 4;
+  ItemID_MenuSeparator2 = 5;
+  ItemID_CommandRun = 6;
+  ItemID_CommandCompile = 7;
+  ItemID_CommandUpload = 8;
+  ItemID_CommandShowLogs = 9;
+  ItemID_CommandClean = 10;
+  ItemID_CommandVisit = 11;
+  ItemID_MenuSeparator3 = 12;
+  ItemID_Help = 13;
+  ItemID_Upgrade = 14;
+  ItemID_MenuSeparator4 = 15;
+  ItemID_CmdShell = 16;
+  ItemID_Explorer = 17;
+  ItemID_MenuSeparator5 = 18;
+  ItemID_ShowHideWindow = 19;
+  ItemID_MenuSeparator6 = 20;
+  ItemID_Toolbar = 21;
+  ItemID_About = 22;
+
+const
+  ToolbarIconItemKey: array[ItemID_SelectProject..ItemID_About] of string = ('select', 'configure', '', 'open', 'opendeps', '',
+    'run', 'compile', 'upload', 'showlogs', 'clean', 'visit', '', 'help', 'upgrade', '', '', '', '',
+    'showhide', '', '', '');
 
 type
   TESPHomePlugin = class(TNppPlugin)
+
   public
     procedure SelectProject;
     procedure ConfigureProject;
     procedure OpenProject;
-    procedure OpenProjectAndDependencies;
+    procedure OpenProjectAndDependencies(CurrentFile: string = '');
     procedure SaveProject;
     procedure SaveProjectAndDependencies;
 
@@ -70,7 +92,6 @@ var
   // Class type to create in startup code
   PluginClass: TNppPluginClass = TESPHomePlugin;
   // Mapping of the Functions configuration
-  FuncMapping: array of TFuncMapRecord;
 
 implementation
 
@@ -215,18 +236,43 @@ begin
 end;
 
 constructor TESPHomePlugin.Create;
-var
-  Index: Integer;
 begin
   inherited Create;
   Plugin := Self;
   PluginName := csPluginName;
 
-  for Index := 0 to Length(FuncMapping) - 1 do
-    with FuncMapping[Index] do
-      AddFuncItem(MenuName, FuncAddress, ShortcutKey);
+  AddFuncItem(ItemID_SelectProject, rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79));
+  AddFuncItem(ItemID_ConfigureProject, rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79));
+
+  AddFuncItem(ItemID_MenuSeparator1, csMenuEmptyLine, nil, nil); // Menù separator
+  AddFuncItem(ItemID_OpenProject, rsMenuOpenProjectFile, _OpenProject, nil);
+  AddFuncItem(ItemID_OpenProjectAndDependencies, rsMenuOpenProjectFileAndDeps, _OpenProjectAndDependencies, nil);
+
+  AddFuncItem(ItemID_MenuSeparator2, csMenuEmptyLine, nil, nil); // Menù separator
+  AddFuncItem(ItemID_CommandRun, rsMenuCommandRun, _CommandRun, MakeShortcutKey(False, False, False, $78));
+  AddFuncItem(ItemID_CommandCompile, rsMenuCommandCompile, _CommandCompile, MakeShortcutKey(False, False, False, $77));
+  AddFuncItem(ItemID_CommandUpload, rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(True, False, False, $77));
+  AddFuncItem(ItemID_CommandShowLogs, rsMenuCommandShowLogs, _CommandShowLogs, nil);
+  AddFuncItem(ItemID_CommandClean, rsMenuCommandClean, _CommandClean, nil);
+  AddFuncItem(ItemID_CommandVisit, rsMenuCommandVisit, _CommandVisit, nil);
+
+  AddFuncItem(ItemID_MenuSeparator3, csMenuEmptyLine, nil, nil); // Menù separator
+  AddFuncItem(ItemID_Help, rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(True, False, False, $70));
+  AddFuncItem(ItemID_Upgrade, rsMenuUpgradeESPHome, _CommandUpgrade, nil);
+
+  AddFuncItem(ItemID_MenuSeparator4, csMenuEmptyLine, nil, nil); // Menù separator
+  AddFuncItem(ItemID_CmdShell, rsMenuOpenCmdShell, _CommandShellPrompt, nil);
+  AddFuncItem(ItemID_Explorer, rsMenuOpenExplorer, _CommandExplorer, nil);
+
+  AddFuncItem(ItemID_MenuSeparator5, csMenuEmptyLine, nil, nil); // Menù separator
+  AddFuncItem(ItemID_ShowHideWindow, rsMenuShowHide, _CommandShowHide, nil);
+
+  AddFuncItem(ItemID_MenuSeparator6, csMenuEmptyLine, nil, nil); // Menù separator
+  AddFuncItem(ItemID_Toolbar, rsMenuToolbar, _CommandToolbar, nil);
+  AddFuncItem(ItemID_About, rsMenuAbout, _CommandAbout, nil);
 
 end;
+
 
 procedure TESPHomePlugin.DoNppnReady;
 begin
@@ -237,6 +283,7 @@ begin
     FormProjects.Show
   else
     FormProjects.Hide;
+  CheckMenuItem(ItemID_ShowHideWindow, FormProjects.Visible);
   UpdatePluginMenu;
 end;
 
@@ -270,8 +317,8 @@ begin
   begin
     Count := 0;
     DefaultConfig := '';
-    for Index := 0 to Length(FuncMapping) - 1 do
-      if FuncMapping[Index].HasToolbar then
+    for Index := 0 to Length(ToolbarIconItemKey) - 1 do
+      if ToolbarIconItemKey[Index] <> '' then
       begin
         DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
         Inc(Count);
@@ -294,27 +341,26 @@ begin
         if Length(Parts) = 2 then
         begin
           Val(Parts[0], Index, Count);
-          if (Count = 0) and (Index < Length(FuncMapping)) and (Parts[1] = '1') then
+          if (Count = 0) and (Index < Length(ToolbarIconItemKey)) and (Parts[1] = '1') then
           begin
             Bitmap := TBitmap.Create;
             IconLight := TIcon.Create;
             IconDark := TIcon.Create;
-            Bitmap.LoadFromResourceName(HInstance, FuncMapping[Index].ID);
+            Bitmap.LoadFromResourceName(HInstance, ToolbarIconItemKey[Index]);
             Bitmap.PixelFormat := pf8Bit;
-            IconLight.LoadFromResourceName(HInstance, Concat(FuncMapping[Index].ID, DarkModeSuffix[False]));
-            IconDark.LoadFromResourceName(HInstance, Concat(FuncMapping[Index].ID, DarkModeSuffix[True]));
+            IconLight.LoadFromResourceName(HInstance, Concat(ToolbarIconItemKey[Index], DarkModeSuffix[False]));
+            IconDark.LoadFromResourceName(HInstance, Concat(ToolbarIconItemKey[Index], DarkModeSuffix[True]));
             IconData.ToolbarBmp := Bitmap.Handle;
             IconData.ToolbarIcon := IconDark.Handle;
             IconData.ToolbarIconDarkMode := IconLight.Handle;
             Bitmap.TransparentMode := tmAuto;
             Bitmap.TransparentColor := TColor($FFFFFF);
             Bitmap.Transparent := True;
-            AddToolbarIconEx(CmdIdFromMenuItemIdx(Index), IconData);
+            AddToolbarIcon(CmdIdFromMenuItemIdx(Index), IconData);
           end;
         end;
       end;
     end;
-
   end;
 end;
 
@@ -351,12 +397,24 @@ begin
         Plugin.SaveAllFiles;
     end;
 
-    if GetOption(csKeyESPHomeAutoClose, True) then
-      CommandLine := '/c'
-    else
-      CommandLine := '/k';
+    CommandLine :=  ' echo %s && ';
 
-    CommandLine := Format('%s %s', [CommandLine, ShortFileName(ESPHomeExeFile)]);
+    if GetOption(csKeyESPHomeAutoClose, True) then
+      CommandLine := Concat('/c', CommandLine)
+    else
+      CommandLine := Concat('/k', CommandLine);
+
+    case Command of
+      scRun: Switch := rsConsoleCommandRun;
+      scCompile: Switch := rsConsoleCommandCompile;
+      scUpload: Switch := rsConsoleCommandUpload;
+      scLogs: Switch := rsConsoleCommandLogs;
+      scClean: Switch := rsConsoleCommandClean;
+    end;
+
+    CommandLine := Format(CommandLine, [Switch]);
+
+    CommandLine := Format('%s "%s"', [CommandLine, ExpandFileName(ESPHomeExeFile)]);
 
     case GetOption(csKeyESPHomeLogLevel, ciLogLevelDefault) of
       ciLogLevelCritical:
@@ -428,7 +486,7 @@ begin
     end;
 
     CommandLine := Trim(Format('%s %s %s', [CommandLine, CommandStr[Command], Switch]));
-    CommandLine := Trim(Format('%s %s', [CommandLine, ShortFileName(ExpandFileName(FileName))]));
+    CommandLine := Trim(Format('%s "%s"', [CommandLine, ExpandFileName(FileName)]));
 
     if GetOption(csKeyESPHomeAutoClose, True) then
       CommandLine := Concat(CommandLine, ' || pause');
@@ -521,7 +579,7 @@ begin
 
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
-  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & %s --version & pause', [ShortFileName(ESPHomeExeFile)]);
+  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & "%s" --version & pause', [ExpandFileName(ESPHomeExeFile)]);
   JvCreateProcess.Run;
   JvCreateProcess.Free;
 end;
@@ -553,7 +611,7 @@ begin
   OpenFile(ProjectList.Current.FileName);
 end;
 
-procedure TESPHomePlugin.OpenProjectAndDependencies;
+procedure TESPHomePlugin.OpenProjectAndDependencies(CurrentFile: string = '');
 var
   FileName: string;
 begin
@@ -565,7 +623,11 @@ begin
   for FileName in ProjectList.Current.OptionDependencies do
     if FileExists(FileName) then
       OpenFile(FileName);
-  SwitchToFile(ProjectList.Current.FileName);
+
+  if CurrentFile = '' then
+    CurrentFile := ProjectList.Current.FileName;
+
+  SwitchToFile(CurrentFile);
 end;
 
 procedure TESPHomePlugin.SaveProject;
@@ -621,6 +683,7 @@ begin
     FormProjects.Hide
   else
     FormProjects.Show;
+  CheckMenuItem(ItemID_ShowHideWindow, FormProjects.Visible);
   ConfigFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
 end;
 
@@ -631,79 +694,54 @@ begin
   UpdatePluginMenu;
 end;
 
-(* ************ Explanation ***************
-  This procedure is part of a Delphi plugin (likely for Notepad++ since it uses NPP handles and messages) that
-  updates the plugin’s menu. Here’s a step‐by‐step explanation of what it does:
-
-  1. It begins by obtaining the handle to the plugin menu. This is done by
-  sending a Windows message (NPPM_GETMENUHANDLE) to the main Notepad++ window (using NppData.NppHandle). If the menu handle returned is valid (not 0), it
-  proceeds.
-
-  2. The procedure then loops through all the top‑level menu items (using GetMenuItemCount on the plugin menu). For each menu item, it retrieves the
-  text (using GetMenuString) into a character buffer.
-
-  3. The retrieved menu text is processed by removing any ampersand characters (used for mnemonic
-  definitions) and trimming spaces. It then extracts the left part of the string with a length equal to the plugin’s name. This is done so it can check if the
-  current menu item belongs to this plugin (by comparing it case‑insensitively with the Plugin.PluginName).
-
-  4. Once it finds the matching menu item, it gets
-  that item’s submenu with GetSubMenu. This submenu is where the plugin’s commands (or submenu items) are registered.
-
-  5. Inside the submenu, it prepares new
-  text for the first menu item (the item at index 0). The new menu text depends on whether a current project is assigned. If there is a current project
-  (ProjectList.Current is assigned), it uses a formatted string (rsMenuSelectProjectCurrent) that includes the project’s friendly name. Otherwise, it resorts to a
-  default text (rsMenuSelectProject).
-
-  6. The code then retrieves the function item (using GetFuncByIndex(0)) associated with this menu command, and if found,
-  it attempts to get the shortcut key (by sending the message NPPM_GETSHORTCUTBYCMDID with the command ID). If a shortcut is found, it appends the shortcut key
-  (converted to a string via ShortcutToString) to the menu text. A tab character (#09) is used to separate the main text from the shortcut text.
-
-  7. The
-  procedure uses ModifyMenu to update the first menu item in the submenu with the new text. The update is based on parameters that specify the position
-  (MF_BYPOSITION) and string update (MF_STRING), and it reuses the original menu item ID.
-
-  8. Finally, the menu bar is redrawn (using DrawMenuBar) so that the
-  changes become visible immediately in the Notepad++ interface.
-
-  In summary, this code scans through the plugin’s menu to locate the correct submenu, then
-  dynamically updates its first item—changing its label to either indicate the currently selected project (including its friendly name) or a default “select
-  project” message, and appending any associated shortcut key.
-*)
 procedure TESPHomePlugin.UpdatePluginMenu;
 var
-  Index: Integer;
   MenuText: string;
-  FuncItem: Pointer;
   PluginMenu: HMENU;
-  SK: TShortcutKey;
-  Buffer: array [0 .. 255] of Char;
+  ShortcutKey: TShortcutKey;
+  PFunc: PFuncItem;
+  ProjectAssigned: Boolean;
 begin
+  ProjectAssigned := Assigned(ProjectList.Current);
   PluginMenu := HMENU(SendMessage(NppData.NppHandle, NPPM_GETMENUHANDLE, NPPPLUGINMENU, 0));
   if PluginMenu <> 0 then
   begin
-    for Index := 0 to GetMenuItemCount(PluginMenu) - 1 do
+    if ProjectAssigned then
+      MenuText := Format(rsMenuSelectProjectCurrent, [ProjectList.Current.FriendlyName])
+    else
+      MenuText := rsMenuSelectProject;
+    PFunc := GetFuncByIndex(ItemID_ConfigureProject);
+    if Assigned(PFunc) then
     begin
-      GetMenuString(PluginMenu, Index, Buffer, SizeOf(Buffer), MF_BYPOSITION);
-      MenuText := LeftStr(Trim(StringReplace(Buffer, '&', '', [rfReplaceAll])), Length(Plugin.PluginName));
-      if SameText(MenuText, Plugin.PluginName) then
-      begin
-        PluginMenu := GetSubMenu(PluginMenu, Index);
-        if PluginMenu <> 0 then
-        begin
-          if Assigned(ProjectList.Current) then
-            MenuText := Format(rsMenuSelectProjectCurrent, [ProjectList.Current.FriendlyName])
-          else
-            MenuText := rsMenuSelectProject;
-          FuncItem := GetFuncByIndex(0);
-          if Assigned(FuncItem) and (SendMessage(NppData.NppHandle, NPPM_GETSHORTCUTBYCMDID, TFuncItem(FuncItem^).CmdID, LPARAM(@SK)) <> 0) then
-            MenuText := MenuText + #09 + ShortcutToString(@SK);
-          ModifyMenu(PluginMenu, 0, MF_BYPOSITION or MF_STRING, GetMenuItemID(PluginMenu, 0), PChar(MenuText));
-          DrawMenuBar(NppData.NppHandle);
-        end;
-        Break;
-      end;
+      if SendMessage(NppData.NppHandle, NPPM_GETSHORTCUTBYCMDID, PFunc^.CmdID, LPARAM(@ShortcutKey)) <> 0 then
+        MenuText := MenuText + #09 + ShortcutToString(@ShortcutKey);
+      if ModifyMenu(PluginMenu, PFunc^.CmdID, MF_BYCOMMAND or MF_STRING, PFunc^.CmdID, PChar(MenuText)) then
+        DrawMenuBar(NppData.NppHandle);
     end;
   end;
+
+  EnableMenuItem(ItemID_ConfigureProject, ProjectAssigned);
+  EnableMenuItem(ItemID_OpenProject, ProjectAssigned);
+  EnableMenuItem(ItemID_CommandRun, ProjectAssigned);
+  EnableMenuItem(ItemID_CommandCompile, ProjectAssigned);
+  EnableMenuItem(ItemID_CommandUpload, ProjectAssigned);
+  EnableMenuItem(ItemID_CommandShowLogs, ProjectAssigned);
+  EnableMenuItem(ItemID_CommandClean, ProjectAssigned);
+
+  EnableMenuItem(ItemID_OpenProjectAndDependencies, ProjectAssigned and (ProjectList.Current.OptionDependencies.Count > 0));
+  EnableMenuItem(ItemID_CommandVisit, ProjectAssigned and ProjectList.Current.HasWebServer);
+
+  EnableToolbarItem(ItemID_ConfigureProject, ProjectAssigned);
+  EnableToolbarItem(ItemID_OpenProject, ProjectAssigned);
+  EnableToolbarItem(ItemID_CommandRun, ProjectAssigned);
+  EnableToolbarItem(ItemID_CommandCompile, ProjectAssigned);
+  EnableToolbarItem(ItemID_CommandUpload, ProjectAssigned);
+  EnableToolbarItem(ItemID_CommandShowLogs, ProjectAssigned);
+  EnableToolbarItem(ItemID_CommandClean, ProjectAssigned);
+
+  EnableToolbarItem(ItemID_OpenProjectAndDependencies, ProjectAssigned and (ProjectList.Current.OptionDependencies.Count > 0));
+  EnableToolbarItem(ItemID_CommandVisit, ProjectAssigned and ProjectList.Current.HasWebServer);
+
 end;
 
 function TESPHomePlugin.CheckESPHome: Boolean;
@@ -723,43 +761,5 @@ begin
   else
     Result := True;
 end;
-
-procedure SetFuncMapRecord(const Index: Integer; const ID, MenuName: string; const FuncAddress: PFuncPluginCmd; const ShortcutKey: PShortcutKey;
-  const HasToolbar: Boolean = False);
-begin
-  FuncMapping[Index].ID := ID;
-  FuncMapping[Index].MenuName := MenuName;
-  FuncMapping[Index].FuncAddress := FuncAddress;
-  FuncMapping[Index].ShortcutKey := ShortcutKey;
-  FuncMapping[Index].HasToolbar := HasToolbar;
-end;
-
-initialization
-
-SetLength(FuncMapping, 23);
-
-SetFuncMapRecord(0, 'select', rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79), True);
-SetFuncMapRecord(1, 'configure', rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79), True);
-SetFuncMapRecord(2, '', csMenuEmptyLine, nil, nil);
-SetFuncMapRecord(3, 'open', rsMenuOpenProjectFile, _OpenProject, nil, True);
-SetFuncMapRecord(4, 'opendeps', rsMenuOpenProjectFileAndDeps, _OpenProjectAndDependencies, nil, True);
-SetFuncMapRecord(5, '', csMenuEmptyLine, nil, nil);
-SetFuncMapRecord(6, 'run', rsMenuCommandRun, _CommandRun, MakeShortcutKey(False, False, False, $78), True);
-SetFuncMapRecord(7, 'compile', rsMenuCommandCompile, _CommandCompile, MakeShortcutKey(False, False, False, $77), True);
-SetFuncMapRecord(8, 'upload', rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(True, False, False, $77), True);
-SetFuncMapRecord(9, 'showlogs', rsMenuCommandShowLogs, _CommandShowLogs, nil, True);
-SetFuncMapRecord(10, 'clean', rsMenuCommandClean, _CommandClean, nil, True);
-SetFuncMapRecord(11, 'visit', rsMenuCommandVisit, _CommandVisit, nil, True);
-SetFuncMapRecord(12, '', csMenuEmptyLine, nil, nil);
-SetFuncMapRecord(13, 'help', rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(True, False, False, $70), True);
-SetFuncMapRecord(14, 'upgrade', rsMenuUpgradeESPHome, _CommandUpgrade, nil, True);
-SetFuncMapRecord(15, '', csMenuEmptyLine, nil, nil);
-SetFuncMapRecord(16, 'cmdshell', rsMenuOpenCmdShell, _CommandShellPrompt, nil);
-SetFuncMapRecord(17, 'explorer', rsMenuOpenExplorer, _CommandExplorer, nil);
-SetFuncMapRecord(18, '', csMenuEmptyLine, nil, nil);
-SetFuncMapRecord(19, 'showhide', rsMenuShowHide, _CommandShowHide, nil, True);
-SetFuncMapRecord(20, '', csMenuEmptyLine, nil, nil);
-SetFuncMapRecord(21, 'toolbar', rsMenuToolbar, _CommandToolbar, nil);
-SetFuncMapRecord(22, 'about', rsMenuAbout, _CommandAbout, nil);
 
 end.
