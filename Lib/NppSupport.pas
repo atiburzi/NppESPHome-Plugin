@@ -733,10 +733,34 @@ const
   // Introduced in v8.4.1
 
   NPPM_GETDARKMODECOLORS               = (NPPMSG + 108);
-  // bool NPPM_GETDARKMODECOLORS(size_t cbSize, TNppDarkModeColors *returnColors)
-  // - cbSize must be filled with sizeof(TNppDarkModeColors).
-  // - returnColors must be a pre-allocated TNppDarkModeColors struct.
-  // Returns true when successful, false otherwise.
+	// BOOL NPPM_GETDARKMODECOLORS (size_t cbSize, NppDarkMode::Colors* returnColors)
+	// Get the colors used in Dark Mode.
+	// wParam[in]: cbSize must be filled with sizeof(NppDarkMode::Colors).
+	// lParam[out]: returnColors must be a pre-allocated NppDarkMode::Colors struct.
+	// Return TRUE when successful, FALSE otherwise.
+	// You need to uncomment the following code to use NppDarkMode::Colors structure:
+	//
+	// namespace NppDarkMode
+	// {
+	//	struct Colors
+	//	{
+	//		COLORREF background = 0;
+	//		COLORREF softerBackground = 0;
+	//		COLORREF hotBackground = 0;
+	//		COLORREF pureBackground = 0;
+	//		COLORREF errorBackground = 0;
+	//		COLORREF text = 0;
+	//		COLORREF darkerText = 0;
+	//		COLORREF disabledText = 0;
+	//		COLORREF linkText = 0;
+	//		COLORREF edge = 0;
+	//		COLORREF hotEdge = 0;
+	//		COLORREF disabledEdge = 0;
+	//	};
+	// }
+	//
+	// Note: in the case of calling failure ("false" is returned), you may need to change NppDarkMode::Colors structure to:
+	// https://github.com/notepad-plus-plus/notepad-plus-plus/blob/master/PowerEditor/src/NppDarkMode.h#L32
   // Introduced in v8.4.1
 
   NPPM_GETCURRENTCMDLINE               = (NPPMSG + 109);
@@ -808,6 +832,73 @@ const
     TABCOLOR_ORANGE  = 3;
     TABCOLOR_PINK    = 4;
 
+  NPPM_SETUNTITLEDNAME            = (NPPMSG + 115);
+	// BOOL NPPM_SETUNTITLEDNAME(BufferID id, const wchar_t* newName)
+	// Rename the tab name for an untitled tab.
+	// wParam[in]: id - BufferID of the tab. -1 for currently active tab
+	// lParam[in]: newName - the desired new name of the tab
+	// Return TRUE upon success; FALSE upon failure
+
+  NPPM_GETNATIVELANGFILENAME      = (NPPMSG + 116);
+	// int NPPM_GETNATIVELANGFILENAME(size_t strLen, char* nativeLangFileName)
+	// Get the Current native language file name string. Use it after getting NPPN_READY notification to find out which native language is used.
+	// Users should call it with nativeLangFileName as NULL to get the required number of char (not including the terminating nul character),
+	// allocate language file name string buffer with the return value + 1, then call it again to get the current native language file name string.
+	// If there's no localization file applied, the returned value is 0.
+	// wParam[in]: strLen is "language file name string" buffer length
+	// lParam[out]: language file name string receives all copied native language file name string
+	// Return the number of char copied/to copy
+
+  NPPM_ADDSCNMODIFIEDFLAGS        = (NPPMSG + 117);
+	// BOOL NPPM_ADDSCNMODIFIEDFLAGS(0, unsigned long scnModifiedFlags2Add)
+	// Add the necessary SCN_MODIFIED flags so that your plugin will receive the SCN_MODIFIED notification for these events, enabling your specific treatments.
+	// By default, Notepad++ only forwards SCN_MODIFIED with the following 5 flags/events:
+	// SC_MOD_DELETETEXT | SC_MOD_INSERTTEXT | SC_PERFORMED_UNDO | SC_PERFORMED_REDO | SC_MOD_CHANGEINDICATOR to plugins.
+	// If your plugin needs to process other SCN_MODIFIED events, you should add the required flags by sending this message to Notepad++. You can send it immediately after receiving NPPN_READY,
+	// or only when your plugin needs to listen to specific events (to avoid penalizing Notepad++'s performance). Just ensure that the message is sent only once.
+	// wParam: 0 (not used)
+	// lParam[in]: scnModifiedFlags2Add - Scintilla SCN_MODIFIED flags to add.
+	// Return TRUE
+	//
+	// Example:
+	//
+	//  extern "C" __declspec(dllexport) void beNotified(SCNotification* notifyCode)
+	//  {
+	//  	switch (notifyCode->nmhdr.code)
+	//  	{
+	//  		case NPPN_READY:
+	//  		{
+	//  			// Add SC_MOD_BEFOREDELETE and SC_MOD_BEFOREINSERT to listen to the 2 events of SCN_MODIFIED
+	//  			::SendMessage(nppData._nppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0, SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT);
+	//  		}
+	//  		break;
+	//  		...
+	//  	}
+	//  	...
+	//  }
+
+  NPPM_GETTOOLBARICONSETCHOICE    = (NPPMSG + 118);
+	// BOOL NPPM_GETTOOLBARICONSETCHOICE(0, 0)
+	// Get Notepad++ toolbar icon set choice (Fluent UI: small, Fluent UI: large, Filled Fluent UI: small, Filled Fluent UI: large and Standard icons: small.
+	// wParam: 0 (not used)
+	// lParam: 0 (not used)
+	// Return toolbar icon set choice as an integer value. Here are 5 possible values:
+	// 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
+
+  NPPM_GETNPPSETTINGSDIRPATH      = (NPPMSG + 119);
+	// int NPPM_GETNPPSETTINGSDIRPATH(size_t strLen, wchar_t *settingsDirPath)
+	// Get path for the active Notepad++ settings: it will use -settingsDir path if that's defined; if not, it will use Cloud directory if that's defined;
+	// if not, it will use the AppData settings directory, or finally the installation path. This allows plugins to have one interface to find out
+	// where the active Notepad++ settings are stored, whichever location they are currently set to.
+	// wParam[in]: strLen - size of allocated buffer "settingsDirPath"
+	// lParam[out]: settingsDirPath - Users should call it with settingsDirPath be NULL to get the required number of wchar_t (not including the terminating nul character),
+	//              allocate settingsDirPath buffer with the return value + 1, then call it again to get the path.
+	// Returns the number of wchar_t copied/to copy. If the return value is 0, then the "strLen" is not enough to copy the path, or the settings path could not be determined.
+	//
+	// Note: This message is for the active Notepad++ configuration location.  If you are looking for the settings directory for plugins (...\Plugins\Config\),
+	// use NPPM_GETPLUGINSCONFIGDIR instead.
+
+
 
 
   // ---------------------------------------------------------------------------
@@ -865,13 +956,15 @@ const
 
 
   // ---------------------------------------------------------------------------
-  // Unknown purpose
+  // Other purposes
   // ---------------------------------------------------------------------------
   MACRO_USER                = (WM_USER + 4000);
 
   WM_GETCURRENTMACROSTATUS  = (MACRO_USER + 01);
   WM_MACRODLGRUNMACRO       = (MACRO_USER + 02);
 
+  FNITEM_NAMELEN = 64;
+  C_NO_LANGUAGE = -1;
 
   // ---------------------------------------------------------------------------
   // Notification message codes
@@ -1072,6 +1165,23 @@ const
   // scnNotification->nmhdr.idFrom = 0; // preserved for future use, must be zero
   // Introduced in v8.6.5
 
+  NPPN_NATIVELANGCHANGED          = (NPPN_FIRST + 31);
+  // To notify plugins that the current native language is just changed to another one.
+  // Use NPPM_GETNATIVELANGFILENAME to get current native language file name.
+  // Use NPPM_GETMENUHANDLE(NPPPLUGINMENU, 0) to get submenu "Plugins" handle (HMENU)
+  //scnNotification->nmhdr.code = NPPN_NATIVELANGCHANGED;
+  //scnNotification->nmhdr.hwndFrom = hwndNpp
+  //scnNotification->nmhdr.idFrom = 0; // preserved for the future use, must be zero
+
+  NPPN_TOOLBARICONSETCHANGED      = (NPPN_FIRST + 32);
+  // To notify plugins that toolbar icon set selection has changed
+	//scnNotification->nmhdr.code = NPPN_TOOLBARICONSETCHANGED;
+	//scnNotification->nmhdr.hwndFrom = hwndNpp;
+	//scnNotification->nmhdr.idFrom = iconSetChoice;
+	// where iconSetChoice could be 1 of 5 possible values:
+	// 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
+
+
   // ---------------------------------------------------------------------------
   // Defines for docking manager
   // ---------------------------------------------------------------------------
@@ -1117,30 +1227,23 @@ type
   // String types
   // ---------------------------------------------------------------------------
   nppString = WideString;
-  nppChar   = WChar;
-  nppPChar  = PWChar;
+  nppChar = WChar;
+  nppPChar = PWChar;
 
   // ---------------------------------------------------------------------------
   // Languages enumeration, s.a. Notepad++ menu Language
   // ---------------------------------------------------------------------------
   // Don't use L_JS, use L_JAVASCRIPT instead
-  TNppLang = (
-    L_TEXT        , L_PHP      , L_C         , L_CPP       , L_CS          , L_OBJC      , L_JAVA   , L_RC          ,
-    L_HTML        , L_XML      , L_MAKEFILE  , L_PASCAL    , L_BATCH       , L_INI       , L_ASCII  , L_USER        ,
-    L_ASP         , L_SQL      , L_VB        , L_JS        , L_CSS         , L_PERL      , L_PYTHON , L_LUA         ,
-    L_TEX         , L_FORTRAN  , L_BASH      , L_FLASH     , L_NSIS        , L_TCL       , L_LISP   , L_SCHEME      ,
-    L_ASM         , L_DIFF     , L_PROPS     , L_PS        , L_RUBY        , L_SMALLTALK , L_VHDL   , L_KIX         ,
-    L_AU3         , L_CAML     , L_ADA       , L_VERILOG   , L_MATLAB      , L_HASKELL   , L_INNO   , L_SEARCHRESULT,
-    L_CMAKE       , L_YAML     , L_COBOL     , L_GUI4CLI   , L_D           , L_POWERSHELL, L_R      , L_JSP         ,
-    L_COFFEESCRIPT, L_JSON     , L_JAVASCRIPT, L_FORTRAN_77, L_BAANC       , L_SREC      , L_IHEX   , L_TEHEX       ,
-    L_SWIFT       , L_ASN1     , L_AVS       , L_BLITZBASIC, L_PUREBASIC   , L_FREEBASIC , L_CSOUND , L_ERLANG      ,
-    L_ESCRIPT     , L_FORTH    , L_LATEX     , L_MMIXAL    , L_NIM         , L_NNCRONTAB , L_OSCRIPT, L_REBOL       ,
-    L_REGISTRY    , L_RUST     , L_SPICE     , L_TXT2TAGS  , L_VISUALPROLOG, L_TYPESCRIPT, L_JSON5  , L_MSSQL       ,
-    L_GDSCRIPT    , L_HOLLYWOOD, L_GOLANG    , L_RAKU      ,
+  TNppLang = (L_TEXT, L_PHP, L_C, L_CPP, L_CS, L_OBJC, L_JAVA, L_RC, L_HTML, L_XML, L_MAKEFILE, L_PASCAL, L_BATCH, L_INI,
+    L_ASCII, L_USER, L_ASP, L_SQL, L_VB, L_JS, L_CSS, L_PERL, L_PYTHON, L_LUA, L_TEX, L_FORTRAN, L_BASH, L_FLASH, L_NSIS,
+    L_TCL, L_LISP, L_SCHEME, L_ASM, L_DIFF, L_PROPS, L_PS, L_RUBY, L_SMALLTALK, L_VHDL, L_KIX, L_AU3, L_CAML, L_ADA,
+    L_VERILOG, L_MATLAB, L_HASKELL, L_INNO, L_SEARCHRESULT, L_CMAKE, L_YAML, L_COBOL, L_GUI4CLI, L_D, L_POWERSHELL, L_R,
+    L_JSP, L_COFFEESCRIPT, L_JSON, L_JAVASCRIPT, L_FORTRAN_77, L_BAANC, L_SREC, L_IHEX, L_TEHEX, L_SWIFT, L_ASN1, L_AVS,
+    L_BLITZBASIC, L_PUREBASIC, L_FREEBASIC, L_CSOUND, L_ERLANG, L_ESCRIPT, L_FORTH, L_LATEX, L_MMIXAL, L_NIM,
+    L_NNCRONTAB, L_OSCRIPT, L_REBOL, L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG, L_TYPESCRIPT, L_JSON5,
+    L_MSSQL, L_GDSCRIPT, L_HOLLYWOOD, L_GOLANG, L_RAKU,
     // The end of enumerated language type, so it should be always at the end
-    L_EXTERNAL
-  );
-
+    L_EXTERNAL);
 
   // ---------------------------------------------------------------------------
   // Unicode mode enumeration
@@ -1240,20 +1343,19 @@ type
   PNppDarkModeColors = ^TNppDarkModeColors;
 
   TNppDarkModeColors = record
-    background:       COLORREF;
+    background:      COLORREF;
     softerBackground: COLORREF;
-    hotBackground:    COLORREF;
-    pureBackground:   COLORREF;
-    errorBackground:  COLORREF;
-    text:             COLORREF;
-    darkerText:       COLORREF;
-    disabledText:     COLORREF;
-    linkText:         COLORREF;
-    edge:             COLORREF;
-    hotEdge:          COLORREF;
-    disabledEdge:     COLORREF;
+    hotBackground:   COLORREF;
+    pureBackground:  COLORREF;
+    errorBackground: COLORREF;
+    text:            COLORREF;
+    darkerText:      COLORREF;
+    disabledText:    COLORREF;
+    linkText:        COLORREF;
+    edge:            COLORREF;
+    hotEdge:         COLORREF;
+    disabledEdge:    COLORREF;
   end;
-
 
   // Dockable dialogs
   TTbData = record
@@ -1284,6 +1386,21 @@ type
     info          : Pointer;   // pointer to block of informations to be exchanged
   end;
 
+  // ---------------------------------------------------------------------------
+  // Defines for Items Functions
+  // ---------------------------------------------------------------------------
+
+  // The generic type of a function defined by the plugin and callable by the host application
+  FuncItemCmdProc = procedure; cdecl;
+
+  PFuncItem = ^TFuncItem;
+  TFuncItem = packed record
+    ItemName: array [0..FNITEM_NAMELEN - 1] of nppChar;
+    Func: FuncItemCmdProc;
+    CmdID: Integer;
+    Checked: LongBool;
+    ShortcutKey: PShortcutKey;
+  end;
 
 
 implementation

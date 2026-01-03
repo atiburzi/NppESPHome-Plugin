@@ -9,3 +9,5 @@ External
 *.local
 *.stat
 *.res
+*.upx
+*.~dsk
