@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
@@ -95,11 +95,14 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
+        <VerInfo_Build>42</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.42;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
-        <VerInfo_Build>47</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.47;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Build>50</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.50;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -316,6 +319,30 @@ explorer.exe /select,"$(OUTPUTPATH)"
         <RcItem Include="..\Resources\Toolbar\ShowHide_Light.ico">
             <ResourceType>ICON</ResourceType>
             <ResourceId>showhide_light</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Explorer.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>explorer</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Explorer_Dark.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>explorer_dark</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Explorer_Light.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>explorer_light</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Terminal.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>terminal</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Terminal_Dark.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>terminal_dark</ResourceId>
+        </RcItem>
+        <RcItem Include="..\Resources\Toolbar\Terminal_Light.ico">
+            <ResourceType>ICON</ResourceType>
+            <ResourceId>terminal_light</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

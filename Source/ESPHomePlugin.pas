@@ -3,11 +3,8 @@
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.StrUtils,
-  System.Classes,
-  Vcl.Graphics,
-  NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms,
-  ESPHomeShared;
+  Winapi.Windows, System.SysUtils, System.StrUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared;
+
 
 const
   csPluginName = 'NppESPHome';
@@ -40,11 +37,12 @@ const
 
 const
   ToolbarIconItemKey: array[ItemID_SelectProject..ItemID_About] of string = ('select', 'configure', '', 'open', 'opendeps', '',
-    'run', 'compile', 'upload', 'showlogs', 'clean', 'visit', '', 'help', 'upgrade', '', '', '', '',
+    'run', 'compile', 'upload', 'showlogs', 'clean', 'visit', '', 'help', 'upgrade', '', 'terminal', 'explorer', '',
     'showhide', '', '', '');
 
 type
   TESPHomePlugin = class(TNppPlugin)
+    OperationsOngoing: Boolean;
 
   public
     procedure SelectProject;
@@ -75,11 +73,13 @@ type
     procedure DoNppnToolbarModification; override;
     procedure DoNppnDarkModeChanged; override;
     procedure DoNppnBufferActivated; override;
+    procedure DoNppnFileOpened; override;
+    procedure DoNppnFileSaved; override;
 
   public
     constructor Create; override;
     procedure UpdateProjectList;
-    procedure UpdatePluginMenu;
+    procedure UpdatePluginMenuAndTitle;
 
     function CheckESPHome: Boolean;
     function CheckCurrentProject: Boolean;
@@ -99,15 +99,15 @@ implementation
 
 uses
   JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig,
-  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions;
+  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Dialogs;
 
 resourcestring
-  rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.' +
-    #13#10'Please (re)install ESPHome following the instructions available on the following web page:' +
-    #13#13#10'https://www.esphome.io/guides/installing_esphome/';
+  rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.';
+  rsInvalidESPHomeInstallation2 = 'Please (re)install ESPHome following the instructions available on the following web page:';
+  rsInvalidESPHomeInstallation3 = '<a href="https://www.esphome.io/guides/installing_esphome/">Installing ESPHome Manually</a>';
 
-  rsNoProjectSelected = 'No ESPHome project is currently selected.' + #13#13#10'To use this command, please select the current project and try again.' +
-    #13#10'You can select it through the menù command:' + #13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+  rsNoProjectSelected = 'No ESPHome project is currently selected.';
+  rsNoProjectSelected2 = 'To use this command, please select the current project and try again.'#13#13#10'You can select it through the menù command:'#13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
 
   rsNoWebserverOnCurrentProject = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
     #13#13#10'Visit command cannot work and it is ignored.';
@@ -238,6 +238,7 @@ end;
 constructor TESPHomePlugin.Create;
 begin
   inherited Create;
+  OperationsOngoing := True;
   Plugin := Self;
   PluginName := csPluginName;
 
@@ -277,6 +278,7 @@ end;
 procedure TESPHomePlugin.DoNppnReady;
 begin
   inherited;
+  OperationsOngoing := False;
   ModuleInitialize;
   FormProjects := TFormProjects.Create(Plugin, 19);
   if ConfigFile.ReadBool(csSectionGeneral, csKeyProjectWindow, False) then
@@ -284,7 +286,7 @@ begin
   else
     FormProjects.Hide;
   CheckMenuItem(ItemID_ShowHideWindow, FormProjects.Visible);
-  UpdatePluginMenu;
+  UpdatePluginMenuAndTitle;
 end;
 
 procedure TESPHomePlugin.DoNppnShutdown;
@@ -297,7 +299,7 @@ end;
 
 procedure TESPHomePlugin.DoNppnShortcutRemapped;
 begin
-  UpdatePluginMenu;
+  UpdatePluginMenuAndTitle;
 end;
 
 procedure TESPHomePlugin.DoNppnToolbarModification;
@@ -372,8 +374,21 @@ end;
 
 procedure TESPHomePlugin.DoNppnBufferActivated;
 begin
-  if Assigned(FormProjects) then
-    FormProjects.CurrentDocumentChanged;
+  if not OperationsOngoing then
+    if Assigned(FormProjects) then
+      FormProjects.CurrentDocumentChanged;
+end;
+
+procedure TESPHomePlugin.DoNppnFileOpened;
+begin
+  if not OperationsOngoing then
+    UpdatePluginMenuAndTitle;
+end;
+
+procedure TESPHomePlugin.DoNppnFileSaved;
+begin
+  if not OperationsOngoing then
+    UpdatePluginMenuAndTitle;
 end;
 
 procedure ExecuteESPHomeCommand(const Command: Integer);
@@ -502,20 +517,30 @@ begin
 end;
 
 procedure TESPHomePlugin.SelectProject;
+var
+  FormSelection: TFormSelection;
 begin
   FormSelection := TFormSelection.Create(Self);
-  FormSelection.ShowModal;
-  FreeAndNil(FormSelection);
-  UpdatePluginMenu;
+  try
+    FormSelection.ShowModal;
+  finally
+    FreeAndNil(FormSelection);
+  end;
+  UpdatePluginMenuAndTitle;
 end;
 
 procedure TESPHomePlugin.ConfigureProject;
+var
+  FormConfiguration: TFormConfig;
 begin
   if CheckCurrentProject then
   begin
     FormConfiguration := TFormConfig.Create(Self);
-    FormConfiguration.ShowModal;
-    FreeAndNil(FormConfiguration);
+    try
+      FormConfiguration.ShowModal;
+    finally
+      FreeAndNil(FormConfiguration);
+    end;
   end;
 end;
 
@@ -558,8 +583,8 @@ begin
 
   if not ProjectList.Current.HasWebServer then
   begin
-    MessageBox(0, PWideChar(Format(rsNoWebserverOnCurrentProject, [ProjectList.Current.FriendlyName])), PWideChar(rsMessageBoxWarning),
-      MB_ICONWARNING or MB_OK);
+    TD(Format(rsNoWebserverOnCurrentProject, [ProjectList.Current.FriendlyName])).WindowCaption(rsMessageBoxWarning).
+      SetFlags([tfAllowDialogCancellation]).Warning.OK.Execute(nil);
     Exit;
   end;
 
@@ -618,11 +643,14 @@ begin
   if not CheckCurrentProject then
     Exit;
 
+  OperationsOngoing := True;
   OpenFile(ProjectList.Current.FileName);
   ProjectList.Current.LoadOptionDependencies;
   for FileName in ProjectList.Current.OptionDependencies do
     if FileExists(FileName) then
       OpenFile(FileName);
+
+  OperationsOngoing := False;
 
   if CurrentFile = '' then
     CurrentFile := ProjectList.Current.FileName;
@@ -643,12 +671,14 @@ var
 begin
   if Assigned(ProjectList.Current) then
   begin
+    OperationsOngoing := True;
     CurrentFile := GetFullCurrentPath;
     if SwitchToFile(ProjectList.Current.FileName) then
       SaveCurrentFile;
     for S in ProjectList.Current.OptionDependencies do
       if SwitchToFile(S) then
         SaveCurrentFile;
+    OperationsOngoing := True;
     SwitchToFile(CurrentFile);
   end;
 end;
@@ -691,34 +721,44 @@ procedure TESPHomePlugin.UpdateProjectList;
 begin
   if Assigned(FormProjects) then
     FormProjects.RefreshProjectsList;
-  UpdatePluginMenu;
+  UpdatePluginMenuAndTitle;
 end;
 
-procedure TESPHomePlugin.UpdatePluginMenu;
+procedure TESPHomePlugin.UpdatePluginMenuAndTitle;
 var
-  MenuText: string;
+  Index: Integer;
+  Text: string;
   PluginMenu: HMENU;
   ShortcutKey: TShortcutKey;
   PFunc: PFuncItem;
   ProjectAssigned: Boolean;
 begin
   ProjectAssigned := Assigned(ProjectList.Current);
+
   PluginMenu := HMENU(SendMessage(NppData.NppHandle, NPPM_GETMENUHANDLE, NPPPLUGINMENU, 0));
   if PluginMenu <> 0 then
   begin
     if ProjectAssigned then
-      MenuText := Format(rsMenuSelectProjectCurrent, [ProjectList.Current.FriendlyName])
+      Text := Format(rsMenuSelectProjectCurrent, [ProjectList.Current.FriendlyName])
     else
-      MenuText := rsMenuSelectProject;
+      Text := rsMenuSelectProject;
     PFunc := GetFuncByIndex(ItemID_ConfigureProject);
     if Assigned(PFunc) then
     begin
       if SendMessage(NppData.NppHandle, NPPM_GETSHORTCUTBYCMDID, PFunc^.CmdID, LPARAM(@ShortcutKey)) <> 0 then
-        MenuText := MenuText + #09 + ShortcutToString(@ShortcutKey);
-      if ModifyMenu(PluginMenu, PFunc^.CmdID, MF_BYCOMMAND or MF_STRING, PFunc^.CmdID, PChar(MenuText)) then
+        Text := Text + #09 + ShortcutToString(@ShortcutKey);
+      if ModifyMenu(PluginMenu, PFunc^.CmdID, MF_BYCOMMAND or MF_STRING, PFunc^.CmdID, PChar(Text)) then
         DrawMenuBar(NppData.NppHandle);
     end;
   end;
+
+  Text := GetNppWindowTitle;
+  Index := Pos('|', Text);
+  if Index > 0 then
+    Text := Trim(Copy(Text, 1, Index - 1));
+  if ProjectAssigned then
+    Text := Format('%s | ESPHome Project: %s', [Text, ProjectList.Current.FriendlyName]);
+  SetWindowText(NppData.NppHandle, PChar(Text));
 
   EnableMenuItem(ItemID_ConfigureProject, ProjectAssigned);
   EnableMenuItem(ItemID_OpenProject, ProjectAssigned);
@@ -748,7 +788,8 @@ function TESPHomePlugin.CheckESPHome: Boolean;
 begin
   Result := False;
   if not FileExists(ESPHomeExeFile) then
-    MessageBox(0, PWideChar(rsInvalidESPHomeInstallation), PWideChar(rsMessageBoxError), MB_ICONERROR or MB_OK)
+    TD(rsInvalidESPHomeInstallation).Text(rsInvalidESPHomeInstallation2).Text(rsInvalidESPHomeInstallation3).WindowCaption(rsMessageBoxError).Hypertext.SetFlags
+      ([tfAllowDialogCancellation]).Error.OK.Execute(nil)
   else
     Result := True;
 end;
@@ -757,9 +798,10 @@ function TESPHomePlugin.CheckCurrentProject: Boolean;
 begin
   Result := False;
   if not Assigned(ProjectList.Current) then
-    MessageBox(0, PWideChar(rsNoProjectSelected), PWideChar(rsMessageBoxError), MB_ICONSTOP or MB_OK)
+    TD(rsNoProjectSelected).Text(rsNoProjectSelected2).WindowCaption(rsMessageBoxError).SetFlags([tfAllowDialogCancellation]).Warning.OK.Execute(nil)
   else
     Result := True;
 end;
 
 end.
+

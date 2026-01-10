@@ -127,15 +127,21 @@ resourcestring
                                    #13#13#10'Visit command cannot work and it is ignored.';
 
 resourcestring
-  rsProjectAlreadyExists = 'Project "%s" already exists among the configured projects. Please select another project.';
-  rsInvalidProjectFile = '"%s" is an invalid ESPHome project file. Valid project files contains at least the "esphome" entry in the YAML file.';
-  rsKnownProjectRemoval = 'Project "%s" will be removed from the known list. Are you sure?';
-  rsRemoveProjectFile = 'Remove selected Project';
+  rsProjectAlreadyExists = 'Project "%s" already exists among the configured projects.';
+  rsProjectAlreadyExists2 = 'Please select another project.';
+  rsInvalidProjectFile = '"%s" is an invalid ESPHome project file.';
+  rsInvalidProjectFile2 = 'Valid project files contains at least the "esphome" entry in the YAML file.';
+  rsKnownProjectRemoval = 'Project "%s" will be removed from the known list.';
+  rsKnownProjectRemoval2 = 'Are you sure?';
+  rsConfirmOverwriteTemplates = 'You are going to overwrite your "NppESPHome.xml" templates file with the one available on GitHub.';
+  rsConfirmOverwriteTemplates2 = 'Any modification done on the local XML will be lost.';
+  rsConfirmOverwriteTemplates3 = 'Are you sure you want to continue?';
+  rsTemplatesXMLDownloaded = 'Default XML Templates file downloaded from GitHub.';
 
 resourcestring
-  rsTemplatesNotFound = 'No "NppESPHome.xml" templates file has been found on your system. Do you want to download the default one from GitHub portal?';
-  rsConfirmOverwriteTemplates = 'You are going to overwrite your "NppESPHome.xml" templates file with the one available on GitHub. Any modification done on the original XML will be lost. Are you sure you want to continue?';
-  rsTemplatesXMLDownloaded = 'Default XML Templates file downloaded from GitHub.';
+  rsTemplatesNotFound = 'No "NppESPHome.xml" templates file has been found on your system.';
+  rsTemplatesNotFound2 = 'Do you want to download the default one from GitHub portal?';
+
 
 type
   PProject = ^TProject;
@@ -251,7 +257,7 @@ function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, Xml.XMLDoc,
+  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc,
   System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent;
 
 type
@@ -661,10 +667,11 @@ begin
   inherited Create;
   if not FileExists(TemplateFile) then
   begin
-    if MessageBox(0, PWideChar(rsTemplatesNotFound), PWideChar(rsMessageBoxWarning), MB_YESNO or MB_ICONWARNING) = IDYES then
+    if TD(rsTemplatesNotFound).WindowCaption(rsMessageBoxWarning).Text(rsTemplatesNotFound2).Warning.YesNo
+          .SetFlags([tfAllowDialogCancellation]).Execute(nil) = mrYes then
     begin
       DownloadTemplateFileFromGitHub;
-      MessageBox(0, PWideChar(rsTemplatesXMLDownloaded), PWideChar(rsMessageBoxInfo), MB_OK or MB_ICONINFORMATION);
+      TD(rsTemplatesXMLDownloaded).WindowCaption(rsMessageBoxInfo).Info.OK.SetFlags([tfAllowDialogCancellation]).Execute(nil);
     end
     else
       TFile.Create(TemplateFile);
@@ -678,7 +685,7 @@ begin
 end;
 
 resourcestring
-  rsErrorReadingTemplateFile = 'The following error has been encountered reading the XML Template file:'#13#13#10'%s.';
+  rsErrorReadingTemplateFile = 'The following error has been encountered reading the XML Template file:';
 
 procedure TTemplateList.Refresh;
 var
@@ -705,7 +712,8 @@ begin
         end;
     except
       on E: Exception do
-        MessageBox(0, PWideChar(Format(rsErrorReadingTemplateFile, [E.Message])), PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+        TD(rsErrorReadingTemplateFile).Text(Format('%s', [E.Message])).WindowCaption(rsMessageBoxError).Error.OK
+            .SetFlags([tfAllowDialogCancellation]).Execute(nil);
     end;
   end;
 end;

@@ -106,7 +106,22 @@ implementation
 {$R *.dfm}
 
 uses
-  ESPHomeShared, NppSupport, Registry, Math,Winapi.ShellAPI;
+  ESPHomeShared, ESPHomePlugin, UnitFormProjects, NppSupport, Registry, Math,Winapi.ShellAPI;
+
+procedure RecalcListBoxScrollWidth(AListBox: TListBox);
+var
+  I, W, MaxW: Integer;
+begin
+  MaxW := 0;
+  AListBox.Canvas.Font.Assign(AListBox.Font);
+  for I := 0 to AListBox.Items.Count - 1 do
+  begin
+    W := AListBox.Canvas.TextWidth(AListBox.Items[I]);
+    if W > MaxW then
+      MaxW := W;
+  end;
+  AListBox.ScrollWidth := MaxW + 8;
+end;
 
 procedure TFormConfig.ButtonAddDepsClick(Sender: TObject);
 var
@@ -122,6 +137,10 @@ begin
     ProjectList.Current.SaveOptionDependencies;
     ListBoxDependencies.Items.Clear;
     ListBoxDependencies.Items.AddStrings(ProjectList.Current.OptionDependencies);
+    RecalcListBoxScrollWidth(ListBoxDependencies);
+    ESPHomePlugin.Plugin.UpdateProjectList;
+    if Assigned(FormProjects) then
+      FormProjects.CurrentDocumentChanged;
   end;
 end;
 
@@ -168,6 +187,10 @@ begin
     ProjectList.Current.SaveOptionDependencies;
     if ListBoxDependencies.Count > 0 then
       ListBoxDependencies.ItemIndex := Max(0, Sel - 1);
+    RecalcListBoxScrollWidth(ListBoxDependencies);
+    ESPHomePlugin.Plugin.UpdateProjectList;
+    if Assigned(FormProjects) then
+      FormProjects.CurrentDocumentChanged;
   end;
 end;
 
@@ -277,6 +300,7 @@ begin
 
   ProjectList.Current.LoadOptionDependencies;
   ListBoxDependencies.Items.AddStrings(ProjectList.Current.OptionDependencies);
+  RecalcListBoxScrollWidth(ListBoxDependencies);
 
   ToggleDarkMode;
 end;

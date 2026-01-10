@@ -22,10 +22,9 @@
 unit NppPlugin;
 
 interface
-
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils,
-  System.Types, Vcl.Forms, SciSupport, NppSupport, NppMenuCmdID;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Vcl.Forms, SciSupport, NppSupport,
+  NppMenuCmdID;
 
 
 type
@@ -123,7 +122,7 @@ type
     function GetMinorVersion: Integer;
     function GetReleaseNumber: Integer;
     function GetBuildNumber: Integer;
-    function GetCopyRight: string;
+    function GetCopyright: string;
 
     function GetNppVersion(var MajorVersion, MinorVersion: Integer): Integer;
     function IsNppMinVersion(AMajorVersion, AMinorVersion: Integer): Boolean;
@@ -134,6 +133,8 @@ type
     function GetPluginConfigDir: string;
     function GetPluginDocDir: string;
     function GetPluginDllPath: string;
+
+    function GetNppWindowTitle: string;
 
     function GetFullCurrentPath: string;
     function GetCurrentDirectory: string;
@@ -185,9 +186,10 @@ type
   end;
 
 implementation
-
 uses
   FileVersionInfo, Math, Winapi.CommCtrl;
+
+
 
 // =============================================================================
 // Class TNppPlugin
@@ -332,8 +334,7 @@ begin
   if not FileExists(lptstrFilename) then
     exit;
 
-  TFileVersionInfo.GetNumericVersionInfo(lptstrFilename, nfvitFileVersion, FPluginMajorVersion, FPluginMinorVersion,
-    FPluginReleaseNumber, FPluginBuildNumber);
+  TFileVersionInfo.GetNumericVersionInfo(lptstrFilename, nfvitFileVersion, FPluginMajorVersion, FPluginMinorVersion, FPluginReleaseNumber, FPluginBuildNumber);
   TFileVersionInfo.GetVersionInfo(lptstrFilename, fvitLegalCopyright, wLangId, FPluginCopyright);
 end;
 
@@ -454,9 +455,9 @@ begin
   Result := FPluginBuildNumber;
 end;
 
-function TNppPlugin.GetCopyRight: string;
+function TNppPlugin.GetCopyright: string;
 begin
-  Result := FPluginCopyRight;
+  Result := FPluginCopyright;
 end;
 
 function TNppPlugin.GetVarSizeStringValue(DirType: Cardinal; MaxSize: Cardinal = $0000FFFF): string;
@@ -560,6 +561,15 @@ end;
 function TNppPlugin.GetPluginDllPath: string;
 begin
   Result := TPath.Combine(GetPluginDir(), ReplaceStr(GetName(), ' ', '') + '.dll')
+end;
+
+function TNppPlugin.GetNppWindowTitle: string;
+var
+  Len: Integer;
+begin
+  Len := GetWindowTextLength(NppData.NppHandle);
+  SetLength(Result, Len);
+  GetWindowText(NppData.NppHandle, PChar(Result), Len + 1);
 end;
 
 function TNppPlugin.GetFullCurrentPath: string;
@@ -700,9 +710,9 @@ function TNppPlugin.GetCurrentBufferDirty(AViewIdx: Integer): Boolean;
 begin
   case AViewIdx of
     MAIN_VIEW:
-      Result := (SendMessage(NppData.ScintillaMainHandle, SCI_GETMODIFY, WPARAM(0), LPARAM(0)) <> 0);
+      Result := (SendMessage(NppData.ScintillaMainHandle, SCI_GETMODIFY, WPARAM(0), LParam(0)) <> 0);
     SUB_VIEW:
-      Result := (SendMessage(NppData.ScintillaSecondHandle, SCI_GETMODIFY, WPARAM(0), LPARAM(0)) <> 0);
+      Result := (SendMessage(NppData.ScintillaSecondHandle, SCI_GETMODIFY, WPARAM(0), LParam(0)) <> 0);
   else
     Result := false;
   end;
@@ -712,12 +722,12 @@ function TNppPlugin.GetDarkModeColors(PColors: PNppDarkModeColors): Boolean;
 begin
   Result := false;
   if IsDarkModeEnabled then
-    Result := SendMessage(NppData.NppHandle, NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LPARAM(PColors)) > 0;
+    Result := SendMessage(NppData.NppHandle, NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LParam(PColors)) > 0;
 end;
 
 function TNppPlugin.GetOpenFilesCnt(CntType: Integer): Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETNBOPENFILES, WPARAM(0), LPARAM(CntType));
+  Result := SendMessage(NppData.NppHandle, NPPM_GETNBOPENFILES, WPARAM(0), LParam(CntType));
 end;
 
 function TNppPlugin.GetOpenFiles(CntType: Integer): TStringDynArray;

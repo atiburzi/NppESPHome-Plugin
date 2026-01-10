@@ -126,7 +126,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 349
       Height = 184
-      ActiveCard = CardUploadOptions
+      ActiveCard = CardProjectOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -1762,6 +1762,10 @@ object FormConfig: TFormConfig
       item
         DisplayName = 'ESPHome File (yml)'
         FileMask = '*.yml'
+      end
+      item
+        DisplayName = 'Partitions files (csv)'
+        FileMask = '*.csv'
       end
       item
         DisplayName = 'C++ Header file'

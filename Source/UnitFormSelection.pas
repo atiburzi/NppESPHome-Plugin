@@ -34,7 +34,12 @@ implementation
 {$R *.dfm}
 
 uses
-  ESPHomeShared, ESPHomePlugin, NppSupport, Math;
+  ESPHomeShared, ESPHomePlugin, NppSupport, Math, TDMB;
+
+resourcestring
+  rsRemoveProjectFile = 'Remove selected Project';
+
+
 
 procedure TFormSelection.ButtonAddProjectClick(Sender: TObject);
 var
@@ -45,9 +50,8 @@ begin
   begin
     if Assigned(ProjectList.GetProjectFromFileName(FileOpenDialogProject.FileName)) then
     begin
-      MessageBox(Handle, PWideChar(Format(rsProjectAlreadyExists,
-        [ExtractFileName(FileOpenDialogProject.FileName)])),
-        PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+      TD(Format(rsProjectAlreadyExists, [ExtractFileName(FileOpenDialogProject.FileName)])).WindowCaption(rsMessageBoxError).
+        Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(Self);
       Exit;
     end;
     Project := TProject.Create(FileOpenDialogProject.FileName, True);
@@ -62,9 +66,8 @@ begin
     else
     begin
       Project.Free;
-      MessageBox(Handle, PWideChar(Format(rsInvalidProjectFile,
-        [ExtractFileName(FileOpenDialogProject.FileName)])),
-        PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+      TD(Format(rsInvalidProjectFile, [ExtractFileName(FileOpenDialogProject.FileName)])).Text(rsInvalidProjectFile2).WindowCaption(rsMessageBoxError).
+        Error.OK.SetFlags([tfAllowDialogCancellation]).Execute(Self);
     end;
   end;
 end;
@@ -76,8 +79,8 @@ begin
   inherited;
   if Assigned(ProjectList.Current) then
   begin
-    if MessageBox(Self.Handle, PWideChar(Format(rsKnownProjectRemoval, [ProjectList.Current.FriendlyName])),
-      PWideChar(rsMessageBoxWarning), MB_YESNO or MB_ICONQUESTION) = IDYES then
+    if TD(Format(rsKnownProjectRemoval, [ProjectList.Current.FriendlyName])).Text(rsKnownProjectRemoval2).WindowCaption(rsMessageBoxWarning).
+      SetFlags([tfAllowDialogCancellation]).Warning.YesNo.Execute (Self) = mrYes then
     begin
       I := ProjectList.IndexOf(ProjectList.Current);
       ProjectList.Delete(I);

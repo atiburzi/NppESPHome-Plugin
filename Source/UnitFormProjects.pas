@@ -122,13 +122,15 @@ type
     procedure VirtualStringTreeProjectsNodeClick(Sender: TBaseVirtualTree;
       const HitInfo: THitInfo);
     procedure VirtualStringTreeProjectsDblClick(Sender: TObject);
+    procedure VirtualStringTreeProjectsChange(Sender: TBaseVirtualTree;
+      Node: PVirtualNode);
   private
     { Private declarations }
   public
     procedure ToggleDarkMode; override;
     procedure RefreshProjectsList;
     procedure RefreshCategoryList;
-    procedure RefreshTemplatesList(const Component: string = ''; const Category: string = '');    
+    procedure RefreshTemplatesList(const Component: string = ''; const Category: string = '');
     procedure RefreshToolbar;
     procedure CurrentDocumentChanged;
     function GetVirtualNodeFromFileName(const FileName: string): PVirtualNode;
@@ -142,7 +144,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Types, System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils;
+  System.Types, System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils, TDMB;
 
 procedure TFormProjects.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -187,7 +189,6 @@ begin
         Data.Project := P;
       end;
     end;
-  VirtualStringTreeProjects.ClearSelection;
   if Assigned(ProjectList.Current) then
   begin
     Node := GetVirtualNodeFromFileName(ProjectList.Current.FileName);
@@ -230,7 +231,7 @@ begin
   VirtualStringTreeTemplates.BeginUpdate;
   VirtualStringTreeTemplates.Clear;
   for Template in TemplateList do
-  begin  
+  begin
     if ((Category = '') or (Category = rsAnyCategory) or (Template.Category = Category)) and
         ((Component = '') or ContainsText(Template.Name, Component)) then  
     begin
@@ -300,6 +301,20 @@ begin
   Repaint;
 end;
 
+procedure TFormProjects.VirtualStringTreeProjectsChange(
+  Sender: TBaseVirtualTree; Node: PVirtualNode);
+var
+  FileName: string;
+begin
+  inherited;
+  if Assigned(Node) then
+  begin
+    FileName := PProjectNode(Node.GetData)^.FileName;
+    if FileName <> ESPHomePlugin.Plugin.GetFullCurrentPath then
+      ESPHomePlugin.Plugin.SwitchToFile(FileName);
+  end;
+end;
+
 procedure TFormProjects.VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
 begin
   inherited;
@@ -366,7 +381,7 @@ begin
       ProjectList.Current := Data^.Project;
   end;
   RefreshToolbar;
-  ESPHomePlugin.Plugin.UpdatePluginMenu;
+  ESPHomePlugin.Plugin.UpdatePluginMenuAndTitle;
 end;
 
 procedure TFormProjects.VirtualStringTreeTemplatesChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -384,7 +399,7 @@ end;
 
 procedure TFormProjects.VirtualStringTreeTemplatesDblClick(Sender: TObject);
 var
-  Data: PTemplate; 
+  Data: PTemplate;
   Node: PVirtualNode;
   currentScintilla: Integer;
   hSci: HWND;
@@ -438,8 +453,8 @@ begin
   inherited;
   if Assigned(ProjectList.Current) then
   begin
-    if MessageBox(Self.Handle, PWideChar(Format(rsKnownProjectRemoval, [ProjectList.Current.FriendlyName])),
-      PWideChar(rsMessageBoxWarning), MB_YESNO or MB_ICONQUESTION) = IDYES then
+    if TD(Format(rsKnownProjectRemoval, [ProjectList.Current.FriendlyName])).Text(rsKnownProjectRemoval2).WindowCaption(rsMessageBoxWarning).
+      SetFlags([tfAllowDialogCancellation]).Warning.YesNo.Execute (Self) = mrYes then
     begin
       I := ProjectList.IndexOf(ProjectList.Current);
       ProjectList.Delete(I);
@@ -462,9 +477,8 @@ begin
   begin
     if Assigned(ProjectList.GetProjectFromFileName(FileOpenDialogProject.FileName)) then
     begin
-      MessageBox(Handle, PWideChar(Format(rsProjectAlreadyExists,
-        [ExtractFileName(FileOpenDialogProject.FileName)])),
-        PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+      TD(Format(rsProjectAlreadyExists, [ExtractFileName(FileOpenDialogProject.FileName)])).WindowCaption(rsMessageBoxError).
+        Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(Self);
       Exit;
     end;
     Project := TProject.Create(FileOpenDialogProject.FileName, True);
@@ -478,9 +492,8 @@ begin
     else
     begin
       Project.Free;
-      MessageBox(Handle, PWideChar(Format(rsInvalidProjectFile,
-        [ExtractFileName(FileOpenDialogProject.FileName)])),
-        PWideChar(rsMessageBoxError), MB_OK or MB_ICONERROR);
+      TD(Format(rsInvalidProjectFile, [ExtractFileName(FileOpenDialogProject.FileName)])).Text(rsInvalidProjectFile2).WindowCaption(rsMessageBoxError).
+        Error.OK.SetFlags([tfAllowDialogCancellation]).Execute(Self);
     end;
   end;
 end;
@@ -580,11 +593,12 @@ end;
 
 procedure TFormProjects.PopupMenuDownloadTemplatesClick(Sender: TObject);
 begin
-  if MessageBox(Self.Handle, PWideChar(rsConfirmOverwriteTemplates), PWideChar(rsMessageBoxWarning), MB_YESNO or MB_ICONWARNING) = IDYES then
+  if TD(rsConfirmOverwriteTemplates).Text(rsConfirmOverwriteTemplates2).Text(rsConfirmOverwriteTemplates3).WindowCaption(rsMessageBoxWarning).Warning.YesNo.
+    SetFlags([tfAllowDialogCancellation]).Execute(Self) = mrYes then
   begin
     DownloadTemplateFileFromGitHub;
     PopupMenuReloadXMLFileConfigurationClick(nil);
-    MessageBox(Self.Handle, PWideChar(rsTemplatesXMLDownloaded), PWideChar(rsMessageBoxInfo), MB_OK or MB_ICONINFORMATION);
+    TD(rsTemplatesXMLDownloaded).WindowCaption(rsMessageBoxInfo).Info.OK.SetFlags([tfAllowDialogCancellation]).Execute(Self);
   end;
 end;
 
@@ -615,9 +629,11 @@ begin
   FileName := PlugIn.GetFullCurrentPath;
   P := ProjectList.GetProjectFromFileName(FileName, True);
   if Assigned(P) then
+  begin
     ProjectList.Current := P;
-  ESPHomePlugin.Plugin.UpdateProjectList;
-
+    RefreshToolbar;
+    ESPHomePlugin.Plugin.UpdatePluginMenuAndTitle;
+  end;
   Node := GetVirtualNodeFromFileName(FileName);
   if Assigned(Node) then
   begin
