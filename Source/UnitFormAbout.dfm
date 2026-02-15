@@ -1418,7 +1418,7 @@ object FormAbout: TFormAbout
       Height = 25
       Caption = 'OK'
       ModalResult = 1
-      TabOrder = 0
+      TabOrder = 3
     end
     object LinkLabel1: TLinkLabel
       Left = 16
@@ -1428,7 +1428,7 @@ object FormAbout: TFormAbout
       Caption = 
         '<a href="https://github.com/atiburzi/NppESPHome-Plugin">NppESPHo' +
         'me Plugin GitHub page</a>'
-      TabOrder = 1
+      TabOrder = 0
       OnLinkClick = LinkLabel1LinkClick
     end
     object LinkLabel2: TLinkLabel
@@ -1437,7 +1437,7 @@ object FormAbout: TFormAbout
       Width = 115
       Height = 19
       Caption = '<a href="https://esphome.io/">ESPHome web portal</a>'
-      TabOrder = 2
+      TabOrder = 1
       OnLinkClick = LinkLabel2LinkClick
     end
     object LinkLabel3: TLinkLabel
@@ -1448,7 +1448,7 @@ object FormAbout: TFormAbout
       Caption = 
         '<a href="https://notepad-plus-plus.org/resources/#plugins">Notep' +
         'ad++ Plugins home page</a>'
-      TabOrder = 3
+      TabOrder = 2
       OnLinkClick = LinkLabel3LinkClick
     end
   end

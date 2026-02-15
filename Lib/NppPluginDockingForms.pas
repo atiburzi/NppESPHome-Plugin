@@ -76,6 +76,10 @@ type
 
 implementation
 
+resourcestring
+  rsMessageDoNotUseThisConstructor = 'Do not use this constructor';
+  rsMessagePluginFrameworkError = 'Plugin Framework error';
+
 {$R *.dfm}
 
 
@@ -90,13 +94,13 @@ implementation
 // Hide constructors
 constructor TNppPluginDockingForm.Create(NppParent: TNppPlugin);
 begin
-  MessageBox(0, 'Do not use this constructor', 'Plugin Framework error', MB_OK);
+  MessageBox(0, PWideChar(rsMessageDoNotUseThisConstructor), PWideChar(rsMessagePluginFrameworkError), MB_OK);
   Halt(1);
 end;
 
 constructor TNppPluginDockingForm.Create(AOwner: TNppPluginForm);
 begin
-  MessageBox(0, 'Do not use this constructor', 'Plugin Framework error', MB_OK);
+  MessageBox(0, PWideChar(rsMessageDoNotUseThisConstructor), PWideChar(rsMessagePluginFrameworkError), MB_OK);
   Halt(1);
 end;
 

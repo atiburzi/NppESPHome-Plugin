@@ -52,6 +52,7 @@ object FormProjects: TFormProjects
     TabOrder = 0
     Transparent = True
     Wrapable = False
+    ExplicitWidth = 481
     object ToolButtonOpen: TToolButton
       Left = 0
       Top = 0
@@ -302,6 +303,7 @@ object FormProjects: TFormProjects
         Sorted = True
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
+        ExplicitWidth = 333
       end
       object VirtualStringTreeTemplates: TVirtualStringTree
         Left = 5
@@ -317,7 +319,6 @@ object FormProjects: TFormProjects
         Header.Font.Height = -12
         Header.Font.Name = 'Segoe UI'
         Header.Font.Style = []
-        Header.Height = 15
         Header.Options = [hoColumnResize, hoRestrictDrag, hoVisible, hoDisableAnimatedResize]
         Header.ParentFont = False
         Header.SortColumn = 0

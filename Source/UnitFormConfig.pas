@@ -354,6 +354,12 @@ begin
 end;
 
 resourcestring
+  rsLabelStatusUnknown = 'Unknown';
+  rsLabelStatusStandalone = 'Standalone';
+  rsLabelStatusOnline = 'Online+';
+  rsLabelStatusOnline1 = 'Online';
+  rsLabelStatusOffline = 'Offline+';
+  rsLabelStatusOffline1 = 'Offline';
   rsImageHintOnline = 'Device is online';
   rsImageHintOnlineWeb = 'Device is online and it has a webserver enabled';
   rsImageHintOffline = 'Device is offline';
@@ -368,13 +374,13 @@ begin
   begin
     if not IsChecked then
     begin
-      LabelStatus.Caption := 'Unknown';
+      LabelStatus.Caption := rsLabelStatusUnknown;
       VirtualImageStatus.ImageName := 'question';
       VirtualImageStatus.Hint := rsImageHintUnknown;
     end
     else if not HasWiFi then
     begin
-      LabelStatus.Caption := 'Standalone';
+      LabelStatus.Caption := rsLabelStatusStandalone;
       VirtualImageStatus.ImageName := 'wifi-disabled';
       VirtualImageStatus.Hint := rsImageHintDisabled;
     end
@@ -382,25 +388,25 @@ begin
     begin
       if IsOnline and HasWebserver then
       begin
-        LabelStatus.Caption := 'Online+';
+        LabelStatus.Caption := rsLabelStatusOnline;
         VirtualImageStatus.ImageName := 'wifi';
         VirtualImageStatus.Hint := rsImageHintOnlineWeb;
       end
       else if IsOnline then
       begin
-        LabelStatus.Caption := 'Online';
+        LabelStatus.Caption := rsLabelStatusOnline1;
         VirtualImageStatus.ImageName := 'wifi';
         VirtualImageStatus.Hint := rsImageHintOnline;
       end
       else if HasWebserver then
       begin
-        LabelStatus.Caption := 'Offline+';
+        LabelStatus.Caption := rsLabelStatusOffline;
         VirtualImageStatus.ImageName := 'wifi-offline';
         VirtualImageStatus.Hint := rsImageHintOfflineWeb;
       end
       else
       begin
-        LabelStatus.Caption := 'Offline';
+        LabelStatus.Caption := rsLabelStatusOffline1;
         VirtualImageStatus.ImageName := 'wifi-offline';
         VirtualImageStatus.Hint := rsImageHintOffline;
       end;

@@ -110,7 +110,7 @@ var
 implementation
 
 uses
-  Math, DateUtils, StrUtils, ShellAPI;
+  Math, DateUtils, ShellAPI;
 
 type
   TTaskDialog2 = class(Dialogs.TTaskDialog)

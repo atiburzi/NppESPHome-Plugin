@@ -95,7 +95,7 @@ object FormConfig: TFormConfig
       ReadOnly = True
       RowSelect = True
       ShowButtons = False
-      TabOrder = 0
+      TabOrder = 1
       OnChange = TreeViewOptionsChange
       OnCollapsing = TreeViewOptionsCollapsing
       OnCustomDrawItem = TreeViewOptionsCustomDrawItem
@@ -130,7 +130,7 @@ object FormConfig: TFormConfig
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
-      TabOrder = 1
+      TabOrder = 0
       object CardProjectOptions: TCard
         Left = 0
         Top = 0
@@ -139,7 +139,7 @@ object FormConfig: TFormConfig
         Caption = 'CardProjectOptions'
         CardIndex = 0
         ParentColor = True
-        TabOrder = 0
+        TabOrder = 3
         object LabelDependencies: TLabel
           Left = 16
           Top = 8
@@ -200,7 +200,7 @@ object FormConfig: TFormConfig
         Caption = 'CardESPHomeOptions'
         CardIndex = 1
         ParentColor = True
-        TabOrder = 1
+        TabOrder = 5
         object LabelLogLevel: TLabel
           Left = 23
           Top = 72
@@ -258,7 +258,7 @@ object FormConfig: TFormConfig
           ItemHeight = 19
           ItemIndex = -1
           ParentColor = True
-          TabOrder = 1
+          TabOrder = 2
           OnChange = ComboBoxLogLevelChange
           Items = <
             item
@@ -322,7 +322,7 @@ object FormConfig: TFormConfig
           Flat = True
           ParentFlat = False
           ParentColor = True
-          TabOrder = 2
+          TabOrder = 3
           Text = ''
           OnChange = EditOptionESPHomeAdditionalParametersChange
         end
@@ -338,7 +338,7 @@ object FormConfig: TFormConfig
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 1
           OnLinkClick = LinkLabelHelpLinkClick
         end
       end
@@ -350,7 +350,7 @@ object FormConfig: TFormConfig
         Caption = 'CardRunOptions'
         CardIndex = 2
         ParentColor = True
-        TabOrder = 2
+        TabOrder = 6
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
@@ -385,7 +385,7 @@ object FormConfig: TFormConfig
           Top = 10
           Width = 123
           Height = 17
-          TabOrder = 0
+          TabOrder = 1
           OnClick = CheckBoxOptionRunNoLogsClick
         end
         object CheckBoxOptionRunReset: TCheckBox
@@ -393,7 +393,7 @@ object FormConfig: TFormConfig
           Top = 59
           Width = 75
           Height = 17
-          TabOrder = 1
+          TabOrder = 2
           OnClick = CheckBoxOptionRunResetClick
         end
         object EditOptionRunAdditionalParameters: TJvEdit
@@ -405,7 +405,7 @@ object FormConfig: TFormConfig
           ParentFlat = False
           AutoSize = False
           ParentColor = True
-          TabOrder = 2
+          TabOrder = 3
           Text = ''
           OnChange = EditOptionRunAdditionalParametersChange
         end
@@ -421,7 +421,7 @@ object FormConfig: TFormConfig
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 0
           OnLinkClick = LinkLabelHelpLinkClick
         end
       end
@@ -433,7 +433,7 @@ object FormConfig: TFormConfig
         Caption = 'CardCompileOptions'
         CardIndex = 3
         ParentColor = True
-        TabOrder = 3
+        TabOrder = 7
         object LabelOptionCompileGenerateOnly: TLabel
           Left = 45
           Top = 10
@@ -448,7 +448,7 @@ object FormConfig: TFormConfig
           Top = 10
           Width = 131
           Height = 17
-          TabOrder = 0
+          TabOrder = 1
           OnClick = CheckBoxOptionCompileGenerateOnlyClick
         end
         object LinkLabelCompileHelp: TLinkLabel
@@ -465,7 +465,7 @@ object FormConfig: TFormConfig
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 0
           OnLinkClick = LinkLabelHelpLinkClick
         end
       end
@@ -477,7 +477,7 @@ object FormConfig: TFormConfig
         Caption = 'CardUploadOptions'
         CardIndex = 4
         ParentColor = True
-        TabOrder = 4
+        TabOrder = 8
         object LabelOptionUploadAdditionalParameters: TLabel
           Left = 26
           Top = 8
@@ -496,7 +496,7 @@ object FormConfig: TFormConfig
           ParentFlat = False
           AutoSize = False
           ParentColor = True
-          TabOrder = 0
+          TabOrder = 1
           Text = ''
           OnChange = EditOptionUploadAdditionalParametersChange
         end
@@ -512,7 +512,7 @@ object FormConfig: TFormConfig
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 0
           OnLinkClick = LinkLabelHelpLinkClick
         end
       end
@@ -524,7 +524,7 @@ object FormConfig: TFormConfig
         Caption = 'CardLogsOptions'
         CardIndex = 5
         ParentColor = True
-        TabOrder = 5
+        TabOrder = 4
         object LabelOptionLogsReset: TLabel
           Left = 45
           Top = 8
@@ -560,7 +560,7 @@ object FormConfig: TFormConfig
           ParentFlat = False
           AutoSize = False
           ParentColor = True
-          TabOrder = 1
+          TabOrder = 2
           Text = ''
           OnChange = EditOptionLogsAdditionalParametersChange
         end
@@ -576,7 +576,7 @@ object FormConfig: TFormConfig
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 1
           OnLinkClick = LinkLabelHelpLinkClick
         end
       end
@@ -588,7 +588,7 @@ object FormConfig: TFormConfig
         Caption = 'CardCleanOptions'
         CardIndex = 6
         ParentColor = True
-        TabOrder = 6
+        TabOrder = 0
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 8
@@ -620,7 +620,7 @@ object FormConfig: TFormConfig
         Caption = 'CardNppOptions'
         CardIndex = 7
         ParentColor = True
-        TabOrder = 7
+        TabOrder = 1
         object LabelAutosave: TLabel
           Left = 16
           Top = 8
@@ -680,7 +680,7 @@ object FormConfig: TFormConfig
         Caption = 'CardConsoleOptions'
         CardIndex = 8
         ParentColor = True
-        TabOrder = 8
+        TabOrder = 2
         object LabelAutoclose: TLabel
           Left = 23
           Top = 8
