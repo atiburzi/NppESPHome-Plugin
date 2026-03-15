@@ -37,9 +37,6 @@ Coordinates=10,484,141,58
 [VirtualImageListWhite]
 Coordinates=713,490,140,36
 
-[ComboBoxAutoclose]
-Coordinates=260,552,134,36
-
 [TreeViewOptions]
 Coordinates=137,552,113,36
 
@@ -58,9 +55,6 @@ Coordinates=727,416,100,58
 
 [LabelOptionRunAdditionalParameters]
 Coordinates=10,280,231,58
-
-[LabelAutoclose]
-Coordinates=939,348,103,58
 
 [ListBoxDependencies]
 Coordinates=10,10,139,124
@@ -135,5 +129,5 @@ Coordinates=0,454,175,36
 Coordinates=277,212,112,58
 
 []
-Coordinates=817,212,232,58
+Coordinates=939,348,103,58
 

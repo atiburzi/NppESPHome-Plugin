@@ -126,7 +126,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 349
       Height = 184
-      ActiveCard = CardProjectOptions
+      ActiveCard = CardConsoleOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -139,7 +139,7 @@ object FormConfig: TFormConfig
         Caption = 'CardProjectOptions'
         CardIndex = 0
         ParentColor = True
-        TabOrder = 3
+        TabOrder = 2
         object LabelDependencies: TLabel
           Left = 16
           Top = 8
@@ -200,7 +200,7 @@ object FormConfig: TFormConfig
         Caption = 'CardESPHomeOptions'
         CardIndex = 1
         ParentColor = True
-        TabOrder = 5
+        TabOrder = 4
         object LabelLogLevel: TLabel
           Left = 23
           Top = 72
@@ -350,7 +350,7 @@ object FormConfig: TFormConfig
         Caption = 'CardRunOptions'
         CardIndex = 2
         ParentColor = True
-        TabOrder = 6
+        TabOrder = 5
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
@@ -433,7 +433,7 @@ object FormConfig: TFormConfig
         Caption = 'CardCompileOptions'
         CardIndex = 3
         ParentColor = True
-        TabOrder = 7
+        TabOrder = 6
         object LabelOptionCompileGenerateOnly: TLabel
           Left = 45
           Top = 10
@@ -477,7 +477,7 @@ object FormConfig: TFormConfig
         Caption = 'CardUploadOptions'
         CardIndex = 4
         ParentColor = True
-        TabOrder = 8
+        TabOrder = 7
         object LabelOptionUploadAdditionalParameters: TLabel
           Left = 26
           Top = 8
@@ -524,7 +524,7 @@ object FormConfig: TFormConfig
         Caption = 'CardLogsOptions'
         CardIndex = 5
         ParentColor = True
-        TabOrder = 4
+        TabOrder = 3
         object LabelOptionLogsReset: TLabel
           Left = 45
           Top = 8
@@ -680,7 +680,7 @@ object FormConfig: TFormConfig
         Caption = 'CardConsoleOptions'
         CardIndex = 8
         ParentColor = True
-        TabOrder = 2
+        TabOrder = 8
         object LabelAutoclose: TLabel
           Left = 23
           Top = 8
@@ -689,6 +689,13 @@ object FormConfig: TFormConfig
           Caption = 
             'Specify how the console should behave '#13#10'after ESPHome commands c' +
             'omplete successfully:'
+        end
+        object LabelOptionAlwaysOnTop: TLabel
+          Left = 44
+          Top = 97
+          Width = 246
+          Height = 15
+          Caption = 'Keep ESPHome console window always on top'
         end
         object ComboBoxAutoclose: TJvImageComboBox
           Left = 23
@@ -716,6 +723,14 @@ object FormConfig: TFormConfig
               Indent = 0
               Text = 'The console is automatically closed'
             end>
+        end
+        object CheckBoxOptionAlwaysOnTop: TCheckBox
+          Left = 23
+          Top = 91
+          Width = 290
+          Height = 30
+          TabOrder = 1
+          OnClick = CheckBoxOptionAlwaysOnTopClick
         end
       end
     end

@@ -36,7 +36,8 @@ const
   csKeyNppAutosave = 'NppAutosave';
   csKeyDependenciesCount = 'DependenciesCount';
 
-  csKeyESPHomeAutoClose = 'ESPHomeAutoClose';
+  csKeyConsoleAutoClose = 'ConsoleAutoClose';
+  csKeyConsoleAlwaysOnTop = 'ConsoleAlwaysOnTop';
   csKeyESPHomeLogLevel = 'ESPHomeLogLevel';
   csKeyESPHomeTargetDevice = 'ESPHomeTargetDevice';
   csKeyESPHomeExtraParameters = 'ESPHomeExtraParameters';
@@ -141,7 +142,6 @@ resourcestring
 resourcestring
   rsTemplatesNotFound = 'No "NppESPHome.xml" templates file has been found on your system.';
   rsTemplatesNotFound2 = 'Do you want to download the default one from GitHub portal?';
-
 
 type
   PProject = ^TProject;

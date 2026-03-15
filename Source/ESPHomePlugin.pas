@@ -391,10 +391,50 @@ begin
     UpdatePluginMenuAndTitle;
 end;
 
+
+
+// Struttura per passare i dati alla funzione di callback
+type
+  PFindWindowRecord = ^TFindWindowRecord;
+  TFindWindowRecord = record
+    PID: DWORD;
+    FoundHWND: HWND;
+  end;
+
+// Funzione di callback per EnumWindows
+function EnumWindowsCallback(Handle: HWND; lParam: LPARAM): BOOL; stdcall;
+var
+  WindowPID: DWORD;
+  SearchRec: PFindWindowRecord;
+begin
+  SearchRec := PFindWindowRecord(lParam);
+  GetWindowThreadProcessId(Handle, @WindowPID); // Ottiene il PID della finestra corrente
+  Result := True; // Continua l'enumerazione
+  if WindowPID = SearchRec^.PID then // Se il PID corrisponde, verifichiamo che sia la finestra principale
+  begin
+    if IsWindowVisible(Handle) and (GetWindow(Handle, GW_OWNER) = 0) then // Controlla se la finestra è visibile e non ha una finestra "padre" (GW_OWNER = 0)
+    begin
+      SearchRec^.FoundHWND := Handle;
+      Result := False; // Interrompe l'enumerazione (più veloce)
+    end;
+  end;
+end;
+
+function GetMainWindowHandleByPID(const TargetPID: DWORD): HWND;
+var
+  SearchRec: TFindWindowRecord;
+begin
+  SearchRec.PID := TargetPID;
+  SearchRec.FoundHWND := 0; // Inizializza a 0
+  EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec)); // EnumWindows è l'API più veloce ed efficiente per scorrere le finestre top-level
+  Result := SearchRec.FoundHWND;
+end;
+
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
   CommandStr: array [scRun .. scClean] of string = ('run', 'compile', 'upload', 'logs', 'clean');
 var
+  HC, Timeout: HWND;
   CommandLine, Switch, Device: string;
   ESPHomeProcess: TJvCreateProcess;
 begin
@@ -414,7 +454,7 @@ begin
 
     CommandLine :=  ' echo %s && ';
 
-    if GetOption(csKeyESPHomeAutoClose, True) then
+    if GetOption(csKeyConsoleAutoClose, True) then
       CommandLine := Concat('/c', CommandLine)
     else
       CommandLine := Concat('/k', CommandLine);
@@ -503,7 +543,7 @@ begin
     CommandLine := Trim(Format('%s %s %s', [CommandLine, CommandStr[Command], Switch]));
     CommandLine := Trim(Format('%s "%s"', [CommandLine, ExpandFileName(FileName)]));
 
-    if GetOption(csKeyESPHomeAutoClose, True) then
+    if GetOption(csKeyConsoleAutoClose, True) then
       CommandLine := Concat(CommandLine, ' || pause');
 
     ESPHomeProcess := TJvCreateProcess.Create(nil);
@@ -511,6 +551,21 @@ begin
     ESPHomeProcess.CommandLine := CommandLine;
     ESPHomeProcess.CurrentDirectory := ExtractFilePath(ProjectList.Current.FileName);
     ESPHomeProcess.Run;
+
+    if GetOption(csKeyConsoleAlwaysOnTop, False) then
+    begin
+      Timeout := 3000;
+      HC := GetMainWindowHandleByPID(ESPHomeProcess.ProcessInfo.dwProcessId);
+      while (HC = 0) and (Timeout > 0) do
+      begin
+        Sleep(100);
+        Dec(Timeout, 100);
+        HC := GetMainWindowHandleByPID(ESPHomeProcess.ProcessInfo.dwProcessId);
+      end;
+      if HC <> 0 then
+        SetWindowPos(HC, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+    end;
+
     ESPHomeProcess.Free;
 
   end;
