@@ -391,8 +391,6 @@ begin
     UpdatePluginMenuAndTitle;
 end;
 
-
-
 // Structure to pass data to the callback function
 type
   PFindWindowRecord = ^TFindWindowRecord;
