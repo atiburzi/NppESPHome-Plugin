@@ -393,7 +393,7 @@ end;
 
 
 
-// Struttura per passare i dati alla funzione di callback
+// Structure to pass data to the callback function
 type
   PFindWindowRecord = ^TFindWindowRecord;
   TFindWindowRecord = record
@@ -401,21 +401,21 @@ type
     FoundHWND: HWND;
   end;
 
-// Funzione di callback per EnumWindows
+// Callback function for EnumWindows
 function EnumWindowsCallback(Handle: HWND; lParam: LPARAM): BOOL; stdcall;
 var
   WindowPID: DWORD;
   SearchRec: PFindWindowRecord;
 begin
+  Result := True; // Default, continue enumeration
   SearchRec := PFindWindowRecord(lParam);
-  GetWindowThreadProcessId(Handle, @WindowPID); // Ottiene il PID della finestra corrente
-  Result := True; // Continua l'enumerazione
-  if WindowPID = SearchRec^.PID then // Se il PID corrisponde, verifichiamo che sia la finestra principale
+  GetWindowThreadProcessId(Handle, @WindowPID); // Gets the PID of the current window
+  if WindowPID = SearchRec^.PID then // If PID matches, check if it's the main window
   begin
-    if IsWindowVisible(Handle) and (GetWindow(Handle, GW_OWNER) = 0) then // Controlla se la finestra è visibile e non ha una finestra "padre" (GW_OWNER = 0)
+    if IsWindowVisible(Handle) and (GetWindow(Handle, GW_OWNER) = 0) then // Checks if window is visible and has no owner window (GW_OWNER = 0)
     begin
       SearchRec^.FoundHWND := Handle;
-      Result := False; // Interrompe l'enumerazione (più veloce)
+      Result := False; // Stop enumeration (faster)
     end;
   end;
 end;
@@ -425,8 +425,8 @@ var
   SearchRec: TFindWindowRecord;
 begin
   SearchRec.PID := TargetPID;
-  SearchRec.FoundHWND := 0; // Inizializza a 0
-  EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec)); // EnumWindows è l'API più veloce ed efficiente per scorrere le finestre top-level
+  SearchRec.FoundHWND := 0; // Initialize to 0
+  EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec)); // EnumWindows is the fastest and most efficient API for enumerating top-level windows
   Result := SearchRec.FoundHWND;
 end;
 
