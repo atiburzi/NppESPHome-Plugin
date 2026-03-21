@@ -14,6 +14,15 @@ const
   ciAutoSaveProjectAndDeps = 2;
   ciAutoSaveAllFiles = 3;
 
+  ciConsolePosDecidedByWindows = 0;
+  ciConsolePosScreenCenter = 1;
+  ciConsolePosTopLeftSide = 2;
+  ciConsolePosBottomLeftSide = 3;
+  ciConsolePosTopRightSide = 4;
+  ciConsolePosBottomRightSide = 5;
+  ciConsolePosLastPosition = 6;
+
+
   ciLogLevelCritical = 0;
   ciLogLevelError = 1;
   ciLogLevelWarning = 2;
@@ -38,6 +47,7 @@ const
 
   csKeyConsoleAutoClose = 'ConsoleAutoClose';
   csKeyConsoleAlwaysOnTop = 'ConsoleAlwaysOnTop';
+  csKeyConsoleStartingPosition = 'ConsoleStartingPosition';
   csKeyESPHomeLogLevel = 'ESPHomeLogLevel';
   csKeyESPHomeTargetDevice = 'ESPHomeTargetDevice';
   csKeyESPHomeExtraParameters = 'ESPHomeExtraParameters';

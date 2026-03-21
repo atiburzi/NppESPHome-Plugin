@@ -681,9 +681,11 @@ object FormConfig: TFormConfig
         CardIndex = 8
         ParentColor = True
         TabOrder = 8
+        ExplicitLeft = -40
+        ExplicitTop = -20
         object LabelAutoclose: TLabel
           Left = 23
-          Top = 8
+          Top = 6
           Width = 264
           Height = 30
           Caption = 
@@ -691,15 +693,24 @@ object FormConfig: TFormConfig
             'omplete successfully:'
         end
         object LabelOptionAlwaysOnTop: TLabel
-          Left = 44
-          Top = 97
+          Left = 52
+          Top = 82
           Width = 246
           Height = 15
           Caption = 'Keep ESPHome console window always on top'
         end
+        object Label1: TLabel
+          Left = 23
+          Top = 117
+          Width = 293
+          Height = 30
+          Caption = 
+            'Specify where the ESPHome Console will be positioned '#13#10'in the sc' +
+            'reen when started:'
+        end
         object ComboBoxAutoclose: TJvImageComboBox
           Left = 23
-          Top = 44
+          Top = 40
           Width = 298
           Height = 25
           Style = csOwnerDrawVariable
@@ -726,11 +737,58 @@ object FormConfig: TFormConfig
         end
         object CheckBoxOptionAlwaysOnTop: TCheckBox
           Left = 23
-          Top = 91
-          Width = 290
+          Top = 76
+          Width = 234
           Height = 30
           TabOrder = 1
           OnClick = CheckBoxOptionAlwaysOnTopClick
+        end
+        object ComboBoxOptionConsolePosition: TJvImageComboBox
+          Left = 23
+          Top = 151
+          Width = 298
+          Height = 25
+          Style = csOwnerDrawVariable
+          ButtonStyle = fsLighter
+          DroppedWidth = 298
+          ImageHeight = 0
+          ImageWidth = 0
+          ItemHeight = 19
+          ItemIndex = -1
+          ParentColor = True
+          TabOrder = 2
+          OnChange = ComboBoxOptionConsolePositionChange
+          Items = <
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'It will be decided by Windows'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'In the center of the screen'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'In the top-left side of the screen'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'In the bottom-left side of the screen'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'In the top-right side of the screen'
+            end
+            item
+              Brush.Style = bsClear
+              Indent = 0
+              Text = 'In the bottom-right side of the screen'
+            end>
         end
       end
     end

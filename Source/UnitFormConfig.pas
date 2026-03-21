@@ -72,6 +72,8 @@ type
     ComboBoxAutoclose: TJvImageComboBox;
     CheckBoxOptionAlwaysOnTop: TCheckBox;
     LabelOptionAlwaysOnTop: TLabel;
+    ComboBoxOptionConsolePosition: TJvImageComboBox;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
@@ -94,6 +96,7 @@ type
     procedure ComboBoxAutocloseChange(Sender: TObject);
     procedure LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
     procedure CheckBoxOptionAlwaysOnTopClick(Sender: TObject);
+    procedure ComboBoxOptionConsolePositionChange(Sender: TObject);
   private
     procedure RefreshNetworkStatus;
     procedure PopulateComboDevice;
@@ -263,6 +266,12 @@ begin
   ProjectList.Current.SetOption(csKeyConsoleAutoClose, (ComboBoxAutoclose.ItemIndex = 1));
 end;
 
+procedure TFormConfig.ComboBoxOptionConsolePositionChange(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyConsoleStartingPosition, ComboBoxOptionConsolePosition.ItemIndex);
+end;
+
 procedure TFormConfig.ComboBoxDeviceChange(Sender: TObject);
 begin
   inherited;
@@ -293,6 +302,7 @@ begin
   EditOptionESPHomeAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyESPHomeExtraParameters, csDefaultEmpty);
   ComboBoxOptionAutosave.ItemIndex := ProjectList.Current.GetOption(csKeyNppAutosave, ciAutoSaveAllFiles);
   CheckBoxOptionAlwaysOnTop.Checked := ProjectList.Current.GetOption(csKeyConsoleAlwaysOnTop, False);
+  ComboBoxOptionConsolePosition.ItemIndex := ProjectList.Current.GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows);
 
   CheckBoxOptionRunNoLogs.Checked := ProjectList.Current.GetOption(csKeyRunNoLogs, False);
   CheckBoxOptionRunReset.Checked := ProjectList.Current.GetOption(csKeyRunReset, False);

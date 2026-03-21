@@ -391,6 +391,55 @@ begin
     UpdatePluginMenuAndTitle;
 end;
 
+procedure PositionWindow(Wnd: HWND; Position: Integer; Margin: Integer = -1);
+var
+  R: TRect;
+  WorkArea: TRect;
+  W, H: Integer;
+  X, Y: Integer;
+begin
+  if Wnd <> 0 then
+  begin
+    GetWindowRect(Wnd, R);
+    W := R.Right - R.Left;
+    H := R.Bottom - R.Top;
+    SystemParametersInfo(SPI_GETWORKAREA, 0, @WorkArea, 0);
+    if Margin < 0 then
+      Margin := (WorkArea.Right - WorkArea.Left) div 50;
+    case Position of
+      ciConsolePosScreenCenter:
+        begin
+          X := WorkArea.Left + ((WorkArea.Right - WorkArea.Left - W) div 2);
+          Y := WorkArea.Top + ((WorkArea.Bottom - WorkArea.Top - H) div 2);
+        end;
+      ciConsolePosTopLeftSide:
+        begin
+          X := WorkArea.Left + Margin;
+          Y := WorkArea.Top + Margin;
+        end;
+      ciConsolePosBottomLeftSide:
+        begin
+          X := WorkArea.Left + Margin;
+          Y := WorkArea.Bottom - H - Margin;
+        end;
+      ciConsolePosTopRightSide:
+        begin
+          X := WorkArea.Right - W - Margin;
+          Y := WorkArea.Top + Margin;
+        end;
+      ciConsolePosBottomRightSide:
+        begin
+          X := WorkArea.Right - W - Margin;
+          Y := WorkArea.Bottom - H - Margin;
+        end;
+      else
+        Exit;
+    end;
+    SetWindowPos(Wnd, HWND_TOP, X, Y, 0, 0, SWP_NOZORDER or SWP_NOSIZE or SWP_NOACTIVATE);
+  end;
+end;
+
+
 // Structure to pass data to the callback function
 type
   PFindWindowRecord = ^TFindWindowRecord;
@@ -408,23 +457,26 @@ begin
   Result := True; // Default, continue enumeration
   SearchRec := PFindWindowRecord(lParam);
   GetWindowThreadProcessId(Handle, @WindowPID); // Gets the PID of the current window
-  if WindowPID = SearchRec^.PID then // If PID matches, check if it's the main window
+  if (WindowPID = SearchRec^.PID) and (GetWindow(Handle, GW_OWNER) = 0) then // If PID matches, check if it's the main window
   begin
-    if IsWindowVisible(Handle) and (GetWindow(Handle, GW_OWNER) = 0) then // Checks if window is visible and has no owner window (GW_OWNER = 0)
-    begin
-      SearchRec^.FoundHWND := Handle;
-      Result := False; // Stop enumeration (faster)
-    end;
+    SearchRec^.FoundHWND := Handle;
+    Result := False; // Stop enumeration (faster)
   end;
 end;
 
-function GetMainWindowHandleByPID(const TargetPID: DWORD): HWND;
+function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 3000): HWND;
 var
   SearchRec: TFindWindowRecord;
 begin
   SearchRec.PID := TargetPID;
-  SearchRec.FoundHWND := 0; // Initialize to 0
-  EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec)); // EnumWindows is the fastest and most efficient API for enumerating top-level windows
+  SearchRec.FoundHWND := 0;
+  EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec));
+  while (SearchRec.FoundHWND = 0) and (Timeout > 0) do
+  begin
+    Sleep(100);
+    Dec(Timeout, 100);
+    EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec));
+  end;
   Result := SearchRec.FoundHWND;
 end;
 
@@ -432,7 +484,7 @@ procedure ExecuteESPHomeCommand(const Command: Integer);
 const
   CommandStr: array [scRun .. scClean] of string = ('run', 'compile', 'upload', 'logs', 'clean');
 var
-  HC, Timeout: HWND;
+  HConsoleWin: HWND;
   CommandLine, Switch, Device: string;
   ESPHomeProcess: TJvCreateProcess;
 begin
@@ -548,21 +600,23 @@ begin
     ESPHomeProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
     ESPHomeProcess.CommandLine := CommandLine;
     ESPHomeProcess.CurrentDirectory := ExtractFilePath(ProjectList.Current.FileName);
+
+    ESPHomeProcess.StartupInfo.DefaultWindowState := False;
+    ESPHomeProcess.StartupInfo.ShowWindow := swHide;
+
     ESPHomeProcess.Run;
 
-    if GetOption(csKeyConsoleAlwaysOnTop, False) then
+    HConsoleWin := GetMainWindowHandleByPID(ESPHomeProcess.ProcessInfo.dwProcessId, 5000);
+
+    if HConsoleWin <> 0 then
     begin
-      Timeout := 3000;
-      HC := GetMainWindowHandleByPID(ESPHomeProcess.ProcessInfo.dwProcessId);
-      while (HC = 0) and (Timeout > 0) do
-      begin
-        Sleep(100);
-        Dec(Timeout, 100);
-        HC := GetMainWindowHandleByPID(ESPHomeProcess.ProcessInfo.dwProcessId);
-      end;
-      if HC <> 0 then
-        SetWindowPos(HC, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
-    end;
+      PositionWindow(HConsoleWin, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows));
+      if GetOption(csKeyConsoleAlwaysOnTop, False) then
+        SetWindowPos(HConsoleWin, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+      ShowWindow(HConsoleWin, SW_SHOW);
+    end
+    else
+      ESPHomeProcess.Terminate;
 
     ESPHomeProcess.Free;
 
