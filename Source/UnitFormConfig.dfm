@@ -126,7 +126,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 349
       Height = 184
-      ActiveCard = CardConsoleOptions
+      ActiveCard = CardRunOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -146,10 +146,10 @@ object FormConfig: TFormConfig
           Width = 310
           Height = 60
           Caption = 
-            'Project files that depend on this project. They will open in Not' +
-            'epad++ with the '#39'Open Project File and Dependencies'#39' command and' +
-            ', if configured, will be saved automatically before any ESPHome ' +
-            'command runs:'
+            'Project files that depend on this project. They open in Notepad+' +
+            '+ using the Open Project File and Dependencies command, and, if ' +
+            'configured, are saved automatically before any ESPHome command r' +
+            'uns.'
           WordWrap = True
         end
         object ListBoxDependencies: TListBox
@@ -354,11 +354,12 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 273
+          Width = 305
           Height = 30
           Caption = 
-            'Manually specify additional command line switches'#13#10'when "Run" co' +
-            'mmand is executed:'
+            'Manually specify additional command line switches when "Run" com' +
+            'mand is executed:'
+          WordWrap = True
         end
         object LabelOptionRunNoLogs: TLabel
           Left = 50
@@ -366,18 +367,18 @@ object FormConfig: TFormConfig
           Width = 232
           Height = 30
           Caption = 
-            'No Logs (Disable starting log view)'#13#10'Add "--no-logs" switch to "' +
-            'Run" command.'
+            'No Logs (Disable log view)'#13#10'Add "--no-logs" switch to "Run" comm' +
+            'and.'
           FocusControl = CheckBoxOptionRunNoLogs
         end
         object LabelOptionRunReset: TLabel
           Left = 50
           Top = 59
-          Width = 249
+          Width = 229
           Height = 30
           Caption = 
-            'Reset (Reset the device before starting the logs)'#13#10'Add "--reset"' +
-            ' switch to "Run" command.'
+            'Reset (Reset the device before starting logs)'#13#10'Add "--reset" swi' +
+            'tch to "Run" command.'
           FocusControl = CheckBoxOptionRunReset
         end
         object CheckBoxOptionRunNoLogs: TCheckBox
@@ -624,12 +625,12 @@ object FormConfig: TFormConfig
         object LabelAutosave: TLabel
           Left = 16
           Top = 8
-          Width = 284
+          Width = 250
           Height = 15
           Hint = 
             'Select the way in which the project file(s) are auto saved befor' +
             'e ESPHome commands are started'
-          Caption = 'Autosave scope before starting ESPHome commands:'
+          Caption = 'Autosave before starting ESPHome commands:'
         end
         object ComboBoxOptionAutosave: TJvImageComboBox
           Left = 16
@@ -681,36 +682,37 @@ object FormConfig: TFormConfig
         CardIndex = 8
         ParentColor = True
         TabOrder = 8
-        ExplicitLeft = -40
-        ExplicitTop = -20
-        object LabelAutoclose: TLabel
+        object LabelOptionConsoleAutoclose: TLabel
           Left = 23
-          Top = 6
-          Width = 264
-          Height = 30
-          Caption = 
-            'Specify how the console should behave '#13#10'after ESPHome commands c' +
-            'omplete successfully:'
-        end
-        object LabelOptionAlwaysOnTop: TLabel
-          Left = 52
-          Top = 82
-          Width = 246
+          Top = 12
+          Width = 276
           Height = 15
-          Caption = 'Keep ESPHome console window always on top'
+          Caption = 'When the ESPHome command finishes successfully:'
         end
-        object Label1: TLabel
-          Left = 23
-          Top = 117
-          Width = 293
-          Height = 30
-          Caption = 
-            'Specify where the ESPHome Console will be positioned '#13#10'in the sc' +
-            'reen when started:'
+        object LabelOptionConsoleAlwaysOnTop: TLabel
+          Left = 52
+          Top = 157
+          Width = 268
+          Height = 15
+          Caption = 'Keep the ESPHome Console window always on top'
         end
-        object ComboBoxAutoclose: TJvImageComboBox
+        object LabelOptionConsolePosition: TLabel
           Left = 23
-          Top = 40
+          Top = 105
+          Width = 227
+          Height = 15
+          Caption = 'Choose the console position on the screen:'
+        end
+        object LabelOptionConsoleMonitor: TLabel
+          Left = 23
+          Top = 59
+          Width = 296
+          Height = 15
+          Caption = 'Choose the monitor where ESPHome Console will open:'
+        end
+        object ComboBoxOptionConsoleAutoclose: TJvImageComboBox
+          Left = 23
+          Top = 30
           Width = 298
           Height = 25
           Style = csOwnerDrawVariable
@@ -722,30 +724,30 @@ object FormConfig: TFormConfig
           ItemIndex = -1
           ParentColor = True
           TabOrder = 0
-          OnChange = ComboBoxAutocloseChange
+          OnChange = ComboBoxOptionConsoleAutocloseChange
           Items = <
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'The console is left opened'
+              Text = 'Leave the console open'
             end
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'The console is automatically closed'
+              Text = 'Close the console automatically'
             end>
         end
         object CheckBoxOptionAlwaysOnTop: TCheckBox
           Left = 23
-          Top = 76
+          Top = 151
           Width = 234
           Height = 30
-          TabOrder = 1
+          TabOrder = 3
           OnClick = CheckBoxOptionAlwaysOnTopClick
         end
         object ComboBoxOptionConsolePosition: TJvImageComboBox
           Left = 23
-          Top = 151
+          Top = 122
           Width = 298
           Height = 25
           Style = csOwnerDrawVariable
@@ -762,33 +764,50 @@ object FormConfig: TFormConfig
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'It will be decided by Windows'
+              Text = 'Let Windows decide'
             end
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'In the center of the screen'
+              Text = 'Centered on the screen'
             end
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'In the top-left side of the screen'
+              Text = 'Top-left corner of the screen'
             end
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'In the bottom-left side of the screen'
+              Text = 'Bottom-left corner of the screen'
             end
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'In the top-right side of the screen'
+              Text = 'Top-right corner of the screen'
             end
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'In the bottom-right side of the screen'
+              Text = 'Bottom-right corner of the screen'
             end>
+        end
+        object ComboBoxOptionConsoleMonitor: TJvImageComboBox
+          Left = 23
+          Top = 76
+          Width = 298
+          Height = 25
+          Style = csOwnerDrawVariable
+          ButtonStyle = fsLighter
+          DroppedWidth = 298
+          ImageHeight = 0
+          ImageWidth = 0
+          ItemHeight = 19
+          ItemIndex = -1
+          ParentColor = True
+          TabOrder = 1
+          OnChange = ComboBoxOptionConsoleMonitorChange
+          Items = <>
         end
       end
     end

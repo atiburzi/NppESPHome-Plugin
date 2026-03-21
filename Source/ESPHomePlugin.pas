@@ -98,7 +98,7 @@ implementation
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig,
+  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, Vcl.Forms,
   UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Dialogs;
 
 resourcestring
@@ -375,8 +375,11 @@ end;
 procedure TESPHomePlugin.DoNppnBufferActivated;
 begin
   if not OperationsOngoing then
+  begin
     if Assigned(FormProjects) then
       FormProjects.CurrentDocumentChanged;
+    UpdatePluginMenuAndTitle;
+  end;
 end;
 
 procedure TESPHomePlugin.DoNppnFileOpened;
@@ -391,7 +394,7 @@ begin
     UpdatePluginMenuAndTitle;
 end;
 
-procedure PositionWindow(Wnd: HWND; Position: Integer; Margin: Integer = -1);
+procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);
 var
   R: TRect;
   WorkArea: TRect;
@@ -400,45 +403,55 @@ var
 begin
   if Wnd <> 0 then
   begin
+
+    if Monitor < Screen.MonitorCount  then
+      WorkArea := Screen.Monitors[Monitor].WorkareaRect
+    else
+      WorkArea := Screen.PrimaryMonitor.WorkareaRect;
+
     GetWindowRect(Wnd, R);
     W := R.Right - R.Left;
     H := R.Bottom - R.Top;
-    SystemParametersInfo(SPI_GETWORKAREA, 0, @WorkArea, 0);
+
     if Margin < 0 then
       Margin := (WorkArea.Right - WorkArea.Left) div 50;
     case Position of
+      ciConsolePosDecidedByWindows:
+      begin
+        X := R.Left + WorkArea.Left;
+        Y := R.Top + WorkArea.Top;
+      end;
       ciConsolePosScreenCenter:
-        begin
-          X := WorkArea.Left + ((WorkArea.Right - WorkArea.Left - W) div 2);
-          Y := WorkArea.Top + ((WorkArea.Bottom - WorkArea.Top - H) div 2);
-        end;
+      begin
+        X := WorkArea.Left + ((WorkArea.Right - WorkArea.Left - W) div 2);
+        Y := WorkArea.Top + ((WorkArea.Bottom - WorkArea.Top - H) div 2);
+      end;
       ciConsolePosTopLeftSide:
-        begin
-          X := WorkArea.Left + Margin;
-          Y := WorkArea.Top + Margin;
-        end;
+      begin
+        X := WorkArea.Left + Margin;
+        Y := WorkArea.Top + Margin;
+      end;
       ciConsolePosBottomLeftSide:
-        begin
-          X := WorkArea.Left + Margin;
-          Y := WorkArea.Bottom - H - Margin;
-        end;
+      begin
+        X := WorkArea.Left + Margin;
+        Y := WorkArea.Bottom - H - Margin;
+      end;
       ciConsolePosTopRightSide:
-        begin
-          X := WorkArea.Right - W - Margin;
-          Y := WorkArea.Top + Margin;
-        end;
+      begin
+        X := WorkArea.Right - W - Margin;
+        Y := WorkArea.Top + Margin;
+      end;
       ciConsolePosBottomRightSide:
-        begin
-          X := WorkArea.Right - W - Margin;
-          Y := WorkArea.Bottom - H - Margin;
-        end;
+      begin
+        X := WorkArea.Right - W - Margin;
+        Y := WorkArea.Bottom - H - Margin;
+      end;
       else
         Exit;
     end;
     SetWindowPos(Wnd, HWND_TOP, X, Y, 0, 0, SWP_NOZORDER or SWP_NOSIZE or SWP_NOACTIVATE);
   end;
 end;
-
 
 // Structure to pass data to the callback function
 type
@@ -610,7 +623,7 @@ begin
 
     if HConsoleWin <> 0 then
     begin
-      PositionWindow(HConsoleWin, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows));
+      PositionWindow(HConsoleWin, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows), GetOption(csKeyConsoleStartingMonitor, 0));
       if GetOption(csKeyConsoleAlwaysOnTop, False) then
         SetWindowPos(HConsoleWin, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
       ShowWindow(HConsoleWin, SW_SHOW);
@@ -741,6 +754,7 @@ begin
   if not CheckCurrentProject then
     Exit;
   OpenFile(ProjectList.Current.FileName);
+  UpdatePluginMenuAndTitle;
 end;
 
 procedure TESPHomePlugin.OpenProjectAndDependencies(CurrentFile: string = '');
@@ -763,6 +777,7 @@ begin
     CurrentFile := ProjectList.Current.FileName;
 
   SwitchToFile(CurrentFile);
+  UpdatePluginMenuAndTitle;
 end;
 
 procedure TESPHomePlugin.SaveProject;
@@ -787,6 +802,7 @@ begin
         SaveCurrentFile;
     OperationsOngoing := True;
     SwitchToFile(CurrentFile);
+    UpdatePluginMenuAndTitle;
   end;
 end;
 

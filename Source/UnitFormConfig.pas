@@ -68,12 +68,14 @@ type
     LinkLabelHelpOptions: TLinkLabel;
     LabelDeviceDesc: TLabel;
     CardConsoleOptions: TCard;
-    LabelAutoclose: TLabel;
-    ComboBoxAutoclose: TJvImageComboBox;
+    LabelOptionConsoleAutoclose: TLabel;
+    ComboBoxOptionConsoleAutoclose: TJvImageComboBox;
     CheckBoxOptionAlwaysOnTop: TCheckBox;
-    LabelOptionAlwaysOnTop: TLabel;
+    LabelOptionConsoleAlwaysOnTop: TLabel;
     ComboBoxOptionConsolePosition: TJvImageComboBox;
-    Label1: TLabel;
+    LabelOptionConsolePosition: TLabel;
+    ComboBoxOptionConsoleMonitor: TJvImageComboBox;
+    LabelOptionConsoleMonitor: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
@@ -93,10 +95,11 @@ type
     procedure TreeViewOptionsCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
     procedure TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
     procedure TreeViewOptionsCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
-    procedure ComboBoxAutocloseChange(Sender: TObject);
+    procedure ComboBoxOptionConsoleAutocloseChange(Sender: TObject);
     procedure LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
     procedure CheckBoxOptionAlwaysOnTopClick(Sender: TObject);
     procedure ComboBoxOptionConsolePositionChange(Sender: TObject);
+    procedure ComboBoxOptionConsoleMonitorChange(Sender: TObject);
   private
     procedure RefreshNetworkStatus;
     procedure PopulateComboDevice;
@@ -260,10 +263,16 @@ begin
   ProjectList.Current.SetOption(csKeyUploadExtraParameters, EditOptionUploadAdditionalParameters.Text);
 end;
 
-procedure TFormConfig.ComboBoxAutocloseChange(Sender: TObject);
+procedure TFormConfig.ComboBoxOptionConsoleAutocloseChange(Sender: TObject);
 begin
   inherited;
-  ProjectList.Current.SetOption(csKeyConsoleAutoClose, (ComboBoxAutoclose.ItemIndex = 1));
+  ProjectList.Current.SetOption(csKeyConsoleAutoClose, (ComboBoxOptionConsoleAutoclose.ItemIndex = 1));
+end;
+
+procedure TFormConfig.ComboBoxOptionConsoleMonitorChange(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyConsoleStartingMonitor, Integer(ComboBoxOptionConsoleMonitor.Items.Objects[ComboBoxOptionConsoleMonitor.ItemIndex]));
 end;
 
 procedure TFormConfig.ComboBoxOptionConsolePositionChange(Sender: TObject);
@@ -284,6 +293,23 @@ begin
   ProjectList.Current.SetOption(csKeyESPHomeLogLevel, ComboBoxLogLevel.ItemIndex);
 end;
 
+procedure PopulateMonitorCombo(Combo: TJvImageComboBox; Index: Integer);
+var
+  I: Integer;
+  S: string;
+begin
+  Combo.Items.Clear;
+  for I := 0 to Screen.MonitorCount - 1 do
+  begin
+    S := Format('Monitor %d [%dx%d]', [I + 1, Screen.Monitors[I].Width, Screen.Monitors[I].Height]);
+    if Screen.Monitors[I].Primary then
+      S := S + ' (Primary)';
+    Combo.Items.AddObject(S, TObject(I));
+  end;
+  if Combo.Items.Count > Index then
+    Combo.ItemIndex := Index;
+end;
+
 procedure TFormConfig.FormCreate(Sender: TObject);
 begin
   inherited;
@@ -294,15 +320,16 @@ begin
   MemoProject.Text := ProjectList.Current.Description;
 
   if ProjectList.Current.GetOption(csKeyConsoleAutoClose, True) then
-    ComboBoxAutoclose.ItemIndex := 1
+    ComboBoxOptionConsoleAutoclose.ItemIndex := 1
   else
-    ComboBoxAutoclose.ItemIndex := 0;
+    ComboBoxOptionConsoleAutoclose.ItemIndex := 0;
 
   ComboBoxLogLevel.ItemIndex := ProjectList.Current.GetOption(csKeyESPHomeLogLevel, ciLogLevelDefault);
   EditOptionESPHomeAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyESPHomeExtraParameters, csDefaultEmpty);
   ComboBoxOptionAutosave.ItemIndex := ProjectList.Current.GetOption(csKeyNppAutosave, ciAutoSaveAllFiles);
   CheckBoxOptionAlwaysOnTop.Checked := ProjectList.Current.GetOption(csKeyConsoleAlwaysOnTop, False);
   ComboBoxOptionConsolePosition.ItemIndex := ProjectList.Current.GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows);
+  PopulateMonitorCombo(ComboBoxOptionConsoleMonitor, ProjectList.Current.GetOption(csKeyConsoleStartingMonitor, 0));
 
   CheckBoxOptionRunNoLogs.Checked := ProjectList.Current.GetOption(csKeyRunNoLogs, False);
   CheckBoxOptionRunReset.Checked := ProjectList.Current.GetOption(csKeyRunReset, False);
@@ -324,6 +351,8 @@ begin
 
   ToggleDarkMode;
 end;
+
+
 
 procedure TFormConfig.LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 begin

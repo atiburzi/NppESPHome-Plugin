@@ -124,6 +124,7 @@ type
     procedure VirtualStringTreeProjectsDblClick(Sender: TObject);
     procedure VirtualStringTreeProjectsChange(Sender: TBaseVirtualTree;
       Node: PVirtualNode);
+    procedure ActionVisitExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -544,6 +545,12 @@ procedure TFormProjects.ActionUploadExecute(Sender: TObject);
 begin
   inherited;
   ESPHomePlugin.Plugin.CommandUpload;
+end;
+
+procedure TFormProjects.ActionVisitExecute(Sender: TObject);
+begin
+  inherited;
+  ESPHomePlugin.Plugin.CommandVisit;
 end;
 
 procedure TFormProjects.ButtonMenuTemplatesClick(Sender: TObject);

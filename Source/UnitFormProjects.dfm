@@ -233,16 +233,16 @@ object FormProjects: TFormProjects
     object GroupBoxTemplates: TGroupBox
       Left = 0
       Top = 2
-      Width = 481
+      Width = 479
       Height = 832
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Templates'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
-      ExplicitWidth = 479
+      ExplicitWidth = 477
       ExplicitHeight = 824
       DesignSize = (
-        481
+        479
         832)
       object LabelFilter: TLabel
         Left = 11
@@ -260,7 +260,7 @@ object FormProjects: TFormProjects
         FocusControl = ComboBoxCategories
       end
       object ButtonMenuTemplates: TSpeedButton
-        Left = 456
+        Left = 454
         Top = 22
         Width = 15
         Height = 48
@@ -270,11 +270,12 @@ object FormProjects: TFormProjects
         Images = VirtualImageListDark24
         Flat = True
         OnClick = ButtonMenuTemplatesClick
+        ExplicitLeft = 456
       end
       object EditTextFilter: TButtonedEdit
         Left = 115
         Top = 22
-        Width = 335
+        Width = 333
         Height = 20
         Anchors = [akLeft, akTop, akRight]
         AutoSelect = False
@@ -290,12 +291,12 @@ object FormProjects: TFormProjects
         TabOrder = 0
         OnChange = EditTextFilterChange
         OnRightButtonClick = EditTextFilterRightButtonClick
-        ExplicitWidth = 333
+        ExplicitWidth = 331
       end
       object ComboBoxCategories: TComboBox
         Left = 115
         Top = 48
-        Width = 335
+        Width = 333
         Height = 22
         Style = csOwnerDrawFixed
         Anchors = [akLeft, akTop, akRight]
@@ -303,12 +304,12 @@ object FormProjects: TFormProjects
         Sorted = True
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
-        ExplicitWidth = 333
+        ExplicitWidth = 331
       end
       object VirtualStringTreeTemplates: TVirtualStringTree
         Left = 5
         Top = 76
-        Width = 469
+        Width = 467
         Height = 687
         Anchors = [akLeft, akTop, akRight, akBottom]
         Colors.GridLineColor = clMedGray
@@ -354,7 +355,7 @@ object FormProjects: TFormProjects
       object StaticTextDescription: TJvStaticText
         Left = 5
         Top = 769
-        Width = 469
+        Width = 467
         Height = 58
         Anchors = [akLeft, akRight, akBottom]
         AutoSize = False
@@ -365,7 +366,7 @@ object FormProjects: TFormProjects
         TextMargins.Y = 0
         WordWrap = True
         ExplicitTop = 761
-        ExplicitWidth = 467
+        ExplicitWidth = 465
       end
     end
   end
@@ -2975,6 +2976,7 @@ object FormProjects: TFormProjects
       Caption = 'Visit device webserver'
       ImageIndex = 10
       ImageName = 'visit'
+      OnExecute = ActionVisitExecute
     end
     object ActionSettings: TAction
       Caption = 'Project options'
