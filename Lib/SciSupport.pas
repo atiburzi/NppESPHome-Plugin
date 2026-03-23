@@ -180,6 +180,27 @@ type
   TScintillaMessageFnc       = function(ptr: sptr_t; iMessage: cardinal; wParam: uptr_t; lParam: sptr_t): sptr_t; cdecl;
   TScintillaMessageFncStatus = function(ptr: sptr_t; iMessage: cardinal; wParam: uptr_t; lParam: sptr_t; pStatus: PInteger): sptr_t; cdecl;
 
+const
+  hSciMain = 0;
+  hSciSecond = 1;
+
+const
+  SCI_SETLEXER = 4001;     // Messaggio principale
+
+  // Lexer IDs principali
+  SCLEX_YAML = 109;        // YAML
+  SCLEX_JSON = 112;        // JSON
+  SCLEX_XML = 5;           // XML
+  SCLEX_NULL = 0;          // Nessun lexer (stile manuale)
+  SCLEX_CONTAINER = 33;    // UDL (User Defined Language)
+
+  // Stili YAML specifici (SCE_YAML_*)
+  SCE_YAML_DEFAULT = 0;
+  SCE_YAML_COMMENT = 1;
+  SCE_YAML_KEYWORD = 2;
+  SCE_YAML_NUMBER = 8;
+  SCE_YAML_STRING = 9;
+  SCE_YAML_OPERATOR = 10;
 
 const
   //++Const -- start of section automatically generated from Scintilla.iface
@@ -497,6 +518,7 @@ const
   SCI_GETUNDOACTIONTYPE                            = 2802;
   SCI_GETUNDOACTIONPOSITION                        = 2803;
   SCI_GETUNDOACTIONTEXT                            = 2804;
+
   INDIC_PLAIN                                      = 0;
   INDIC_SQUIGGLE                                   = 1;
   INDIC_TT                                         = 2;
@@ -1107,11 +1129,14 @@ const
   SCI_SETINDICATORCURRENT                          = 2500;
   SCI_GETINDICATORCURRENT                          = 2501;
   SCI_SETINDICATORVALUE                            = 2502;
+  SCI_INDICATORSETSTYLE                            = 2502;
   SCI_GETINDICATORVALUE                            = 2503;
   SCI_INDICATORFILLRANGE                           = 2504;
+  SCI_INDICATORSETFORE                             = 2504;
   SCI_INDICATORCLEARRANGE                          = 2505;
   SCI_INDICATORALLONFOR                            = 2506;
   SCI_INDICATORVALUEAT                             = 2507;
+  SCI_INDICATORSETFLAGS                            = 2507;
   SCI_INDICATORSTART                               = 2508;
   SCI_INDICATOREND                                 = 2509;
   SCI_SETPOSITIONCACHE                             = 2514;
@@ -1122,7 +1147,9 @@ const
   SCI_GETCHARACTERPOINTER                          = 2520;
   SCI_GETRANGEPOINTER                              = 2643;
   SCI_GETGAPPOSITION                               = 2644;
+  SCI_INDICATORSETUNDER                            = 2522;
   SCI_INDICSETALPHA                                = 2523;
+  SCI_INDICATORSETALPHA                            = 2523;
   SCI_INDICGETALPHA                                = 2524;
   SCI_INDICSETOUTLINEALPHA                         = 2558;
   SCI_INDICGETOUTLINEALPHA                         = 2559;
@@ -1161,6 +1188,7 @@ const
   SCI_ANNOTATIONSETSTYLEOFFSET                     = 2550;
   SCI_ANNOTATIONGETSTYLEOFFSET                     = 2551;
   SCI_RELEASEALLEXTENDEDSTYLES                     = 2552;
+  SCI_INDICATORSETOUTLINEALPHA                     = 2552;
   SCI_ALLOCATEEXTENDEDSTYLES                       = 2553;
   UNDO_NONE                                        = 0;
   UNDO_MAY_COALESCE                                = 1;

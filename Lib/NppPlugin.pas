@@ -105,7 +105,7 @@ type
 
     // Plugin interface methods
     procedure MessageProc(var Msg: TMessage); virtual;
-    procedure BeNotified(SN: PSCNotification);
+    procedure BeNotified(SN: PSCNotification); virtual;
     procedure SetInfo(NppData: TNppData); virtual;
     function GetFuncsArray(out FuncsCount: Integer): Pointer;
     function GetFuncByIndex(const Index: Integer): PFuncItem;

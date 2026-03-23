@@ -3,7 +3,7 @@
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.StrUtils,
+  Winapi.Windows, System.SysUtils, System.StrUtils, SciSupport,
   System.Classes,
   Vcl.Graphics,
   NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms,
@@ -78,6 +78,7 @@ type
 
   public
     constructor Create; override;
+    procedure BeNotified(SN: PSCNotification); override;
     procedure UpdateProjectList;
     procedure UpdatePluginMenu;
 
@@ -273,11 +274,46 @@ begin
 
 end;
 
+procedure TESPHomePlugin.BeNotified(SN: PSCNotification);
+var
+  endPos, startPos, lexer: Integer;
+begin
+  inherited BeNotified(SN);
+  case SN.nmhdr.code of
+
+    SCN_STYLENEEDED: begin
+      endPos := SN.position;
+      startPos := SendMessage(HWND(SN.nmhdr.hwndFrom), SCI_GETENDSTYLED, 0, 0);
+      ApplyStyling(HWND(SN.nmhdr.hwndFrom), startPos, endPos);
+    end;
+
+    SCN_UPDATEUI, SCN_MARGINCLICK:
+    begin
+      SendMessage(GetCurrentScintilla, SCI_SETLEXER, SCLEX_CONTAINER, 0);
+      lexer := SendMessage(GetCurrentScintilla, SCI_GETLEXER, 0, 0);
+      //RefreshIndicators(HWND(SN.nmhdr.hwndFrom));
+      //TestIndicators(HWND(SN.nmhdr.hwndFrom));
+    end;
+
+    SCN_MODIFIED:
+    begin
+//      if (SN.modificationType and (SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT)) <> 0 then
+//        RefreshIndicators(HWND(SN.nmhdr.hwndFrom), SN.position);
+    end;
+  end;
+end;
 
 procedure TESPHomePlugin.DoNppnReady;
 begin
   inherited;
   ModuleInitialize;
+
+//  SendMessage(NppData.NppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0, SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT);
+//  InitIndicators(hSciMain);
+//  InitIndicators(hSciSecond);
+
+  SendMessage(NppData.NppHandle, SCI_SETLEXER, SCLEX_CONTAINER, 0);
+
   FormProjects := TFormProjects.Create(Plugin, 19);
   if ConfigFile.ReadBool(csSectionGeneral, csKeyProjectWindow, False) then
     FormProjects.Show
@@ -374,6 +410,10 @@ procedure TESPHomePlugin.DoNppnBufferActivated;
 begin
   if Assigned(FormProjects) then
     FormProjects.CurrentDocumentChanged;
+
+
+  SendMessage(GetCurrentScintilla, SCI_SETLEXER, SCLEX_CONTAINER, 0);
+
 end;
 
 procedure ExecuteESPHomeCommand(const Command: Integer);

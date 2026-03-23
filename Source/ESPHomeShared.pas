@@ -68,6 +68,9 @@ const
   scClean = 4;
 
 const
+  DefaultSciIndicator = 1;
+
+const
   csIconNone = 'none';
   csIconWiFi = 'wifi';
   csIconSerial = 'serial';
@@ -248,11 +251,16 @@ procedure DownloadTemplateFileFromGitHub;
 function GetBit(const Value: Int64; BitPos: ShortInt): Boolean;
 function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 
+procedure InitIndicators(HSci: HWND);
+procedure TestIndicators(hSci: HWND);
+procedure RefreshIndicators(HSci: HWND; Position: Integer = 0);
+procedure ApplyStyling(hSci: HWND; startPos, endPos: Integer);
+
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, Xml.XMLDoc,
-  System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent;
+  ESPHomePlugin, SciSupport, NppSupport, SysUtils, System.StrUtils, Neslib.Yaml, Ping, Xml.XMLDoc, System.UITypes,
+  System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent, System.RegularExpressions;
 
 type
   TPingThread = class(TThread)
@@ -843,5 +851,601 @@ function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 begin
   Result := (Value and not (1 shl BitPos)) or (Ord(State) shl BitPos);
 end;
+
+
+
+//
+//    // PLexerConfig + PConfigRule CONVERTITI ESATTAMENTE DA enhance_any_lexer.v
+//
+//type
+//  PConfigRule = ^TConfigRule;
+//  TConfigRule = record
+//    color: Cardinal;      // 0xAARRGGBB
+//    regex: AnsiString;    // pattern regex
+//    exclude_styles: TArray<Integer>;  // array dinamico
+//    next: PConfigRule;    // linked list
+//  end;
+//
+//  PLexerConfig = ^TLexerConfig;
+//  TLexerConfig = record
+//    name: AnsiString;     // "YAML", "ESPHome"
+//    rules: PConfigRule;   // head lista
+//    next: PLexerConfig;   // lexer multipli
+//  end;
+//
+//
+//var
+//  lexer_configs: PLexerConfig = nil;  // Global head
+//
+//// get_lexer_name (V: get_lexer_name)
+//function get_lexer_name(hSci: HWND): AnsiString;
+//var
+//  lang_type: Integer;
+//begin
+//  lang_type := SendMessage(getParent(hSci), NPPM_GETCURRENTLANGTYPE, 0, 0);
+//  case TNppLang(lang_type) of
+//    L_YAML: Result := 'YAML';
+//    // Aggiungi ESPHome se custom
+//    else Result := 'UNKNOWN';
+//  end;
+//end;
+//
+//// config.get_lexer(name) da V
+//function get_lexer(lexer_name: AnsiString): PLexerConfig;
+//var
+//  lexer: PLexerConfig;
+//begin
+//  lexer := lexer_configs;
+//  while lexer <> nil do
+//  begin
+//    if lexer.name = lexer_name then
+//    begin
+//      Result := lexer;
+//      exit;
+//    end;
+//    lexer := lexer.next;
+//  end;
+//  Result := nil;
+//end;
+//
+//// Free helper (V style)
+//function free_lexer(lexer: PLexerConfig): PLexerConfig;
+//var
+//  rule: PConfigRule;
+//begin
+//  while lexer.rules <> nil do
+//  begin
+//    rule := lexer.rules.next;
+//    FreeMem(lexer.rules);
+//    lexer.rules := rule;
+//  end;
+//  Result := lexer.next;
+//  FreeMem(lexer);
+//end;
+//
+//// is_valid_editor (V)
+//function is_valid_editor(hwnd: HWND): Boolean;
+//begin
+//  Result := (hwnd = hSciMain) or (hwnd = hSciSecond);
+//end;
+//
+//// Load da INI (V: config_load)
+//procedure load_lexer_configs;
+//var
+//  ini: TIniFile;
+//  sections: TStringList;
+//  section: AnsiString;
+//  key: string;
+//  value: AnsiString;
+//  lexer: PLexerConfig;
+//  rule: PConfigRule;
+//  i: Integer;
+//  eq_pos: Integer;
+//  color_str: string;
+//  exclude_start: Integer;
+//begin
+//  // Free old
+//  while lexer_configs <> nil do
+//    lexer_configs := free_lexer(lexer_configs);
+//
+//  ini := TIniFile.Create('EnhanceAnyLexer.ini');  // O tuo INI
+//  sections := TStringList.Create;
+//  try
+//    ini.ReadSections(sections);
+//    for i := 0 to sections.Count - 1 do
+//    begin
+//      section := AnsiString(sections[i]);
+//      lexer := AllocMem(SizeOf(TLexerConfig));
+//      lexer.name := section;
+//
+//      // Leggi rules 0,1,2...
+//      key := '0';
+//      while ini.ValueExists(section, key) do
+//      begin
+//        value := AnsiString(ini.ReadString(section, key, ''));
+//        eq_pos := Pos('=', value);
+//        if eq_pos > 0 then
+//        begin
+//          color_str := Copy(value, 1, eq_pos - 1);  // "0xFF0000[1,2]"
+//          lexer.rules.regex := Copy(value, eq_pos + 1, Length(value));
+//
+//          rule := AllocMem(SizeOf(TConfigRule));
+//          rule.color := StrToIntDef('$' + Copy(color_str, 3, 6), 0);
+//          rule.regex := lexer.rules.regex;  // Copia
+//          rule.next := lexer.rules;
+//          lexer.rules := rule;
+//
+//          // Parse exclude [1,2] TODO da color_str
+//        end;
+//        key := IntToStr(StrToInt(key) + 1);
+//      end;
+//
+//      lexer.next := lexer_configs;
+//      lexer_configs := lexer;
+//    end;
+//  finally
+//    sections.Free;
+//    ini.Free;
+//  end;
+//end;
+
+procedure InitIndicators(hSci: HWND);
+begin
+  // 1. Seleziona indicatore #1
+  SendMessage(hSci, SCI_SETINDICATORCURRENT, DefaultSciIndicator, 0);
+  // 2. Stile grafico: rettangolo arrotondato sotto testo
+  SendMessage(hSci, SCI_INDICATORSETSTYLE, INDIC_ROUNDBOX, 0);
+  // 3. Colore default (trasparente/bianco)
+  SendMessage(hSci, SCI_INDICATORSETFORE, $FFFFFF, 0);
+  // 4. Opacità massima (non trasparente)
+  SendMessage(hSci, SCI_INDICATORSETALPHA, 255, 0);
+  // 5. Layer: sotto testo (non sopra)
+  SendMessage(hSci, SCI_INDICATORSETUNDER, 1, 0);
+end;
+
+type
+  TLexerRule = record
+    Color: cardinal;
+    Regex: string;
+  end;
+
+var
+  LexerRules: array[0..2] of TLexerRule = (
+    (Color: $6c44cb; RegEx: '(?<![#])(("([^"]*)")|(''([^'']*)''))'),
+    (Color: $6c44cb; RegEx: '(?<![#])\b(return|script|condition|if|then|else|lambda|!lambda|!include)\b'),
+    (Color: $6c44cb; RegEx: '(?<![#])\bGPIO\d{1,2}\b')
+  );
+
+procedure showmessage(msg:string);
+var K:string;
+begin
+  K := msg;
+end;
+
+const
+  S_DEFAULT      = 0;
+  S_STRING_DQ    = 1; // "
+  S_STRING_SQ    = 2; // '
+  S_KEY          = 3;
+  S_NUMBER       = 4;
+
+  STYLE_DEFAULT = 0;
+  STYLE_KEY     = 20;
+  STYLE_STRING  = 21;
+  STYLE_NUMBER  = 22;
+
+procedure ApplyStyling(hSci: HWND; startPos, endPos: Integer);
+var
+  i: Integer;
+  ch, nextCh: AnsiChar;
+  state: Integer;
+  text: AnsiString;
+begin
+  // (lettura text come prima)
+
+  SendMessage(hSci, SCI_STARTSTYLING, startPos, 0);
+
+  state := S_DEFAULT;
+
+  i := 1;
+  while i <= Length(text) do
+  begin
+    ch := text[i];
+    if i < Length(text) then
+      nextCh := text[i+1]
+    else
+      nextCh := #0;
+
+    case state of
+
+      S_DEFAULT:
+        begin
+          if ch = '"' then
+            state := S_STRING_DQ
+          else if ch = '''' then
+            state := S_STRING_SQ
+          else if ch in ['0'..'9'] then
+            state := S_NUMBER
+          else if ch in ['a'..'z','A'..'Z','_'] then
+            state := S_KEY;
+        end;
+
+      // ?? doppie virgolette
+      S_STRING_DQ:
+        begin
+          // escape \" ? salta
+          if (ch = '\') and (nextCh = '"') then
+          begin
+            SendMessage(hSci, SCI_SETSTYLING, 2, STYLE_STRING);
+            Inc(i, 2);
+            Continue;
+          end;
+
+          if ch = '"' then
+            state := S_DEFAULT;
+        end;
+
+      // ?? apici singoli
+      S_STRING_SQ:
+        begin
+          // YAML: '' = escape
+          if (ch = '''') and (nextCh = '''') then
+          begin
+            SendMessage(hSci, SCI_SETSTYLING, 2, STYLE_STRING);
+            Inc(i, 2);
+            Continue;
+          end;
+
+          if ch = '''' then
+            state := S_DEFAULT;
+        end;
+
+      S_NUMBER:
+        begin
+          if not (ch in ['0'..'9','.']) then
+            state := S_DEFAULT;
+        end;
+
+      S_KEY:
+        begin
+          if ch = ':' then
+            state := S_DEFAULT;
+        end;
+    end;
+
+    // assegna stile
+    case state of
+      S_STRING_DQ, S_STRING_SQ:
+        SendMessage(hSci, SCI_SETSTYLING, 1, STYLE_STRING);
+
+      S_NUMBER:
+        SendMessage(hSci, SCI_SETSTYLING, 1, STYLE_NUMBER);
+
+      S_KEY:
+        SendMessage(hSci, SCI_SETSTYLING, 1, STYLE_KEY);
+
+    else
+      SendMessage(hSci, SCI_SETSTYLING, 1, STYLE_DEFAULT);
+    end;
+
+    Inc(i);
+  end;
+end;
+
+procedure ColorTextRange(hSci: HWND; startPos, length: Integer; color: TColor; styleId: Integer);
+begin
+  // Definisci lo stile
+  SendMessage(hSci, SCI_STYLESETFORE, styleId, Color);
+
+  // Applica lo stile
+  SendMessage(hSci, SCI_STARTSTYLING, startPos, 0);
+  SendMessage(hSci, SCI_SETSTYLING, length, styleId);
+end;
+
+
+procedure TestIndicators(hSci: HWND);
+var res, id: integer;
+begin
+
+  ColorTextRange(hSci, 0, 100, $FF0000, 1);
+
+
+//  ShowMessage('=== DEBUG START ===');
+//
+//  id := 1;
+//
+//  // 1. Verifica base
+//  res := SendMessage(hSci, SCI_GETLENGTH, 0, 0);
+//  ShowMessage('Lunghezza testo: ' + IntToStr(res));  // >100?
+//
+//
+//  // ID 0
+//  SendMessage(hSci, SCI_SETINDICATORCURRENT, id, 0);
+//  SendMessage(hSci, SCI_INDICATORSETSTYLE, id, INDIC_TEXTFORE);
+//  SendMessage(hSci, SCI_INDICATORSETFLAGS, id, SC_INDICFLAG_VALUEFORE);
+//
+//  // ID 1 (id+1)
+//  SendMessage(hSci, SCI_SETINDICATORCURRENT, id + 1, 0);
+//  SendMessage(hSci, SCI_INDICATORSETSTYLE, id + 1, INDIC_ROUNDBOX);
+//  SendMessage(hSci, SCI_INDICATORSETFORE, id + 1, $FF00);
+//  SendMessage(hSci, SCI_INDICATORSETALPHA, id + 1, 55);
+//  SendMessage(hSci, SCI_INDICATORSETOUTLINEALPHA, id + 1, 255);
+//
+////  SendMessage(hSci, SCI_STYLESETFORE, eol_error_style, e.error_msg_color);
+////  SendMessage(hSci, SCI_STYLESETITALIC, eol_error_style, 1);
+//
+//  // 3. Fill
+//  SendMessage(hSci, SCI_SETINDICATORCURRENT, 1, 0);
+//  res := SendMessage(hSci, SCI_INDICATORFILLRANGE, 0, 50);
+//  ShowMessage('FILLRANGE res= ' + IntToStr(res));
+//
+//  // 4. Force tutto
+//  SendMessage(hSci, SCI_INDICATORALLONFOR, 0, 0);
+//  InvalidateRect(getParent(hSci), nil, True);
+//  UpdateWindow(getParent(hSci));
+//
+//  ShowMessage('=== CERCA ONDULE BLU 0-50 ===');
+end;
+
+procedure RefreshIndicators(HSci: HWND; Position: Integer = 0);
+var
+  FirstLine, ScreenLines, TopLine: Integer;
+  StartPos, EndPos: Integer;
+  RuleIndex, PosIdx, LenIdx: Integer;
+  RegEx: TRegEx;
+  Match: TMatch;
+
+  TextLen: Integer;
+  TextRange: TTextRange;
+  TextBuffer: UTF8String;
+  TextCopied: Integer;
+
+begin
+
+  if Position > 0 then
+  begin
+    FirstLine := SendMessage(hSci, SCI_LINEFROMPOSITION, Position, 0);
+    StartPos := SendMessage(hSci, SCI_POSITIONFROMLINE, FirstLine - 2, 0);  // Contesto
+    EndPos := SendMessage(hSci, SCI_GETLINEENDPOSITION, FirstLine + 3, 0);
+  end
+  else
+  begin
+    FirstLine := SendMessage(hSci, SCI_GETFIRSTVISIBLELINE, 0, 0);
+    ScreenLines := SendMessage(hSci, SCI_LINESONSCREEN, 0, 0);
+    TopLine := FirstLine + ScreenLines + 5;  // Margine fisso V code
+    StartPos := SendMessage(hSci, SCI_POSITIONFROMLINE, FirstLine, 0);
+    EndPos := SendMessage(hSci, SCI_GETLINEENDPOSITION, TopLine, 0);
+  end;
+
+  // Clear indicator solo range visibile
+  SendMessage(hSci, SCI_SETINDICATORCURRENT, DefaultSciIndicator, 0);
+  SendMessage(hSci, SCI_INDICATORCLEARRANGE, StartPos, EndPos - StartPos);
+
+  if SendMessage(hSci, SCI_GETLEXER, 0, 0) = 109 then
+    MessageBox(0, 'Init OK', 'ciao', MB_OK);
+
+
+  for RuleIndex := 0 to Length(LexerRules) - 1 do
+  begin
+    RegEx := TRegEx.Create(LexerRules[RuleIndex].Regex);
+
+    TextLen := EndPos - StartPos + 1;
+    SetLength(TextBuffer, TextLen);
+
+    TextRange.chrg.cpMin := StartPos;
+    TextRange.chrg.cpMax := EndPos;
+    TextRange.lpstrText := PWideChar(TextBuffer);
+
+    TextCopied := SendMessage(hSci, SCI_GETTEXTRANGE, 0, LParam(@TextRange));
+    SetLength(TextBuffer, TextCopied);
+
+    Match := RegEx.Match(TextBuffer);
+
+    while Match.Success do
+    begin
+      SendMessage(hSci, SCI_SETINDICATORCURRENT, DefaultSciIndicator, 0);
+      SendMessage(hSci, SCI_INDICATORSETFORE, (LexerRules[RuleIndex].Color or SC_INDICVALUEBIT), 0);
+      SendMessage(hSci, SCI_INDICATORFILLRANGE, StartPos + Match.Index, Match.Length);
+      Match := Match.NextMatch;
+    end;
+  end;
+
+  SendMessage(hSci, SCI_INDICATORALLONFOR, 0, 0);  // Mostra tutti
+  InvalidateRect(getParent(hSci), nil, True);      // Force redraw
+
+
+end;
+
+
+// UpdateIndicators CONVERTITO ESATTAMENTE DA enhance_any_lexer.v
+// NO invenzioni, traduzione letterale V -> Delphi
+
+//procedure UpdateIndicators(hSci: HWND);
+//
+//var
+//  notification: PSCNotification;
+//  first_line: Integer;
+//  lines_screen: Integer;
+//  top_line: Integer;
+//  start_pos: Integer;
+//  end_pos: Integer;
+//  lexer_name: string;
+//  lexer: PLexerConfig;
+//  rule: PConfigRule;
+//  regex: TRegEx;
+//  match: TMatch;
+//  pos: Integer;
+//  len: Integer;
+//  current_style: Integer;
+//  exclude_match: Boolean;
+//  i: Integer;
+//  TextLen: Integer;
+//  TextRange: TTextRange;     // ? La tua!
+//  TextBuffer: PChar;
+//  TextCopied: Integer;
+//begin
+//
+//  first_line := SendMessage(hSci, SCI_GETFIRSTVISIBLELINE, 0, 0);
+//  lines_screen := SendMessage(hSci, SCI_LINESONSCREEN, 0, 0);
+//  top_line := first_line + lines_screen + 5;  // Margine fisso V code
+//
+//  start_pos := SendMessage(hSci, SCI_POSITIONFROMLINE, first_line, 0);
+//  end_pos := SendMessage(hSci, SCI_GETLINEENDPOSITION, top_line, 0);
+//
+//  // Clear indicator solo range visibile
+//  SendMessage(hSci, SCI_SETINDICATORCURRENT, DefaultSciIndicator, 0);
+//  SendMessage(hSci, SCI_INDICATORCLEARRANGE, start_pos, end_pos - start_pos);
+//
+//  lexer_name := get_lexer_name(hSci);  // Da NPP o current lang
+//  lexer := get_lexer(lexer_name);
+//
+//  if lexer = nil then exit;
+//
+//  rule := lexer.rules;
+//  while rule <> nil do
+//  begin
+//    regex := TRegEx.Create(rule.regex);
+//    try
+//
+//      TextLen := end_pos - start_pos + 1;
+//      GetMem(TextBuffer, TextLen);
+//
+//      TextRange.chrg.cpMin := start_pos;
+//      TextRange.chrg.cpMax := end_pos;
+//      TextRange.lpstrText := TextBuffer;
+//
+//      TextCopied := SendMessage(hSci, SCI_GETTEXTRANGE, 0, LParam(@TextRange));
+//      TextBuffer[TextCopied] := #0;
+//
+//      Match := regex.Match(TextBuffer);
+//
+//      while Match.Success do
+//      begin
+//        pos := Match.Index;
+//        len := Match.Length;
+//
+//        // Check exclude styles (V loop)
+//        current_style := SendMessage(hSci, SCI_GETSTYLEAT, pos, 0);
+//        exclude_match := false;
+//        i := 0;
+//        while i < rule.exclude_styles.len do
+//        begin
+//          if current_style == rule.exclude_styles[i] then
+//          begin
+//            exclude_match := true;
+//            break;
+//          end;
+//          i += 1;
+//        end;
+//
+//        if not exclude_match then
+//        begin
+//          // Applica colore
+//          SendMessage(hSci, SCI_SETINDICATORCURRENT, 1, 0);
+//          SendMessage(hSci, SCI_INDICATORSETFORE, rule.color, 0);
+//          SendMessage(hSci, SCI_INDICATORFILLRANGE, pos, len);
+//        end;
+//
+//        Match := Match.NextMatch;
+//      end;
+//
+//    finally
+//    end;
+//    rule := rule.next;
+//  end;
+//end;
+
+// ciao
+
+procedure PartialUpdateIndicators(hSci: HWND; mod_pos: Integer);
+var
+  line: Integer;
+  start_pos, end_pos: Integer;
+begin
+  line := SendMessage(hSci, SCI_LINEFROMPOSITION, mod_pos, 0);
+  start_pos := SendMessage(hSci, SCI_POSITIONFROMLINE, line - 2, 0);  // Contesto
+  end_pos := SendMessage(hSci, SCI_GETLINEENDPOSITION, line + 3, 0);
+  // Clear/Apply solo questo range (ottimizzato V)
+end;
+//Esatto da V: be_notified case scn_updateui/modified/marginclick, mod_type & (insert|delete), npp_ready init
+
+
+
+//// Hook CONVERTITI ESATTAMENTE DA enhance_any_lexer.v be_notified()
+//procedure beNotified(notification: PNppNotification);
+//var
+//  nmhdr: PNMHdr;
+//  scn: PSCNotification;
+//  hwnd: HWND;
+//  mod_type: Integer;
+//begin
+//  nmhdr := @notification.nmhdr;
+//
+//  case nmhdr.code of
+//    SCN_UPDATEUI:
+//    begin
+//      hwnd := nmhdr.hwndFrom;
+//      if is_valid_editor(hwnd) then
+//        UpdateIndicators(hwnd);  // p.on_update(hwnd)
+//    end;
+//
+//    SCN_MODIFIED:
+//    begin
+//      scn := PSCNotification(notification);
+//      hwnd := nmhdr.hwndFrom;
+//      if not is_valid_editor(hwnd) then exit;
+//
+//      mod_type := scn.modificationType;
+//      if (mod_type and (SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT)) <> 0 then
+//      begin
+//        // p.on_modified(scn.position) - update parziale
+//        PartialUpdateIndicators(hwnd, scn.position);
+//      end;
+//    end;
+//
+//    SCN_MARGINCLICK:
+//    begin
+//      hwnd := nmhdr.hwndFrom;
+//      if is_valid_editor(hwnd) then
+//        UpdateIndicators(hwnd);  // p.on_update(hwnd)
+//    end;
+//  end;
+//end;
+//
+//// WM_NOTIFY wrapper per tuo form (chiama beNotified)
+//procedure TfmMain.WMNotify(var Msg: TMessage);
+//var
+//  pnmh: PNMHdr;
+//begin
+//  pnmh := PNMHdr(Msg.LParam);
+//  if (pnmh.hwndFrom = hSciMain) or (pnmh.hwndFrom = hSciSecond) then
+//  begin
+//    beNotified(PNppNotification(Msg.LParam));
+//  end;
+//  inherited;
+//end;
+//end;
+//
+//
+//
+//
+//// NPP ready: registra flags (V: npp_ready)
+//procedure NPPNotification(const Notify: PNppNotification);
+//begin
+//  if Notify.Header.Code = NPPN_READY then
+//  begin
+//    // NPPM_ADDSCNMODIFIEDFLAGS per tutti mod_type
+//    SendMessage(gNppData._nppHandle, NPPM_ADDSCNMODIFIEDFLAGS, 0,
+//      SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT);
+//    InitIndicators(hSciMain);
+//    InitIndicators(hSciSecond);
+//  end;
+//end;
+
+
+
+
+
+
 
 end.
