@@ -91,14 +91,15 @@ var
   Plugin: TESPHomePlugin;
   // Class type to create in startup code
   PluginClass: TNppPluginClass = TESPHomePlugin;
-  // Mapping of the Functions configuration
+
+  LastConsolePID: DWORD;
 
 implementation
 
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, Vcl.Forms,
+  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, Vcl.Forms, TlHelp32,
   UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Dialogs;
 
 resourcestring
@@ -394,6 +395,56 @@ begin
     UpdatePluginMenuAndTitle;
 end;
 
+function IsPIDRunning(PID: DWORD): Boolean;
+var
+  Res: DWORD;
+  hProcess: THandle;
+begin
+  Result := False;
+  hProcess := OpenProcess(PROCESS_QUERY_INFORMATION, False, PID);
+  if hProcess <> 0 then
+  try
+    Result := GetExitCodeProcess(hProcess, Res);
+    Result := Result and (Res = STILL_ACTIVE);
+  finally
+    CloseHandle(hProcess);
+  end;
+end;
+
+function KillProcessByPID(PID: DWORD): Boolean;
+var
+  hProcess: THandle;
+begin
+  Result := False;
+  hProcess := OpenProcess(PROCESS_TERMINATE, False, PID);
+  if hProcess <> 0 then
+  try
+    Result := TerminateProcess(hProcess, 0);
+  finally
+    CloseHandle(hProcess);
+  end;
+end;
+
+function KillProcessTree(PID: DWORD): Boolean;
+var
+  hSnap: THandle;
+  pe: TProcessEntry32;
+begin
+  hSnap := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  if hSnap <> INVALID_HANDLE_VALUE then
+  try
+    pe.dwSize := SizeOf(pe);
+    if Process32First(hSnap, pe) then
+    repeat
+      if (pe.th32ParentProcessID = PID) then
+        KillProcessTree(pe.th32ProcessID);
+    until not Process32Next(hSnap, pe);
+  finally
+    CloseHandle(hSnap);
+  end;
+  Result := KillProcessByPID(PID);
+end;
+
 procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);
 var
   R: TRect;
@@ -497,7 +548,7 @@ procedure ExecuteESPHomeCommand(const Command: Integer);
 const
   CommandStr: array [scRun .. scClean] of string = ('run', 'compile', 'upload', 'logs', 'clean');
 var
-  HConsoleWin: HWND;
+  ConsoleHandle: HWND;
   CommandLine, Switch, Device: string;
   ESPHomeProcess: TJvCreateProcess;
 begin
@@ -609,6 +660,10 @@ begin
     if GetOption(csKeyConsoleAutoClose, True) then
       CommandLine := Concat(CommandLine, ' || pause');
 
+    if GetOption(csKeyConsoleSoloMode, False) then
+      if IsPIDRunning(LastConsolePID) then
+        KillProcessTree(LastConsolePID);
+
     ESPHomeProcess := TJvCreateProcess.Create(nil);
     ESPHomeProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
     ESPHomeProcess.CommandLine := CommandLine;
@@ -619,14 +674,15 @@ begin
 
     ESPHomeProcess.Run;
 
-    HConsoleWin := GetMainWindowHandleByPID(ESPHomeProcess.ProcessInfo.dwProcessId, 5000);
+    LastConsolePID := ESPHomeProcess.ProcessInfo.dwProcessId;
+    ConsoleHandle := GetMainWindowHandleByPID(LastConsolePID, 5000);
 
-    if HConsoleWin <> 0 then
+    if ConsoleHandle <> 0 then
     begin
-      PositionWindow(HConsoleWin, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows), GetOption(csKeyConsoleStartingMonitor, 0));
+      PositionWindow(ConsoleHandle, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows), GetOption(csKeyConsoleStartingMonitor, 0));
       if GetOption(csKeyConsoleAlwaysOnTop, False) then
-        SetWindowPos(HConsoleWin, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
-      ShowWindow(HConsoleWin, SW_SHOW);
+        SetWindowPos(ConsoleHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+      ShowWindow(ConsoleHandle, SW_SHOW);
     end
     else
       ESPHomeProcess.Terminate;

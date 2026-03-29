@@ -76,6 +76,8 @@ type
     LabelOptionConsolePosition: TLabel;
     ComboBoxOptionConsoleMonitor: TJvImageComboBox;
     LabelOptionConsoleMonitor: TLabel;
+    CheckBoxOptionSoloMode: TCheckBox;
+    LabelOptionConsoleSoloMode: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
@@ -100,6 +102,7 @@ type
     procedure CheckBoxOptionAlwaysOnTopClick(Sender: TObject);
     procedure ComboBoxOptionConsolePositionChange(Sender: TObject);
     procedure ComboBoxOptionConsoleMonitorChange(Sender: TObject);
+    procedure CheckBoxOptionSoloModeClick(Sender: TObject);
   private
     procedure RefreshNetworkStatus;
     procedure PopulateComboDevice;
@@ -233,6 +236,12 @@ begin
   ProjectList.Current.SetOption(csKeyRunReset, CheckBoxOptionRunReset.Checked);
 end;
 
+procedure TFormConfig.CheckBoxOptionSoloModeClick(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyConsoleSoloMode, CheckBoxOptionSoloMode.Checked);
+end;
+
 procedure TFormConfig.ComboBoxOptionAutosaveChange(Sender: TObject);
 begin
   inherited;
@@ -328,6 +337,7 @@ begin
   EditOptionESPHomeAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyESPHomeExtraParameters, csDefaultEmpty);
   ComboBoxOptionAutosave.ItemIndex := ProjectList.Current.GetOption(csKeyNppAutosave, ciAutoSaveAllFiles);
   CheckBoxOptionAlwaysOnTop.Checked := ProjectList.Current.GetOption(csKeyConsoleAlwaysOnTop, False);
+  CheckBoxOptionSoloMode.Checked := ProjectList.Current.GetOption(csKeyConsoleSoloMode, False);
   ComboBoxOptionConsolePosition.ItemIndex := ProjectList.Current.GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows);
   PopulateMonitorCombo(ComboBoxOptionConsoleMonitor, ProjectList.Current.GetOption(csKeyConsoleStartingMonitor, 0));
 

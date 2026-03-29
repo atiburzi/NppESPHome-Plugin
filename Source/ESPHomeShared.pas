@@ -46,9 +46,11 @@ const
   csKeyDependenciesCount = 'DependenciesCount';
 
   csKeyConsoleAutoClose = 'ConsoleAutoClose';
+  csKeyConsoleSoloMode = 'ConsoleSoloMode';
   csKeyConsoleAlwaysOnTop = 'ConsoleAlwaysOnTop';
   csKeyConsoleStartingPosition = 'ConsoleStartingPosition';
   csKeyConsoleStartingMonitor = 'ConsoleStartingMonitor';
+
   csKeyESPHomeLogLevel = 'ESPHomeLogLevel';
   csKeyESPHomeTargetDevice = 'ESPHomeTargetDevice';
   csKeyESPHomeExtraParameters = 'ESPHomeExtraParameters';

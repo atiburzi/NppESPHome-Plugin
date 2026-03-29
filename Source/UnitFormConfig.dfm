@@ -126,7 +126,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 349
       Height = 184
-      ActiveCard = CardRunOptions
+      ActiveCard = CardConsoleOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -143,8 +143,8 @@ object FormConfig: TFormConfig
         object LabelDependencies: TLabel
           Left = 16
           Top = 8
-          Width = 310
-          Height = 60
+          Width = 285
+          Height = 75
           Caption = 
             'Project files that depend on this project. They open in Notepad+' +
             '+ using the Open Project File and Dependencies command, and, if ' +
@@ -354,7 +354,7 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 305
+          Width = 233
           Height = 30
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
@@ -692,9 +692,9 @@ object FormConfig: TFormConfig
         object LabelOptionConsoleAlwaysOnTop: TLabel
           Left = 52
           Top = 157
-          Width = 268
+          Width = 75
           Height = 15
-          Caption = 'Keep the ESPHome Console window always on top'
+          Caption = 'Always on top'
         end
         object LabelOptionConsolePosition: TLabel
           Left = 23
@@ -709,6 +709,13 @@ object FormConfig: TFormConfig
           Width = 296
           Height = 15
           Caption = 'Choose the monitor where ESPHome Console will open:'
+        end
+        object LabelOptionConsoleSoloMode: TLabel
+          Left = 191
+          Top = 157
+          Width = 128
+          Height = 15
+          Caption = 'Allows only one console'
         end
         object ComboBoxOptionConsoleAutoclose: TJvImageComboBox
           Left = 23
@@ -740,7 +747,7 @@ object FormConfig: TFormConfig
         object CheckBoxOptionAlwaysOnTop: TCheckBox
           Left = 23
           Top = 151
-          Width = 234
+          Width = 97
           Height = 30
           TabOrder = 3
           OnClick = CheckBoxOptionAlwaysOnTopClick
@@ -808,6 +815,14 @@ object FormConfig: TFormConfig
           TabOrder = 1
           OnChange = ComboBoxOptionConsoleMonitorChange
           Items = <>
+        end
+        object CheckBoxOptionSoloMode: TCheckBox
+          Left = 167
+          Top = 151
+          Width = 130
+          Height = 30
+          TabOrder = 4
+          OnClick = CheckBoxOptionSoloModeClick
         end
       end
     end
