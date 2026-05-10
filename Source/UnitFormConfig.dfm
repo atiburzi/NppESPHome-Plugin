@@ -126,7 +126,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 349
       Height = 184
-      ActiveCard = CardConsoleOptions
+      ActiveCard = CardCleanOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -143,7 +143,7 @@ object FormConfig: TFormConfig
         object LabelDependencies: TLabel
           Left = 16
           Top = 8
-          Width = 285
+          Width = 321
           Height = 75
           Caption = 
             'Project files that depend on this project. They open in Notepad+' +
@@ -354,8 +354,8 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 233
-          Height = 30
+          Width = 315
+          Height = 60
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -444,6 +444,16 @@ object FormConfig: TFormConfig
             'Generate Only (doesn'#39't compile firmware)'#13#10'Add "--only-generate" ' +
             'switch to "Compile" command.'
         end
+        object LabelOptionCompileAdditionalParameters: TLabel
+          Left = 22
+          Top = 60
+          Width = 257
+          Height = 30
+          Caption = 
+            'Manually specify additional command line switches when "Compile"' +
+            ' command is executed:'
+          WordWrap = True
+        end
         object CheckBoxOptionCompileGenerateOnly: TCheckBox
           Left = 22
           Top = 10
@@ -468,6 +478,19 @@ object FormConfig: TFormConfig
           ParentFont = False
           TabOrder = 0
           OnLinkClick = LinkLabelHelpLinkClick
+        end
+        object EditOptionCompileAdditionalParameters: TJvEdit
+          Left = 22
+          Top = 96
+          Width = 323
+          Height = 21
+          Flat = True
+          ParentFlat = False
+          AutoSize = False
+          ParentColor = True
+          TabOrder = 2
+          Text = ''
+          OnChange = EditOptionCompileAdditionalParametersChange
         end
       end
       object CardUploadOptions: TCard
@@ -592,10 +615,13 @@ object FormConfig: TFormConfig
         TabOrder = 0
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
-          Top = 8
-          Width = 186
-          Height = 30
-          Caption = 'Command "Clean" doesn'#39't support'#13#10'additional parameters.'
+          Top = 4
+          Width = 275
+          Height = 45
+          Caption = 
+            'Manually specify additional command line switches when "Clean" c' +
+            'ommand is executed:'
+          WordWrap = True
         end
         object LinkLabelHelpOptions: TLinkLabel
           Left = 320
@@ -611,6 +637,19 @@ object FormConfig: TFormConfig
           ParentFont = False
           TabOrder = 0
           OnLinkClick = LinkLabelHelpLinkClick
+        end
+        object EditOptionCleanAdditionalParameters: TJvEdit
+          Left = 22
+          Top = 41
+          Width = 323
+          Height = 21
+          Flat = True
+          ParentFlat = False
+          AutoSize = False
+          ParentColor = True
+          TabOrder = 1
+          Text = ''
+          OnChange = EditOptionCleanAdditionalParametersChange
         end
       end
       object CardNppOptions: TCard
@@ -634,7 +673,7 @@ object FormConfig: TFormConfig
         end
         object ComboBoxOptionAutosave: TJvImageComboBox
           Left = 16
-          Top = 25
+          Top = 28
           Width = 313
           Height = 25
           Hint = 

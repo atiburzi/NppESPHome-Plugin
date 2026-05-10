@@ -60,7 +60,9 @@ const
   csKeyRunExtraParameters = 'RunExtraParameters';
 
   csKeyCompileGenerateOnly = 'CompileGenerateOnly';
+  csKeyCompileExtraParameters = 'CompileExtraParameters';
   csKeyUploadExtraParameters = 'UploadExtraParameters';
+  csKeyCleanExtraParameters = 'CleanExtraParameters';
 
   csKeyLogsReset = 'LogsReset';
   csKeyLogsExtraParameters = 'LogsExtraParameters';
@@ -257,6 +259,8 @@ var
 
   PingThreadCount: Integer = 0;
 
+  ConsoleWindowSize: TPoint;
+
 function ShortFileName(const LongFileName: string): string;
 function FindFileInPath(const FileName: string): string;
 
@@ -270,7 +274,7 @@ function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc,
+  ESPHomePlugin, SysUtils, System.Types, System.StrUtils, Winapi.Messages, Neslib.Yaml, Ping, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc,
   System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent;
 
 type
@@ -618,8 +622,6 @@ begin
       Project.SetOption(csKeyNppAutosave, Project.GetOption(csKeyNppAutosave, ciAutoSaveProjectAndDeps))
     else
       ConfigFile.EraseSection(Project.FileName);
-
-  // Elimino eventuali sezioni rimaste nel file ini
   Sections := TStringList.Create;
   ConfigFile.ReadSections(Sections);
   for FileName in Sections do
@@ -838,6 +840,78 @@ begin
   end;
 end;
 
+type
+  PEnumData = ^TEnumData;
+  TEnumData = record
+    TargetPID: DWORD;
+    FoundHWND: HWND;
+  end;
+
+function EnumWindowsProc(hwnd: HWND; lParam: LPARAM): BOOL; stdcall;
+var
+  PID: DWORD;
+  Data: PEnumData;
+  ClassName: array[0..255] of Char;
+begin
+  Data := PEnumData(lParam);
+  GetWindowThreadProcessId(hwnd, @PID);
+  if PID = Data.TargetPID then
+  begin
+    GetClassName(hwnd, ClassName, Length(ClassName));
+    if string(ClassName) = 'ConsoleWindowClass' then
+    begin
+      Data.FoundHWND := hwnd;
+      Result := False;
+      Exit;
+    end;
+  end;
+  Result := True;
+end;
+
+function GetActualCmdWindowSize: TPoint;
+var
+  StartupInfo: TStartupInfo;
+  ProcessInfo: TProcessInformation;
+  CmdPath: string;
+  Counter: Integer;
+  Rect: TRect;
+  EnumData: TEnumData;
+begin
+  Result := Point(-1, -1);
+  FillChar(StartupInfo, SizeOf(StartupInfo), 0);
+  StartupInfo.cb := SizeOf(StartupInfo);
+  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
+  StartupInfo.wShowWindow := SW_HIDE;
+  CmdPath := GetEnvironmentVariable('ComSpec');
+  if CreateProcess(nil, PChar(CmdPath), nil, nil, False,
+                   CREATE_NEW_CONSOLE, nil, nil, StartupInfo, ProcessInfo) then
+  begin
+    try
+      EnumData.TargetPID := ProcessInfo.dwProcessId;
+      EnumData.FoundHWND := 0;
+      Counter := 0;
+      while (EnumData.FoundHWND = 0) and (Counter < 50) do
+      begin
+        Sleep(50);
+        EnumWindows(@EnumWindowsProc, LPARAM(@EnumData));
+        Inc(Counter);
+      end;
+      if EnumData.FoundHWND <> 0 then
+      begin
+        if GetWindowRect(EnumData.FoundHWND, Rect) then
+        begin
+          Result.X := Rect.Width;
+          Result.Y := Rect.Height;
+        end;
+        PostMessage(EnumData.FoundHWND, WM_CLOSE, 0, 0);
+      end;
+    finally
+      CloseHandle(ProcessInfo.hProcess);
+      CloseHandle(ProcessInfo.hThread);
+    end;
+  end;
+end;
+
 procedure ModuleInitialize;
 begin
   ESPHomeExeFile := ExpandFileName(FindFileInPath('esphome.exe'));
@@ -845,6 +919,7 @@ begin
   TemplateFile := IncludeTrailingPathDelimiter(Plugin.GetPluginConfigDir) + ChangeFileExt(Plugin.GetName, '.xml');
   ProjectList := TProjectList.Create;
   TemplateList := TTemplateList.Create(TemplateFile);
+  ConsoleWindowSize := GetActualCmdWindowSize;
   ProjectList.CheckOnlineStatus;
 end;
 

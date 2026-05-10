@@ -27,7 +27,6 @@ type
     LabelOptionRunNoLogs: TLabel;
     CheckBoxOptionRunReset: TCheckBox;
     LabelOptionRunReset: TLabel;
-    LabelOptionCleanAdditionalParameters: TLabel;
     GroupBoxOptions: TGroupBox;
     TreeViewOptions: TTreeView;
     CardPanelOptions: TCardPanel;
@@ -78,6 +77,10 @@ type
     LabelOptionConsoleMonitor: TLabel;
     CheckBoxOptionSoloMode: TCheckBox;
     LabelOptionConsoleSoloMode: TLabel;
+    LabelOptionCompileAdditionalParameters: TLabel;
+    EditOptionCompileAdditionalParameters: TJvEdit;
+    LabelOptionCleanAdditionalParameters: TLabel;
+    EditOptionCleanAdditionalParameters: TJvEdit;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
@@ -103,6 +106,8 @@ type
     procedure ComboBoxOptionConsolePositionChange(Sender: TObject);
     procedure ComboBoxOptionConsoleMonitorChange(Sender: TObject);
     procedure CheckBoxOptionSoloModeClick(Sender: TObject);
+    procedure EditOptionCompileAdditionalParametersChange(Sender: TObject);
+    procedure EditOptionCleanAdditionalParametersChange(Sender: TObject);
   private
     procedure RefreshNetworkStatus;
     procedure PopulateComboDevice;
@@ -248,6 +253,18 @@ begin
   ProjectList.Current.SetOption(csKeyNppAutosave, ComboBoxOptionAutosave.ItemIndex);
 end;
 
+procedure TFormConfig.EditOptionCleanAdditionalParametersChange(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyCleanExtraParameters, EditOptionCleanAdditionalParameters.Text);
+end;
+
+procedure TFormConfig.EditOptionCompileAdditionalParametersChange(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyCompileExtraParameters, EditOptionCompileAdditionalParameters.Text);
+end;
+
 procedure TFormConfig.EditOptionESPHomeAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
@@ -348,6 +365,8 @@ begin
   CheckBoxOptionCompileGenerateOnly.Checked := ProjectList.Current.GetOption(csKeyCompileGenerateOnly, False);
 
   EditOptionUploadAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyUploadExtraParameters, csDefaultEmpty);
+  EditOptionCompileAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyCompileExtraParameters, csDefaultEmpty);
+  EditOptionCleanAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyCleanExtraParameters, csDefaultEmpty);
 
   CheckBoxOptionLogsReset.Checked := ProjectList.Current.GetOption(csKeyLogsReset, False);
   EditOptionLogsAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyLogsExtraParameters, csDefaultEmpty);
@@ -409,6 +428,8 @@ begin
   EditOptionESPHomeAdditionalParameters.Font.Color := Self.Font.Color;
   EditOptionUploadAdditionalParameters.Font.Color := Self.Font.Color;
   EditOptionLogsAdditionalParameters.Font.Color := Self.Font.Color;
+  EditOptionCleanAdditionalParameters.Font.Color := Self.Font.Color;
+  EditOptionCompileAdditionalParameters.Font.Color := Self.Font.Color;
 
 end;
 
