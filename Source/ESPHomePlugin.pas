@@ -3,7 +3,7 @@
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared, Registry;
+  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared;
 
 
 const
@@ -99,19 +99,19 @@ implementation
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, System.Types, UnitFormSelection, UnitFormConfig, Vcl.Forms, TlHelp32, UnitFormToolbar, UnitFormAbout,
-  UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Dialogs;
+  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, Vcl.Forms, TlHelp32,
+  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Dialogs;
 
 resourcestring
   rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.';
   rsInvalidESPHomeInstallation2 = 'Please (re)install ESPHome following the instructions available on the following web page:';
   rsInvalidESPHomeInstallation3 = '<a href="https://www.esphome.io/guides/installing_esphome/">Installing ESPHome Manually</a>';
+
   rsNoProjectSelected = 'No ESPHome project is currently selected.';
-  rsNoProjectSelected2 =
-    'To use this command, please select the current project and try again.'#13#13#10'You can select it through the menù command:'#13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+  rsNoProjectSelected2 = 'To use this command, please select the current project and try again.'#13#13#10'You can select it through the menù command:'#13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+
   rsNoWebserverOnCurrentProject = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
     #13#13#10'Visit command cannot work and it is ignored.';
-
 
 {$REGION 'Virtual Procedures'}
 
@@ -445,53 +445,64 @@ begin
   Result := KillProcessByPID(PID);
 end;
 
-
-function GetWindowPosition(Position: Integer; Monitor: Integer = 0; Margin: Integer = -1): TPoint;
+procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);
 var
+  R: TRect;
   WorkArea: TRect;
+  W, H: Integer;
+  X, Y: Integer;
 begin
-  Result := Point(-1, -1);
-
-  if Monitor < Screen.MonitorCount  then
-    WorkArea := Screen.Monitors[Monitor].WorkareaRect
-  else
-    WorkArea := Screen.PrimaryMonitor.WorkareaRect;
-  if Margin < 0 then
-    Margin := (WorkArea.Right - WorkArea.Left) div 50;
-
-  if Position = ciConsolePosTopLeftSide then
+  if Wnd <> 0 then
   begin
-    Result.X := WorkArea.Left + Margin;
-    Result.Y := WorkArea.Top + Margin;
-  end;
 
-  if ConsoleWindowSize = Point(-1, -1) then
-    Exit;
+    if Monitor < Screen.MonitorCount  then
+      WorkArea := Screen.Monitors[Monitor].WorkareaRect
+    else
+      WorkArea := Screen.PrimaryMonitor.WorkareaRect;
 
-  case Position of
-    ciConsolePosScreenCenter:
-    begin
-      Result.X := WorkArea.Left + ((WorkArea.Right - WorkArea.Left - ConsoleWindowSize.X) div 2);
-      Result.Y := WorkArea.Top + ((WorkArea.Bottom - WorkArea.Top - ConsoleWindowSize.Y) div 2);
-    end;
-    ciConsolePosBottomLeftSide:
-    begin
-      Result.X := WorkArea.Left + Margin;
-      Result.Y := WorkArea.Bottom - ConsoleWindowSize.Y - Margin;
-    end;
-    ciConsolePosTopRightSide:
-    begin
-      Result.X := WorkArea.Right - ConsoleWindowSize.X - Margin;
-      Result.Y := WorkArea.Top + Margin;
-    end;
-    ciConsolePosBottomRightSide:
-    begin
-      Result.X := WorkArea.Right - ConsoleWindowSize.X - Margin;
-      Result.Y := WorkArea.Bottom - ConsoleWindowSize.Y - Margin;
-    end;
-  end;
+    GetWindowRect(Wnd, R);
+    W := R.Right - R.Left;
+    H := R.Bottom - R.Top;
 
+    if Margin < 0 then
+      Margin := (WorkArea.Right - WorkArea.Left) div 50;
+    case Position of
+      ciConsolePosDecidedByWindows:
+      begin
+        X := R.Left + WorkArea.Left;
+        Y := R.Top + WorkArea.Top;
+      end;
+      ciConsolePosScreenCenter:
+      begin
+        X := WorkArea.Left + ((WorkArea.Right - WorkArea.Left - W) div 2);
+        Y := WorkArea.Top + ((WorkArea.Bottom - WorkArea.Top - H) div 2);
+      end;
+      ciConsolePosTopLeftSide:
+      begin
+        X := WorkArea.Left + Margin;
+        Y := WorkArea.Top + Margin;
+      end;
+      ciConsolePosBottomLeftSide:
+      begin
+        X := WorkArea.Left + Margin;
+        Y := WorkArea.Bottom - H - Margin;
+      end;
+      ciConsolePosTopRightSide:
+      begin
+        X := WorkArea.Right - W - Margin;
+        Y := WorkArea.Top + Margin;
+      end;
+      ciConsolePosBottomRightSide:
+      begin
+        X := WorkArea.Right - W - Margin;
+        Y := WorkArea.Bottom - H - Margin;
+      end;
+      else
+        Exit;
+    end;
+    SetWindowPos(Wnd, HWND_TOP, X, Y, 0, 0, SWP_NOZORDER or SWP_NOSIZE or SWP_NOACTIVATE);
   end;
+end;
 
 // Structure to pass data to the callback function
 type
@@ -510,12 +521,14 @@ begin
   Result := True; // Default, continue enumeration
   SearchRec := PFindWindowRecord(lParam);
   GetWindowThreadProcessId(Handle, @WindowPID); // Gets the PID of the current window
-  if (WindowPID = SearchRec^.PID) and (GetWindow(Handle, GW_OWNER) = 0) then // If PID matches, check if it's the main window
+  if (WindowPID = SearchRec^.PID) //and (GetWindow(Handle, GW_OWNER) = 0)
+    then // If PID matches, check if it's the main window
   begin
     SearchRec^.FoundHWND := Handle;
     Result := False; // Stop enumeration (faster)
   end;
 end;
+
 
 function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 3000): HWND;
 var
@@ -533,11 +546,35 @@ begin
   Result := SearchRec.FoundHWND;
 end;
 
+function GetConsoleHandleDirect(const TargetPID: DWORD): HWND;
+var
+  dwExitCode: DWORD;
+begin
+  Result := 0;
+
+  // 1. Aspetta che il processo sia inizializzato (timeout 2 secondi)
+  // Questo risolve il problema del "non funziona" di AttachConsole
+  WaitForInputIdle(TargetPID, 2000);
+
+  // 2. Prova a vedere se il processo ha una finestra principale registrata
+  // Cerchiamo la prima finestra visibile del desktop
+  Result := GetTopWindow(0);
+  while Result <> 0 do
+  begin
+    GetWindowThreadProcessId(Result, @dwExitCode);
+    if dwExitCode = TargetPID then
+    begin
+      // Abbiamo trovato la finestra che appartiene al PID
+      if IsWindowVisible(Result) then Break;
+    end;
+    Result := GetNextWindow(Result, GW_HWNDNEXT);
+  end;
+end;
+
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
   CommandStr: array [scRun .. scClean] of string = ('run', 'compile', 'upload', 'logs', 'clean');
 var
-  Position: TPoint;
   ConsoleHandle: HWND;
   CommandLine, Switch, Device: string;
   ESPHomeProcess: TJvCreateProcess;
@@ -627,16 +664,12 @@ begin
         end;
     end;
 
-    CommandLine := Trim(Format('%s %s %s', [CommandLine, CommandStr[Command], Switch]));
-    CommandLine := Trim(Format('%s "%s"', [CommandLine, ExpandFileName(FileName)]));
+    CommandLine := Trim(Format('%s %s %s "%s"', [CommandLine, CommandStr[Command], Switch, ExpandFileName(FileName)]));
 
     if GetOption(csKeyConsoleAutoClose, True) then
-      CommandLine := Format('/c "%s"', [CommandLine])
+      CommandLine := Format('/c "%s" || pause', [CommandLine])
     else
       CommandLine := Format('/k "%s"', [CommandLine]);
-
-    if GetOption(csKeyConsoleAutoClose, True) then
-      CommandLine := Concat(CommandLine, ' || pause');
 
     if GetOption(csKeyConsoleSoloMode, False) then
       if IsPIDRunning(LastConsolePID) then
@@ -646,6 +679,7 @@ begin
     ESPHomeProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
     ESPHomeProcess.CommandLine := CommandLine;
     ESPHomeProcess.CurrentDirectory := ExtractFilePath(ProjectList.Current.FileName);
+    ESPHomeProcess.CreationFlags := ESPHomeProcess.CreationFlags + [cfNewConsole];
 
     with ESPHomeProcess.StartupInfo do
     begin
@@ -656,33 +690,27 @@ begin
         scLogs: Title := rsConsoleCommandLogs;
         scClean: Title := rsConsoleCommandClean;
       end;
-      DefaultWindowState := False;
-      Position := GetWindowPosition(GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows), GetOption(csKeyConsoleStartingMonitor, 0));
-      if Position <> Point(-1, -1) then
-      begin
-        Left := Position.X;
-        Top := Position.Y;
-        DefaultPosition := False;
-      end
-      else
-        DefaultPosition := True;
     end;
+
+    ESPHomeProcess.StartupInfo.DefaultWindowState := False;
+    ESPHomeProcess.StartupInfo.ShowWindow := swHide;
 
     ESPHomeProcess.Run;
 
     LastConsolePID := ESPHomeProcess.ProcessInfo.dwProcessId;
-    ConsoleHandle := GetMainWindowHandleByPID(LastConsolePID, 5000);
+    ConsoleHandle := GetMainWindowHandleByPID(LastConsolePID, 3000);
 
     if ConsoleHandle <> 0 then
     begin
+      PositionWindow(ConsoleHandle, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows), GetOption(csKeyConsoleStartingMonitor, 0));
       if GetOption(csKeyConsoleAlwaysOnTop, False) then
         SetWindowPos(ConsoleHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+      ShowWindow(ConsoleHandle, SW_SHOW);
     end
     else
       ESPHomeProcess.Terminate;
 
     ESPHomeProcess.Free;
-
   end;
 end;
 
