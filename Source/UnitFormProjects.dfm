@@ -202,6 +202,7 @@ object FormProjects: TFormProjects
         TreeOptions.SelectionOptions = [toFullRowSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval]
         OnChange = VirtualStringTreeProjectsChange
         OnCollapsing = VirtualStringTreeProjectsCollapsing
+        OnCompareNodes = VirtualStringTreeProjectsCompareNodes
         OnDblClick = VirtualStringTreeProjectsDblClick
         OnGetText = VirtualStringTreeProjectsGetText
         OnGetImageIndex = VirtualStringTreeProjectsGetImageIndex

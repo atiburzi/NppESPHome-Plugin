@@ -22,22 +22,23 @@ const
   ItemID_CommandUpload = 8;
   ItemID_CommandShowLogs = 9;
   ItemID_CommandClean = 10;
-  ItemID_CommandVisit = 11;
-  ItemID_MenuSeparator3 = 12;
-  ItemID_Help = 13;
-  ItemID_Upgrade = 14;
-  ItemID_MenuSeparator4 = 15;
-  ItemID_CmdShell = 16;
-  ItemID_Explorer = 17;
-  ItemID_MenuSeparator5 = 18;
-  ItemID_ShowHideWindow = 19;
-  ItemID_MenuSeparator6 = 20;
-  ItemID_Toolbar = 21;
-  ItemID_About = 22;
+  ItemID_CommandCleanAll = 11;
+  ItemID_CommandVisit = 12;
+  ItemID_MenuSeparator3 = 13;
+  ItemID_Help = 14;
+  ItemID_Upgrade = 15;
+  ItemID_MenuSeparator4 = 16;
+  ItemID_CmdShell = 17;
+  ItemID_Explorer = 18;
+  ItemID_MenuSeparator5 = 19;
+  ItemID_ShowHideWindow = 20;
+  ItemID_MenuSeparator6 = 21;
+  ItemID_Toolbar = 22;
+  ItemID_About = 23;
 
 const
   ToolbarIconItemKey: array[ItemID_SelectProject..ItemID_About] of string = ('select', 'configure', '', 'open', 'opendeps', '',
-    'run', 'compile', 'upload', 'showlogs', 'clean', 'visit', '', 'help', 'upgrade', '', 'terminal', 'explorer', '',
+    'run', 'compile', 'upload', 'showlogs', 'clean', '', 'visit', '', 'help', 'upgrade', '', 'terminal', 'explorer', '',
     'showhide', '', '', '');
 
 type
@@ -57,6 +58,7 @@ type
     procedure CommandUpload;
     procedure CommandShowLogs;
     procedure CommandClean;
+    procedure CommandCleanAll;
     procedure CommandVisit;
     procedure CommandUpgrade;
     procedure CommandShowHelp;
@@ -148,6 +150,11 @@ end;
 procedure _CommandClean; cdecl;
 begin
   Plugin.CommandClean;
+end;
+
+procedure _CommandCleanAll; cdecl;
+begin
+  Plugin.CommandCleanAll;
 end;
 
 procedure _CommandVisit; cdecl;
@@ -256,6 +263,7 @@ begin
   AddFuncItem(ItemID_CommandUpload, rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(True, False, False, $77));
   AddFuncItem(ItemID_CommandShowLogs, rsMenuCommandShowLogs, _CommandShowLogs, nil);
   AddFuncItem(ItemID_CommandClean, rsMenuCommandClean, _CommandClean, nil);
+  AddFuncItem(ItemID_CommandCleanAll, rsMenuCommandCleanAll, _CommandCleanAll, nil);
   AddFuncItem(ItemID_CommandVisit, rsMenuCommandVisit, _CommandVisit, nil);
 
   AddFuncItem(ItemID_MenuSeparator3, csMenuEmptyLine, nil, nil); // Menù separator
@@ -274,7 +282,6 @@ begin
   AddFuncItem(ItemID_About, rsMenuAbout, _CommandAbout, nil);
 
 end;
-
 
 procedure TESPHomePlugin.DoNppnReady;
 begin
@@ -529,7 +536,6 @@ begin
   end;
 end;
 
-
 function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 3000): HWND;
 var
   SearchRec: TFindWindowRecord;
@@ -546,34 +552,9 @@ begin
   Result := SearchRec.FoundHWND;
 end;
 
-function GetConsoleHandleDirect(const TargetPID: DWORD): HWND;
-var
-  dwExitCode: DWORD;
-begin
-  Result := 0;
-
-  // 1. Aspetta che il processo sia inizializzato (timeout 2 secondi)
-  // Questo risolve il problema del "non funziona" di AttachConsole
-  WaitForInputIdle(TargetPID, 2000);
-
-  // 2. Prova a vedere se il processo ha una finestra principale registrata
-  // Cerchiamo la prima finestra visibile del desktop
-  Result := GetTopWindow(0);
-  while Result <> 0 do
-  begin
-    GetWindowThreadProcessId(Result, @dwExitCode);
-    if dwExitCode = TargetPID then
-    begin
-      // Abbiamo trovato la finestra che appartiene al PID
-      if IsWindowVisible(Result) then Break;
-    end;
-    Result := GetNextWindow(Result, GW_HWNDNEXT);
-  end;
-end;
-
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
-  CommandStr: array [scRun .. scClean] of string = ('run', 'compile', 'upload', 'logs', 'clean');
+  CommandStr: array [scRun .. scCleanAll] of string = ('run', 'compile', 'upload', 'logs', 'clean', 'clean-all');
 var
   ConsoleHandle: HWND;
   CommandLine, Switch, Device: string;
@@ -662,6 +643,10 @@ begin
         begin
           Switch := Trim(GetOption(csKeyCleanExtraParameters, csDefaultEmpty));
         end;
+      scCleanAll:
+        begin
+          Switch := csDefaultEmpty;
+        end;
     end;
 
     CommandLine := Trim(Format('%s %s %s "%s"', [CommandLine, CommandStr[Command], Switch, ExpandFileName(FileName)]));
@@ -683,17 +668,17 @@ begin
 
     with ESPHomeProcess.StartupInfo do
     begin
+      ShowWindow := swHide;
+      DefaultWindowState := False;
       case Command of
         scRun: Title := rsConsoleCommandRun;
         scCompile: Title := rsConsoleCommandCompile;
         scUpload: Title := rsConsoleCommandUpload;
         scLogs: Title := rsConsoleCommandLogs;
         scClean: Title := rsConsoleCommandClean;
+        scCleanAll: Title := rsConsoleCommandCleanAll;
       end;
     end;
-
-    ESPHomeProcess.StartupInfo.DefaultWindowState := False;
-    ESPHomeProcess.StartupInfo.ShowWindow := swHide;
 
     ESPHomeProcess.Run;
 
@@ -708,7 +693,7 @@ begin
       ShowWindow(ConsoleHandle, SW_SHOW);
     end
     else
-      ESPHomeProcess.Terminate;
+      ESPHomeProcess.TerminateTree;
 
     ESPHomeProcess.Free;
   end;
@@ -772,6 +757,12 @@ begin
     ExecuteESPHomeCommand(scClean);
 end;
 
+procedure TESPHomePlugin.CommandCleanAll;
+begin
+  if CheckESPHome and CheckCurrentProject then
+    ExecuteESPHomeCommand(scCleanAll);
+end;
+
 procedure TESPHomePlugin.CommandVisit;
 var
   URL: string;
@@ -803,6 +794,7 @@ begin
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
   JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & "%s" --version & pause', [ExpandFileName(ESPHomeExeFile)]);
+  JvCreateProcess.StartupInfo.Title := rsMenuUpgradeESPHome;
   JvCreateProcess.Run;
   JvCreateProcess.Free;
 end;

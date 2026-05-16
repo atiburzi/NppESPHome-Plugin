@@ -83,6 +83,7 @@ const
   scUpload = 2;
   scLogs = 3;
   scClean = 4;
+  scCleanAll = 5;
 
 const
   csIconNone = 'none';
@@ -96,6 +97,7 @@ resourcestring
   rsConsoleCommandUpload = 'ESPHome - Upload';
   rsConsoleCommandLogs = 'ESPHome - Show Logs';
   rsConsoleCommandClean = 'ESPHome - Clean';
+  rsConsoleCommandCleanAll = 'ESPHome - Clean All';
 
 resourcestring
   rsDefaultNone = 'None';
@@ -121,6 +123,7 @@ resourcestring
   rsMenuCommandUpload = 'Upload';
   rsMenuCommandShowLogs = 'Show Logs';
   rsMenuCommandClean = 'Clean';
+  rsMenuCommandCleanAll = 'Clean All';
   rsMenuCommandVisit = 'Visit Device Web Server';
   rsMenuOpenESPHomeDocs = 'Show ESPHome online documentation';
   rsMenuUpgradeESPHome = 'Check and upgrade ESPHome version';

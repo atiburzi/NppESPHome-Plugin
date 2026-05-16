@@ -125,6 +125,8 @@ type
     procedure VirtualStringTreeProjectsChange(Sender: TBaseVirtualTree;
       Node: PVirtualNode);
     procedure ActionVisitExecute(Sender: TObject);
+    procedure VirtualStringTreeProjectsCompareNodes(Sender: TBaseVirtualTree;
+      Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
   private
     { Private declarations }
   public
@@ -322,6 +324,18 @@ begin
   Allowed := False;
 end;
 
+procedure TFormProjects.VirtualStringTreeProjectsCompareNodes(
+  Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex;
+  var Result: Integer);
+var
+  Data1, Data2: PProjectNode;
+begin
+  inherited;
+  Data1 := Sender.GetNodeData(Node1);
+  Data2 := Sender.GetNodeData(Node2);
+  Result := CompareText(Data1^.Caption, Data2^.Caption);
+end;
+
 procedure TFormProjects.VirtualStringTreeProjectsDblClick(Sender: TObject);
 var
   S: string;
@@ -345,7 +359,7 @@ begin
   if Kind in [ikNormal, ikSelected] then
   begin
     if Data^.Level >= 0 then
-      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('dependency')
+      //ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('dependency')
     else
       ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('projects');
   end;
@@ -365,7 +379,10 @@ var
 begin
   inherited;
   Data := Sender.GetNodeData(Node);
-  CellText := Data^.Caption;
+  if Data^.Level < 0 then
+    CellText := Format('%s (%s)', [Data^.Caption, ExtractFileName(Data^.FileName)])
+  else
+    CellText := Data^.Caption;
 end;
 
 procedure TFormProjects.VirtualStringTreeProjectsNodeClick(

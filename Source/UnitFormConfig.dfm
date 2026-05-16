@@ -143,8 +143,8 @@ object FormConfig: TFormConfig
         object LabelDependencies: TLabel
           Left = 16
           Top = 8
-          Width = 290
-          Height = 60
+          Width = 285
+          Height = 75
           Caption = 
             'Project files that depend on this project. They open in Notepad+' +
             '+ using the Open Project File and Dependencies command, and, if ' +
@@ -354,8 +354,8 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 233
-          Height = 30
+          Width = 136
+          Height = 60
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -616,7 +616,7 @@ object FormConfig: TFormConfig
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 4
-          Width = 292
+          Width = 162
           Height = 45
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
