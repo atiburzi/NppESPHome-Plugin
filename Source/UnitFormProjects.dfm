@@ -19,14 +19,15 @@ object FormProjects: TFormProjects
   TextHeight = 15
   object Splitter: TSplitter
     Left = 0
-    Top = 346
+    Top = 529
     Width = 483
-    Height = 4
+    Height = 8
     Cursor = crVSplit
     Align = alTop
     AutoSnap = False
     Beveled = True
     ResizeStyle = rsUpdate
+    ExplicitTop = 579
   end
   object ToolBarCommands: TToolBar
     Left = 0
@@ -153,7 +154,7 @@ object FormProjects: TFormProjects
     Left = 0
     Top = 29
     Width = 483
-    Height = 317
+    Height = 500
     Align = alTop
     BevelOuter = bvNone
     DoubleBuffered = True
@@ -161,26 +162,24 @@ object FormProjects: TFormProjects
     ParentColor = True
     ParentDoubleBuffered = False
     TabOrder = 1
-    ExplicitWidth = 481
     object GroupBoxProjects: TGroupBox
       Left = 0
       Top = 0
       Width = 483
-      Height = 311
+      Height = 494
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Active Project'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
-      ExplicitWidth = 481
       DesignSize = (
         483
-        311)
+        494)
       object VirtualStringTreeProjects: TVirtualStringTree
         Left = 5
-        Top = 22
+        Top = 19
         Width = 474
-        Height = 278
+        Height = 472
         Anchors = [akLeft, akTop, akRight, akBottom]
         BorderStyle = bsNone
         Colors.DropMarkColor = clWhite
@@ -215,9 +214,9 @@ object FormProjects: TFormProjects
   end
   object PanelBottom: TPanel
     Left = 0
-    Top = 350
+    Top = 537
     Width = 483
-    Height = 833
+    Height = 646
     Align = alClient
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
@@ -226,25 +225,24 @@ object FormProjects: TFormProjects
     ParentColor = True
     ParentDoubleBuffered = False
     TabOrder = 2
-    ExplicitWidth = 481
-    ExplicitHeight = 825
+    ExplicitTop = 579
+    ExplicitHeight = 604
     DesignSize = (
       483
-      833)
+      646)
     object GroupBoxTemplates: TGroupBox
       Left = 0
-      Top = 2
+      Top = 6
       Width = 479
-      Height = 832
+      Height = 640
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Templates'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
-      ExplicitWidth = 477
-      ExplicitHeight = 824
+      ExplicitHeight = 544
       DesignSize = (
         479
-        832)
+        640)
       object LabelFilter: TLabel
         Left = 11
         Top = 24
@@ -311,7 +309,7 @@ object FormProjects: TFormProjects
         Left = 5
         Top = 76
         Width = 467
-        Height = 687
+        Height = 495
         Anchors = [akLeft, akTop, akRight, akBottom]
         Colors.GridLineColor = clMedGray
         DefaultNodeHeight = 19
@@ -337,6 +335,7 @@ object FormProjects: TFormProjects
         OnGetHint = VirtualStringTreeTemplatesGetHint
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+        ExplicitHeight = 687
         Columns = <
           item
             CheckType = ctNone
@@ -355,7 +354,7 @@ object FormProjects: TFormProjects
       end
       object StaticTextDescription: TJvStaticText
         Left = 5
-        Top = 769
+        Top = 577
         Width = 467
         Height = 58
         Anchors = [akLeft, akRight, akBottom]
@@ -2661,8 +2660,8 @@ object FormProjects: TFormProjects
     PreserveItems = True
     Width = 24
     Height = 24
-    Left = 216
-    Top = 288
+    Left = 280
+    Top = 216
   end
   object VirtualImageListLight16: TVirtualImageList
     DisabledOpacity = 155

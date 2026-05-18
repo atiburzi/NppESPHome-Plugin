@@ -126,7 +126,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 349
       Height = 184
-      ActiveCard = CardCleanOptions
+      ActiveCard = CardConsoleOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -143,7 +143,7 @@ object FormConfig: TFormConfig
         object LabelDependencies: TLabel
           Left = 16
           Top = 8
-          Width = 285
+          Width = 329
           Height = 75
           Caption = 
             'Project files that depend on this project. They open in Notepad+' +
@@ -354,8 +354,8 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 136
-          Height = 60
+          Width = 331
+          Height = 75
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -615,9 +615,9 @@ object FormConfig: TFormConfig
         TabOrder = 0
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
-          Top = 4
-          Width = 162
-          Height = 45
+          Top = 8
+          Width = 292
+          Height = 60
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
             'ommand is executed:'
@@ -640,7 +640,7 @@ object FormConfig: TFormConfig
         end
         object EditOptionCleanAdditionalParameters: TJvEdit
           Left = 22
-          Top = 41
+          Top = 44
           Width = 323
           Height = 21
           Flat = True
