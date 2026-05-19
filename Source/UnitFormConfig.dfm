@@ -126,7 +126,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 349
       Height = 184
-      ActiveCard = CardConsoleOptions
+      ActiveCard = CardNppOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -143,8 +143,8 @@ object FormConfig: TFormConfig
         object LabelDependencies: TLabel
           Left = 16
           Top = 8
-          Width = 329
-          Height = 75
+          Width = 325
+          Height = 60
           Caption = 
             'Project files that depend on this project. They open in Notepad+' +
             '+ using the Open Project File and Dependencies command, and, if ' +
@@ -354,8 +354,8 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 331
-          Height = 75
+          Width = 233
+          Height = 30
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -616,8 +616,8 @@ object FormConfig: TFormConfig
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 8
-          Width = 292
-          Height = 60
+          Width = 242
+          Height = 30
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
             'ommand is executed:'
@@ -703,7 +703,7 @@ object FormConfig: TFormConfig
             item
               Brush.Style = bsClear
               Indent = 0
-              Text = 'Current Project File & Dependencies (can flash)'
+              Text = 'Current Project File & Dependencies'
             end
             item
               Brush.Style = bsClear

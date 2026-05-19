@@ -810,11 +810,13 @@ var
 begin
   if not CheckCurrentProject then
     Exit;
-
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
   JvCreateProcess.CurrentDirectory := ExtractFilePath(ProjectList.Current.FileName);
   JvCreateProcess.CommandLine := '';
+  GetEnvironmentVars(JvCreateProcess.Environment);
+  JvCreateProcess.Environment.Add(Format('ESPHome=%s', [ExpandFileName(ESPHomeExeFile)]));
+  JvCreateProcess.Environment.Add(Format('ESPProject=%s', [ExpandFileName(ProjectList.Current.FileName)]));
   JvCreateProcess.Run;
   JvCreateProcess.Free;
 end;
@@ -833,19 +835,15 @@ var
 begin
   if not CheckCurrentProject then
     Exit;
-
   OperationsOngoing := True;
   OpenFile(ProjectList.Current.FileName);
   ProjectList.Current.LoadOptionDependencies;
   for FileName in ProjectList.Current.OptionDependencies do
     if FileExists(FileName) then
       OpenFile(FileName);
-
   OperationsOngoing := False;
-
   if CurrentFile = '' then
     CurrentFile := ProjectList.Current.FileName;
-
   SwitchToFile(CurrentFile);
   UpdatePluginMenuAndTitle;
 end;
@@ -859,20 +857,12 @@ end;
 procedure TESPHomePlugin.SaveProjectAndDependencies;
 var
   S: string;
-  CurrentFile: string;
 begin
   if Assigned(ProjectList.Current) then
   begin
-    OperationsOngoing := True;
-    CurrentFile := GetFullCurrentPath;
-    if SwitchToFile(ProjectList.Current.FileName) then
-      SaveCurrentFile;
+    SaveFile(ProjectList.Current.FileName);
     for S in ProjectList.Current.OptionDependencies do
-      if SwitchToFile(S) then
-        SaveCurrentFile;
-    OperationsOngoing := True;
-    SwitchToFile(CurrentFile);
-    UpdatePluginMenuAndTitle;
+      SaveFile(S);
   end;
 end;
 

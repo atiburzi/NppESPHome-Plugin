@@ -269,6 +269,7 @@ function FindFileInPath(const FileName: string): string;
 procedure ModuleInitialize;
 procedure ModuleFinalize;
 procedure DownloadTemplateFileFromGitHub;
+procedure GetEnvironmentVars(List: TStrings);
 
 function GetBit(const Value: Int64; BitPos: ShortInt): Boolean;
 function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
@@ -796,6 +797,25 @@ begin
       Result := Index;
       Exit
     end;
+end;
+
+procedure GetEnvironmentVars(List: TStrings);
+var
+  EnvBlock: PChar;
+  P: PChar;
+begin
+  List.Clear;
+  EnvBlock := GetEnvironmentStrings;
+  try
+    P := EnvBlock;
+    while P^ <> #0 do
+    begin
+      List.Add(P);
+      Inc(P, lstrlen(P) + 1);
+    end;
+  finally
+    FreeEnvironmentStrings(EnvBlock);
+  end;
 end;
 
 function FindFileInPath(const FileName: string): string;

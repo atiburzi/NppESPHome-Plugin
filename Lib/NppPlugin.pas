@@ -878,16 +878,8 @@ begin
 end;
 
 function TNppPlugin.SaveFile(FileName: string): Boolean;
-var
-  CurrentFile: string;
 begin
-  Result := False;
-  CurrentFile := GetFullCurrentPath;
-  if SwitchToFile(FileName) then
-  begin
-    Result := SaveCurrentFile;
-    SwitchToFile(CurrentFile);
-  end;
+  Result := SendMessage(NppData.NppHandle, NPPM_SAVEFILE, WPARAM(0), LPARAM(nppPChar(FileName))) <> 0;
 end;
 
 function TNppPlugin.SaveCurrentFile: Boolean;
