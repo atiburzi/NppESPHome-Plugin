@@ -85,10 +85,16 @@ type
     PopupMenuReloadXMLFileConfiguration: TMenuItem;
     StaticTextDescription: TJvStaticText;
     ButtonMenuTemplates: TSpeedButton;
-    PopUpMenuN4: TMenuItem;
+    PopUpMenuN6: TMenuItem;
     PopupMenuDownloadTemplates: TMenuItem;
     PopupMenuN5: TMenuItem;
     PopupMenuRemoveProject: TMenuItem;
+    ActionCleanAll: TAction;
+    PopupMenuCleanAll: TMenuItem;
+    ActionRefreshDevice: TAction;
+    PopupMenuN4: TMenuItem;
+    PopupMenuRefreshDevice: TMenuItem;
+    ToolButtonRefreshDevice: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
@@ -127,6 +133,12 @@ type
     procedure ActionVisitExecute(Sender: TObject);
     procedure VirtualStringTreeProjectsCompareNodes(Sender: TBaseVirtualTree;
       Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+    procedure SplitterMoved(Sender: TObject);
+    procedure ActionCleanAllExecute(Sender: TObject);
+    procedure VirtualStringTreeProjectsGetPopupMenu(Sender: TBaseVirtualTree;
+      Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
+      var AskParent: Boolean; var PopupMenu: TPopupMenu);
+    procedure ActionRefreshDeviceExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -158,6 +170,8 @@ end;
 
 procedure TFormProjects.FormCreate(Sender: TObject);
 begin
+  inherited;
+  PanelTop.Height := ConfigFile.ReadInteger(csSectionGeneral, csKeyProjectPanelSize, 300);
   VirtualStringTreeProjects.NodeDataSize := SizeOf(TProjectNode);
   VirtualStringTreeTemplates.NodeDataSize := SizeOf(TTemplate);
   RefreshProjectsList;
@@ -372,6 +386,23 @@ begin
   end;
 end;
 
+procedure TFormProjects.VirtualStringTreeProjectsGetPopupMenu(
+  Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  const P: TPoint; var AskParent: Boolean; var PopupMenu: TPopupMenu);
+var
+  Data: PProjectNode;
+begin
+  inherited;
+  PopupMenu := nil;
+  AskParent := False;
+  if Assigned(Node) then
+  begin
+    Data := Sender.GetNodeData(Node);
+    if Data^.Level < 0 then
+      PopupMenu := PopupMenuProjects;
+  end;
+end;
+
 procedure TFormProjects.VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
 var
@@ -464,6 +495,23 @@ begin
     CellText := Data^.Category;
 end;
 
+procedure TFormProjects.ActionRefreshDeviceExecute(Sender: TObject);
+var
+  Timeout: Integer;
+begin
+  inherited;
+  Screen.Cursor := crHourGlass;
+  ProjectList.Current.RefreshOnlineStatus;
+  Timeout := PingTimeout;
+  while (not ProjectList.Current.IsChecked) and (Timeout > 0) do
+  begin
+    Sleep(10);
+    Dec(Timeout, 10);
+  end;
+  Screen.Cursor := crDefault;
+  RefreshProjectsList;
+end;
+
 procedure TFormProjects.ActionRemoveProjectExecute(Sender: TObject);
 var
   I: Integer;
@@ -514,6 +562,12 @@ begin
         Error.OK.SetFlags([tfAllowDialogCancellation]).Execute(Self);
     end;
   end;
+end;
+
+procedure TFormProjects.ActionCleanAllExecute(Sender: TObject);
+begin
+  inherited;
+  ESPHomePlugin.Plugin.CommandCleanAll;
 end;
 
 procedure TFormProjects.ActionCleanExecute(Sender: TObject);
@@ -591,6 +645,12 @@ begin
 
   ToolButtonOpenDeps.Enabled := Assigned(ProjectList.Current) and (ProjectList.Current.OptionDependencies.Count > 0);
   ToolButtonVisit.Enabled := Assigned(ProjectList.Current) and ProjectList.Current.HasWebServer;
+end;
+
+procedure TFormProjects.SplitterMoved(Sender: TObject);
+begin
+  inherited;
+  ConfigFile.WriteInteger(csSectionGeneral, csKeyProjectPanelSize, PanelTop.Height);
 end;
 
 procedure TFormProjects.PopupMenuReloadXMLFileConfigurationClick(Sender: TObject);

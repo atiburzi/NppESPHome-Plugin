@@ -41,6 +41,7 @@ const
   csKeyToolbarSequence = 'ToolbarSequence';
   csKeyToolbarConfig = 'ToolbarConfig';
   csKeyProjectWindow = 'ProjectWindow';
+  csKeyProjectPanelSize = 'ProjectPanelSize';
 
   csKeyNppAutosave = 'NppAutosave';
   csKeyDependenciesCount = 'DependenciesCount';

@@ -66,10 +66,10 @@ object FormToolbar: TFormToolbar
     ShowLines = False
     ShowRoot = False
     TabOrder = 0
-    OnChange = TreeViewToolbarChange
     OnCheckStateChanged = TreeViewToolbarCheckStateChanged
     OnDragDrop = TreeViewToolbarDragDrop
     OnDragOver = TreeViewToolbarDragOver
+    OnEndDrag = TreeViewToolbarEndDrag
     OnStartDrag = TreeViewToolbarStartDrag
   end
   object ImageCollectionDark: TImageCollection

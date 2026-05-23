@@ -22,9 +22,9 @@ type
     procedure TreeViewToolbarDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure TreeViewToolbarStartDrag(Sender: TObject; var DragObject: TDragObject);
     procedure TreeViewToolbarCheckStateChanged(Sender: TCustomTreeView; Node: TTreeNode; CheckState: TNodeCheckState);
-    procedure TreeViewToolbarChange(Sender: TObject; Node: TTreeNode);
     procedure SaveConfiguration;
     procedure LoadConfiguration;
+    procedure TreeViewToolbarEndDrag(Sender, Target: TObject; X, Y: Integer);
   public
     { Public declarations }
   end;
@@ -72,12 +72,6 @@ end;
 var
   DragNode: TTreeNode;
 
-procedure TFormToolbar.TreeViewToolbarChange(Sender: TObject; Node: TTreeNode);
-begin
-  inherited;
-  SaveConfiguration;
-end;
-
 procedure TFormToolbar.TreeViewToolbarCheckStateChanged(Sender: TCustomTreeView; Node: TTreeNode; CheckState: TNodeCheckState);
 begin
   inherited;
@@ -112,6 +106,12 @@ begin
   inherited;
   Accept := (Source = TreeViewToolbar) and Assigned(DragNode);
   TreeViewToolbar.Selected := TreeViewToolbar.GetNodeAt(X, Y);
+end;
+
+procedure TFormToolbar.TreeViewToolbarEndDrag(Sender, Target: TObject; X, Y: Integer);
+begin
+  inherited;
+  SaveConfiguration;
 end;
 
 procedure TFormToolbar.TreeViewToolbarStartDrag(Sender: TObject; var DragObject: TDragObject);

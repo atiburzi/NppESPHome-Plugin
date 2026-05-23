@@ -354,8 +354,8 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 233
-          Height = 30
+          Width = 136
+          Height = 60
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -616,8 +616,8 @@ object FormConfig: TFormConfig
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 8
-          Width = 242
-          Height = 30
+          Width = 133
+          Height = 60
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
             'ommand is executed:'
