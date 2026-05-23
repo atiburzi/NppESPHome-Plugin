@@ -4,8 +4,8 @@
         <ProjectVersion>20.4</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">NppESPHome</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
@@ -122,9 +122,8 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
-        <PostBuildEvent><![CDATA[start /wait upx.exe -9 "$(OUTPUTPATH)"
-explorer.exe /select,"$(OUTPUTPATH)"
-]]></PostBuildEvent>
+        <PostBuildEvent><![CDATA[upx.exe -9 "$(OUTPUTPATH)"
+explorer.exe /select,"$(OUTPUTPATH)"]]></PostBuildEvent>
         <PostBuildEventCancelOnError>false</PostBuildEventCancelOnError>
         <DCC_ExeOutput>..\Bin\$(Platform)</DCC_ExeOutput>
         <PostBuildEventExecuteWhen>TargetOutOfDate</PostBuildEventExecuteWhen>
@@ -1407,7 +1406,7 @@ explorer.exe /select,"$(OUTPUTPATH)"
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
+        <PostBuildEvent>upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>True</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
@@ -1415,7 +1414,7 @@ explorer.exe /select,"$(OUTPUTPATH)"
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>start /wait upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;&amp;</PostBuildEvent>
+        <PostBuildEvent>upx.exe -9 &quot;$(OUTPUTPATH)&quot;&amp;explorer.exe /select,&quot;$(OUTPUTPATH)&quot;</PostBuildEvent>
         <PostBuildEventIgnoreExitCode>True</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
 </Project>
