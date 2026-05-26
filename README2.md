@@ -237,7 +237,7 @@ This tighter edit-test-run loop is the main value of the plugin.
 ## Application Windows
 
 <details open>
-<summary><strong>Select Project</strong> <em>(Alt+Shift+F9)</em></summary>
+<summary><strong>Select Project</strong></summary>
 
 When the plugin starts, it reads the list of previously added ESPHome projects from the configuration file and restores them. One project is treated as the **active project**, and that project becomes the target for the main commands.
 
@@ -252,7 +252,7 @@ This keeps switching between device configurations quick and predictable.
 </details>
 
 <details>
-<summary><strong>Configure Project</strong> <em>(Ctrl+F10)</em></summary>
+<summary><strong>Configure Project</strong></summary>
 
 Once the current project has been selected, you can define how the plugin should interact with both ESPHome and Notepad++.
 
@@ -296,6 +296,7 @@ The plugin gives you direct access to the five main ESPHome commands:
 - Upload
 - Logs
 - Clean
+- Clean-All
 
 Normally, in a Windows shell, you would need to invoke `esphome.exe` manually and provide the correct sequence of parameters. The plugin automates that process by generating the command line from the selected project and its saved configuration.
 
