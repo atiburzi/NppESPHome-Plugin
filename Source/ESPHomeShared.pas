@@ -159,6 +159,13 @@ resourcestring
   rsConfirmOverwriteTemplates3 = 'Are you sure you want to continue?';
   rsTemplatesXMLDownloaded = 'Default XML Templates file downloaded from GitHub.';
 
+  rsConfirmExecuteCleanAll = 'Are you sure you want to run "esphome clean-all" command?';
+  rsConfirmExecuteCleanAll2 = 'You are about to run "esphome clean-all" for project "%s".' + sLineBreak + sLineBreak +
+                             'This will remove all ESPHome build files, PlatformIO platforms and packages, ' +
+                             'and the PlatformIO core directory related to the selected project or working folder.' + sLineBreak + sLineBreak +
+                             'This is useful for a full rebuild, but the next compilation may take a long time.' + sLineBreak + sLineBreak +
+                             'Do you want to continue?';
+
 resourcestring
   rsTemplatesNotFound = 'No "NppESPHome.xml" templates file has been found on your system.';
   rsTemplatesNotFound2 = 'Do you want to download the default one from GitHub portal?';
@@ -275,11 +282,16 @@ procedure GetEnvironmentVars(List: TStrings);
 function GetBit(const Value: Int64; BitPos: ShortInt): Boolean;
 function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 
+function IsPIDRunning(PID: DWORD): Boolean;
+function KillProcessByPID(PID: DWORD): Boolean;
+function KillProcessTree(PID: DWORD): Boolean;
+function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 3000): HWND;
+
 implementation
 
 uses
   ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc,
-  System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent;
+  System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent, TlHelp32;
 
 type
   TPingThread = class(TThread)
@@ -798,6 +810,97 @@ begin
       Result := Index;
       Exit
     end;
+end;
+
+function IsPIDRunning(PID: DWORD): Boolean;
+var
+  Res: DWORD;
+  hProcess: THandle;
+begin
+  Result := False;
+  hProcess := OpenProcess(PROCESS_QUERY_INFORMATION, False, PID);
+  if hProcess <> 0 then
+  try
+    Result := GetExitCodeProcess(hProcess, Res);
+    Result := Result and (Res = STILL_ACTIVE);
+  finally
+    CloseHandle(hProcess);
+  end;
+end;
+
+function KillProcessByPID(PID: DWORD): Boolean;
+var
+  hProcess: THandle;
+begin
+  Result := False;
+  hProcess := OpenProcess(PROCESS_TERMINATE, False, PID);
+  if hProcess <> 0 then
+  try
+    Result := TerminateProcess(hProcess, 0);
+  finally
+    CloseHandle(hProcess);
+  end;
+end;
+
+function KillProcessTree(PID: DWORD): Boolean;
+var
+  hSnap: THandle;
+  pe: TProcessEntry32;
+begin
+  hSnap := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  if hSnap <> INVALID_HANDLE_VALUE then
+  try
+    pe.dwSize := SizeOf(pe);
+    if Process32First(hSnap, pe) then
+    repeat
+      if (pe.th32ParentProcessID = PID) then
+        KillProcessTree(pe.th32ProcessID);
+    until not Process32Next(hSnap, pe);
+  finally
+    CloseHandle(hSnap);
+  end;
+  Result := KillProcessByPID(PID);
+end;
+
+// Structure to pass data to the callback function
+type
+  PFindWindowRecord = ^TFindWindowRecord;
+  TFindWindowRecord = record
+    PID: DWORD;
+    FoundHWND: HWND;
+  end;
+
+// Callback function for EnumWindows
+function EnumWindowsCallback(Handle: HWND; lParam: LPARAM): BOOL; stdcall;
+var
+  WindowPID: DWORD;
+  SearchRec: PFindWindowRecord;
+begin
+  Result := True; // Default, continue enumeration
+  SearchRec := PFindWindowRecord(lParam);
+  GetWindowThreadProcessId(Handle, @WindowPID); // Gets the PID of the current window
+  if (WindowPID = SearchRec^.PID) //and (GetWindow(Handle, GW_OWNER) = 0)
+    then // If PID matches, check if it's the main window
+  begin
+    SearchRec^.FoundHWND := Handle;
+    Result := False; // Stop enumeration (faster)
+  end;
+end;
+
+function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 3000): HWND;
+var
+  SearchRec: TFindWindowRecord;
+begin
+  SearchRec.PID := TargetPID;
+  SearchRec.FoundHWND := 0;
+  EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec));
+  while (SearchRec.FoundHWND = 0) and (Timeout > 0) do
+  begin
+    Sleep(50);
+    Dec(Timeout, 50);
+    EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec));
+  end;
+  Result := SearchRec.FoundHWND;
 end;
 
 procedure GetEnvironmentVars(List: TStrings);

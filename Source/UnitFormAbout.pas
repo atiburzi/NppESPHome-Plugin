@@ -4,12 +4,12 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, NppPlugin, NppPluginForms, Vcl.Imaging.pngimage;
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, NppPlugin, NppPluginForms, Vcl.Imaging.pngimage,
+  Vcl.VirtualImage, Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
   TFormAbout = class(TNppPluginForm)
     PanelMain: TPanel;
-    ImageIcon: TImage;
     LabelAppName1: TLabel;
     LabelVersion: TLabel;
     LabelCopyright: TLabel;
@@ -18,6 +18,8 @@ type
     LinkLabel1: TLinkLabel;
     LinkLabel2: TLinkLabel;
     LinkLabel3: TLinkLabel;
+    VirtualImageLogo: TVirtualImage;
+    ImageCollection: TImageCollection;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure LinkLabel1LinkClick(Sender: TObject; const Link: string;

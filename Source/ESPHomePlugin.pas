@@ -101,8 +101,8 @@ implementation
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, Vcl.Forms, TlHelp32,
-  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Dialogs;
+  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, System.StrUtils,
+  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs, Vcl.Controls;
 
 resourcestring
   rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.';
@@ -299,6 +299,9 @@ end;
 
 procedure TESPHomePlugin.DoNppnShutdown;
 begin
+  if IsPIDRunning(LastConsolePID) then
+    KillProcessTree(LastConsolePID);
+
   ModuleFinalize;
   if Assigned(FormProjects) then
     FormProjects.Free;
@@ -402,56 +405,6 @@ begin
     UpdatePluginMenuAndTitle;
 end;
 
-function IsPIDRunning(PID: DWORD): Boolean;
-var
-  Res: DWORD;
-  hProcess: THandle;
-begin
-  Result := False;
-  hProcess := OpenProcess(PROCESS_QUERY_INFORMATION, False, PID);
-  if hProcess <> 0 then
-  try
-    Result := GetExitCodeProcess(hProcess, Res);
-    Result := Result and (Res = STILL_ACTIVE);
-  finally
-    CloseHandle(hProcess);
-  end;
-end;
-
-function KillProcessByPID(PID: DWORD): Boolean;
-var
-  hProcess: THandle;
-begin
-  Result := False;
-  hProcess := OpenProcess(PROCESS_TERMINATE, False, PID);
-  if hProcess <> 0 then
-  try
-    Result := TerminateProcess(hProcess, 0);
-  finally
-    CloseHandle(hProcess);
-  end;
-end;
-
-function KillProcessTree(PID: DWORD): Boolean;
-var
-  hSnap: THandle;
-  pe: TProcessEntry32;
-begin
-  hSnap := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-  if hSnap <> INVALID_HANDLE_VALUE then
-  try
-    pe.dwSize := SizeOf(pe);
-    if Process32First(hSnap, pe) then
-    repeat
-      if (pe.th32ParentProcessID = PID) then
-        KillProcessTree(pe.th32ProcessID);
-    until not Process32Next(hSnap, pe);
-  finally
-    CloseHandle(hSnap);
-  end;
-  Result := KillProcessByPID(PID);
-end;
-
 procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);
 var
   R: TRect;
@@ -511,47 +464,6 @@ begin
   end;
 end;
 
-// Structure to pass data to the callback function
-type
-  PFindWindowRecord = ^TFindWindowRecord;
-  TFindWindowRecord = record
-    PID: DWORD;
-    FoundHWND: HWND;
-  end;
-
-// Callback function for EnumWindows
-function EnumWindowsCallback(Handle: HWND; lParam: LPARAM): BOOL; stdcall;
-var
-  WindowPID: DWORD;
-  SearchRec: PFindWindowRecord;
-begin
-  Result := True; // Default, continue enumeration
-  SearchRec := PFindWindowRecord(lParam);
-  GetWindowThreadProcessId(Handle, @WindowPID); // Gets the PID of the current window
-  if (WindowPID = SearchRec^.PID) //and (GetWindow(Handle, GW_OWNER) = 0)
-    then // If PID matches, check if it's the main window
-  begin
-    SearchRec^.FoundHWND := Handle;
-    Result := False; // Stop enumeration (faster)
-  end;
-end;
-
-function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 3000): HWND;
-var
-  SearchRec: TFindWindowRecord;
-begin
-  SearchRec.PID := TargetPID;
-  SearchRec.FoundHWND := 0;
-  EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec));
-  while (SearchRec.FoundHWND = 0) and (Timeout > 0) do
-  begin
-    Sleep(100);
-    Dec(Timeout, 100);
-    EnumWindows(@EnumWindowsCallback, LPARAM(@SearchRec));
-  end;
-  Result := SearchRec.FoundHWND;
-end;
-
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
   CommandStr: array [scRun .. scCleanAll] of string = ('run', 'compile', 'upload', 'logs', 'clean', 'clean-all');
@@ -599,12 +511,11 @@ begin
       CommandLine := Format('%s %s', [CommandLine, Switch]);
 
     Device := GetOption(csKeyESPHomeTargetDevice, rsDefaultNone);
-    if Device <> rsDefaultNone then
-    begin
-      if Device = rsDefaultWiFi then
-        Device := HostName;
-      Device := Concat('--device ', Device);
-    end
+
+    if SameText(Device, rsDefaultWiFi) then
+      Device := '--device ' + HostName
+    else if StartsText('COM', Device) then
+      Device := '--device ' + Device
     else
       Device := csDefaultEmpty;
 
@@ -678,6 +589,7 @@ begin
         scClean: Title := rsConsoleCommandClean;
         scCleanAll: Title := rsConsoleCommandCleanAll;
       end;
+      Title := Format('%s - [%s]', [Title, ProjectList.Current.FriendlyName]);
     end;
 
     ESPHomeProcess.Run;
@@ -760,7 +672,14 @@ end;
 procedure TESPHomePlugin.CommandCleanAll;
 begin
   if CheckESPHome and CheckCurrentProject then
-    ExecuteESPHomeCommand(scCleanAll);
+  begin
+    if TD.ClearFlag(tfPositionRelativeToWindow).
+          WindowCaption(rsMessageBoxWarning).
+          Text(rsConfirmExecuteCleanAll).
+          Text(Format(rsConfirmExecuteCleanAll2, [ProjectList.Current.FriendlyName])).
+          Warning.YesNo.Execute = mrYes then
+      ExecuteESPHomeCommand(scCleanAll);
+  end;
 end;
 
 procedure TESPHomePlugin.CommandVisit;
@@ -814,6 +733,7 @@ begin
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
   JvCreateProcess.CurrentDirectory := ExtractFilePath(ProjectList.Current.FileName);
   JvCreateProcess.CommandLine := '';
+  JvCreateProcess.StartupInfo.Title := Format('[%s]', [ProjectList.Current.FriendlyName]);
   GetEnvironmentVars(JvCreateProcess.Environment);
   JvCreateProcess.Environment.Add(Format('ESPHome=%s', [ExpandFileName(ESPHomeExeFile)]));
   JvCreateProcess.Environment.Add(Format('ESPProject=%s', [ExpandFileName(ProjectList.Current.FileName)]));
