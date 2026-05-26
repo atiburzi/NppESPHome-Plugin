@@ -1,8 +1,12 @@
 
+<p align="center">
+  <img src="Art/NppESPHome.png" width="220" alt="NppESPHome Plugin logo"><br>
+</p>
+
 # NppESPHome Plugin
 
 <p align="center">
-  <img src="Art/NppESPHome.png" width="220" alt="NppESPHome Plugin logo"><br>
+  <img src="Art/main.png" alt="NppESPHome Main Win (Light)"><br>
 </p>
 
 <p align="center">
