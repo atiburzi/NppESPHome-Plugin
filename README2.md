@@ -1,8 +1,3 @@
-
-<p align="center">
-  <img src="Art/NppESPHome.png" width="220" alt="NppESPHome Plugin logo"><br>
-</p>
-
 # NppESPHome Plugin
 
 <p align="center">
@@ -50,7 +45,7 @@ It reduces the friction of routine ESPHome tasks by centralizing project selecti
 - Built for **Windows**
 - Integrates directly with **Notepad++**
 - Designed for **[ESPHome](https://github.com/esphome/esphome)** project workflows
-- Automates **Run / Compile / Upload / Logs / Clean**
+- Automates **Run / Compile / Upload / Logs / Clean / Clean-All**
 - Supports **project-specific settings**
 - Includes **dockable UI**, **toolbar**, and **template tools**
 - Supports both **Light** and **Dark** modes
@@ -61,9 +56,9 @@ It reduces the friction of routine ESPHome tasks by centralizing project selecti
 
 ## Why it Exists
 
-ESPHome is powerful, flexible, and productive, but the surrounding workflow can become repetitive very quickly.
+ESPHome is powerful, flexible, and productive, but because it only has a command-line interface, it can become repetitive and annoying to use.
 
-When working on multiple devices, it is common to:
+When working on development, it is common to:
 - Repeat the same command-line calls
 - Reopen the same YAML files and dependencies
 - Switch constantly between editor, shell, and file manager
@@ -71,9 +66,7 @@ When working on multiple devices, it is common to:
 
 This plugin was created to reduce that friction.
 
-Instead of using Notepad++ only as a text editor while depending on separate tools for everything else, **NppESPHome Plugin** turns Notepad++ into a practical ESPHome workspace. It does not replace ESPHome itself; it simply makes ESPHome easier to use inside an editor-centric Windows workflow.
-
-The core idea is simple: if a task is repeated often enough, it should become easier to perform.
+Instead of using Notepad++ only as a text editor while depending on command line for the rest, **NppESPHome Plugin** turns Notepad++ into a practical ESPHome IDE. It does not replace ESPHome itself; it simply makes ESPHome easier to use inside an editor-centric workflow.
 
 ---
 
@@ -84,8 +77,6 @@ The plugin focuses on the parts of ESPHome development that benefit most from di
 - Project selection and switching
 - Per-project configuration
 - One-click command execution
-- YAML-aware workflow support
-- Serial and network communication handling
 - Template-based code insertion
 - Console behavior control
 - Persistent UI layout
@@ -114,6 +105,7 @@ The plugin automatically generates the correct command line for the current proj
 - **Upload**
 - **Logs**
 - **Clean**
+- **Clean-All**
 
 These actions are available from:
 - The plugin menu
@@ -121,28 +113,22 @@ These actions are available from:
 - The floating window
 - Custom keyboard shortcuts in Notepad++
 
-### Advanced command control
+### Console positioning control
 
-Additional workflow features include:
+Options to control the ESPHome console behaviour include:
 
-- **Clean All** for deeper project cleanup
 - **Console Solo Mode** to terminate existing processes before starting a new one
-- Improved console handling
-- Custom monitor placement support
+- **Position on the screen** options
+- **Custom monitor** placement support
 - **Always On Top** support
-- More stable command execution behavior
 
 ### UI and usability improvements
 
 The plugin includes several quality-of-life enhancements:
 
 - Persistent layouts
-- Saved panel sizes and configuration
 - Customizable toolbar
-- Improved icon sets
 - Full support for Light and Dark themes
-- Quick status-refresh buttons
-- Optimized save behavior
 
 ### Smart YAML validation
 
@@ -236,13 +222,13 @@ This tighter edit-test-run loop is the main value of the plugin.
 
 <div align="center">
 
-| Main window | Project selection | Configuration |
+| Main window | Project configuration | Configuration |
 |---|---|---|
-| <img src="Art/main.png" width="240" alt="Floating main window"> | <img src="Art/select.png" width="240" alt="Select Project window"> | <img src="Art/config.png" width="240" alt="Configure Project window"> |
+| <img src="Art/main_light.png" width="240" alt="Floating main window"> | <img src="Art/select.png" width="240" alt="Select Project window"> | <img src="Art/config.png" width="240" alt="Configure Project window"> |
 
-| Menu integration | Console execution | Main interface |
+| Menu integration | Console execution | Toolbar configuration |
 |---|---|---|
-| <img src="Art/menu.png" width="240" alt="Plugin menu"> | <img src="Art/console.png" width="240" alt="ESPHome console"> | <img src="Art/main2.png" width="240" alt="Main interface screenshot"> |
+| <img src="Art/menu.png" width="240" alt="Plugin menu"> | <img src="Art/console.png" width="240" alt="ESPHome console"> | <img src="Art/toolbar.png" width="240" alt="Toolbar screenshot"> |
 
 </div>
 
