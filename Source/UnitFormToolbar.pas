@@ -129,51 +129,47 @@ var
   Parts: TArray<string>;
   Regex: TRegEx;
 begin
-
   TreeViewToolbar.Items.Clear;
-
-  Count := 0;
-  DefaultConfig := '';
-  for Index := 0 to Length(ToolbarIconItemKey) - 1 do
-    if ToolbarIconItemKey[Index] <> '' then
-    begin
-      DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
-      Inc(Count);
-    end;
-
-  ToolbarConfig := ConfigFile.ReadString(csSectionGeneral, csKeyToolbarConfig, DefaultConfig);
-
-  Pattern := Format('^(?:\d+:[01];){%d}$', [Count]);
-  Regex := TRegEx.Create(Pattern);
-
-  if not Regex.IsMatch(ToolbarConfig) then
-    ToolbarConfig := DefaultConfig;
-
-  Pattern := DarkModeSuffix[not Plugin.IsDarkModeEnabled];
-
-  for Item in ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty) do
+  inherited;
+  if Plugin.IsNppMinVersion(8, 0) then
   begin
-    if Item <> '' then
-    begin
-      Parts := Item.Split([':']);
-      if Length(Parts) = 2 then
+    Count := 0;
+    DefaultConfig := '';
+    for Index := ItemID_First to ItemID_Last do
+      if ToolbarIconItemKey[Index] <> '' then
       begin
-        Val(Parts[0], Index, Count);
-        if (Count = 0) and (Index < Length(ToolbarIconItemKey)) then
+        DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
+        Inc(Count);
+      end;
+      ToolbarConfig := ConfigFile.ReadString(csSectionGeneral, csKeyToolbarConfig, DefaultConfig);
+      Pattern := Format('^(?:\d+:[01];){%d}$', [Count]);
+      Regex := TRegEx.Create(Pattern);
+      if not Regex.IsMatch(ToolbarConfig) then
+        ToolbarConfig := DefaultConfig;
+      Pattern := DarkModeSuffix[not Plugin.IsDarkModeEnabled];
+      for Item in ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty) do
+      begin
+        if Item <> '' then
         begin
-          Node := TreeViewToolbar.Items.Add(nil, Plugin.GetFuncByIndex(Index).ItemName);
-          if Assigned(Node) then
+          Parts := Item.Split([':']);
+          if Length(Parts) = 2 then
           begin
-            Node.StateIndex := Index;
-            Node.ImageIndex := TreeViewToolbar.Images.GetIndexByName(ToolbarIconItemKey[Index] + Pattern);
-            Node.SelectedIndex := Node.ImageIndex;
-            Node.Checked := (Parts[1] = '1');
+            Val(Parts[0], Index, Count);
+            if (Count = 0) and (Index >= ItemID_First) and (Index <= ItemID_Last) then
+            begin
+              Node := TreeViewToolbar.Items.Add(nil, Plugin.GetFuncByIndex(Index).ItemName);
+              if Assigned(Node) then
+              begin
+                Node.ImageIndex := TreeViewToolbar.Images.GetIndexByName(ToolbarIconItemKey[Index] + Pattern);
+                Node.StateIndex := Index;
+                Node.SelectedIndex := Node.ImageIndex;
+                Node.Checked := (Parts[1] = '1');
+              end;
+            end;
           end;
         end;
       end;
-    end;
   end;
-
 end;
 
 

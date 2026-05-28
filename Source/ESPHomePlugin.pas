@@ -11,34 +11,38 @@ const
   csMenuEmptyLine = '-';
 
 const
-  ItemID_SelectProject = 0;
-  ItemID_ConfigureProject = 1;
-  ItemID_MenuSeparator1 = 2;
-  ItemID_OpenProject = 3;
-  ItemID_OpenProjectAndDependencies = 4;
-  ItemID_MenuSeparator2 = 5;
-  ItemID_CommandRun = 6;
-  ItemID_CommandCompile = 7;
-  ItemID_CommandUpload = 8;
-  ItemID_CommandShowLogs = 9;
-  ItemID_CommandClean = 10;
-  ItemID_CommandCleanAll = 11;
-  ItemID_CommandVisit = 12;
-  ItemID_MenuSeparator3 = 13;
-  ItemID_Help = 14;
-  ItemID_Upgrade = 15;
-  ItemID_MenuSeparator4 = 16;
-  ItemID_CmdShell = 17;
-  ItemID_Explorer = 18;
-  ItemID_MenuSeparator5 = 19;
-  ItemID_ShowHideWindow = 20;
-  ItemID_MenuSeparator6 = 21;
-  ItemID_Toolbar = 22;
-  ItemID_About = 23;
+  ItemID_AddProject = 0;
+  ItemID_SelectProject = 1;
+  ItemID_RemoveProject = 2;
+  ItemID_ConfigureProject = 3;
+  ItemID_MenuSeparator1 = 4;
+  ItemID_OpenProject = 5;
+  ItemID_OpenProjectAndDependencies = 6;
+  ItemID_MenuSeparator2 = 7;
+  ItemID_CommandRun = 8;
+  ItemID_CommandCompile = 9;
+  ItemID_CommandUpload = 10;
+  ItemID_CommandShowLogs = 11;
+  ItemID_CommandClean = 12;
+  ItemID_CommandCleanAll = 13;
+  ItemID_MenuSeparator3 = 14;
+  ItemID_Help = 15;
+  ItemID_Upgrade = 16;
+  ItemID_MenuSeparator4 = 17;
+  ItemID_CmdShell = 20;
+  ItemID_Explorer = 21;
+  ItemID_MenuSeparator5 = 22;
+  ItemID_ShowHideWindow = 23;
+  ItemID_MenuSeparator6 = 24;
+  ItemID_Toolbar = 25;
+  ItemID_About = 26;
+
+  ItemID_First = ItemID_AddProject;
+  ItemID_Last = ItemID_About;
 
 const
-  ToolbarIconItemKey: array[ItemID_SelectProject..ItemID_About] of string = ('select', 'configure', '', 'open', 'opendeps', '',
-    'run', 'compile', 'upload', 'showlogs', 'clean', '', 'visit', '', 'help', 'upgrade', '', 'terminal', 'explorer', '',
+  ToolbarIconItemKey: array[ItemID_First..ItemID_Last] of string = ('addproject', 'select', 'removeproject', 'configure', '', 'open', 'opendeps', '',
+    'run', 'compile', 'upload', 'showlogs', 'clean', 'cleanall', '', 'help', 'upgrade', '', '', '', 'terminal', 'explorer', '',
     'showhide', '', '', '');
 
 type
@@ -46,8 +50,13 @@ type
     OperationsOngoing: Boolean;
 
   public
+
+    procedure AddProject;
+    procedure RemoveProject;
+
     procedure SelectProject;
     procedure ConfigureProject;
+
     procedure OpenProject;
     procedure OpenProjectAndDependencies(CurrentFile: string = '');
     procedure SaveProject;
@@ -59,7 +68,7 @@ type
     procedure CommandShowLogs;
     procedure CommandClean;
     procedure CommandCleanAll;
-    procedure CommandVisit;
+
     procedure CommandUpgrade;
     procedure CommandShowHelp;
     procedure CommandShellPrompt;
@@ -80,8 +89,11 @@ type
 
   public
     constructor Create; override;
-    procedure UpdateProjectList;
-    procedure UpdatePluginMenuAndTitle;
+
+    procedure RefreshCurrentProject;
+    procedure RefreshProjectList;
+    procedure RefreshNppTitle;
+    procedure RefreshPluginMenu;
 
     function CheckESPHome: Boolean;
     function CheckCurrentProject: Boolean;
@@ -112,10 +124,17 @@ resourcestring
   rsNoProjectSelected = 'No ESPHome project is currently selected.';
   rsNoProjectSelected2 = 'To use this command, please select the current project and try again.'#13#13#10'You can select it through the menù command:'#13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
 
-  rsNoWebserverOnCurrentProject = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
-    #13#13#10'Visit command cannot work and it is ignored.';
-
 {$REGION 'Virtual Procedures'}
+
+procedure _AddProject; cdecl;
+begin
+  Plugin.AddProject;
+end;
+
+procedure _RemoveProject; cdecl;
+begin
+  Plugin.RemoveProject;
+end;
 
 procedure _SelectProject; cdecl;
 begin
@@ -155,11 +174,6 @@ end;
 procedure _CommandCleanAll; cdecl;
 begin
   Plugin.CommandCleanAll;
-end;
-
-procedure _CommandVisit; cdecl;
-begin
-  Plugin.CommandVisit;
 end;
 
 procedure _CommandUpgrade; cdecl;
@@ -250,7 +264,10 @@ begin
   Plugin := Self;
   PluginName := csPluginName;
 
+  AddFuncItem(ItemID_AddProject, rsMenuAddProject, _AddProject, nil);
   AddFuncItem(ItemID_SelectProject, rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79));
+  AddFuncItem(ItemID_RemoveProject, rsMenuRemoveProject, _RemoveProject, nil);
+
   AddFuncItem(ItemID_ConfigureProject, rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79));
 
   AddFuncItem(ItemID_MenuSeparator1, csMenuEmptyLine, nil, nil); // Menù separator
@@ -264,7 +281,6 @@ begin
   AddFuncItem(ItemID_CommandShowLogs, rsMenuCommandShowLogs, _CommandShowLogs, nil);
   AddFuncItem(ItemID_CommandClean, rsMenuCommandClean, _CommandClean, nil);
   AddFuncItem(ItemID_CommandCleanAll, rsMenuCommandCleanAll, _CommandCleanAll, nil);
-  AddFuncItem(ItemID_CommandVisit, rsMenuCommandVisit, _CommandVisit, nil);
 
   AddFuncItem(ItemID_MenuSeparator3, csMenuEmptyLine, nil, nil); // Menù separator
   AddFuncItem(ItemID_Help, rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(True, False, False, $70));
@@ -294,14 +310,15 @@ begin
   else
     FormProjects.Hide;
   CheckMenuItem(ItemID_ShowHideWindow, FormProjects.Visible);
-  UpdatePluginMenuAndTitle;
+  EnableMenuItem(ItemID_Toolbar, Plugin.IsNppMinVersion(8, 0));
+  RefreshNppTitle;
+  RefreshPluginMenu;
 end;
 
 procedure TESPHomePlugin.DoNppnShutdown;
 begin
   if IsPIDRunning(LastConsolePID) then
     KillProcessTree(LastConsolePID);
-
   ModuleFinalize;
   if Assigned(FormProjects) then
     FormProjects.Free;
@@ -310,7 +327,8 @@ end;
 
 procedure TESPHomePlugin.DoNppnShortcutRemapped;
 begin
-  UpdatePluginMenuAndTitle;
+  RefreshNppTitle;
+  RefreshPluginMenu;
 end;
 
 procedure TESPHomePlugin.DoNppnToolbarModification;
@@ -330,7 +348,7 @@ begin
   begin
     Count := 0;
     DefaultConfig := '';
-    for Index := 0 to Length(ToolbarIconItemKey) - 1 do
+    for Index := ItemID_First to ItemID_Last do
       if ToolbarIconItemKey[Index] <> '' then
       begin
         DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
@@ -354,7 +372,7 @@ begin
         if Length(Parts) = 2 then
         begin
           Val(Parts[0], Index, Count);
-          if (Count = 0) and (Index < Length(ToolbarIconItemKey)) and (Parts[1] = '1') then
+          if (Count = 0) and (Index >= ItemID_First) and (Index <= ItemID_Last) and (Parts[1] = '1') then
           begin
             Bitmap := TBitmap.Create;
             IconLight := TIcon.Create;
@@ -389,20 +407,27 @@ begin
   begin
     if Assigned(FormProjects) then
       FormProjects.CurrentDocumentChanged;
-    UpdatePluginMenuAndTitle;
+    RefreshNppTitle;
+    RefreshPluginMenu;
   end;
 end;
 
 procedure TESPHomePlugin.DoNppnFileOpened;
 begin
   if not OperationsOngoing then
-    UpdatePluginMenuAndTitle;
+  begin
+    RefreshNppTitle;
+    RefreshPluginMenu;
+  end;
 end;
 
 procedure TESPHomePlugin.DoNppnFileSaved;
 begin
   if not OperationsOngoing then
-    UpdatePluginMenuAndTitle;
+  begin
+    RefreshNppTitle;
+    RefreshPluginMenu;
+  end;
 end;
 
 procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);
@@ -513,7 +538,7 @@ begin
     Device := GetOption(csKeyESPHomeTargetDevice, rsDefaultNone);
 
     if SameText(Device, rsDefaultWiFi) then
-      Device := '--device ' + HostName
+      Device := '--device OTA'
     else if StartsText('COM', Device) then
       Device := '--device ' + Device
     else
@@ -611,6 +636,16 @@ begin
   end;
 end;
 
+procedure TESPHomePlugin.AddProject;
+begin
+
+end;
+
+procedure TESPHomePlugin.RemoveProject;
+begin
+
+end;
+
 procedure TESPHomePlugin.SelectProject;
 var
   FormSelection: TFormSelection;
@@ -621,7 +656,8 @@ begin
   finally
     FreeAndNil(FormSelection);
   end;
-  UpdatePluginMenuAndTitle;
+  RefreshNppTitle;
+  RefreshPluginMenu;
 end;
 
 procedure TESPHomePlugin.ConfigureProject;
@@ -682,27 +718,6 @@ begin
   end;
 end;
 
-procedure TESPHomePlugin.CommandVisit;
-var
-  URL: string;
-begin
-  if not CheckCurrentProject then
-    Exit;
-
-  if not ProjectList.Current.HasWebServer then
-  begin
-    TD(Format(rsNoWebserverOnCurrentProject, [ProjectList.Current.FriendlyName])).WindowCaption(rsMessageBoxWarning).
-      SetFlags([tfAllowDialogCancellation]).Warning.OK.Execute(nil);
-    Exit;
-  end;
-
-  if ProjectList.Current.HostName <> '' then
-  begin
-    URL := 'http://' + ProjectList.Current.HostName;
-    ShellExecute(0, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
-  end;
-end;
-
 procedure TESPHomePlugin.CommandUpgrade;
 var
   JvCreateProcess: TJvCreateProcess;
@@ -746,7 +761,8 @@ begin
   if not CheckCurrentProject then
     Exit;
   OpenFile(ProjectList.Current.FileName);
-  UpdatePluginMenuAndTitle;
+  RefreshNppTitle;
+  RefreshPluginMenu;
 end;
 
 procedure TESPHomePlugin.OpenProjectAndDependencies(CurrentFile: string = '');
@@ -765,7 +781,8 @@ begin
   if CurrentFile = '' then
     CurrentFile := ProjectList.Current.FileName;
   SwitchToFile(CurrentFile);
-  UpdatePluginMenuAndTitle;
+  RefreshNppTitle;
+  RefreshPluginMenu;
 end;
 
 procedure TESPHomePlugin.SaveProject;
@@ -820,16 +837,36 @@ begin
   ConfigFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
 end;
 
-procedure TESPHomePlugin.UpdateProjectList;
+procedure TESPHomePlugin.RefreshCurrentProject;
+begin
+end;
+
+procedure TESPHomePlugin.RefreshProjectList;
 begin
   if Assigned(FormProjects) then
     FormProjects.RefreshProjectsList;
-  UpdatePluginMenuAndTitle;
+  RefreshNppTitle;
+  RefreshPluginMenu;
 end;
 
-procedure TESPHomePlugin.UpdatePluginMenuAndTitle;
+procedure TESPHomePlugin.RefreshNppTitle;
+const
+  SepChar = '|';
 var
   Index: Integer;
+  Text: string;
+begin
+  Text := GetNppWindowTitle;
+  Index := Pos(SepChar, Text);
+  if Index > 0 then
+    Text := Trim(Copy(Text, 1, Index - 1));
+  if Assigned(ProjectList.Current) then
+    Text := Format('%s %s ESPHome Project: %s', [Text, SepChar, ProjectList.Current.FriendlyName]);
+  SetWindowText(NppData.NppHandle, PChar(Text));
+end;
+
+procedure TESPHomePlugin.RefreshPluginMenu;
+var
   Text: string;
   PluginMenu: HMENU;
   ShortcutKey: TShortcutKey;
@@ -842,7 +879,7 @@ begin
   if PluginMenu <> 0 then
   begin
     if ProjectAssigned then
-      Text := Format(rsMenuSelectProjectCurrent, [ProjectList.Current.FriendlyName])
+      Text := Format(rsMenuConfigCurrentProject, [ProjectList.Current.FriendlyName])
     else
       Text := rsMenuSelectProject;
     PFunc := GetFuncByIndex(ItemID_ConfigureProject);
@@ -855,14 +892,6 @@ begin
     end;
   end;
 
-  Text := GetNppWindowTitle;
-  Index := Pos('|', Text);
-  if Index > 0 then
-    Text := Trim(Copy(Text, 1, Index - 1));
-  if ProjectAssigned then
-    Text := Format('%s | ESPHome Project: %s', [Text, ProjectList.Current.FriendlyName]);
-  SetWindowText(NppData.NppHandle, PChar(Text));
-
   EnableMenuItem(ItemID_ConfigureProject, ProjectAssigned);
   EnableMenuItem(ItemID_OpenProject, ProjectAssigned);
   EnableMenuItem(ItemID_CommandRun, ProjectAssigned);
@@ -872,7 +901,6 @@ begin
   EnableMenuItem(ItemID_CommandClean, ProjectAssigned);
 
   EnableMenuItem(ItemID_OpenProjectAndDependencies, ProjectAssigned and (ProjectList.Current.OptionDependencies.Count > 0));
-  EnableMenuItem(ItemID_CommandVisit, ProjectAssigned and ProjectList.Current.HasWebServer);
 
   EnableToolbarItem(ItemID_ConfigureProject, ProjectAssigned);
   EnableToolbarItem(ItemID_OpenProject, ProjectAssigned);
@@ -883,7 +911,6 @@ begin
   EnableToolbarItem(ItemID_CommandClean, ProjectAssigned);
 
   EnableToolbarItem(ItemID_OpenProjectAndDependencies, ProjectAssigned and (ProjectList.Current.OptionDependencies.Count > 0));
-  EnableToolbarItem(ItemID_CommandVisit, ProjectAssigned and ProjectList.Current.HasWebServer);
 
 end;
 

@@ -84,7 +84,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
-    procedure ButtonRefreshClick(Sender: TObject);
     procedure ComboBoxDeviceChange(Sender: TObject);
     procedure ComboBoxOptionAutosaveChange(Sender: TObject);
     procedure ButtonAddDepsClick(Sender: TObject);
@@ -109,7 +108,6 @@ type
     procedure EditOptionCompileAdditionalParametersChange(Sender: TObject);
     procedure EditOptionCleanAdditionalParametersChange(Sender: TObject);
   private
-    procedure RefreshNetworkStatus;
     procedure PopulateComboDevice;
   public
     { Public declarations }
@@ -155,30 +153,10 @@ begin
     ListBoxDependencies.Items.Clear;
     ListBoxDependencies.Items.AddStrings(ProjectList.Current.OptionDependencies);
     RecalcListBoxScrollWidth(ListBoxDependencies);
-    ESPHomePlugin.Plugin.UpdateProjectList;
+    ESPHomePlugin.Plugin.RefreshProjectList;
     if Assigned(FormProjects) then
       FormProjects.CurrentDocumentChanged;
   end;
-end;
-
-procedure TFormConfig.ButtonRefreshClick(Sender: TObject);
-var
-  Timeout: Integer;
-begin
-  inherited;
-  Screen.Cursor := crHourGlass;
-
-  ProjectList.Current.RefreshOnlineStatus;
-  Timeout := PingTimeout;
-  while (not ProjectList.Current.IsChecked) and (Timeout > 0) do
-  begin
-    Sleep(10);
-    Dec(Timeout, 10);
-  end;
-
-  RefreshNetworkStatus;
-  PopulateComboDevice;
-  Screen.Cursor := crDefault;
 end;
 
 procedure TFormConfig.ButtonRemoveDepsClick(Sender: TObject);
@@ -205,7 +183,7 @@ begin
     if ListBoxDependencies.Count > 0 then
       ListBoxDependencies.ItemIndex := Max(0, Sel - 1);
     RecalcListBoxScrollWidth(ListBoxDependencies);
-    ESPHomePlugin.Plugin.UpdateProjectList;
+    ESPHomePlugin.Plugin.RefreshProjectList;
     if Assigned(FormProjects) then
       FormProjects.CurrentDocumentChanged;
   end;
@@ -372,7 +350,6 @@ begin
   EditOptionLogsAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyLogsExtraParameters, csDefaultEmpty);
 
   PopulateComboDevice;
-  RefreshNetworkStatus;
 
   ProjectList.Current.LoadOptionDependencies;
   ListBoxDependencies.Items.AddStrings(ProjectList.Current.OptionDependencies);
@@ -380,8 +357,6 @@ begin
 
   ToggleDarkMode;
 end;
-
-
 
 procedure TFormConfig.LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 begin
@@ -433,68 +408,6 @@ begin
 
 end;
 
-resourcestring
-  rsLabelStatusUnknown = 'Unknown';
-  rsLabelStatusStandalone = 'Standalone';
-  rsLabelStatusOnline = 'Online+';
-  rsLabelStatusOnline1 = 'Online';
-  rsLabelStatusOffline = 'Offline+';
-  rsLabelStatusOffline1 = 'Offline';
-  rsImageHintOnline = 'Device is online';
-  rsImageHintOnlineWeb = 'Device is online and it has a webserver enabled';
-  rsImageHintOffline = 'Device is offline';
-  rsImageHintOfflineWeb = 'Device has a webserver but it''s currently offline';
-  rsImageHintDisabled = 'Device doesn''have wifi capabbilities';
-  rsImageHintUnknown = 'Device status is unknown';
-
-procedure TFormConfig.RefreshNetworkStatus;
-begin
-
-  with ProjectList.Current do
-  begin
-    if not IsChecked then
-    begin
-      LabelStatus.Caption := rsLabelStatusUnknown;
-      VirtualImageStatus.ImageName := 'question';
-      VirtualImageStatus.Hint := rsImageHintUnknown;
-    end
-    else if not HasWiFi then
-    begin
-      LabelStatus.Caption := rsLabelStatusStandalone;
-      VirtualImageStatus.ImageName := 'wifi-disabled';
-      VirtualImageStatus.Hint := rsImageHintDisabled;
-    end
-    else
-    begin
-      if IsOnline and HasWebserver then
-      begin
-        LabelStatus.Caption := rsLabelStatusOnline;
-        VirtualImageStatus.ImageName := 'wifi';
-        VirtualImageStatus.Hint := rsImageHintOnlineWeb;
-      end
-      else if IsOnline then
-      begin
-        LabelStatus.Caption := rsLabelStatusOnline1;
-        VirtualImageStatus.ImageName := 'wifi';
-        VirtualImageStatus.Hint := rsImageHintOnline;
-      end
-      else if HasWebserver then
-      begin
-        LabelStatus.Caption := rsLabelStatusOffline;
-        VirtualImageStatus.ImageName := 'wifi-offline';
-        VirtualImageStatus.Hint := rsImageHintOfflineWeb;
-      end
-      else
-      begin
-        LabelStatus.Caption := rsLabelStatusOffline1;
-        VirtualImageStatus.ImageName := 'wifi-offline';
-        VirtualImageStatus.Hint := rsImageHintOffline;
-      end;
-    end;
-  end;
-
-end;
-
 procedure TFormConfig.PopulateComboDevice;
 var
   Index: Integer;
@@ -519,14 +432,12 @@ begin
   Registry.Destroy;
   ComPorts.Free;
 
+  ComboBoxDevice.Items[ComboBoxDevice.Items.AddTextItem(rsDefaultWiFi).Index].ImageIndex := ComboBoxDevice.Images.GetIndexByName(csIconWiFi);
+
   if Assigned(ProjectList.Current) then
-  begin
-    if ProjectList.Current.IsOnline then
-      ComboBoxDevice.Items[ComboBoxDevice.Items.AddTextItem(rsDefaultWiFi).Index].ImageIndex := ComboBoxDevice.Images.GetIndexByName(csIconWiFi);
     for Index := 0 to ComboBoxDevice.GetCount - 1 do
       if ComboBoxDevice.GetItemText(Index) = ProjectList.Current.GetOption(csKeyESPHomeTargetDevice, '') then
         ComboBoxDevice.ItemIndex := Index;
-  end;
 end;
 
 procedure TFormConfig.TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
@@ -540,8 +451,6 @@ begin
   inherited;
   AllowCollapse := False;
 end;
-
-
 
 procedure TFormConfig.TreeViewOptionsCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
 begin

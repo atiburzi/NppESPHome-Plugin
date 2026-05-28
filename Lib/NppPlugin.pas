@@ -26,7 +26,6 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Vcl.Forms, SciSupport, NppSupport,
   NppMenuCmdID;
 
-
 type
   // Plugin metaclass
   // Eleminates the need to edit the file NppPluginInclude.pas for every new plugin

@@ -22,7 +22,6 @@ const
   ciConsolePosBottomRightSide = 5;
   ciConsolePosLastPosition = 6;
 
-
   ciLogLevelCritical = 0;
   ciLogLevelError = 1;
   ciLogLevelWarning = 2;
@@ -102,7 +101,7 @@ resourcestring
 
 resourcestring
   rsDefaultNone = 'None';
-  rsDefaultWiFi = 'WiFi';
+  rsDefaultWiFi = 'OTA';
 
 resourcestring
   rsAnyCategory = '(Any Category)';
@@ -114,9 +113,11 @@ resourcestring
   rsESPHomeDocURL = 'https://www.esphome.io/components/';
 
 resourcestring
+  rsMenuAddProject = 'Add a new project';
   rsMenuSelectProject = 'Select Project...';
-  rsMenuSelectProjectCurrent = 'Change "%s" project...';
+  rsMenuRemoveProject = 'Remove current project';
   rsMenuConfigProject = 'Configure Project...';
+  rsMenuConfigCurrentProject = 'Configure "%s" project...';
   rsMenuOpenProjectFile = 'Open Project file';
   rsMenuOpenProjectFileAndDeps = 'Open Project file and dependencies';
   rsMenuCommandRun = 'Run';
@@ -125,7 +126,6 @@ resourcestring
   rsMenuCommandShowLogs = 'Show Logs';
   rsMenuCommandClean = 'Clean';
   rsMenuCommandCleanAll = 'Clean All';
-  rsMenuCommandVisit = 'Visit Device Web Server';
   rsMenuOpenESPHomeDocs = 'Show ESPHome online documentation';
   rsMenuUpgradeESPHome = 'Check and upgrade ESPHome version';
   rsMenuOpenCmdShell = 'Open a CMD shell in the project folder';
@@ -144,8 +144,6 @@ resourcestring
                         #13#10'You can select it through the menù command:' +
                         #13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
 
-  rsNoWebserverOnCurrentProject  = 'Selected ESPHome project (%s) does not have Webserver component enabled.' +
-                                   #13#13#10'Visit command cannot work and it is ignored.';
 
 resourcestring
   rsProjectAlreadyExists = 'Project "%s" already exists among the configured projects.';
@@ -177,35 +175,28 @@ type
     FFileName: string;
     FName: string;
     FFriendlyName: string;
-    FHostName: string;
     FBoard: string;
     FFramework: string;
-    FWiFi: Boolean;
-    FWebServer: Boolean;
-    FChecked: Boolean;
-    FOnline: Boolean;
+    FHasWiFi: Boolean;
+    FHasWebServer: Boolean;
     FValid: Boolean;
     FOptionDeps: TStringList;
     function GetUIName: string;
     function GetFriendlyName: string;
-    function GetHostName: string;
     function GetDescription: string;
     function GetOptionDeps: TStringList;
 
   public
-    constructor Create(const AFileName: string; ACheck: Boolean = False);
+    constructor Create(const AFileName: string);
     property FileName: string read FFileName;
     property Name: string read FName;
     property UIName: string read GetUIName;
     property FriendlyName: string read GetFriendlyName;
     property Board: string read FBoard;
     property Framework: string read FFramework;
-    property HasWiFi: Boolean read FWiFi;
-    property IsOnline: Boolean read FOnline;
-    property HasWebServer: Boolean read FWebServer;
-    property HostName: string read GetHostName;
+    property HasWiFi: Boolean read FHasWiFi;
+    property HasWebServer: Boolean read FHasWebServer;
     property Description: string read GetDescription;
-    property IsChecked: Boolean read FChecked;
     property IsValid: Boolean read FValid;
 
     function GetOption(const Option: string; const Default: Boolean): Boolean; overload;
@@ -220,8 +211,6 @@ type
     procedure LoadOptionDependencies;
     procedure SaveOptionDependencies;
 
-    procedure CheckOnlineStatus;
-    procedure RefreshOnlineStatus;
   end;
 
   PProjectList = ^TProjectList;
@@ -235,7 +224,6 @@ type
     property Current: TProject read GetCurrent write SetCurrent;
     procedure LoadConfig;
     procedure SaveConfig;
-    procedure CheckOnlineStatus;
     function GetProjectFromFileName(const FileName: string; const IncludeDeps: boolean = False): TProject;
     function GetProjectFromUIName(const UIName: string): TProject;
   end;
@@ -269,8 +257,6 @@ var
   ESPHomeExeFile: string;
   TemplateFile: string;
 
-  PingThreadCount: Integer = 0;
-
 function ShortFileName(const LongFileName: string): string;
 function FindFileInPath(const FileName: string): string;
 
@@ -290,47 +276,11 @@ function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 300
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, Ping, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc,
+  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc,
   System.IOUtils, System.NetEncoding, System.Net.HttpClient, System.Net.HttpClientComponent, TlHelp32;
 
-type
-  TPingThread = class(TThread)
-  private
-    FName: string;
-    FOnline, FChecked: PBoolean;
-    FHostName: PString;
-  protected
-    procedure Execute; override;
-  public
-    constructor Create(const AName: string; const AOnline, AChecked: PBoolean; const AHostName: PString);
-  end;
 
-constructor TPingThread.Create(const AName: string; const AOnline, AChecked: PBoolean; const AHostName: PString);
-begin
-  inherited Create(False);
-  FreeOnTerminate := True;
-  FName := AName;
-  FOnline := AOnline;
-  FChecked := AChecked;
-  FHostName := AHostName;
-  Inc(PingThreadCount);
-end;
-
-procedure TPingThread.Execute;
-var
-  HostName: string;
-begin
-  HostName := GetFQDN(FName);
-  if HostName <> '' then
-    FHostName^ := HostName
-  else
-    HostName := FName;
-  FOnline^ := DoPing(FName, PingTimeout);
-  FChecked^ := True;
-  Dec(PingThreadCount);
-end;
-
-constructor TProject.Create(const AFileName: string; ACheck: Boolean = False);
+constructor TProject.Create(const AFileName: string);
 var
   Index: Integer;
   Doc: IYamlDocument;
@@ -372,46 +322,16 @@ begin
       FName := Substitute(Doc.Root.Values['esphome'].Values['name'].ToString());
       if (FName <> '') then
       begin
-        FHostName := '';
         FFileName := AFileName;
         FFriendlyName := Substitute(Doc.Root.Values['esphome'].Values['friendly_name'].ToString());
         FBoard := Substitute(Doc.Root.Values['esp32'].Values['board'].ToString());
         FFramework := Substitute(Doc.Root.Values['esp32'].Values['framework'].Values['type'].ToString());
-        FWiFi := Doc.Root.Values['wifi'].NodeType <> TYamlNodeType.Null;
-        FWebServer := Doc.Root.Values['web_server'].NodeType <> TYamlNodeType.Null;
-        FOnline := False;
+        FHasWiFi := Doc.Root.Values['wifi'].NodeType <> TYamlNodeType.Null;
+        FHasWebServer := Doc.Root.Values['web_server'].NodeType <> TYamlNodeType.Null;
         FValid := True;
-        FChecked := not FWiFi;
-        if ACheck then
-          CheckOnlineStatus;
         LoadOptionDependencies;
       end;
       SubstitutionMap.Free;
-    end;
-  end;
-end;
-
-procedure TProject.CheckOnlineStatus;
-begin
-  if FValid and FWiFi then
-    TPingThread.Create(FName, @FOnline, @FChecked, @FHostName);
-end;
-
-procedure TProject.RefreshOnlineStatus;
-var
-  Timeout: Integer;
-begin
-  if FValid and FWiFi then
-  begin
-    FOnline := False;
-    FChecked := False;
-    FHostName := '';
-    Timeout := PingTimeout;
-    TPingThread.Create(FName, @FOnline, @FChecked, @FHostName);
-    while (not FChecked) and (Timeout > 0) do
-    begin
-      Sleep(10);
-      Dec(Timeout, 10);
     end;
   end;
 end;
@@ -427,13 +347,6 @@ end;
 function TProject.GetUIName: string;
 begin
   Result := Format('%s - ("%s" in "%s")', [FriendlyName, ExtractFileName(FileName), ExtractFilePath(FileName)]);
-end;
-
-function TProject.GetHostName: string;
-begin
-  Result := '';
-  if HasWiFi and IsValid and FChecked then
-    Result := FHostName;
 end;
 
 resourcestring
@@ -479,15 +392,6 @@ begin
       Result := SetupString(Result, rsFieldWebServer, rsFieldYes)
     else
       Result := SetupString(Result, rsFieldWebServer, rsFieldNo);
-
-    if Self.IsChecked then
-    begin
-      Result := SetupString(Result, rsFieldHostName, Self.HostName);
-      if Self.IsOnline then
-        Result := SetupString(Result, rsFieldNetStatus, rsFieldOnline)
-      else
-        Result := SetupString(Result, rsFieldNetStatus, rsFieldOffline);
-     end;
   end
   else
     Result := SetupString(Result, rsFieldWiFi, rsFieldDisabled);
@@ -648,13 +552,6 @@ begin
   Sections.Free;
 end;
 
-procedure TProjectList.CheckOnlineStatus;
-var
-  P: TProject;
-begin
-  for P in Self do
-    P.CheckOnlineStatus;
-end;
 
 function TProjectList.GetProjectFromFileName(const FileName: string; const IncludeDeps: boolean = False): TProject;
 var
@@ -975,7 +872,6 @@ begin
   TemplateFile := IncludeTrailingPathDelimiter(Plugin.GetPluginConfigDir) + ChangeFileExt(Plugin.GetName, '.xml');
   ProjectList := TProjectList.Create;
   TemplateList := TTemplateList.Create(TemplateFile);
-  ProjectList.CheckOnlineStatus;
 end;
 
 procedure ModuleFinalize;

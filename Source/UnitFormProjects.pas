@@ -58,7 +58,6 @@ type
     ActionUpload: TAction;
     ActionShowLogs: TAction;
     ActionClean: TAction;
-    ActionVisit: TAction;
     ActionSettings: TAction;
     ActionAddProject: TAction;
     ActionRemoveProject: TAction;
@@ -95,6 +94,8 @@ type
     PopupMenuN4: TMenuItem;
     PopupMenuRefreshDevice: TMenuItem;
     ToolButtonRefreshDevice: TToolButton;
+    VirtualImageListLight20: TVirtualImageList;
+    VirtualImageListDark20: TVirtualImageList;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
@@ -130,7 +131,6 @@ type
     procedure VirtualStringTreeProjectsDblClick(Sender: TObject);
     procedure VirtualStringTreeProjectsChange(Sender: TBaseVirtualTree;
       Node: PVirtualNode);
-    procedure ActionVisitExecute(Sender: TObject);
     procedure VirtualStringTreeProjectsCompareNodes(Sender: TBaseVirtualTree;
       Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     procedure SplitterMoved(Sender: TObject);
@@ -138,7 +138,6 @@ type
     procedure VirtualStringTreeProjectsGetPopupMenu(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
       var AskParent: Boolean; var PopupMenu: TPopupMenu);
-    procedure ActionRefreshDeviceExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -277,10 +276,10 @@ begin
     Self.Color := TColor(DarkModeColors.Background);
     Self.Font.Color := TColor(DarkModeColors.Text);
     Icon.Handle := LoadImage(HInstance, resMainIconLight, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    VirtualStringTreeProjects.Images := VirtualImageListLight16;
+    VirtualStringTreeProjects.Images := VirtualImageListLight20;
     ToolbarCommands.Images := VirtualImageListLight24;
-    PopupMenuAddRemove.Images := VirtualImageListLight16;
-    PopupMenuProjects.Images := VirtualImageListLight16;
+    PopupMenuAddRemove.Images := VirtualImageListLight24;
+    PopupMenuProjects.Images := VirtualImageListLight24;
     EditTextFilter.Images := VirtualImageListLight16;
     ButtonMenuTemplates.Images := VirtualImageListLight24;
     ToolbarCommands.HotTrackColor := TColor(DarkModeColors.hotEdge);
@@ -290,10 +289,10 @@ begin
     Self.Color := clBtnFace;
     Self.Font.Color := clWindowText;
     Icon.Handle := LoadImage(HInstance, resMainIconDark, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    VirtualStringTreeProjects.Images := VirtualImageListDark16;
+    VirtualStringTreeProjects.Images := VirtualImageListDark20;
     ToolbarCommands.Images := VirtualImageListDark24;
-    PopupMenuAddRemove.Images := VirtualImageListDark16;
-    PopupMenuProjects.Images := VirtualImageListDark16;
+    PopupMenuAddRemove.Images := VirtualImageListDark24;
+    PopupMenuProjects.Images := VirtualImageListDark24;
     EditTextFilter.Images := VirtualImageListDark16;
     ButtonMenuTemplates.Images := VirtualImageListDark24;
     ToolbarCommands.HotTrackColor := clActiveCaption;
@@ -373,16 +372,9 @@ begin
   if Kind in [ikNormal, ikSelected] then
   begin
     if Data^.Level >= 0 then
-      //ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('dependency')
+      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('dependency')
     else
       ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('projects');
-  end;
-  if (Kind in [ikState]) and (Data^.Level < 0) then
-  begin
-    if Data^.Project.IsOnline then
-      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('wifi_on')
-    else
-      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('wifi_off');
   end;
 end;
 
@@ -430,7 +422,8 @@ begin
       ProjectList.Current := Data^.Project;
   end;
   RefreshToolbar;
-  ESPHomePlugin.Plugin.UpdatePluginMenuAndTitle;
+  ESPHomePlugin.Plugin.RefreshNppTitle;
+  ESPHomePlugin.Plugin.RefreshPluginMenu;
 end;
 
 procedure TFormProjects.VirtualStringTreeTemplatesChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -495,23 +488,6 @@ begin
     CellText := Data^.Category;
 end;
 
-procedure TFormProjects.ActionRefreshDeviceExecute(Sender: TObject);
-var
-  Timeout: Integer;
-begin
-  inherited;
-  Screen.Cursor := crHourGlass;
-  ProjectList.Current.RefreshOnlineStatus;
-  Timeout := PingTimeout;
-  while (not ProjectList.Current.IsChecked) and (Timeout > 0) do
-  begin
-    Sleep(10);
-    Dec(Timeout, 10);
-  end;
-  Screen.Cursor := crDefault;
-  RefreshProjectsList;
-end;
-
 procedure TFormProjects.ActionRemoveProjectExecute(Sender: TObject);
 var
   I: Integer;
@@ -529,7 +505,7 @@ begin
       else
         ProjectList.Current := nil;
       ProjectList.SaveConfig;
-      ESPHomePlugin.Plugin.UpdateProjectList;
+      ESPHomePlugin.Plugin.RefreshProjectList;
     end;
   end;
 end;
@@ -547,13 +523,13 @@ begin
         Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(Self);
       Exit;
     end;
-    Project := TProject.Create(FileOpenDialogProject.FileName, True);
+    Project := TProject.Create(FileOpenDialogProject.FileName);
     if Project.IsValid then
     begin
       ProjectList.Add(Project);
       ProjectList.Current := Project;
       ProjectList.SaveConfig;
-      ESPHomePlugin.Plugin.UpdateProjectList;
+      ESPHomePlugin.Plugin.RefreshProjectList;
     end
     else
     begin
@@ -616,12 +592,6 @@ procedure TFormProjects.ActionUploadExecute(Sender: TObject);
 begin
   inherited;
   ESPHomePlugin.Plugin.CommandUpload;
-end;
-
-procedure TFormProjects.ActionVisitExecute(Sender: TObject);
-begin
-  inherited;
-  ESPHomePlugin.Plugin.CommandVisit;
 end;
 
 procedure TFormProjects.ButtonMenuTemplatesClick(Sender: TObject);
@@ -716,7 +686,8 @@ begin
   begin
     ProjectList.Current := P;
     RefreshToolbar;
-    ESPHomePlugin.Plugin.UpdatePluginMenuAndTitle;
+    ESPHomePlugin.Plugin.RefreshPluginMenu;
+    ESPHomePlugin.Plugin.RefreshNppTitle;
   end;
   Node := GetVirtualNodeFromFileName(FileName);
   if Assigned(Node) then

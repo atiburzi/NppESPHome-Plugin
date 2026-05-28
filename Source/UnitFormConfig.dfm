@@ -71,7 +71,6 @@ object FormConfig: TFormConfig
         'current project'
       Caption = 'Refresh'
       TabOrder = 1
-      OnClick = ButtonRefreshClick
     end
   end
   object GroupBoxOptions: TGroupBox
@@ -354,8 +353,8 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 233
-          Height = 30
+          Width = 191
+          Height = 45
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -616,8 +615,8 @@ object FormConfig: TFormConfig
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 8
-          Width = 200
-          Height = 45
+          Width = 136
+          Height = 60
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
             'ommand is executed:'

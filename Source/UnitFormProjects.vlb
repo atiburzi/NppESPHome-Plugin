@@ -79,9 +79,6 @@ Coordinates=195,258,107,36
 [Splitter]
 Coordinates=130,258,55,36
 
-[ActionVisit]
-Coordinates=880,166,75,36
-
 [ToolButtonClean]
 Coordinates=10,258,110,36
 
@@ -183,7 +180,7 @@ Coordinates=237,144,137,36
 Visible=True
 
 []
-Coordinates=47,491,91,36
+Coordinates=880,166,75,36
 
 [PopupMenuEditTemplatesXMLFile]
 Coordinates=684,1,144,36

@@ -40,7 +40,6 @@ resourcestring
   rsRemoveProjectFile = 'Remove selected Project';
 
 
-
 procedure TFormSelection.ButtonAddProjectClick(Sender: TObject);
 var
   Project: TProject;
@@ -54,14 +53,14 @@ begin
         Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(Self);
       Exit;
     end;
-    Project := TProject.Create(FileOpenDialogProject.FileName, True);
+    Project := TProject.Create(FileOpenDialogProject.FileName);
     if Project.IsValid then
     begin
       ProjectList.Add(Project);
       ProjectList.Current := Project;
       ProjectList.SaveConfig;
       RefreshComboBox;
-      ESPHomePlugin.Plugin.UpdateProjectList;
+      ESPHomePlugin.Plugin.RefreshProjectList;
     end
     else
     begin
@@ -90,7 +89,7 @@ begin
         ProjectList.Current := nil;
       ProjectList.SaveConfig;
       RefreshComboBox;
-      ESPHomePlugin.Plugin.UpdateProjectList;
+      ESPHomePlugin.Plugin.RefreshProjectList;
     end;
   end;
 end;
@@ -121,7 +120,7 @@ begin
   inherited;
   if (ComboBoxProject.ItemIndex >= 0) and (ComboBoxProject.Items.Count > 0) then
     ProjectList.Current := ProjectList.GetProjectFromUIName(ComboBoxProject.Items[ComboBoxProject.ItemIndex]);
-  ESPHomePlugin.Plugin.UpdateProjectList;
+  ESPHomePlugin.Plugin.RefreshProjectList;
 end;
 
 procedure TFormSelection.FormCreate(Sender: TObject);

@@ -24,7 +24,8 @@ object FormAbout: TFormAbout
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
-    ExplicitTop = 8
+    ExplicitWidth = 490
+    ExplicitHeight = 216
     object LabelAppName1: TLabel
       Left = 246
       Top = 20
