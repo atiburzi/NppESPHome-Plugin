@@ -27,7 +27,6 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Math, System.Types,
   System.Classes, Vcl.Controls, Vcl.Forms,
-
   NppSupport, NppPlugin;
 
 type

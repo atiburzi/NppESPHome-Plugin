@@ -969,98 +969,99 @@ const
   // ---------------------------------------------------------------------------
   // Notification message codes
   // ---------------------------------------------------------------------------
-  NPPN_FIRST                   = 1000;
-
-  NPPN_READY                   = (NPPN_FIRST + 1);
+  NPPN_FIRST = 1000;
+  NPPN_READY = (NPPN_FIRST + 1);
   // To notify plugins that all the procedures of launchment of notepad++ are done.
   // scnNotification->nmhdr.code     = NPPN_READY;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_TBMODIFICATION          = (NPPN_FIRST + 2);
+  NPPN_TBMODIFICATION = (NPPN_FIRST + 2);
   // To notify plugins that toolbar icons can be registered
   // scnNotification->nmhdr.code     = NPPN_TBMODIFICATION;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_FILEBEFORECLOSE         = (NPPN_FIRST + 3);
+  NPPN_FILEBEFORECLOSE = (NPPN_FIRST + 3);
   // To notify plugins that the current file is about to be closed
   // scnNotification->nmhdr.code     = NPPN_FILEBEFORECLOSE;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_FILEOPENED              = (NPPN_FIRST + 4);
+  NPPN_FILEOPENED = (NPPN_FIRST + 4);
   // To notify plugins that the current file is just opened
   // scnNotification->nmhdr.code     = NPPN_FILEOPENED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_FILECLOSED              = (NPPN_FIRST + 5);
+  NPPN_FILECLOSED = (NPPN_FIRST + 5);
   // To notify plugins that the current file is just closed
   // scnNotification->nmhdr.code     = NPPN_FILECLOSED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_FILEBEFOREOPEN          = (NPPN_FIRST + 6);
+  NPPN_FILEBEFOREOPEN = (NPPN_FIRST + 6);
   // To notify plugins that the current file is about to be opened
   // scnNotification->nmhdr.code     = NPPN_FILEBEFOREOPEN;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_FILEBEFORESAVE          = (NPPN_FIRST + 7);
+  NPPN_FILEBEFORESAVE = (NPPN_FIRST + 7);
   // To notify plugins that the current file is about to be saved
   // scnNotification->nmhdr.code     = NPPN_FILEBEFORESAVE;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_FILESAVED               = (NPPN_FIRST + 8);
+  NPPN_FILESAVED = (NPPN_FIRST + 8);
   // To notify plugins that the current file is just saved
   // scnNotification->nmhdr.code     = NPPN_FILESAVED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_SHUTDOWN                = (NPPN_FIRST + 9);
+  NPPN_SHUTDOWN = (NPPN_FIRST + 9);
   // To notify plugins that Notepad++ is about to be shutdowned.
   // scnNotification->nmhdr.code     = NPPN_SHUTDOWN;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_BUFFERACTIVATED         = (NPPN_FIRST + 10);
+  NPPN_BUFFERACTIVATED = (NPPN_FIRST + 10);
   // scnNotification->nmhdr.code = NPPN_BUFFERACTIVATED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = activatedBufferID;
 
-  NPPN_LANGCHANGED             = (NPPN_FIRST + 11);
+  NPPN_LANGCHANGED = (NPPN_FIRST + 11);
   // scnNotification->nmhdr.code = NPPN_LANGCHANGED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = currentBufferID;
 
-  NPPN_WORDSTYLESUPDATED       = (NPPN_FIRST + 12);
+  NPPN_WORDSTYLESUPDATED = (NPPN_FIRST + 12);
   // To notify plugins that user initiated a WordStyleDlg change.
   // scnNotification->nmhdr.code = NPPN_WORDSTYLESUPDATED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = currentBufferID;
 
-  NPPN_SHORTCUTREMAPPED        = (NPPN_FIRST + 13);
+  NPPN_SHORTCUTREMAPPED = (NPPN_FIRST + 13);
   // To notify plugins that plugin command shortcut is remapped.
   // scnNotification->nmhdr.code = NPPN_SHORTCUTREMAPPED;
   // scnNotification->nmhdr.hwndFrom = ShortcutKeyStructurePointer;
   // scnNotification->nmhdr.idFrom = cmdID;
   // where ShortcutKeyStructurePointer is a pointer to record TShortcutKey:
 
-  NPPN_FILEBEFORELOAD          = (NPPN_FIRST + 14);
+  NPPN_FILEBEFORELOAD = (NPPN_FIRST + 14);
   // To notify plugins that the current file is about to be loaded
   // scnNotification->nmhdr.code = NPPN_FILEBEFORELOAD;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = NULL;
 
-  NPPN_FILELOADFAILED          = (NPPN_FIRST + 15);
+  NPPN_FILELOADFAILED = (NPPN_FIRST + 15);
   // To notify plugins that file open operation failed
   // scnNotification->nmhdr.code = NPPN_FILELOADFAILED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_READONLYCHANGED         = (NPPN_FIRST + 16);
+  NPPN_READONLYCHANGED = (NPPN_FIRST + 16);
+  DOCSTAUS_READONLY = 1;
+  DOCSTAUS_BUFFERDIRTY = 2;
   // To notify plugins that current document change the readonly status,
   // scnNotification->nmhdr.code = NPPN_READONLYCHANGED;
   // scnNotification->nmhdr.hwndFrom = bufferID;
@@ -1068,10 +1069,7 @@ const
   // where bufferID  is BufferID
   //       docStatus can be combined by DOCSTAUS_READONLY and DOCSTAUS_BUFFERDIRTY
 
-    DOCSTAUS_READONLY    = 1;
-    DOCSTAUS_BUFFERDIRTY = 2;
-
-  NPPN_DOCORDERCHANGED         = (NPPN_FIRST + 17);
+  NPPN_DOCORDERCHANGED = (NPPN_FIRST + 17);
   // To notify plugins that document order is changed
   // scnNotification->nmhdr.code = NPPN_DOCORDERCHANGED;
   // scnNotification->nmhdr.hwndFrom = newIndex;
@@ -1083,55 +1081,55 @@ const
   // scnNotification->nmhdr.hwndFrom = NULL;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_BEFORESHUTDOWN          = (NPPN_FIRST + 19);
+  NPPN_BEFORESHUTDOWN = (NPPN_FIRST + 19);
   // To notify plugins that Npp shutdown has been triggered, files have not been closed yet
   // scnNotification->nmhdr.code = NPPN_BEFORESHUTDOWN;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = 0;
 
-  NPPN_CANCELSHUTDOWN          = (NPPN_FIRST + 20);
+  NPPN_CANCELSHUTDOWN = (NPPN_FIRST + 20);
   // To notify plugins that Npp shutdown has been cancelled
   // scnNotification->nmhdr.code = NPPN_CANCELSHUTDOWN;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = 0;
 
-  NPPN_FILEBEFORERENAME        = (NPPN_FIRST + 21);
+  NPPN_FILEBEFORERENAME = (NPPN_FIRST + 21);
   // To notify plugins that file is to be renamed
   // scnNotification->nmhdr.code = NPPN_FILEBEFORERENAME;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_FILERENAMECANCEL        = (NPPN_FIRST + 22);
+  NPPN_FILERENAMECANCEL = (NPPN_FIRST + 22);
   // To notify plugins that file rename has been cancelled
   // scnNotification->nmhdr.code = NPPN_FILERENAMECANCEL;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_FILERENAMED             = (NPPN_FIRST + 23);
+  NPPN_FILERENAMED = (NPPN_FIRST + 23);
   // To notify plugins that file has been renamed
   // scnNotification->nmhdr.code = NPPN_FILERENAMED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_FILEBEFOREDELETE        = (NPPN_FIRST + 24);
+  NPPN_FILEBEFOREDELETE = (NPPN_FIRST + 24);
   // To notify plugins that file is to be deleted
   // scnNotification->nmhdr.code = NPPN_FILEBEFOREDELETE;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_FILEDELETEFAILED        = (NPPN_FIRST + 25);
+  NPPN_FILEDELETEFAILED = (NPPN_FIRST + 25);
   // To notify plugins that file deletion has failed
   // scnNotification->nmhdr.code = NPPN_FILEDELETEFAILED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_FILEDELETED             = (NPPN_FIRST + 26);
+  NPPN_FILEDELETED = (NPPN_FIRST + 26);
   // To notify plugins that file has been deleted
   // scnNotification->nmhdr.code = NPPN_FILEDELETED;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-  NPPN_DARKMODECHANGED         = (NPPN_FIRST + 27);
+  NPPN_DARKMODECHANGED = (NPPN_FIRST + 27);
   // To notify plugins that Dark Mode was enabled/disabled
   // Use NPPM_ISDARKMODEENABLED to query Dark Mode status
   // scnNotification->nmhdr.code = NPPN_DARKMODECHANGED;
@@ -1139,7 +1137,7 @@ const
   // scnNotification->nmhdr.idFrom = 0;
   // Introduced in v8.4.1
 
-  NPPN_CMDLINEPLUGINMSG        = (NPPN_FIRST + 28);
+  NPPN_CMDLINEPLUGINMSG = (NPPN_FIRST + 28);
   // To notify plugins that the new argument for plugins (via '-pluginMessage="YOUR_PLUGIN_ARGUMENT"'
   // in command line) is available
   // scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
@@ -1148,7 +1146,7 @@ const
   // where pluginMessage is pointer of type wchar_t
   // Introduced in v8.4.2
 
-  NPPN_EXTERNALLEXERBUFFER     = (NPPN_FIRST + 29);
+  NPPN_EXTERNALLEXERBUFFER = (NPPN_FIRST + 29);
   // To notify lexer plugins that the buffer (in idFrom) is just applied to an
   // external lexer
   // scnNotification->nmhdr.code = NPPN_EXTERNALLEXERBUFFER;
@@ -1156,7 +1154,7 @@ const
   // scnNotification->nmhdr.idFrom = BufferID;
   // Introduced in v8.5
 
-  NPPN_GLOBALMODIFIED          = (NPPN_FIRST + 30);
+  NPPN_GLOBALMODIFIED = (NPPN_FIRST + 30);
   // To notify plugins that the current document is just modified by Replace All action.
   // For solving the performance issue (from v8.6.4), Notepad++ doesn't trigger SCN_MODIFIED during Replace All action anymore.
   // As a result, the plugins which monitor SCN_MODIFIED should also monitor NPPN_GLOBALMODIFIED.
@@ -1165,7 +1163,7 @@ const
   // scnNotification->nmhdr.idFrom = 0; // preserved for future use, must be zero
   // Introduced in v8.6.5
 
-  NPPN_NATIVELANGCHANGED          = (NPPN_FIRST + 31);
+  NPPN_NATIVELANGCHANGED = (NPPN_FIRST + 31);
   // To notify plugins that the current native language is just changed to another one.
   // Use NPPM_GETNATIVELANGFILENAME to get current native language file name.
   // Use NPPM_GETMENUHANDLE(NPPPLUGINMENU, 0) to get submenu "Plugins" handle (HMENU)
@@ -1173,7 +1171,7 @@ const
   //scnNotification->nmhdr.hwndFrom = hwndNpp
   //scnNotification->nmhdr.idFrom = 0; // preserved for the future use, must be zero
 
-  NPPN_TOOLBARICONSETCHANGED      = (NPPN_FIRST + 32);
+  NPPN_TOOLBARICONSETCHANGED = (NPPN_FIRST + 32);
   // To notify plugins that toolbar icon set selection has changed
 	//scnNotification->nmhdr.code = NPPN_TOOLBARICONSETCHANGED;
 	//scnNotification->nmhdr.hwndFrom = hwndNpp;
@@ -1181,6 +1179,8 @@ const
 	// where iconSetChoice could be 1 of 5 possible values:
 	// 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
 
+
+  // ---------------------------------------------------------------------------
 
   // ---------------------------------------------------------------------------
   // Defines for docking manager
@@ -1293,7 +1293,6 @@ type
     PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64
   );
 
-
   // ---------------------------------------------------------------------------
   // Support of generic dark mode for plugin dialogs
   // See NPPM_DARKMODESUBCLASSANDTHEME
@@ -1303,7 +1302,6 @@ type
     dmfHandleChange = $0000000C
   );
 
-
   // ---------------------------------------------------------------------------
   // Records for data exchange Notepad++ <-> Plugin
   // ---------------------------------------------------------------------------
@@ -1311,80 +1309,79 @@ type
   // Basic infos for communication between Notepad++ and the plugin
   // This structure is sent by Npp to the plugin via SetInfo
   TNppData = record
-    NppHandle             : HWND;
-    ScintillaMainHandle   : HWND;
-    ScintillaSecondHandle : HWND;
+    NppHandle: HWND;
+    ScintillaMainHandle: HWND;
+    ScintillaSecondHandle: HWND;
   end;
 
   // Set plugin keyboard shortcut
   PShortcutKey = ^TShortcutKey;
 
   TShortcutKey = record
-    IsCtrl  : Boolean;
-    IsAlt   : Boolean;
-    IsShift : Boolean;
-    Key     : UCHAR;
+    IsCtrl: Boolean;
+    IsAlt: Boolean;
+    IsShift: Boolean;
+    Key: UCHAR;
   end;
 
   // Set plugin toolbar icon, deprecated since Npp v8.0
   TToolbarIcons = record
-    ToolbarBmp  : HBITMAP;
-    ToolbarIcon : HICON;
+    ToolbarBmp: HBITMAP;
+    ToolbarIcon: HICON;
   end;
-
 
   // Set plugin toolbar icon, use from Npp v8.0 onwards
   TToolbarIconsWithDarkMode = record
-    ToolbarBmp:          HBITMAP;  // light mode 16x16
-    ToolbarIcon:         HICON;    // dark mode unfilled 16x16 or 32x32
-    ToolbarIconDarkMode: HICON;    // dark mode filled 16x16 or 32x32
+    ToolbarBmp: HBITMAP;        // light mode 16x16
+    ToolbarIcon: HICON;         // dark mode unfilled 16x16 or 32x32
+    ToolbarIconDarkMode: HICON; // dark mode filled 16x16 or 32x32
   end;
 
   PNppDarkModeColors = ^TNppDarkModeColors;
-
   TNppDarkModeColors = record
-    background:      COLORREF;
+    background: COLORREF;
     softerBackground: COLORREF;
-    hotBackground:   COLORREF;
-    pureBackground:  COLORREF;
+    hotBackground: COLORREF;
+    pureBackground: COLORREF;
     errorBackground: COLORREF;
-    text:            COLORREF;
-    darkerText:      COLORREF;
-    disabledText:    COLORREF;
-    linkText:        COLORREF;
-    edge:            COLORREF;
-    hotEdge:         COLORREF;
-    disabledEdge:    COLORREF;
+    text: COLORREF;
+    darkerText: COLORREF;
+    disabledText: COLORREF;
+    linkText: COLORREF;
+    edge: COLORREF;
+    hotEdge: COLORREF;
+    disabledEdge: COLORREF;
   end;
 
   // Dockable dialogs
   TTbData = record
-    ClientHandle   : HWND;      // dockable dialog handle
-    Name           : nppPChar;  // name of plugin dialog
-    DlgId          : Integer;   // index of menu entry where the dialog in question will be triggered
-    Mask           : Cardinal;  // contains the behaviour informations of the dialog, can be one of the DWS_DF_... constants combined (optional) with DWS_ICONTAB, DWS_ICONBAR, DWS_ADDINFO
-    IconTab        : HICON;     // handle to the icon to display on the dialog's tab
-    AdditionalInfo : nppPChar;  // pointer to a string joined to the caption using " - ", if not NULL
-    FloatRect      : TRect;     // internal, don't use
-    PrevContainer  : Cardinal;  // internal, don't use
-    ModuleName     : nppPChar;  // the name of your plugin module (with extension .dll)
+    ClientHandle: HWND;      // dockable dialog handle
+    Name: nppPChar;          // name of plugin dialog
+    DlgId: Integer;          // index of menu entry where the dialog in question will be triggered
+    Mask: Cardinal;          // contains the behaviour informations of the dialog, can be one of the DWS_DF_... constants combined (optional) with DWS_ICONTAB, DWS_ICONBAR, DWS_ADDINFO
+    IconTab: HICON;          // handle to the icon to display on the dialog's tab
+    AdditionalInfo: nppPChar;// pointer to a string joined to the caption using " - ", if not NULL
+    FloatRect: TRect;        // internal, don't use
+    PrevContainer: Cardinal; // internal, don't use
+    ModuleName: nppPChar;    // the name of your plugin module (with extension .dll)
   end;
 
 
   // Loading/saving sessions
   TSessionInfo = record
-    SessionFilePathName : nppPChar;           // the full path name of session file to save
-    NumFiles            : Integer;            // the number of files in the session
-    Files               : array of nppPChar;  // session files' full path
+    SessionFilePathName: nppPChar;           // the full path name of session file to save
+    NumFiles: Integer;            // the number of files in the session
+    Files: array of nppPChar;  // session files' full path
   end;
 
 
   // Inter-plugin communication
   TCommunicationInfo = record
-    internalMsg   : Cardinal;  // message-id (defined by dest-plugin)
-    srcModuleName : nppPChar;  // complete module name (with extension .dll) of src-plugin
-    info          : Pointer;   // pointer to block of informations to be exchanged
+    internalMsg: Cardinal;  // message-id (defined by dest-plugin)
+    srcModuleName: nppPChar;  // complete module name (with extension .dll) of src-plugin
+    info: Pointer;   // pointer to block of informations to be exchanged
   end;
+
 
   // ---------------------------------------------------------------------------
   // Defines for Items Functions
@@ -1394,8 +1391,9 @@ type
   FuncItemCmdProc = procedure; cdecl;
 
   PFuncItem = ^TFuncItem;
+
   TFuncItem = packed record
-    ItemName: array [0..FNITEM_NAMELEN - 1] of nppChar;
+    ItemName: array[0..FNITEM_NAMELEN - 1] of nppChar;
     Func: FuncItemCmdProc;
     CmdID: Integer;
     Checked: LongBool;

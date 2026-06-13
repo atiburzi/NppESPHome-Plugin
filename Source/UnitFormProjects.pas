@@ -21,10 +21,7 @@ type
 
 type
   TFormProjects = class(TNppPluginDockingForm)
-    ImageCollectionDark: TImageCollection;
-    VirtualImageListDark24: TVirtualImageList;
-    ImageCollectionLight: TImageCollection;
-    VirtualImageListLight24: TVirtualImageList;
+    VirtualImageList24: TVirtualImageList;
     ToolBarCommands: TToolBar;
     ToolButtonRun: TToolButton;
     ToolButtonCompile: TToolButton;
@@ -32,27 +29,17 @@ type
     ToolButtonShowLogs: TToolButton;
     ToolButtonClean: TToolButton;
     ToolButtonSep2: TToolButton;
-    ToolButtonVisit: TToolButton;
-    ToolButtonSep3: TToolButton;
     ToolButtonSep1: TToolButton;
     ToolButtonOpen: TToolButton;
-    ToolButtonOpenDeps: TToolButton;
-    VirtualImageListLight16: TVirtualImageList;
-    VirtualImageListDark16: TVirtualImageList;
-    ToolButtonSettings: TToolButton;
-    PopupMenuAddRemove: TPopupMenu;
-    MenuItemAddNewProject: TMenuItem;
-    MenuItemRemoveProject: TMenuItem;
+    VirtualImageList16: TVirtualImageList;
     FileOpenDialogProject: TFileOpenDialog;
     PopupMenuProjects: TPopupMenu;
     PopupMenuOpen: TMenuItem;
-    PopupMenuOpenDeps: TMenuItem;
     PopupMenuN1: TMenuItem;
     PopupMenuRun: TMenuItem;
     PopupMenuCompile: TMenuItem;
     ActionList: TActionList;
     ActionOpen: TAction;
-    ActionOpenDeps: TAction;
     ActionRun: TAction;
     ActionCompile: TAction;
     ActionUpload: TAction;
@@ -65,7 +52,6 @@ type
     PopupMenuShowLogs: TMenuItem;
     PopupMenuClean: TMenuItem;
     PopupMenuN2: TMenuItem;
-    PopupMenuVisit: TMenuItem;
     PopupMenuN3: TMenuItem;
     PopupMenuSettings: TMenuItem;
     PanelTop: TPanel;
@@ -84,25 +70,33 @@ type
     PopupMenuReloadXMLFileConfiguration: TMenuItem;
     StaticTextDescription: TJvStaticText;
     ButtonMenuTemplates: TSpeedButton;
-    PopUpMenuN6: TMenuItem;
+    PopUpMenuN5: TMenuItem;
     PopupMenuDownloadTemplates: TMenuItem;
-    PopupMenuN5: TMenuItem;
     PopupMenuRemoveProject: TMenuItem;
     ActionCleanAll: TAction;
     PopupMenuCleanAll: TMenuItem;
-    ActionRefreshDevice: TAction;
     PopupMenuN4: TMenuItem;
     PopupMenuRefreshDevice: TMenuItem;
-    ToolButtonRefreshDevice: TToolButton;
-    VirtualImageListLight20: TVirtualImageList;
-    VirtualImageListDark20: TVirtualImageList;
+    ActionAddDeps: TAction;
+    ToolButtonSep0: TToolButton;
+    ToolButtonAddDeps: TToolButton;
+    ToolButtonRemoveDep: TToolButton;
+    ActionRemoveDep: TAction;
+    VirtualImageList20: TVirtualImageList;
+    PopupMenuDeps: TPopupMenu;
+    PopupMenuRemoveDep: TMenuItem;
+    ActionTerminal: TAction;
+    ActionExplorer: TAction;
+    ToolButtonSep3: TToolButton;
+    ToolButtonAddPrj: TToolButton;
+    ToolButtonRemovePrj: TToolButton;
+    ToolButtonSettings: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
       var ImageIndex: TImageIndex);
     procedure VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
     procedure ActionOpenExecute(Sender: TObject);
-    procedure ActionOpenDepsExecute(Sender: TObject);
     procedure ActionAddProjectExecute(Sender: TObject);
     procedure ActionRemoveProjectExecute(Sender: TObject);
     procedure ActionCleanExecute(Sender: TObject);
@@ -138,6 +132,10 @@ type
     procedure VirtualStringTreeProjectsGetPopupMenu(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
       var AskParent: Boolean; var PopupMenu: TPopupMenu);
+    procedure ToolButtonTerminalClick(Sender: TObject);
+    procedure ToolButtonExplorerClick(Sender: TObject);
+    procedure ActionAddDepsExecute(Sender: TObject);
+    procedure ActionRemoveDepExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -164,13 +162,13 @@ procedure TFormProjects.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   inherited;
   if Action = caHide then
-    ConfigFile.WriteBool(csSectionGeneral, csKeyProjectWindow, False);
+    ConfigIniFile.WriteBool(csSectionGeneral, csKeyProjectWindow, False);
 end;
 
 procedure TFormProjects.FormCreate(Sender: TObject);
 begin
   inherited;
-  PanelTop.Height := ConfigFile.ReadInteger(csSectionGeneral, csKeyProjectPanelSize, 300);
+  PanelTop.Height := ConfigIniFile.ReadInteger(csSectionGeneral, csKeyProjectPanelSize, 300);
   VirtualStringTreeProjects.NodeDataSize := SizeOf(TProjectNode);
   VirtualStringTreeTemplates.NodeDataSize := SizeOf(TTemplate);
   RefreshProjectsList;
@@ -257,44 +255,43 @@ begin
       MaxWidth0 := Max(MaxWidth0, VirtualStringTreeTemplates.Canvas.TextWidth(Data^.Name) + 16);
       MaxWidth1 := Max(MaxWidth1, VirtualStringTreeTemplates.Canvas.TextWidth(Data^.Category) + 16);
     end;
-  end; 
+  end;
   VirtualStringTreeTemplates.Header.Columns[0].Width := MaxWidth0;
   VirtualStringTreeTemplates.Header.Columns[1].Width := MaxWidth1;
   VirtualStringTreeTemplates.FullExpand;
   VirtualStringTreeTemplates.EndUpdate;
 end;
 
+
 procedure TFormProjects.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
 begin
   inherited ToggleDarkMode;
+
+  AssignWindowIcon(Icon);
+  AssignImageResources(VirtualImageList16);
+  AssignImageResources(VirtualImageList20);
+  AssignImageResources(VirtualImageList24);
+
   if Plugin.IsDarkModeEnabled then
   begin
     DarkModeColors := Default(TNppDarkModeColors);
     Plugin.GetDarkModeColors(@DarkModeColors);
     Self.Color := TColor(DarkModeColors.Background);
     Self.Font.Color := TColor(DarkModeColors.Text);
-    Icon.Handle := LoadImage(HInstance, resMainIconLight, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    VirtualStringTreeProjects.Images := VirtualImageListLight20;
-    ToolbarCommands.Images := VirtualImageListLight24;
-    PopupMenuAddRemove.Images := VirtualImageListLight24;
-    PopupMenuProjects.Images := VirtualImageListLight24;
-    EditTextFilter.Images := VirtualImageListLight16;
-    ButtonMenuTemplates.Images := VirtualImageListLight24;
     ToolbarCommands.HotTrackColor := TColor(DarkModeColors.hotEdge);
   end
   else
   begin
     Self.Color := clBtnFace;
     Self.Font.Color := clWindowText;
-    Icon.Handle := LoadImage(HInstance, resMainIconDark, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    VirtualStringTreeProjects.Images := VirtualImageListDark20;
-    ToolbarCommands.Images := VirtualImageListDark24;
-    PopupMenuAddRemove.Images := VirtualImageListDark24;
-    PopupMenuProjects.Images := VirtualImageListDark24;
-    EditTextFilter.Images := VirtualImageListDark16;
-    ButtonMenuTemplates.Images := VirtualImageListDark24;
+//    VirtualStringTreeProjects.Images := VirtualImageList20;
+//    ToolbarCommands.Images := VirtualImageList24;
+//    PopupMenuAddRemove.Images := VirtualImageList24;
+//    PopupMenuProjects.Images := VirtualImageList24;
+//    EditTextFilter.Images := VirtualImageList16;
+//    ButtonMenuTemplates.Images := VirtualImageList24;
     ToolbarCommands.HotTrackColor := clActiveCaption;
   end;
   VirtualStringTreeProjects.Colors.FocusedSelectionColor := ToolbarCommands.HotTrackColor;
@@ -302,19 +299,29 @@ begin
   VirtualStringTreeProjects.Colors.SelectionTextColor := Self.Font.Color;
   VirtualStringTreeProjects.Colors.UnfocusedSelectionColor := ToolbarCommands.HotTrackColor;
   VirtualStringTreeProjects.Colors.UnfocusedSelectionBorderColor := ToolbarCommands.HotTrackColor;
-
   VirtualStringTreeTemplates.Colors.FocusedSelectionColor := ToolbarCommands.HotTrackColor;
   VirtualStringTreeTemplates.Colors.FocusedSelectionBorderColor := ToolbarCommands.HotTrackColor;
   VirtualStringTreeTemplates.Colors.SelectionTextColor := Self.Font.Color;
   VirtualStringTreeTemplates.Colors.UnfocusedSelectionColor := ToolbarCommands.HotTrackColor;
   VirtualStringTreeTemplates.Colors.UnfocusedSelectionBorderColor := ToolbarCommands.HotTrackColor;
-
   ToolbarCommands.GradientStartColor := Self.Color;
   ToolbarCommands.GradientEndColor := Self.Color;
-
   StaticTextDescription.Font.Color := Self.Font.Color;
 
   Repaint;
+
+end;
+
+procedure TFormProjects.ToolButtonExplorerClick(Sender: TObject);
+begin
+  inherited;
+  ESPHomePlugin.Plugin.StartExplorer;
+end;
+
+procedure TFormProjects.ToolButtonTerminalClick(Sender: TObject);
+begin
+  inherited;
+  ESPHomePlugin.Plugin.StartTerminal;
 end;
 
 procedure TFormProjects.VirtualStringTreeProjectsChange(
@@ -359,12 +366,13 @@ begin
   Node := TVirtualStringTree(Sender).FocusedNode;
   if Assigned(Node) then
     S := PProjectNode(Node.GetData)^.FileName;
-  ESPHomePlugin.Plugin.OpenProjectAndDependencies(S);
+  ESPHomePlugin.Plugin.OpenFile(S);
 end;
 
-procedure TFormProjects.VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-  var Ghosted: Boolean; var ImageIndex: TImageIndex);
+procedure TFormProjects.VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var
+  Ghosted: Boolean; var ImageIndex: TImageIndex);
 var
+  FileExt: string;
   Data: PProjectNode;
 begin
   inherited;
@@ -372,9 +380,14 @@ begin
   if Kind in [ikNormal, ikSelected] then
   begin
     if Data^.Level >= 0 then
-      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('dependency')
+    begin
+      FileExt := ExtractFileExt(Data^.FileName).Replace('.', 'file_', [rfIgnoreCase]).Replace('yml', 'yaml', [rfIgnoreCase]);
+      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName(FileExt);
+      if ImageIndex < 0 then
+        ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('file_any');
+    end
     else
-      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('projects');
+      ImageIndex := VirtualStringTreeProjects.Images.GetIndexByName('mi_' + Data^.Project.Microcontroller);
   end;
 end;
 
@@ -391,7 +404,9 @@ begin
   begin
     Data := Sender.GetNodeData(Node);
     if Data^.Level < 0 then
-      PopupMenu := PopupMenuProjects;
+      PopupMenu := PopupMenuProjects
+    else
+      PopupMenu := PopupMenuDeps;
   end;
 end;
 
@@ -488,6 +503,24 @@ begin
     CellText := Data^.Category;
 end;
 
+procedure TFormProjects.ActionRemoveDepExecute(Sender: TObject);
+var
+  Node: PVirtualNode;
+  Data: PProjectNode;
+begin
+  inherited;
+  if VirtualStringTreeProjects.SelectedCount <> 1 then
+    Exit;
+  Node := VirtualStringTreeProjects.GetFirstSelected;
+  if Assigned(Node) then
+  begin
+    Data := Node.GetData;
+    if Assigned(Data) then
+      if Data.Level >= 0 then
+        ESPHomePlugin.Plugin.DependencyRemove(Data.FileName);
+  end;
+end;
+
 procedure TFormProjects.ActionRemoveProjectExecute(Sender: TObject);
 var
   I: Integer;
@@ -508,6 +541,12 @@ begin
       ESPHomePlugin.Plugin.RefreshProjectList;
     end;
   end;
+end;
+
+procedure TFormProjects.ActionAddDepsExecute(Sender: TObject);
+begin
+  inherited;
+  ESPHomePlugin.Plugin.DependencyAdd;
 end;
 
 procedure TFormProjects.ActionAddProjectExecute(Sender: TObject);
@@ -558,16 +597,10 @@ begin
   ESPHomePlugin.Plugin.CommandCompile;
 end;
 
-procedure TFormProjects.ActionOpenDepsExecute(Sender: TObject);
-begin
-  inherited;
-  ESPHomePlugin.Plugin.OpenProjectAndDependencies;
-end;
-
 procedure TFormProjects.ActionOpenExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.OpenProject;
+  ESPHomePlugin.Plugin.ProjectOpenFiles;
 end;
 
 procedure TFormProjects.ActionRunExecute(Sender: TObject);
@@ -579,13 +612,13 @@ end;
 procedure TFormProjects.ActionSettingsExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.ConfigureProject;
+  ESPHomePlugin.Plugin.ProjectConfigure;
 end;
 
 procedure TFormProjects.ActionShowLogsExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.CommandShowLogs;
+  ESPHomePlugin.Plugin.CommandLogs;
 end;
 
 procedure TFormProjects.ActionUploadExecute(Sender: TObject);
@@ -604,6 +637,8 @@ begin
 end;
 
 procedure TFormProjects.RefreshToolbar;
+var
+  Data: PProjectNode;
 begin
   ToolButtonSettings.Enabled := Assigned(ProjectList.Current);
   ToolButtonOpen.Enabled := Assigned(ProjectList.Current);
@@ -612,15 +647,27 @@ begin
   ToolButtonUpload.Enabled := Assigned(ProjectList.Current);
   ToolButtonShowLogs.Enabled := Assigned(ProjectList.Current);
   ToolButtonClean.Enabled := Assigned(ProjectList.Current);
+  ToolButtonRemovePrj.Enabled := Assigned(ProjectList.Current);
 
-  ToolButtonOpenDeps.Enabled := Assigned(ProjectList.Current) and (ProjectList.Current.OptionDependencies.Count > 0);
-  ToolButtonVisit.Enabled := Assigned(ProjectList.Current) and ProjectList.Current.HasWebServer;
+  if VirtualStringTreeProjects.SelectedCount = 1 then
+  begin
+    Data := VirtualStringTreeProjects.GetFirstSelected.GetData;
+    ToolButtonRemovePrj.Enabled := True;
+    ToolButtonAddDeps.Enabled := Data.Level < 0;
+    ToolButtonRemoveDep.Enabled := Data.Level >= 0;
+  end
+  else
+  begin
+    ToolButtonAddDeps.Enabled := False;
+    ToolButtonRemovePrj.Enabled := False;
+    ToolButtonRemoveDep.Enabled := False;
+  end;
 end;
 
 procedure TFormProjects.SplitterMoved(Sender: TObject);
 begin
   inherited;
-  ConfigFile.WriteInteger(csSectionGeneral, csKeyProjectPanelSize, PanelTop.Height);
+  ConfigIniFile.WriteInteger(csSectionGeneral, csKeyProjectPanelSize, PanelTop.Height);
 end;
 
 procedure TFormProjects.PopupMenuReloadXMLFileConfigurationClick(Sender: TObject);

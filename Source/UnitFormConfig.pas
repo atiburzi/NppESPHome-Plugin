@@ -5,23 +5,17 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForms, Vcl.StdCtrls, Vcl.ComCtrls,
-  Vcl.ImageCollection, Vcl.ImgList, Vcl.VirtualImageList, Vcl.VirtualImage, JvCombobox, JvListComb,
+  Vcl.ImageCollection, Vcl.ImgList, Vcl.VirtualImageList, JvCombobox, JvListComb,
   Vcl.WinXPanels, Vcl.ExtCtrls,
-  JvEdit, Vcl.BaseImageCollection, System.ImageList, JvExStdCtrls;
+  JvEdit, Vcl.BaseImageCollection, System.ImageList, JvExStdCtrls,
+  Vcl.VirtualImage, Vcl.Buttons;
 
 type
   TFormConfig = class(TNppPluginForm)
     ButtonClose: TButton;
     GroupBoxProject: TGroupBox;
-    ButtonRefresh: TButton;
-    MemoProject: TMemo;
-    VirtualImageListBlack: TVirtualImageList;
-    ImageCollectionBlack: TImageCollection;
+    VirtualImageList: TVirtualImageList;
     FileOpenDialogDependency: TFileOpenDialog;
-    VirtualImageStatus: TVirtualImage;
-    LabelStatus: TLabel;
-    ImageCollectionWhite: TImageCollection;
-    VirtualImageListWhite: TVirtualImageList;
     LabelOptionRunAdditionalParameters: TLabel;
     CheckBoxOptionRunNoLogs: TCheckBox;
     LabelOptionRunNoLogs: TLabel;
@@ -81,6 +75,9 @@ type
     EditOptionCompileAdditionalParameters: TJvEdit;
     LabelOptionCleanAdditionalParameters: TLabel;
     EditOptionCleanAdditionalParameters: TJvEdit;
+    VirtualImageMC: TVirtualImage;
+    MemoProject: TMemo;
+    SpeedButtonRefresh: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
@@ -107,6 +104,8 @@ type
     procedure CheckBoxOptionSoloModeClick(Sender: TObject);
     procedure EditOptionCompileAdditionalParametersChange(Sender: TObject);
     procedure EditOptionCleanAdditionalParametersChange(Sender: TObject);
+    procedure TreeViewOptionsGetImageIndex(Sender: TObject; Node: TTreeNode);
+    procedure SpeedButtonRefreshClick(Sender: TObject);
   private
     procedure PopulateComboDevice;
   public
@@ -328,6 +327,8 @@ begin
   else
     ComboBoxOptionConsoleAutoclose.ItemIndex := 0;
 
+  VirtualImageMC.ImageName := 'mc_' + ProjectList.Current.Microcontroller;
+
   ComboBoxLogLevel.ItemIndex := ProjectList.Current.GetOption(csKeyESPHomeLogLevel, ciLogLevelDefault);
   EditOptionESPHomeAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyESPHomeExtraParameters, csDefaultEmpty);
   ComboBoxOptionAutosave.ItemIndex := ProjectList.Current.GetOption(csKeyNppAutosave, ciAutoSaveAllFiles);
@@ -370,34 +371,26 @@ var
   DarkModeColors: TNppDarkModeColors;
 begin
   inherited ToggleDarkMode;
+
+  AssignWindowIcon(Icon);
+  AssignImageResources(VirtualImageList);
+  AssignImageResources(VirtualImageMC);
+
   if Plugin.IsDarkModeEnabled then
   begin
     DarkModeColors := Default(TNppDarkModeColors);
     Plugin.GetDarkModeColors(@DarkModeColors);
-
     Self.Color := TColor(DarkModeColors.Background);
     Self.Font.Color := TColor(DarkModeColors.Text);
-
-    Icon.Handle := LoadImage(HInstance, resMainIconLight, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    ComboBoxDevice.Images := VirtualImageListWhite;
-    VirtualImageStatus.ImageCollection := ImageCollectionWhite;
-    TreeViewOptions.Images := VirtualImageListWhite;
-
   end
   else
   begin
     Self.Color := clBtnFace;
     Self.Font.Color := clWindowText;
-
-    Icon.Handle := LoadImage(HInstance, resMainIconDark, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    ComboBoxDevice.Images := VirtualImageListBlack;
-    VirtualImageStatus.ImageCollection := ImageCollectionBlack;
-    TreeViewOptions.Images := VirtualImageListBlack;
   end;
 
   TreeViewOptions.Color := Self.Color;
   TreeViewOptions.Font.Color := Self.Font.Color;
-
   LabelDeviceDesc.Font.Color := Self.Font.Color;
   EditOptionRunAdditionalParameters.Font.Color := Self.Font.Color;
   EditOptionESPHomeAdditionalParameters.Font.Color := Self.Font.Color;
@@ -440,6 +433,12 @@ begin
         ComboBoxDevice.ItemIndex := Index;
 end;
 
+procedure TFormConfig.SpeedButtonRefreshClick(Sender: TObject);
+begin
+  inherited;
+  PopulateComboDevice;
+end;
+
 procedure TFormConfig.TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
 begin
   inherited;
@@ -465,6 +464,28 @@ begin
     TreeViewOptions.Canvas.Brush.Color := Self.Color;
     TreeViewOptions.Canvas.Font.Color  := Self.Font.Color;
   end;
+end;
+
+procedure TFormConfig.TreeViewOptionsGetImageIndex(Sender: TObject; Node: TTreeNode);
+var
+  ImageName: string;
+begin
+  inherited;
+  case Node.StateIndex of
+    0: ImageName := 'project';
+    1: ImageName := 'esphome';
+    2: ImageName := 'run';
+    3: ImageName := 'compile';
+    4: ImageName := 'upload';
+    5: ImageName := 'logs';
+    6: ImageName := 'clean';
+    7: ImageName := 'npp';
+    8: ImageName := 'console';
+  else
+    Exit;
+  end;
+  Node.ImageIndex := TTreeView(Sender).Images.GetIndexByName(ImageName);
+  Node.SelectedIndex := Node.ImageIndex;
 end;
 
 end.

@@ -99,11 +99,11 @@ var
   DarkModeColors: TNppDarkModeColors;
 begin
   inherited ToggleDarkMode;
+  AssignWindowIcon(Icon);
   if (Plugin.IsDarkModeEnabled) then
   begin
     DarkModeColors := Default(TNppDarkModeColors);
     Plugin.GetDarkModeColors(@DarkModeColors);
-    Icon.Handle := LoadImage(HInstance, resMainIconLight, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
     Self.Color := TColor(DarkModeColors.Background);
     Self.Font.Color := TColor(DarkModeColors.Text);
   end
@@ -111,7 +111,6 @@ begin
   begin
     Self.Color := clBtnFace;
     Self.Font.Color := clWindowText;
-    Icon.Handle := LoadImage(HInstance, resMainIconDark, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
   end;
 end;
 

@@ -19,7 +19,7 @@ library NppESPHome;
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
 {$ENDIF}
 
-{$R *.dres}
+
 
 uses
   System.SysUtils,
@@ -33,13 +33,13 @@ uses
   NppMenuCmdID in '..\Lib\NppMenuCmdID.pas',
   SciSupport in '..\Lib\SciSupport.pas',
   FileVersionInfo in '..\Lib\FileVersionInfo.pas',
-  ESPHomePlugin in 'ESPHomePlugin.pas',
   UnitFormSelection in 'UnitFormSelection.pas' {FormSelection},
   UnitFormConfig in 'UnitFormConfig.pas' {FormConfiguration},
   ESPHomeShared in 'ESPHomeShared.pas',
   UnitFormAbout in 'UnitFormAbout.pas' {FormAbout},
   UnitFormToolbar in 'UnitFormToolbar.pas' {FormToolbar},
-  UnitFormProjects in 'UnitFormProjects.pas' {FormProjects};
+  UnitFormProjects in 'UnitFormProjects.pas' {FormProjects},
+  ESPHomePlugin in 'ESPHomePlugin.pas' {Resources: TDataModule};
 
 {$R *.res}
 

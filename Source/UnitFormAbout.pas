@@ -107,6 +107,7 @@ var
   DarkModeColors: TNppDarkModeColors;
 begin
   inherited ToggleDarkMode;
+  AssignWindowIcon(Icon);
   if (Plugin.IsDarkModeEnabled) then
   begin
     DarkModeColors := Default(TNppDarkModeColors);
@@ -115,7 +116,6 @@ begin
     Self.Font.Color := TColor(DarkModeColors.Text);
     LabelAppName1.Font.Color := TColor(DarkModeColors.Text);
     LabelAppName2.Font.Color := TColor(DarkModeColors.Text);
-    Icon.Handle := LoadImage(HInstance, resMainIconLight, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
   end
   else
   begin
@@ -123,7 +123,6 @@ begin
     Self.Font.Color := clWindowText;
     LabelAppName1.Font.Color := clWindowText;
     LabelAppName2.Font.Color := clWindowText;
-    Icon.Handle := LoadImage(HInstance, resMainIconDark, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
   end;
 end;
 

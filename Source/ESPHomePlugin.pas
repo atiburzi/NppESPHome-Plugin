@@ -1,83 +1,126 @@
-﻿unit ESPHomePlugin;
+unit ESPHomePlugin;
 
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared;
-
+  Winapi.Windows, Winapi.CommCtrl, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared,
+  Vcl.BaseImageCollection, Vcl.ImageCollection, System.ImageList, Vcl.ImgList,
+  Vcl.VirtualImageList;
 
 const
   csPluginName = 'NppESPHome';
   csMenuEmptyLine = '-';
 
 const
-  ItemID_AddProject = 0;
-  ItemID_SelectProject = 1;
-  ItemID_RemoveProject = 2;
-  ItemID_ConfigureProject = 3;
-  ItemID_MenuSeparator1 = 4;
-  ItemID_OpenProject = 5;
-  ItemID_OpenProjectAndDependencies = 6;
-  ItemID_MenuSeparator2 = 7;
-  ItemID_CommandRun = 8;
-  ItemID_CommandCompile = 9;
-  ItemID_CommandUpload = 10;
-  ItemID_CommandShowLogs = 11;
-  ItemID_CommandClean = 12;
-  ItemID_CommandCleanAll = 13;
-  ItemID_MenuSeparator3 = 14;
-  ItemID_Help = 15;
-  ItemID_Upgrade = 16;
-  ItemID_MenuSeparator4 = 17;
-  ItemID_CmdShell = 20;
-  ItemID_Explorer = 21;
-  ItemID_MenuSeparator5 = 22;
-  ItemID_ShowHideWindow = 23;
-  ItemID_MenuSeparator6 = 24;
-  ItemID_Toolbar = 25;
-  ItemID_About = 26;
+  fiProjectAdd = 'addprj';
+  fiProjectSelect = 'select';
+  fiProjectRemove = 'removeprj';
+  fiProjectConfigure = 'configure';
+  fiProjectOpenFiles = 'open';
 
-  ItemID_First = ItemID_AddProject;
-  ItemID_Last = ItemID_About;
+  fiCommandRun = 'run';
+  fiCommandCompile = 'compile';
+  fiCommandUpload = 'upload';
+  fiCommandLogs = 'logs';
+  fiCommandClean = 'clean';
+  fiCommandCleanAll = 'cleanall';
 
-const
-  ToolbarIconItemKey: array[ItemID_First..ItemID_Last] of string = ('addproject', 'select', 'removeproject', 'configure', '', 'open', 'opendeps', '',
-    'run', 'compile', 'upload', 'showlogs', 'clean', 'cleanall', '', 'help', 'upgrade', '', '', '', 'terminal', 'explorer', '',
-    'showhide', '', '', '');
+  fiStartHelp = 'help';
+  fiStartUpgrade = 'upgrade';
+  fiStartTerminal = 'terminal';
+  fiStartExplorer = 'explorer';
+
+  fiShowHideToolbar = 'showhide';
+  fiConfigToolbar = 'toolbar';
+  fiAboutWindow = 'about';
+
+
+resourcestring
+  miProjectAdd = 'Add a new existing ESPHome project';
+  miProjectSelect = 'Select current ESPHome project...';
+  miProjectRemove = 'Remove current selected project';
+  miProjectConfigure = 'Configure Project...';
+  miProjectConfigureEx = 'Configure "%s" project...';
+  miProjectOpenFiles = 'Open Project file and dependencies';
+
+  miCommandRun = 'Run';
+  miCommandCompile = 'Compile';
+  miCommandUpload = 'Upload';
+  miCommandLogs = 'Show Logs';
+  miCommandClean = 'Clean';
+  miCommandCleanAll = 'Clean All';
+
+  miStartHelp = 'Show ESPHome online documentation';
+  miStartUpgrade = 'Check and upgrade ESPHome version';
+  miStartTerminal = 'Open a command shell from the current project folder';
+  miStartExplorer = 'Open an Explorer window from the current project folder';
+  miShowHideToolbar = 'Hide/Show ESPHome plugin window';
+  miConfigToolbar = 'Configure Plugin Toolbar...';
+  miAboutWindow = 'About...';
+
+type
+  TResources = class(TDataModule)
+    DarkModeImages: TImageCollection;
+    LightModeImages: TImageCollection;
+    DisabledImageList: TVirtualImageList;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+type
+  PToolbarButton = ^TToolbarButton;
+  TToolbarButton = record
+    Index: Integer;
+    CmdID: Integer;
+    FuncItemID: string;
+    Sequence: Integer;
+    Visible: Boolean;
+    Button: TTBButton;
+    IconData: TToolbarIconsWithDarkMode;
+  end;
+
+  TToolbarButtons = TArray<TToolbarButton>;
+
+type
+  TFuncItemsNames = TArray<string>;
 
 type
   TESPHomePlugin = class(TNppPlugin)
     OperationsOngoing: Boolean;
+    FFuncItemsNames: TFuncItemsNames;
+    FToolbarButtons: TToolbarButtons;
 
   public
 
-    procedure AddProject;
-    procedure RemoveProject;
-
-    procedure SelectProject;
-    procedure ConfigureProject;
-
-    procedure OpenProject;
-    procedure OpenProjectAndDependencies(CurrentFile: string = '');
-    procedure SaveProject;
-    procedure SaveProjectAndDependencies;
+    procedure ProjectAdd;
+    procedure ProjectSelect;
+    procedure ProjectRemove;
+    procedure ProjectConfigure;
+    procedure ProjectOpenFiles;
 
     procedure CommandRun;
     procedure CommandCompile;
     procedure CommandUpload;
-    procedure CommandShowLogs;
+    procedure CommandLogs;
     procedure CommandClean;
     procedure CommandCleanAll;
 
-    procedure CommandUpgrade;
-    procedure CommandShowHelp;
-    procedure CommandShellPrompt;
-    procedure CommandExplorer;
-    procedure CommandToolbar;
-    procedure CommandAbout;
-    procedure CommandShowHide;
+    procedure StartHelp;
+    procedure StartUpgrade;
+    procedure StartTerminal;
+    procedure StartExplorer;
+    procedure ShowHideToolbar;
+    procedure ConfigToolbar;
+    procedure AboutWindow;
+
 
   protected
+
+    function AddPluginFunction(FuncItemName: string; FuncItemDescription: nppString; FuncCmdProc: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; MenuChecked: Boolean = False): Integer;
+    function AddPluginMenuSeparator: Integer;
+
     procedure DoNppnReady; override;
     procedure DoNppnShutdown; override;
     procedure DoNppnShortcutRemapped; override;
@@ -86,12 +129,39 @@ type
     procedure DoNppnBufferActivated; override;
     procedure DoNppnFileOpened; override;
     procedure DoNppnFileSaved; override;
+    procedure DoNppToolbarIconsetChanged; override;
+
+    procedure SaveProject;
+    procedure SaveProjectAndDependencies;
+
+    function GetToolbarButton(Index: Integer): PToolbarButton;
+    function GetToolbarButtonCount: Integer;
 
   public
     constructor Create; override;
+    procedure SetInfo(NppData: TNppData); override;
+
+    function GetFuncItemIdFromIndex(const Index: Integer): string;
+    function GetIndexFromFuncItemName(const FuncItemName: string): Integer;
+    function GetCmdIdFromFuncItemName(const FuncItemName: string): Integer;
+
+    function GetToolbarConfiguration(const ADefault: Boolean = False): string;
+
+    procedure DependencyAdd;
+    procedure DependencyRemove(const DepFile: string);
+
+    procedure InitializeToolbarConfiguration;
+    procedure RegisterToolbarConfiguration;
+    procedure RefreshToolbarDisabledImages;
+    procedure RefreshToolbarConfiguration;
+    procedure FreeToolbarResources;
+
+    property ToolbarButton[Index: Integer]: PToolbarButton read GetToolbarButton;
+    property ToolbarButtonCount: Integer read GetToolbarButtonCount;
 
     procedure RefreshCurrentProject;
     procedure RefreshProjectList;
+
     procedure RefreshNppTitle;
     procedure RefreshPluginMenu;
 
@@ -108,13 +178,24 @@ var
 
   LastConsolePID: DWORD;
 
+
+var
+  Resources: TResources;
+
 implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
 
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, System.StrUtils,
-  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs, Vcl.Controls;
+  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, System.StrUtils, System.UIConsts,
+  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs, Vcl.Controls,
+  System.Math,
+  System.UITypes,
+  System.IOUtils;
 
 resourcestring
   rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.';
@@ -122,103 +203,98 @@ resourcestring
   rsInvalidESPHomeInstallation3 = '<a href="https://www.esphome.io/guides/installing_esphome/">Installing ESPHome Manually</a>';
 
   rsNoProjectSelected = 'No ESPHome project is currently selected.';
-  rsNoProjectSelected2 = 'To use this command, please select the current project and try again.'#13#13#10'You can select it through the menù command:'#13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+  rsNoProjectSelected2 = 'To use this command, please select the current project and try again.'#13#13#10'You can select it through the men� command:'#13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
 
 {$REGION 'Virtual Procedures'}
 
-procedure _AddProject; cdecl;
+procedure _ProjectAdd; cdecl;
 begin
-  Plugin.AddProject;
+	Plugin.ProjectAdd;
 end;
 
-procedure _RemoveProject; cdecl;
+procedure _ProjectSelect; cdecl;
 begin
-  Plugin.RemoveProject;
+	Plugin.ProjectSelect;
 end;
 
-procedure _SelectProject; cdecl;
+procedure _ProjectRemove; cdecl;
 begin
-  Plugin.SelectProject;
+	Plugin.ProjectRemove;
 end;
 
-procedure _ConfigureProject; cdecl;
+procedure _ProjectConfigure; cdecl;
 begin
-  Plugin.ConfigureProject;
+	Plugin.ProjectConfigure;
+end;
+
+procedure _ProjectOpenFiles; cdecl;
+begin
+	Plugin.ProjectOpenFiles;
 end;
 
 procedure _CommandRun; cdecl;
 begin
-  Plugin.CommandRun;
+	Plugin.CommandRun;
 end;
 
 procedure _CommandCompile; cdecl;
 begin
-  Plugin.CommandCompile;
+	Plugin.CommandCompile;
 end;
 
 procedure _CommandUpload; cdecl;
 begin
-  Plugin.CommandUpload;
+	Plugin.CommandUpload;
 end;
 
-procedure _CommandShowLogs; cdecl;
+procedure _CommandLogs; cdecl;
 begin
-  Plugin.CommandShowLogs;
+	Plugin.CommandLogs;
 end;
 
 procedure _CommandClean; cdecl;
 begin
-  Plugin.CommandClean;
+	Plugin.CommandClean;
 end;
 
 procedure _CommandCleanAll; cdecl;
 begin
-  Plugin.CommandCleanAll;
+	Plugin.CommandCleanAll;
 end;
 
-procedure _CommandUpgrade; cdecl;
+procedure _StartHelp; cdecl;
 begin
-  Plugin.CommandUpgrade;
+	Plugin.StartHelp;
 end;
 
-procedure _CommandShowHelp; cdecl;
+procedure _StartUpgrade; cdecl;
 begin
-  Plugin.CommandShowHelp;
+	Plugin.StartUpgrade;
 end;
 
-procedure _CommandShellPrompt; cdecl;
+procedure _StartTerminal; cdecl;
 begin
-  Plugin.CommandShellPrompt;
+	Plugin.StartTerminal;
 end;
 
-procedure _OpenProject; cdecl;
+procedure _StartExplorer; cdecl;
 begin
-  Plugin.OpenProject;
+	Plugin.StartExplorer;
 end;
 
-procedure _OpenProjectAndDependencies; cdecl;
+procedure _ShowHideToolbar; cdecl;
 begin
-  Plugin.OpenProjectAndDependencies;
+	Plugin.ShowHideToolbar;
 end;
 
-procedure _CommandExplorer; cdecl;
+procedure _ConfigToolbar; cdecl;
 begin
-  Plugin.CommandExplorer;
+	Plugin.ConfigToolbar;
 end;
 
-procedure _CommandToolbar; cdecl;
+procedure _AboutWindow; cdecl;
 begin
-  Plugin.CommandToolbar;
-end;
-
-procedure _CommandAbout; cdecl;
-begin
-  Plugin.CommandAbout;
-end;
-
-procedure _CommandShowHide; cdecl;
-begin
-  Plugin.CommandShowHide;
+	Plugin.AboutWindow;
 end;
 
 {$ENDREGION}
@@ -257,177 +333,16 @@ begin
   end;
 end;
 
-constructor TESPHomePlugin.Create;
+function GetToolbarIconForCurrentMode(
+  const IconData: TToolbarIconsWithDarkMode): HICON;
 begin
-  inherited Create;
-  OperationsOngoing := True;
-  Plugin := Self;
-  PluginName := csPluginName;
-
-  AddFuncItem(ItemID_AddProject, rsMenuAddProject, _AddProject, nil);
-  AddFuncItem(ItemID_SelectProject, rsMenuSelectProject, _SelectProject, MakeShortcutKey(True, True, False, $79));
-  AddFuncItem(ItemID_RemoveProject, rsMenuRemoveProject, _RemoveProject, nil);
-
-  AddFuncItem(ItemID_ConfigureProject, rsMenuConfigProject, _ConfigureProject, MakeShortcutKey(True, False, False, $79));
-
-  AddFuncItem(ItemID_MenuSeparator1, csMenuEmptyLine, nil, nil); // Menù separator
-  AddFuncItem(ItemID_OpenProject, rsMenuOpenProjectFile, _OpenProject, nil);
-  AddFuncItem(ItemID_OpenProjectAndDependencies, rsMenuOpenProjectFileAndDeps, _OpenProjectAndDependencies, nil);
-
-  AddFuncItem(ItemID_MenuSeparator2, csMenuEmptyLine, nil, nil); // Menù separator
-  AddFuncItem(ItemID_CommandRun, rsMenuCommandRun, _CommandRun, MakeShortcutKey(False, False, False, $78));
-  AddFuncItem(ItemID_CommandCompile, rsMenuCommandCompile, _CommandCompile, MakeShortcutKey(False, False, False, $77));
-  AddFuncItem(ItemID_CommandUpload, rsMenuCommandUpload, _CommandUpload, MakeShortcutKey(True, False, False, $77));
-  AddFuncItem(ItemID_CommandShowLogs, rsMenuCommandShowLogs, _CommandShowLogs, nil);
-  AddFuncItem(ItemID_CommandClean, rsMenuCommandClean, _CommandClean, nil);
-  AddFuncItem(ItemID_CommandCleanAll, rsMenuCommandCleanAll, _CommandCleanAll, nil);
-
-  AddFuncItem(ItemID_MenuSeparator3, csMenuEmptyLine, nil, nil); // Menù separator
-  AddFuncItem(ItemID_Help, rsMenuOpenESPHomeDocs, _CommandShowHelp, MakeShortcutKey(True, False, False, $70));
-  AddFuncItem(ItemID_Upgrade, rsMenuUpgradeESPHome, _CommandUpgrade, nil);
-
-  AddFuncItem(ItemID_MenuSeparator4, csMenuEmptyLine, nil, nil); // Menù separator
-  AddFuncItem(ItemID_CmdShell, rsMenuOpenCmdShell, _CommandShellPrompt, nil);
-  AddFuncItem(ItemID_Explorer, rsMenuOpenExplorer, _CommandExplorer, nil);
-
-  AddFuncItem(ItemID_MenuSeparator5, csMenuEmptyLine, nil, nil); // Menù separator
-  AddFuncItem(ItemID_ShowHideWindow, rsMenuShowHide, _CommandShowHide, nil);
-
-  AddFuncItem(ItemID_MenuSeparator6, csMenuEmptyLine, nil, nil); // Menù separator
-  AddFuncItem(ItemID_Toolbar, rsMenuToolbar, _CommandToolbar, nil);
-  AddFuncItem(ItemID_About, rsMenuAbout, _CommandAbout, nil);
-
-end;
-
-procedure TESPHomePlugin.DoNppnReady;
-begin
-  inherited;
-  OperationsOngoing := False;
-  ModuleInitialize;
-  FormProjects := TFormProjects.Create(Plugin, 19);
-  if ConfigFile.ReadBool(csSectionGeneral, csKeyProjectWindow, False) then
-    FormProjects.Show
-  else
-    FormProjects.Hide;
-  CheckMenuItem(ItemID_ShowHideWindow, FormProjects.Visible);
-  EnableMenuItem(ItemID_Toolbar, Plugin.IsNppMinVersion(8, 0));
-  RefreshNppTitle;
-  RefreshPluginMenu;
-end;
-
-procedure TESPHomePlugin.DoNppnShutdown;
-begin
-  if IsPIDRunning(LastConsolePID) then
-    KillProcessTree(LastConsolePID);
-  ModuleFinalize;
-  if Assigned(FormProjects) then
-    FormProjects.Free;
-  inherited;
-end;
-
-procedure TESPHomePlugin.DoNppnShortcutRemapped;
-begin
-  RefreshNppTitle;
-  RefreshPluginMenu;
-end;
-
-procedure TESPHomePlugin.DoNppnToolbarModification;
-var
-  IniFile: TIniFile;
-  Index, Count: Integer;
-  ToolbarConfig, DefaultConfig: string;
-  Item, Pattern: string;
-  Parts: TArray<string>;
-  Regex: TRegEx;
-  Bitmap: TBitmap;
-  IconLight, IconDark: TIcon;
-  IconData: TToolbarIconsWithDarkMode;
-begin
-  inherited;
-  if IsNppMinVersion(8, 0) then
-  begin
-    Count := 0;
-    DefaultConfig := '';
-    for Index := ItemID_First to ItemID_Last do
-      if ToolbarIconItemKey[Index] <> '' then
-      begin
-        DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
-        Inc(Count);
-      end;
-
-    IniFile := TIniFile.Create(IncludeTrailingPathDelimiter(Plugin.GetPluginConfigDir) + ChangeFileExt(Plugin.GetName, '.ini'));
-    ToolbarConfig := IniFile.ReadString(csSectionGeneral, csKeyToolbarConfig, DefaultConfig);
-    IniFile.Free;
-
-    Pattern := Format('^(?:\d+:[01];){%d}$', [Count]);
-    Regex := TRegEx.Create(Pattern);
-    if not Regex.IsMatch(ToolbarConfig) then
-      ToolbarConfig := DefaultConfig;
-
-    for Item in ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty) do
-    begin
-      if Item <> '' then
-      begin
-        Parts := Item.Split([':']);
-        if Length(Parts) = 2 then
-        begin
-          Val(Parts[0], Index, Count);
-          if (Count = 0) and (Index >= ItemID_First) and (Index <= ItemID_Last) and (Parts[1] = '1') then
-          begin
-            Bitmap := TBitmap.Create;
-            IconLight := TIcon.Create;
-            IconDark := TIcon.Create;
-            Bitmap.LoadFromResourceName(HInstance, ToolbarIconItemKey[Index]);
-            Bitmap.PixelFormat := pf8Bit;
-            IconLight.LoadFromResourceName(HInstance, Concat(ToolbarIconItemKey[Index], DarkModeSuffix[False]));
-            IconDark.LoadFromResourceName(HInstance, Concat(ToolbarIconItemKey[Index], DarkModeSuffix[True]));
-            IconData.ToolbarBmp := Bitmap.Handle;
-            IconData.ToolbarIcon := IconDark.Handle;
-            IconData.ToolbarIconDarkMode := IconLight.Handle;
-            Bitmap.TransparentMode := tmAuto;
-            Bitmap.TransparentColor := TColor($FFFFFF);
-            Bitmap.Transparent := True;
-            AddToolbarIcon(CmdIdFromMenuItemIdx(Index), IconData);
-          end;
-        end;
-      end;
-    end;
-  end;
-end;
-
-procedure TESPHomePlugin.DoNppnDarkModeChanged;
-begin
-  if Assigned(FormProjects) then
-    FormProjects.ToggleDarkMode;
-end;
-
-procedure TESPHomePlugin.DoNppnBufferActivated;
-begin
-  if not OperationsOngoing then
-  begin
-    if Assigned(FormProjects) then
-      FormProjects.CurrentDocumentChanged;
-    RefreshNppTitle;
-    RefreshPluginMenu;
-  end;
-end;
-
-procedure TESPHomePlugin.DoNppnFileOpened;
-begin
-  if not OperationsOngoing then
-  begin
-    RefreshNppTitle;
-    RefreshPluginMenu;
-  end;
-end;
-
-procedure TESPHomePlugin.DoNppnFileSaved;
-begin
-  if not OperationsOngoing then
-  begin
-    RefreshNppTitle;
-    RefreshPluginMenu;
-  end;
+  Result := 0;
+  if Plugin.IsDarkModeEnabled and (IconData.ToolbarIconDarkMode <> 0) then
+    Exit(IconData.ToolbarIconDarkMode);
+  if IconData.ToolbarIcon <> 0 then
+    Exit(IconData.ToolbarIcon);
+  if IconData.ToolbarIconDarkMode <> 0 then
+    Exit(IconData.ToolbarIconDarkMode);
 end;
 
 procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);
@@ -497,7 +412,7 @@ var
   CommandLine, Switch, Device: string;
   ESPHomeProcess: TJvCreateProcess;
 begin
-  if not Assigned(ProjectList.Current) or not FileExists(ESPHomeExeFile) then
+  if not Assigned(ProjectList.Current) or not FileExists(ESPHomeFile) then
     Exit;
 
   with ProjectList.Current do
@@ -511,7 +426,7 @@ begin
         Plugin.SaveAllFiles;
     end;
 
-    CommandLine := Format('"%s"', [ExpandFileName(ESPHomeExeFile)]);
+    CommandLine := Format('"%s"', [ExpandFileName(ESPHomeFile)]);
 
     case GetOption(csKeyESPHomeLogLevel, ciLogLevelDefault) of
       ciLogLevelCritical:
@@ -636,17 +551,53 @@ begin
   end;
 end;
 
-procedure TESPHomePlugin.AddProject;
-begin
+resourcestring
+  rsProjectAddFileTypeItem = 'ESPHome project file';
+  rsProjectAddFileOpenTitle = 'Add an existing ESPHome project to the known ones';
 
+procedure TESPHomePlugin.ProjectAdd;
+var
+  Project: TProject;
+  FileOpen: TFileOpenDialog;
+  FileTypeItem: TFileTypeItem;
+begin
+  FileOpen := TFileOpenDialog.Create(nil);
+  FileOpen.DefaultExtension := '.yaml';
+  FileOpen.Title := rsProjectAddFileOpenTitle;
+  FileOpen.Options := [fdoStrictFileTypes, fdoForceFileSystem, fdoFileMustExist];
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsProjectAddFileTypeItem;
+  FileTypeItem.FileMask := '*.yaml';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsProjectAddFileTypeItem;
+  FileTypeItem.FileMask := '*.yal';
+  if FileOpen.Execute(NppData.NppHandle) then
+  begin
+    if Assigned(ProjectList.GetProjectFromFileName(FileOpen.FileName)) then
+      TD(Format(rsProjectAlreadyExists, [ExtractFileName(FileOpen.FileName)])).WindowCaption(rsMessageBoxError).
+        Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(nil)
+    else
+    begin
+      Project := TProject.Create(FileOpen.FileName);
+      if Project.IsValid then
+      begin
+        ProjectList.Add(Project);
+        ProjectList.Current := Project;
+        ProjectList.SaveConfig;
+        RefreshProjectList;
+      end
+      else
+      begin
+        Project.Free;
+        TD(Format(rsInvalidProjectFile, [ExtractFileName(FileOpen.FileName)])).Text(rsInvalidProjectFile2).WindowCaption(rsMessageBoxError).
+          Error.OK.SetFlags([tfAllowDialogCancellation]).Execute(nil);
+      end;
+    end;
+  end;
+  FileOpen.Free;
 end;
 
-procedure TESPHomePlugin.RemoveProject;
-begin
-
-end;
-
-procedure TESPHomePlugin.SelectProject;
+procedure TESPHomePlugin.ProjectSelect;
 var
   FormSelection: TFormSelection;
 begin
@@ -660,7 +611,29 @@ begin
   RefreshPluginMenu;
 end;
 
-procedure TESPHomePlugin.ConfigureProject;
+procedure TESPHomePlugin.ProjectRemove;
+var
+  I: Integer;
+begin
+  inherited;
+  if Assigned(ProjectList.Current) then
+  begin
+    if TD(Format(rsKnownProjectRemoval, [ProjectList.Current.FriendlyName])).Text(rsKnownProjectRemoval2).WindowCaption(rsMessageBoxWarning).
+      SetFlags([tfAllowDialogCancellation]).Warning.YesNo.Execute(nil) = mrYes then
+    begin
+      I := ProjectList.IndexOf(ProjectList.Current);
+      ProjectList.Delete(I);
+      if ProjectList.Count > 0 then
+        ProjectList.Current := ProjectList.Items[Max(0, I - 1)]
+      else
+        ProjectList.Current := nil;
+      ProjectList.SaveConfig;
+      RefreshProjectList;
+    end;
+  end;
+end;
+
+procedure TESPHomePlugin.ProjectConfigure;
 var
   FormConfiguration: TFormConfig;
 begin
@@ -673,6 +646,24 @@ begin
       FreeAndNil(FormConfiguration);
     end;
   end;
+end;
+
+procedure TESPHomePlugin.ProjectOpenFiles;
+var
+  FileName: string;
+begin
+  if not CheckCurrentProject then
+    Exit;
+  OperationsOngoing := True;
+  OpenFile(ProjectList.Current.FileName);
+  ProjectList.Current.LoadOptionDependencies;
+  for FileName in ProjectList.Current.OptionDependencies do
+    if FileExists(FileName) then
+      OpenFile(FileName);
+  OperationsOngoing := False;
+  SwitchToFile(ProjectList.Current.FileName);
+  RefreshNppTitle;
+  RefreshPluginMenu;
 end;
 
 procedure TESPHomePlugin.CommandRun;
@@ -693,7 +684,7 @@ begin
     ExecuteESPHomeCommand(scUpload);
 end;
 
-procedure TESPHomePlugin.CommandShowLogs;
+procedure TESPHomePlugin.CommandLogs;
 begin
   if CheckESPHome and CheckCurrentProject then
     ExecuteESPHomeCommand(scLogs);
@@ -718,7 +709,12 @@ begin
   end;
 end;
 
-procedure TESPHomePlugin.CommandUpgrade;
+procedure TESPHomePlugin.StartHelp;
+begin
+  ShellExecute(0, 'open', PChar(rsESPHomeDocURL), nil, nil, SW_SHOWNORMAL);
+end;
+
+procedure TESPHomePlugin.StartUpgrade;
 var
   JvCreateProcess: TJvCreateProcess;
 begin
@@ -727,18 +723,13 @@ begin
 
   JvCreateProcess := TJvCreateProcess.Create(nil);
   JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
-  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & "%s" --version & pause', [ExpandFileName(ESPHomeExeFile)]);
-  JvCreateProcess.StartupInfo.Title := rsMenuUpgradeESPHome;
+  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & "%s" --version & pause', [ExpandFileName(ESPHomeFile)]);
+  JvCreateProcess.StartupInfo.Title := miStartUpgrade;
   JvCreateProcess.Run;
   JvCreateProcess.Free;
 end;
 
-procedure TESPHomePlugin.CommandShowHelp;
-begin
-  ShellExecute(0, 'open', PChar(rsESPHomeDocURL), nil, nil, SW_SHOWNORMAL);
-end;
-
-procedure TESPHomePlugin.CommandShellPrompt;
+procedure TESPHomePlugin.StartTerminal;
 var
   JvCreateProcess: TJvCreateProcess;
 begin
@@ -750,39 +741,279 @@ begin
   JvCreateProcess.CommandLine := '';
   JvCreateProcess.StartupInfo.Title := Format('[%s]', [ProjectList.Current.FriendlyName]);
   GetEnvironmentVars(JvCreateProcess.Environment);
-  JvCreateProcess.Environment.Add(Format('ESPHome=%s', [ExpandFileName(ESPHomeExeFile)]));
+  JvCreateProcess.Environment.Add(Format('ESPHome=%s', [ExpandFileName(ESPHomeFile)]));
   JvCreateProcess.Environment.Add(Format('ESPProject=%s', [ExpandFileName(ProjectList.Current.FileName)]));
   JvCreateProcess.Run;
   JvCreateProcess.Free;
 end;
 
-procedure TESPHomePlugin.OpenProject;
+procedure TESPHomePlugin.StartExplorer;
 begin
   if not CheckCurrentProject then
     Exit;
-  OpenFile(ProjectList.Current.FileName);
+  if ProjectList.Current.FileName <> '' then
+    ShellExecute(0, 'open', PChar(ExtractFilePath(ProjectList.Current.FileName)), nil, nil, SW_SHOWNORMAL);
+end;
+
+procedure TESPHomePlugin.ShowHideToolbar;
+begin
+  if Assigned(FormProjects) then
+  begin
+    if FormProjects.Visible then
+      FormProjects.Hide
+    else
+      FormProjects.Show;
+    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideToolbar), FormProjects.Visible);
+    ConfigIniFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
+  end;
+end;
+
+
+
+//          if (Count = 0) and (Parts[1] = '1') and (PluginDataModule.ImageCollection.GetIndexByName(FuncItemIdFromMenuItemIdx(Index)) >= 0) then
+//          begin
+//            Bitmap := PluginDataModule.ImageCollection.GetBitmap(FuncItemIdFromMenuItemIdx(Index), 20, 20);
+//            if not IsDarkModeEnabled then
+//              ConvertBitmapToBlack(Bitmap);
+//            FToolbarButtonArray[Index].IconData.ToolbarBmp := HBITMAP(CopyImage(Bitmap.Handle, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
+//            Bitmap.Free;
+//            Bitmap := PluginDataModule.ImageCollection.GetBitmap(FuncItemIdFromMenuItemIdx(Index), 64, 64);
+//            //ReplaceBitmapHue(Bitmap, TAlphaColor($FF4CC2FF), TAlphaColor($FFFF0000), 25 / 360, 0.12);
+//            FToolbarButtonArray[Index].IconData.ToolbarIconDarkMode := CreateIconFromBitmap(Bitmap);
+//            ConvertBitmapToBlack(Bitmap);
+//            FToolbarButtonArray[Index].IconData.ToolbarIcon := CreateIconFromBitmap(Bitmap);
+//            Bitmap.Free;
+//          end;
+
+procedure TESPHomePlugin.ConfigToolbar;
+begin
+  FormToolbar := TFormToolbar.Create(Self);
+  FormToolbar.ShowModal;
+  FreeAndNil(FormToolbar);
+end;
+
+procedure TESPHomePlugin.AboutWindow;
+begin
+  FormAbout := TFormAbout.Create(Self);
+  FormAbout.ShowModal;
+  FreeAndNil(FormAbout);
+end;
+
+function TESPHomePlugin.AddPluginFunction(FuncItemName: string; FuncItemDescription: nppString; FuncCmdProc: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; MenuChecked: Boolean = False): Integer;
+begin
+  Result := AddFuncItem(FuncItemDescription, FuncCmdProc, ShortcutKey, MenuChecked);
+  SetLength(FFuncItemsNames, Result + 1);
+  FFuncItemsNames[Result] := FuncItemName;
+end;
+
+function TESPHomePlugin.AddPluginMenuSeparator: Integer;
+begin
+  Result := AddFuncItem(csMenuEmptyLine, nil, nil);
+  SetLength(FFuncItemsNames, Result + 1);
+  FFuncItemsNames[Result] := Format('Sep$%2d', [Result]);
+end;
+
+procedure TESPHomePlugin.DoNppnReady;
+begin
+  inherited;
+  OperationsOngoing := False;
+
+  RegisterToolbarConfiguration;
+  RefreshToolbarConfiguration;
+
+//  The initial dock position is saved in %AppData%\Notepad++\config.xml as a GUIConfig element with the DockingManager attribute; e.g.,
+//   {
+//       <GUIConfig name="DockingManager" leftWidth="200" rightWidth="582" topHeight="200" bottomHeight="200">
+//           <PluginDlg pluginName="HelloWorld.dll" id="2" curr="1" prev="-1" isVisible="yes" />
+//           <ActiveTabs cont="0" activeTab="-1" />
+//           <!-- ... -->
+//       </GUIConfig>
+//   }
+//  You should delete this between launches when testing different dlgID.
+
+  FormProjects := TFormProjects.Create(Plugin, GetIndexFromFuncItemName(fiShowHideToolbar));
+
+  if ConfigIniFile.ReadBool(csSectionGeneral, csKeyProjectWindow, True) then
+    FormProjects.Show
+  else
+    FormProjects.Hide;
+
+  CheckMenuItem(GetIndexFromFuncItemName(fiShowHideToolbar), FormProjects.Visible);
+  EnableMenuItem(GetIndexFromFuncItemName(fiConfigToolbar), Plugin.IsNppMinVersion(8, 0));
+
   RefreshNppTitle;
   RefreshPluginMenu;
 end;
 
-procedure TESPHomePlugin.OpenProjectAndDependencies(CurrentFile: string = '');
-var
-  FileName: string;
+procedure TESPHomePlugin.DoNppnShutdown;
 begin
-  if not CheckCurrentProject then
-    Exit;
-  OperationsOngoing := True;
-  OpenFile(ProjectList.Current.FileName);
-  ProjectList.Current.LoadOptionDependencies;
-  for FileName in ProjectList.Current.OptionDependencies do
-    if FileExists(FileName) then
-      OpenFile(FileName);
-  OperationsOngoing := False;
-  if CurrentFile = '' then
-    CurrentFile := ProjectList.Current.FileName;
-  SwitchToFile(CurrentFile);
+  if IsPIDRunning(LastConsolePID) then
+    KillProcessTree(LastConsolePID);
+  if Assigned(TemplateList) then
+    TemplateList.Free;
+  if Assigned(ProjectList) then
+    ProjectList.Free;
+  if Assigned(ConfigIniFile) then
+    ConfigIniFile.Free;
+  if Assigned(FormProjects) then
+    FormProjects.Free;
+  FreeToolbarResources;
+  if Assigned(Resources) then
+    Resources.Free;
+  inherited;
+end;
+
+procedure TESPHomePlugin.DoNppnShortcutRemapped;
+begin
   RefreshNppTitle;
   RefreshPluginMenu;
+end;
+
+procedure TESPHomePlugin.DoNppnToolbarModification;
+begin
+  inherited;
+  InitializeToolbarConfiguration;
+end;
+
+procedure TESPHomePlugin.DoNppnDarkModeChanged;
+begin
+  if Assigned(FormProjects) then
+    FormProjects.ToggleDarkMode;
+
+//  RegisterToolbarConfiguration;
+//  RefreshToolbarConfiguration;
+
+  RefreshToolbarConfiguration;      // ricrea ordine/visibilit� dai TBBUTTON gi� catturati
+  RefreshToolbarDisabledImages;     // usa i bottoni realmente presenti, non la cache
+  RefreshPluginMenu;
+end;
+
+procedure TESPHomePlugin.DoNppnBufferActivated;
+begin
+  if not OperationsOngoing then
+  begin
+    if Assigned(FormProjects) then
+      FormProjects.CurrentDocumentChanged;
+    RefreshNppTitle;
+    RefreshPluginMenu;
+  end;
+end;
+
+procedure TESPHomePlugin.DoNppnFileOpened;
+begin
+  if not OperationsOngoing then
+  begin
+    RefreshNppTitle;
+    RefreshPluginMenu;
+  end;
+end;
+
+procedure TESPHomePlugin.DoNppnFileSaved;
+begin
+  if not OperationsOngoing then
+  begin
+    RefreshNppTitle;
+    RefreshPluginMenu;
+  end;
+end;
+
+procedure TESPHomePlugin.DoNppToolbarIconsetChanged;
+begin
+  TThread.CreateAnonymousThread(RefreshToolbarConfiguration).Start;
+end;
+
+resourcestring
+  rsDependencyAddFileTypeItem1 = 'ESPHome file';
+  rsDependencyAddFileTypeItem2 = 'ESPHome file';
+  rsDependencyAddFileTypeItem3 = 'Partitions file';
+  rsDependencyAddFileTypeItem4 = 'C++ header file';
+  rsDependencyAddFileTypeItem5 = 'C++ source file';
+  rsDependencyAddFileTypeItem6 = 'Include file';
+  rsDependencyAddFileTypeItem7 = 'Text file';
+  rsDependencyAddFileTypeItem8 = 'Any file';
+  rsDependencyAddFileOpenTitle = 'Select and add a dependency to %s';
+
+procedure TESPHomePlugin.DependencyAdd;
+var
+  Index: Integer;
+  FileOpen: TFileOpenDialog;
+  FileTypeItem: TFileTypeItem;
+begin
+
+  if not Assigned(ProjectList.Current) then
+    Exit;
+
+  FileOpen := TFileOpenDialog.Create(nil);
+  FileOpen.DefaultExtension := '.yaml';
+  FileOpen.Title := Format(rsDependencyAddFileOpenTitle, [ProjectList.Current.FriendlyName]);
+  FileOpen.Options := [fdoForceFileSystem, fdoAllowMultiSelect, fdoFileMustExist, fdoNoDereferenceLinks, fdoForceShowHidden];
+  FileOpen.DefaultFolder := ExtractFileDir(ProjectList.Current.FileName);
+
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem1;
+  FileTypeItem.FileMask := '*.yaml';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem2;
+  FileTypeItem.FileMask := '*.yal';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem3;
+  FileTypeItem.FileMask := '*.csv';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem4;
+  FileTypeItem.FileMask := '*.h';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem5;
+  FileTypeItem.FileMask := '*.cpp';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem6;
+  FileTypeItem.FileMask := '*.inc';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem7;
+  FileTypeItem.FileMask := '*.txt';
+  FileTypeItem := FileOpen.FileTypes.Add;
+  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem8;
+  FileTypeItem.FileMask := '*.*';
+
+  if FileOpen.Execute(NppData.NppHandle) then
+  begin
+    ProjectList.Current.OptionDependencies.AddStrings(FileOpen.Files);
+    Index := ProjectList.Current.OptionDependencies.IndexOf(ProjectList.Current.FileName);
+    if Index >= 0 then
+      ProjectList.Current.OptionDependencies.Delete(Index);
+    ProjectList.Current.SaveOptionDependencies;
+    RefreshProjectList;
+    if Assigned(FormProjects) then
+      FormProjects.CurrentDocumentChanged;
+  end;
+
+  FileOpen.Free;
+end;
+
+resourcestring
+  rsKnownDependencyRemoval = 'Dependency file "%s" is going to be removed from the "%s" project.';
+  rsKnownDependencyRemoval2 = 'Are you sure?';
+
+procedure TESPHomePlugin.DependencyRemove(const DepFile: string);
+var
+  I: Integer;
+begin
+  inherited;
+  if Assigned(ProjectList.Current) then
+  begin
+    if TD(Format(rsKnownDependencyRemoval, [ExtractFileName(DepFile), ProjectList.Current.FriendlyName])).Text(rsKnownDependencyRemoval2).WindowCaption(rsMessageBoxWarning).
+      SetFlags([tfAllowDialogCancellation]).Warning.YesNo.Execute(nil) = mrYes then
+    begin
+      I := ProjectList.Current.OptionDependencies.IndexOf(DepFile);
+      if I > 0 then
+      begin
+        ProjectList.Current.OptionDependencies.Delete(I);
+        ProjectList.Current.SaveOptionDependencies;
+        RefreshProjectList;
+        if Assigned(FormProjects) then
+          FormProjects.CurrentDocumentChanged;
+      end;
+    end;
+  end;
 end;
 
 procedure TESPHomePlugin.SaveProject;
@@ -803,38 +1034,420 @@ begin
   end;
 end;
 
-procedure TESPHomePlugin.CommandExplorer;
+function TESPHomePlugin.GetToolbarButton(Index: Integer): PToolbarButton;
 begin
-  if not CheckCurrentProject then
+  Result := nil;
+  if (Index >= 0) and (Index < Length(FToolbarButtons)) then
+    Result := @FToolbarButtons[Index];
+end;
+
+function TESPHomePlugin.GetToolbarButtonCount: Integer;
+begin
+  Result := Length(FToolbarButtons);
+end;
+
+constructor TESPHomePlugin.Create;
+begin
+  inherited Create;
+
+  Resources := TResources.Create(nil);
+  PopulateBlackImageCollection(Resources.DarkModeImages, Resources.LightModeImages);
+
+  OperationsOngoing := True;
+  Plugin := Self;
+  PluginName := csPluginName;
+
+  AddPluginFunction(fiProjectAdd, miProjectAdd, _ProjectAdd);
+  AddPluginFunction(fiProjectRemove, miProjectRemove, _ProjectRemove);
+  AddPluginFunction(fiProjectSelect, miProjectSelect, _ProjectSelect, MakeShortcutKey(True, True, False, $79));
+  AddPluginMenuSeparator;
+  AddPluginFunction(fiProjectConfigure, miProjectConfigure, _ProjectConfigure, MakeShortcutKey(True, False, False, $79));
+  AddPluginMenuSeparator;
+  AddPluginFunction(fiProjectOpenFiles, miProjectOpenFiles, _ProjectOpenFiles, nil);
+  AddPluginMenuSeparator;
+  AddPluginFunction(fiCommandRun, miCommandRun, _CommandRun, MakeShortcutKey(False, False, False, $78));
+  AddPluginFunction(fiCommandCompile, miCommandCompile, _CommandCompile, MakeShortcutKey(False, False, False, $77));
+  AddPluginFunction(fiCommandUpload, miCommandUpload, _CommandUpload, MakeShortcutKey(True, False, False, $77));
+  AddPluginFunction(fiCommandLogs, miCommandLogs, _CommandLogs, nil);
+  AddPluginFunction(fiCommandClean, miCommandClean, _CommandClean, nil);
+  AddPluginFunction(fiCommandCleanAll, miCommandCleanAll, _CommandCleanAll, nil);
+  AddPluginMenuSeparator;
+  AddPluginFunction(fiStartHelp, miStartHelp, _StartHelp, MakeShortcutKey(True, False, False, $70));
+  AddPluginFunction(fiStartUpgrade, miStartUpgrade, _StartUpgrade, nil);
+  AddPluginMenuSeparator;
+  AddPluginFunction(fiStartTerminal, miStartTerminal, _StartTerminal, nil);
+  AddPluginFunction(fiStartExplorer, miStartExplorer, _StartExplorer, nil);
+  AddPluginMenuSeparator;
+  AddPluginFunction(fiShowHideToolbar, miShowHideToolbar, _ShowHideToolbar, nil);
+  AddPluginMenuSeparator;
+  AddPluginFunction(fiConfigToolbar, miConfigToolbar, _ConfigToolbar, nil);
+  AddPluginFunction(fiAboutWindow, miAboutWindow, _AboutWindow, nil);
+
+end;
+
+procedure TESPHomePlugin.SetInfo(NppData: TNppData);
+begin
+  inherited SetInfo(NppData);
+  ESPHomeFile := ExpandFileName(FindFileInPath('esphome.exe'));
+  ConfigIniFile := TIniFile.Create(TPath.Combine(Plugin.GetPluginConfigDir, ChangeFileExt(Plugin.GetName, '.ini')));
+  TemplateFile := TPath.Combine(Plugin.GetPluginConfigDir, ChangeFileExt(Plugin.GetName, '.xml'));
+  ProjectList := TProjectList.Create;
+  TemplateList := TTemplateList.Create(TemplateFile);
+end;
+
+function TESPHomePlugin.GetFuncItemIdFromIndex(const Index: Integer): string;
+begin
+  Result := '';
+  if (Length(FFuncItemsNames) > Index) and (Index >= 0) then
+    Result := FFuncItemsNames[Index];
+end;
+
+function TESPHomePlugin.GetIndexFromFuncItemName(const FuncItemName: string): Integer;
+var
+  Index: Integer;
+begin
+  Result := -1;
+  for Index := 0 to High(FFuncItemsNames) do
+    if CompareText(FFuncItemsNames[Index], FuncItemName) = 0 then
+    begin
+      Result := Index;
+      Exit;
+    end;
+end;
+
+function TESPHomePlugin.GetCmdIdFromFuncItemName(const FuncItemName: string): Integer;
+begin
+  Result := CmdIdFromMenuItemIdx(GetIndexFromFuncItemName(FuncItemName));
+end;
+
+function TESPHomePlugin.GetToolbarConfiguration(const ADefault: Boolean = False): string;
+var
+  Regex: TRegEx;
+  I, Index, Count: Integer;
+  DefaultConfig: string;
+begin
+  Index := 0;
+  DefaultConfig := '';
+  GetFuncsArray(Count);
+  for I := 0 to Count - 1 do
+    if Resources.DarkModeImages.GetIndexByName(GetFuncItemIdFromIndex(I)) >= 0 then
+    begin
+      DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
+      Inc(Index);
+    end;
+  Result := DefaultConfig;
+
+  if not ADefault then
+  begin
+    Result := ConfigIniFile.ReadString(csSectionGeneral, csKeyToolbarConfig, DefaultConfig);
+    Regex := TRegEx.Create(Format('^(?:\d+:[01];){%d}$', [DefaultConfig.CountChar(':')]));
+    if not Regex.IsMatch(Result) then
+      Result := DefaultConfig;
+  end;
+end;
+
+procedure TESPHomePlugin.InitializeToolbarConfiguration;
+var
+  Bitmap: TBitmap;
+  FuncItemID: string;
+  Index, Count, Sequence: Integer;
+begin
+  if not IsNppMinVersion(8, 0) then
     Exit;
-  if ProjectList.Current.FileName <> '' then
-    ShellExecute(0, 'open', PChar(ExtractFilePath(ProjectList.Current.FileName)), nil, nil, SW_SHOWNORMAL);
+
+  Sequence := 0;
+  GetFuncsArray(Count);
+  for Index := 0 to Count - 1 do
+  begin
+    FuncItemId := GetFuncItemIdFromIndex(Index);
+    if Resources.DarkModeImages.GetIndexByName(FuncItemID) >= 0 then
+    begin
+      SetLength(FToolbarButtons, Sequence + 1);
+      FillChar(FToolbarButtons[Sequence], SizeOf(FToolbarButtons[Sequence]), 0);
+      FToolbarButtons[Sequence].Sequence := Sequence;
+      FToolbarButtons[Sequence].CmdID := CmdIdFromMenuItemIdx(Index);
+      FToolbarButtons[Sequence].Visible := False;
+      FToolbarButtons[Sequence].FuncItemID := FuncItemID;
+      FToolbarButtons[Sequence].Index := Index;
+      Bitmap := Resources.DarkModeImages.GetBitmap(FuncItemID, 20, 20);
+      FToolbarButtons[Sequence].IconData.ToolbarBmp := HBITMAP(CopyImage(Bitmap.Handle, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
+      Bitmap.Free;
+      Bitmap := Resources.DarkModeImages.GetBitmap(FuncItemID, 40, 40);
+      FToolbarButtons[Sequence].IconData.ToolbarIconDarkMode := CreateIconFromBitmap(Bitmap);
+      ConvertBitmapToBlack(Bitmap);
+      FToolbarButtons[Sequence].IconData.ToolbarIcon := CreateIconFromBitmap(Bitmap);
+      Bitmap.Free;
+      AddToolbarIcon(FToolbarButtons[Sequence].CmdID, FToolbarButtons[Sequence].IconData);
+      Inc(Sequence);
+    end;
+  end;
 end;
 
-procedure TESPHomePlugin.CommandToolbar;
+procedure TESPHomePlugin.RegisterToolbarConfiguration;
+var
+  Index, ImgIdx: Integer;
+  ToolbarHandle: HWND;
+  ButtonIndex: LRESULT;
+var
+  TempBmp: TBitmap;
+  TempIcon: TIcon;
+  IconSize: TPoint;
+  NormalListHandle: HIMAGELIST;
+  DisabledListHandle: HIMAGELIST;
+  NewIcon: HICON;
 begin
-  FormToolbar := TFormToolbar.Create(Self);
-  FormToolbar.ShowModal;
-  FreeAndNil(FormToolbar);
-end;
-
-procedure TESPHomePlugin.CommandAbout;
-begin
-  FormAbout := TFormAbout.Create(Self);
-  FormAbout.ShowModal;
-  FreeAndNil(FormAbout);
-end;
-
-procedure TESPHomePlugin.CommandShowHide;
-begin
-  if not Assigned(FormProjects) then
+  if not IsNppMinVersion(8, 0) then
     Exit;
-  if FormProjects.Visible then
-    FormProjects.Hide
-  else
-    FormProjects.Show;
-  CheckMenuItem(ItemID_ShowHideWindow, FormProjects.Visible);
-  ConfigFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
+
+  ToolbarHandle := GetToolbarHandle;
+
+  if ToolbarHandle = 0 then
+    Exit;
+
+  for Index := 0 to High(FToolbarButtons) do
+  begin
+    FillChar(FToolbarButtons[Index].Button, SizeOf(TTBButton), 0);
+    ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, FToolbarButtons[Index].CmdID, 0);
+    if ButtonIndex >= 0 then
+    begin
+      SendMessage(ToolbarHandle, TB_GETBUTTON, ButtonIndex, LPARAM(@FToolbarButtons[Index].Button));
+    end;
+   end;
+
+  NormalListHandle := SendMessage(ToolbarHandle, TB_GETIMAGELIST, 0, 0);
+  DisabledListHandle := SendMessage(ToolbarHandle, TB_GETDISABLEDIMAGELIST, 0, 0);
+
+  if (NormalListHandle = 0) or (DisabledListHandle = 0) then
+    Exit;
+
+  ImageList_GetIconSize(NormalListHandle, IconSize.X, IconSize.Y);
+
+  TempBmp  := TBitmap.Create;
+  TempIcon := TIcon.Create;
+  try
+    TempBmp.PixelFormat := pf32bit;
+    TempBmp.SetSize(IconSize.X, IconSize.Y);
+
+    for Index := 0 to High(FToolbarButtons) do
+    begin
+      ImgIdx := FToolbarButtons[Index].Button.iBitmap;
+      if ImgIdx < 0 then
+        Continue;
+
+      // Estrai l'icona dalla image list nativa
+      TempIcon.Handle := ImageList_GetIcon(NormalListHandle, ImgIdx, ILD_NORMAL);
+      if TempIcon.Handle = 0 then
+        Continue;
+      try
+        // Rendering su bitmap 32bit con sfondo di sistema
+        TempBmp.Canvas.Brush.Color := clBtnFace;
+        TempBmp.Canvas.FillRect(Rect(0, 0, IconSize.X, IconSize.Y));
+        TempBmp.Canvas.Draw(0, 0, TempIcon);
+      finally
+        // Libera subito l'HICON estratto; non attendere la fine del loop
+        DestroyIcon(TempIcon.Handle);
+        TempIcon.Handle := 0;
+      end;
+
+      // Converti in grigio e aggiorna la disabled image list
+      ConvertBitmapToDisabled(TempBmp);
+
+      NewIcon := CreateIconFromBitmap(TempBmp);
+      if NewIcon <> 0 then
+      try
+        ImageList_ReplaceIcon(DisabledListHandle, ImgIdx, NewIcon);
+      finally
+        DestroyIcon(NewIcon);
+      end;
+    end;
+
+  finally
+    TempIcon.Free;
+    TempBmp.Free;
+  end;
+
+end;
+
+procedure TESPHomePlugin.RefreshToolbarDisabledImages;
+var
+  Index, ImgIdx: Integer;
+  ToolbarHandle: HWND;
+  ButtonIndex: LRESULT;
+  Button: TTBButton;
+  TempBmp: TBitmap;
+  TempIcon: TIcon;
+  IconSize: TPoint;
+  NormalListHandle: HIMAGELIST;
+  DisabledListHandle: HIMAGELIST;
+  NewIcon: HICON;
+begin
+  if not IsNppMinVersion(8, 0) then
+    Exit;
+
+  ToolbarHandle := GetToolbarHandle;
+  if ToolbarHandle = 0 then
+    Exit;
+
+  NormalListHandle := SendMessage(ToolbarHandle, TB_GETIMAGELIST, 0, 0);
+  DisabledListHandle := SendMessage(ToolbarHandle, TB_GETDISABLEDIMAGELIST, 0, 0);
+
+  if (NormalListHandle = 0) or (DisabledListHandle = 0) then
+    Exit;
+
+  ImageList_GetIconSize(NormalListHandle, IconSize.X, IconSize.Y);
+
+  TempBmp := TBitmap.Create;
+  TempIcon := TIcon.Create;
+  try
+    TempBmp.PixelFormat := pf32bit;
+    TempBmp.SetSize(IconSize.X, IconSize.Y);
+
+    for Index := 0 to High(FToolbarButtons) do
+    begin
+      ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, FToolbarButtons[Index].CmdID, 0);
+      if ButtonIndex < 0 then
+        Continue;
+
+      FillChar(Button, SizeOf(Button), 0);
+      if SendMessage(ToolbarHandle, TB_GETBUTTON, ButtonIndex, LPARAM(@Button)) = 0 then
+        Continue;
+
+      ImgIdx := Button.iBitmap;
+      if ImgIdx < 0 then
+        Continue;
+
+      TempIcon.Handle := ImageList_GetIcon(NormalListHandle, ImgIdx, ILD_NORMAL);
+      if TempIcon.Handle = 0 then
+        Continue;
+
+      try
+        TempBmp.Canvas.Brush.Color := clBtnFace;
+        TempBmp.Canvas.FillRect(Rect(0, 0, IconSize.X, IconSize.Y));
+        TempBmp.Canvas.Draw(0, 0, TempIcon);
+      finally
+        DestroyIcon(TempIcon.Handle);
+        TempIcon.Handle := 0;
+      end;
+
+      ConvertBitmapToDisabled(TempBmp);
+
+      NewIcon := CreateIconFromBitmap(TempBmp);
+      if NewIcon <> 0 then
+      try
+        ImageList_ReplaceIcon(DisabledListHandle, ImgIdx, NewIcon);
+      finally
+        DestroyIcon(NewIcon);
+      end;
+    end;
+  finally
+    TempIcon.Free;
+    TempBmp.Free;
+  end;
+end;
+
+procedure TESPHomePlugin.RefreshToolbarConfiguration;
+var
+  Items: TArray<string>;
+  Parts: TArray<string>;
+  ButtonIndex: LRESULT;
+  ToolbarHandle: HWND;
+  FuncIndex, Index, Code: Integer;
+  ToolbarConfig: string;
+
+function GetSequenceIndex(const Seq: Integer): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to High(FToolbarButtons) do
+    if FToolbarButtons[I].Sequence = Seq then
+    begin
+      Result := I;
+      Exit
+    end;
+end;
+
+begin
+  if not IsNppMinVersion(8, 0) then
+    Exit;
+
+  ToolbarHandle := GetToolbarHandle;
+  if ToolbarHandle = 0 then
+    Exit;
+
+  for Index := 0 to High(FToolbarButtons) do
+  begin
+    repeat
+      ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, FToolbarButtons[Index].CmdID, 0);
+      if ButtonIndex >= 0 then
+        SendMessage(ToolbarHandle, TB_DELETEBUTTON, ButtonIndex, 0);
+    until ButtonIndex < 0;
+    FToolbarButtons[Index].Visible := False;
+  end;
+
+  ToolbarConfig := GetToolbarConfiguration;
+
+  Items := ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty);
+  for Index := 0 to High(Items) do
+  begin
+    Parts := Items[Index].Split([':']);
+    if Length(Parts) = 2 then
+    begin
+      Val(Parts[0], FuncIndex, Code);
+      if (Code = 0) and (FuncIndex >= 0) and (FuncIndex < Length(FToolbarButtons)) then
+      begin
+        FToolbarButtons[FuncIndex].Sequence := Index;
+        FToolbarButtons[FuncIndex].Visible := (Parts[1] = '1');
+      end;
+    end;
+  end;
+
+  for Index := 0 to High(FToolbarButtons) do
+  begin
+    FuncIndex := GetSequenceIndex(Index);
+    if FuncIndex < 0 then
+      Continue;
+
+    if not FToolbarButtons[FuncIndex].Visible then
+      Continue;
+
+    SendMessage(ToolbarHandle, TB_ADDBUTTONS, 1, LPARAM(@FToolbarButtons[FuncIndex].Button));
+
+  end;
+
+  SendMessage(ToolbarHandle, TB_AUTOSIZE, 0, 0);
+  SendMessage(ToolbarHandle, TB_SETMAXTEXTROWS, 0, 0);
+
+  InvalidateRect(ToolbarHandle, nil, True);
+
+  ShowWindow(ToolbarHandle, SW_SHOW);
+  UpdateWindow(ToolbarHandle);
+
+  if Assigned(FormProjects) then
+    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideToolbar), FormProjects.Visible);
+
+end;
+
+procedure TESPHomePlugin.FreeToolbarResources;
+var
+  Index: Integer;
+begin
+  if not IsNppMinVersion(8, 0) then
+    Exit;
+  for Index := 0 to High(FToolbarButtons) do
+  begin
+    with FToolbarButtons[Index].IconData do
+    begin
+      if ToolbarBmp <> 0 then
+        DeleteObject(ToolbarBmp);
+      if ToolbarIcon <> 0 then
+        DestroyIcon(ToolbarIcon);
+      if ToolbarIconDarkMode <> 0 then
+        DestroyIcon(ToolbarIconDarkMode);
+    end;
+    with FToolbarButtons[Index] do
+      FillChar(IconData, SizeOf(IconData), 0);
+  end;
 end;
 
 procedure TESPHomePlugin.RefreshCurrentProject;
@@ -854,15 +1467,15 @@ const
   SepChar = '|';
 var
   Index: Integer;
-  Text: string;
+  Title: string;
 begin
-  Text := GetNppWindowTitle;
-  Index := Pos(SepChar, Text);
+  Title := GetNppWindowTitle;
+  Index := Pos(SepChar, Title);
   if Index > 0 then
-    Text := Trim(Copy(Text, 1, Index - 1));
+    Title := Trim(Copy(Title, 1, Index - 1));
   if Assigned(ProjectList.Current) then
-    Text := Format('%s %s ESPHome Project: %s', [Text, SepChar, ProjectList.Current.FriendlyName]);
-  SetWindowText(NppData.NppHandle, PChar(Text));
+    Title := Format('%s %s ESPHome Project: %s', [Title, SepChar, ProjectList.Current.FriendlyName]);
+  SetWindowText(NppData.NppHandle, PChar(Title));
 end;
 
 procedure TESPHomePlugin.RefreshPluginMenu;
@@ -872,6 +1485,19 @@ var
   ShortcutKey: TShortcutKey;
   PFunc: PFuncItem;
   ProjectAssigned: Boolean;
+
+procedure EnableItem(FuncItemID: string; Status: Boolean);
+var
+  Index: Integer;
+begin
+  Index := GetIndexFromFuncItemName(FuncItemID);
+  if Index >= 0 then
+  begin
+    EnableMenuItem(Index, Status);
+    EnableToolbarItem(Index, Status);
+  end;
+end;
+
 begin
   ProjectAssigned := Assigned(ProjectList.Current);
 
@@ -879,10 +1505,10 @@ begin
   if PluginMenu <> 0 then
   begin
     if ProjectAssigned then
-      Text := Format(rsMenuConfigCurrentProject, [ProjectList.Current.FriendlyName])
+      Text := Format(miProjectConfigureEx, [ProjectList.Current.FriendlyName])
     else
-      Text := rsMenuSelectProject;
-    PFunc := GetFuncByIndex(ItemID_ConfigureProject);
+      Text := miProjectConfigure;
+    PFunc := GetFuncByIndex(GetIndexFromFuncItemName(fiProjectConfigure));
     if Assigned(PFunc) then
     begin
       if SendMessage(NppData.NppHandle, NPPM_GETSHORTCUTBYCMDID, PFunc^.CmdID, LPARAM(@ShortcutKey)) <> 0 then
@@ -892,32 +1518,24 @@ begin
     end;
   end;
 
-  EnableMenuItem(ItemID_ConfigureProject, ProjectAssigned);
-  EnableMenuItem(ItemID_OpenProject, ProjectAssigned);
-  EnableMenuItem(ItemID_CommandRun, ProjectAssigned);
-  EnableMenuItem(ItemID_CommandCompile, ProjectAssigned);
-  EnableMenuItem(ItemID_CommandUpload, ProjectAssigned);
-  EnableMenuItem(ItemID_CommandShowLogs, ProjectAssigned);
-  EnableMenuItem(ItemID_CommandClean, ProjectAssigned);
-
-  EnableMenuItem(ItemID_OpenProjectAndDependencies, ProjectAssigned and (ProjectList.Current.OptionDependencies.Count > 0));
-
-  EnableToolbarItem(ItemID_ConfigureProject, ProjectAssigned);
-  EnableToolbarItem(ItemID_OpenProject, ProjectAssigned);
-  EnableToolbarItem(ItemID_CommandRun, ProjectAssigned);
-  EnableToolbarItem(ItemID_CommandCompile, ProjectAssigned);
-  EnableToolbarItem(ItemID_CommandUpload, ProjectAssigned);
-  EnableToolbarItem(ItemID_CommandShowLogs, ProjectAssigned);
-  EnableToolbarItem(ItemID_CommandClean, ProjectAssigned);
-
-  EnableToolbarItem(ItemID_OpenProjectAndDependencies, ProjectAssigned and (ProjectList.Current.OptionDependencies.Count > 0));
+  EnableItem(fiProjectConfigure, ProjectAssigned);
+  EnableItem(fiProjectOpenFiles, ProjectAssigned);
+  EnableItem(fiProjectRemove, ProjectAssigned);
+  EnableItem(fiCommandRun, ProjectAssigned);
+  EnableItem(fiCommandCompile, ProjectAssigned);
+  EnableItem(fiCommandUpload, ProjectAssigned);
+  EnableItem(fiCommandLogs, ProjectAssigned);
+  EnableItem(fiCommandClean, ProjectAssigned);
+  EnableItem(fiCommandCleanAll, ProjectAssigned);
+  EnableItem(fiStartTerminal, ProjectAssigned);
+  EnableItem(fiStartExplorer, ProjectAssigned);
 
 end;
 
 function TESPHomePlugin.CheckESPHome: Boolean;
 begin
   Result := False;
-  if not FileExists(ESPHomeExeFile) then
+  if not FileExists(ESPHomeFile) then
     TD(rsInvalidESPHomeInstallation).Text(rsInvalidESPHomeInstallation2).Text(rsInvalidESPHomeInstallation3).WindowCaption(rsMessageBoxError).Hypertext.SetFlags
       ([tfAllowDialogCancellation]).Error.OK.Execute(nil)
   else

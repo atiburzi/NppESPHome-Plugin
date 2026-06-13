@@ -74,11 +74,11 @@ object FormSelection: TFormSelection
     FavoriteLinks = <>
     FileTypes = <
       item
-        DisplayName = 'ESPHome Project Files'
+        DisplayName = 'File'
         FileMask = '*.yaml'
       end
       item
-        DisplayName = 'ESPHome Project Files'
+        DisplayName = 'File'
         FileMask = '*.yml'
       end>
     Options = [fdoStrictFileTypes, fdoForceFileSystem, fdoFileMustExist]

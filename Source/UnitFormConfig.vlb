@@ -4,26 +4,17 @@ Coordinates=837,416,151,58
 [ComboBoxLogLevel]
 Coordinates=716,552,130,36
 
-[ImageCollectionBlack]
-Coordinates=1307,386,139,36
-
 [CardLogsOptions]
 Coordinates=10,348,114,58
 
 [CheckBoxOptionRunNoLogs]
 Coordinates=747,280,178,58
 
-[VirtualImageStatus]
-Coordinates=583,552,123,36
-
 [LabelOptionLogsReset]
 Coordinates=584,144,145,58
 
 [CheckBoxOptionLogsReset]
 Coordinates=635,212,172,58
-
-[ImageCollectionWhite]
-Coordinates=1288,490,140,36
 
 [ComboBoxOptionAutosave]
 Coordinates=404,552,169,36
@@ -33,9 +24,6 @@ Coordinates=381,144,98,58
 
 [LabelOptionRunReset]
 Coordinates=10,484,141,58
-
-[VirtualImageListWhite]
-Coordinates=713,490,140,36
 
 [TreeViewOptions]
 Coordinates=137,552,113,36
@@ -89,9 +77,6 @@ Coordinates=134,348,104,58
 [LabelDependencies]
 Coordinates=694,484,128,58
 
-[MemoProject]
-Coordinates=626,348,90,58
-
 [CardUploadOptions]
 Coordinates=388,416,127,58
 
@@ -101,20 +86,11 @@ Coordinates=739,144,134,58
 [LabelDevice]
 Coordinates=632,416,85,58
 
-[ButtonRefresh]
-Coordinates=525,416,97,58
-
 [CheckBoxOptionRunReset]
 Coordinates=536,10,168,58
 
-[VirtualImageListBlack]
-Coordinates=187,490,139,36
-
 [CardProjectOptions]
 Coordinates=10,212,127,58
-
-[LabelStatus]
-Coordinates=726,348,83,58
 
 [CheckBoxOptionCompileGenerateOnly]
 Coordinates=10,416,238,58
@@ -126,5 +102,8 @@ Coordinates=0,454,175,36
 Coordinates=277,212,112,58
 
 []
-Coordinates=251,280,241,58
+Coordinates=713,490,140,36
+
+[VirtualImageList]
+Coordinates=187,490,139,36
 
