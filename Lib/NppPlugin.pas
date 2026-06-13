@@ -117,7 +117,7 @@ type
 
     procedure CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
     procedure EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
-    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
+    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean); virtual;
 
     procedure PerformMenuCommand(MenuCmdId: Integer; Param: Integer = 0; Delayed: Boolean = true);
 

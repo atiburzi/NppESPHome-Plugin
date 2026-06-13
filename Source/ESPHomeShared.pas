@@ -1031,7 +1031,7 @@ end;
 procedure AssignImageResources(AVirtualImage: TVirtualImage); overload;
 begin
   if Plugin.IsDarkModeEnabled then
-    AVirtualImage.ImageCollection := Resources.DarkModeImages
+    AVirtualImage.ImageCollection := Resources.StandardImages
   else
     AVirtualImage.ImageCollection := Resources.LightModeImages;
 end;
@@ -1039,7 +1039,7 @@ end;
 procedure AssignImageResources(AVirtualImageList: TVirtualImageList);
 begin
   if Plugin.IsDarkModeEnabled then
-    AVirtualImageList.ImageCollection := Resources.DarkModeImages
+    AVirtualImageList.ImageCollection := Resources.StandardImages
   else
     AVirtualImageList.ImageCollection := Resources.LightModeImages;
 end;

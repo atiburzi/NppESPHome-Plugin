@@ -30,7 +30,7 @@ const
   fiStartTerminal = 'terminal';
   fiStartExplorer = 'explorer';
 
-  fiShowHideToolbar = 'showhide';
+  fiShowHidePrjWin = 'showhide';
   fiConfigToolbar = 'toolbar';
   fiAboutWindow = 'about';
 
@@ -54,15 +54,15 @@ resourcestring
   miStartUpgrade = 'Check and upgrade ESPHome version';
   miStartTerminal = 'Open a command shell from the current project folder';
   miStartExplorer = 'Open an Explorer window from the current project folder';
-  miShowHideToolbar = 'Hide/Show ESPHome plugin window';
+  miShowHidePrjWin = 'Hide/Show ESPHome plugin window';
   miConfigToolbar = 'Configure Plugin Toolbar...';
   miAboutWindow = 'About...';
 
 type
   TResources = class(TDataModule)
-    DarkModeImages: TImageCollection;
+    StandardImages: TImageCollection;
     LightModeImages: TImageCollection;
-    DisabledImageList: TVirtualImageList;
+    LowResImages: TImageCollection;
   private
     { Private declarations }
   public
@@ -77,6 +77,7 @@ type
     FuncItemID: string;
     Sequence: Integer;
     Visible: Boolean;
+    Enabled: Boolean;
     Button: TTBButton;
     IconData: TToolbarIconsWithDarkMode;
   end;
@@ -111,7 +112,7 @@ type
     procedure StartUpgrade;
     procedure StartTerminal;
     procedure StartExplorer;
-    procedure ShowHideToolbar;
+    procedure ShowHidePrjWin;
     procedure ConfigToolbar;
     procedure AboutWindow;
 
@@ -152,9 +153,11 @@ type
 
     procedure InitializeToolbarConfiguration;
     procedure RegisterToolbarConfiguration;
-    procedure RefreshToolbarDisabledImages;
+//    procedure RefreshToolbarDisabledImages;
     procedure RefreshToolbarConfiguration;
     procedure FreeToolbarResources;
+
+    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean); override;
 
     property ToolbarButton[Index: Integer]: PToolbarButton read GetToolbarButton;
     property ToolbarButtonCount: Integer read GetToolbarButtonCount;
@@ -282,9 +285,9 @@ begin
 	Plugin.StartExplorer;
 end;
 
-procedure _ShowHideToolbar; cdecl;
+procedure _ShowHidePrjWin; cdecl;
 begin
-	Plugin.ShowHideToolbar;
+	Plugin.ShowHidePrjWin;
 end;
 
 procedure _ConfigToolbar; cdecl;
@@ -755,7 +758,7 @@ begin
     ShellExecute(0, 'open', PChar(ExtractFilePath(ProjectList.Current.FileName)), nil, nil, SW_SHOWNORMAL);
 end;
 
-procedure TESPHomePlugin.ShowHideToolbar;
+procedure TESPHomePlugin.ShowHidePrjWin;
 begin
   if Assigned(FormProjects) then
   begin
@@ -763,7 +766,7 @@ begin
       FormProjects.Hide
     else
       FormProjects.Show;
-    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideToolbar), FormProjects.Visible);
+    CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
     ConfigIniFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
   end;
 end;
@@ -819,7 +822,9 @@ begin
   OperationsOngoing := False;
 
   RegisterToolbarConfiguration;
+
   RefreshToolbarConfiguration;
+//  RefreshToolbarDisabledImages;
 
 //  The initial dock position is saved in %AppData%\Notepad++\config.xml as a GUIConfig element with the DockingManager attribute; e.g.,
 //   {
@@ -831,14 +836,14 @@ begin
 //   }
 //  You should delete this between launches when testing different dlgID.
 
-  FormProjects := TFormProjects.Create(Plugin, GetIndexFromFuncItemName(fiShowHideToolbar));
+  FormProjects := TFormProjects.Create(Plugin, GetIndexFromFuncItemName(fiShowHidePrjWin));
 
   if ConfigIniFile.ReadBool(csSectionGeneral, csKeyProjectWindow, True) then
     FormProjects.Show
   else
     FormProjects.Hide;
 
-  CheckMenuItem(GetIndexFromFuncItemName(fiShowHideToolbar), FormProjects.Visible);
+  CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
   EnableMenuItem(GetIndexFromFuncItemName(fiConfigToolbar), Plugin.IsNppMinVersion(8, 0));
 
   RefreshNppTitle;
@@ -880,11 +885,7 @@ begin
   if Assigned(FormProjects) then
     FormProjects.ToggleDarkMode;
 
-//  RegisterToolbarConfiguration;
-//  RefreshToolbarConfiguration;
-
-  RefreshToolbarConfiguration;      // ricrea ordine/visibilità dai TBBUTTON già catturati
-  RefreshToolbarDisabledImages;     // usa i bottoni realmente presenti, non la cache
+  RefreshToolbarConfiguration;
   RefreshPluginMenu;
 end;
 
@@ -1051,7 +1052,7 @@ begin
   inherited Create;
 
   Resources := TResources.Create(nil);
-  PopulateBlackImageCollection(Resources.DarkModeImages, Resources.LightModeImages);
+  PopulateBlackImageCollection(Resources.StandardImages, Resources.LightModeImages);
 
   OperationsOngoing := True;
   Plugin := Self;
@@ -1078,7 +1079,7 @@ begin
   AddPluginFunction(fiStartTerminal, miStartTerminal, _StartTerminal, nil);
   AddPluginFunction(fiStartExplorer, miStartExplorer, _StartExplorer, nil);
   AddPluginMenuSeparator;
-  AddPluginFunction(fiShowHideToolbar, miShowHideToolbar, _ShowHideToolbar, nil);
+  AddPluginFunction(fiShowHidePrjWin, miShowHidePrjWin, _ShowHidePrjWin, nil);
   AddPluginMenuSeparator;
   AddPluginFunction(fiConfigToolbar, miConfigToolbar, _ConfigToolbar, nil);
   AddPluginFunction(fiAboutWindow, miAboutWindow, _AboutWindow, nil);
@@ -1130,7 +1131,7 @@ begin
   DefaultConfig := '';
   GetFuncsArray(Count);
   for I := 0 to Count - 1 do
-    if Resources.DarkModeImages.GetIndexByName(GetFuncItemIdFromIndex(I)) >= 0 then
+    if Resources.StandardImages.GetIndexByName(GetFuncItemIdFromIndex(I)) >= 0 then
     begin
       DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
       Inc(Index);
@@ -1160,19 +1161,20 @@ begin
   for Index := 0 to Count - 1 do
   begin
     FuncItemId := GetFuncItemIdFromIndex(Index);
-    if Resources.DarkModeImages.GetIndexByName(FuncItemID) >= 0 then
+    if Resources.StandardImages.GetIndexByName(FuncItemID) >= 0 then
     begin
       SetLength(FToolbarButtons, Sequence + 1);
       FillChar(FToolbarButtons[Sequence], SizeOf(FToolbarButtons[Sequence]), 0);
       FToolbarButtons[Sequence].Sequence := Sequence;
       FToolbarButtons[Sequence].CmdID := CmdIdFromMenuItemIdx(Index);
       FToolbarButtons[Sequence].Visible := False;
+      FToolbarButtons[Sequence].Enabled := True;
       FToolbarButtons[Sequence].FuncItemID := FuncItemID;
       FToolbarButtons[Sequence].Index := Index;
-      Bitmap := Resources.DarkModeImages.GetBitmap(FuncItemID, 20, 20);
+      Bitmap := Resources.LowResImages.GetBitmap(FuncItemID, 20, 20);
       FToolbarButtons[Sequence].IconData.ToolbarBmp := HBITMAP(CopyImage(Bitmap.Handle, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
       Bitmap.Free;
-      Bitmap := Resources.DarkModeImages.GetBitmap(FuncItemID, 40, 40);
+      Bitmap := Resources.StandardImages.GetBitmap(FuncItemID, 40, 40);
       FToolbarButtons[Sequence].IconData.ToolbarIconDarkMode := CreateIconFromBitmap(Bitmap);
       ConvertBitmapToBlack(Bitmap);
       FToolbarButtons[Sequence].IconData.ToolbarIcon := CreateIconFromBitmap(Bitmap);
@@ -1185,16 +1187,9 @@ end;
 
 procedure TESPHomePlugin.RegisterToolbarConfiguration;
 var
-  Index, ImgIdx: Integer;
+  Index: Integer;
   ToolbarHandle: HWND;
   ButtonIndex: LRESULT;
-var
-  TempBmp: TBitmap;
-  TempIcon: TIcon;
-  IconSize: TPoint;
-  NormalListHandle: HIMAGELIST;
-  DisabledListHandle: HIMAGELIST;
-  NewIcon: HICON;
 begin
   if not IsNppMinVersion(8, 0) then
     Exit;
@@ -1209,163 +1204,110 @@ begin
     FillChar(FToolbarButtons[Index].Button, SizeOf(TTBButton), 0);
     ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, FToolbarButtons[Index].CmdID, 0);
     if ButtonIndex >= 0 then
-    begin
       SendMessage(ToolbarHandle, TB_GETBUTTON, ButtonIndex, LPARAM(@FToolbarButtons[Index].Button));
-    end;
    end;
-
-  NormalListHandle := SendMessage(ToolbarHandle, TB_GETIMAGELIST, 0, 0);
-  DisabledListHandle := SendMessage(ToolbarHandle, TB_GETDISABLEDIMAGELIST, 0, 0);
-
-  if (NormalListHandle = 0) or (DisabledListHandle = 0) then
-    Exit;
-
-  ImageList_GetIconSize(NormalListHandle, IconSize.X, IconSize.Y);
-
-  TempBmp  := TBitmap.Create;
-  TempIcon := TIcon.Create;
-  try
-    TempBmp.PixelFormat := pf32bit;
-    TempBmp.SetSize(IconSize.X, IconSize.Y);
-
-    for Index := 0 to High(FToolbarButtons) do
-    begin
-      ImgIdx := FToolbarButtons[Index].Button.iBitmap;
-      if ImgIdx < 0 then
-        Continue;
-
-      // Estrai l'icona dalla image list nativa
-      TempIcon.Handle := ImageList_GetIcon(NormalListHandle, ImgIdx, ILD_NORMAL);
-      if TempIcon.Handle = 0 then
-        Continue;
-      try
-        // Rendering su bitmap 32bit con sfondo di sistema
-        TempBmp.Canvas.Brush.Color := clBtnFace;
-        TempBmp.Canvas.FillRect(Rect(0, 0, IconSize.X, IconSize.Y));
-        TempBmp.Canvas.Draw(0, 0, TempIcon);
-      finally
-        // Libera subito l'HICON estratto; non attendere la fine del loop
-        DestroyIcon(TempIcon.Handle);
-        TempIcon.Handle := 0;
-      end;
-
-      // Converti in grigio e aggiorna la disabled image list
-      ConvertBitmapToDisabled(TempBmp);
-
-      NewIcon := CreateIconFromBitmap(TempBmp);
-      if NewIcon <> 0 then
-      try
-        ImageList_ReplaceIcon(DisabledListHandle, ImgIdx, NewIcon);
-      finally
-        DestroyIcon(NewIcon);
-      end;
-    end;
-
-  finally
-    TempIcon.Free;
-    TempBmp.Free;
-  end;
 
 end;
 
-procedure TESPHomePlugin.RefreshToolbarDisabledImages;
+
+// Rebuilds the plugin toolbar according to the saved user configuration.
+//
+// Notepad++ toolbar buttons are bound to plugin function command IDs, but their
+// physical toolbar indexes and image indexes can change whenever buttons are
+// hidden, reordered, deleted/reinserted, or when Notepad++ refreshes the toolbar
+// during a dark/light mode switch.
+//
+// This routine therefore does all toolbar work in one pass:
+//   1. removes the current plugin buttons from the native Notepad++ toolbar;
+//   2. reloads the saved logical order and visibility;
+//   3. reinserts only the visible buttons, preserving their command IDs;
+//   4. applies the cached enabled/disabled state directly to each TBBUTTON;
+//   5. rebuilds the disabled image list using the current physical iBitmap
+//      values read back from the toolbar.
+//
+// The important rule is that cached TBBUTTON data is used only as a template.
+// Runtime-sensitive values such as the physical toolbar index and iBitmap are
+// always resolved again from the current toolbar instance.
+procedure TESPHomePlugin.RefreshToolbarConfiguration;
 var
-  Index, ImgIdx: Integer;
+  Items: TArray<string>;
+  Parts: TArray<string>;
   ToolbarHandle: HWND;
   ButtonIndex: LRESULT;
-  Button: TTBButton;
+  FuncIndex, ConfigIndex: Integer;
+  ToolbarConfig: string;
+  Visible: Boolean;
+
   TempBmp: TBitmap;
   TempIcon: TIcon;
   IconSize: TPoint;
   NormalListHandle: HIMAGELIST;
   DisabledListHandle: HIMAGELIST;
   NewIcon: HICON;
-begin
-  if not IsNppMinVersion(8, 0) then
-    Exit;
+  Button: TTBButton;
+  ImgIdx: Integer;
 
-  ToolbarHandle := GetToolbarHandle;
-  if ToolbarHandle = 0 then
-    Exit;
+  procedure PrepareButton(var AToolbarButton: TToolbarButton);
+  begin
+    // Keep the button bound to the original Notepad++ function command.
+    // This is important after deleting/re-adding buttons, because toolbar
+    // position and function item index are not the same thing.
+    AToolbarButton.Button.idCommand := AToolbarButton.CmdID;
 
-  NormalListHandle := SendMessage(ToolbarHandle, TB_GETIMAGELIST, 0, 0);
-  DisabledListHandle := SendMessage(ToolbarHandle, TB_GETDISABLEDIMAGELIST, 0, 0);
-
-  if (NormalListHandle = 0) or (DisabledListHandle = 0) then
-    Exit;
-
-  ImageList_GetIconSize(NormalListHandle, IconSize.X, IconSize.Y);
-
-  TempBmp := TBitmap.Create;
-  TempIcon := TIcon.Create;
-  try
-    TempBmp.PixelFormat := pf32bit;
-    TempBmp.SetSize(IconSize.X, IconSize.Y);
-
-    for Index := 0 to High(FToolbarButtons) do
-    begin
-      ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, FToolbarButtons[Index].CmdID, 0);
-      if ButtonIndex < 0 then
-        Continue;
-
-      FillChar(Button, SizeOf(Button), 0);
-      if SendMessage(ToolbarHandle, TB_GETBUTTON, ButtonIndex, LPARAM(@Button)) = 0 then
-        Continue;
-
-      ImgIdx := Button.iBitmap;
-      if ImgIdx < 0 then
-        Continue;
-
-      TempIcon.Handle := ImageList_GetIcon(NormalListHandle, ImgIdx, ILD_NORMAL);
-      if TempIcon.Handle = 0 then
-        Continue;
-
-      try
-        TempBmp.Canvas.Brush.Color := clBtnFace;
-        TempBmp.Canvas.FillRect(Rect(0, 0, IconSize.X, IconSize.Y));
-        TempBmp.Canvas.Draw(0, 0, TempIcon);
-      finally
-        DestroyIcon(TempIcon.Handle);
-        TempIcon.Handle := 0;
-      end;
-
-      ConvertBitmapToDisabled(TempBmp);
-
-      NewIcon := CreateIconFromBitmap(TempBmp);
-      if NewIcon <> 0 then
-      try
-        ImageList_ReplaceIcon(DisabledListHandle, ImgIdx, NewIcon);
-      finally
-        DestroyIcon(NewIcon);
-      end;
-    end;
-  finally
-    TempIcon.Free;
-    TempBmp.Free;
+    // Apply the cached logical enabled state directly to the TBBUTTON.
+    // This makes the button enter the toolbar already enabled/disabled,
+    // instead of relying only on a later TB_ENABLEBUTTON call.
+    if AToolbarButton.Enabled then
+      AToolbarButton.Button.fsState := AToolbarButton.Button.fsState or TBSTATE_ENABLED
+    else
+      AToolbarButton.Button.fsState := AToolbarButton.Button.fsState and not TBSTATE_ENABLED;
   end;
-end;
 
-procedure TESPHomePlugin.RefreshToolbarConfiguration;
-var
-  Items: TArray<string>;
-  Parts: TArray<string>;
-  ButtonIndex: LRESULT;
-  ToolbarHandle: HWND;
-  FuncIndex, Index, Code: Integer;
-  ToolbarConfig: string;
+  procedure RefreshDisabledImage(const ACmdID: Integer);
+  begin
+    // Resolve the current physical toolbar button from its command id.
+    // This avoids using stale iBitmap values cached before buttons were
+    // hidden, reordered, or recreated by Notepad++.
+    ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, WPARAM(ACmdID), 0);
+    if ButtonIndex < 0 then
+      Exit;
 
-function GetSequenceIndex(const Seq: Integer): Integer;
-var
-  I: Integer;
-begin
-  Result := -1;
-  for I := 0 to High(FToolbarButtons) do
-    if FToolbarButtons[I].Sequence = Seq then
-    begin
-      Result := I;
-      Exit
+    FillChar(Button, SizeOf(Button), 0);
+    if SendMessage(ToolbarHandle, TB_GETBUTTON, ButtonIndex, LPARAM(@Button)) = 0 then
+      Exit;
+
+    ImgIdx := Button.iBitmap;
+    if ImgIdx < 0 then
+      Exit;
+
+    // Extract the current normal image for this button from Notepad++'s
+    // toolbar image list, then render it to a bitmap so it can be converted
+    // to the plugin's custom disabled appearance.
+    TempIcon.Handle := ImageList_GetIcon(NormalListHandle, ImgIdx, ILD_NORMAL);
+    if TempIcon.Handle = 0 then
+      Exit;
+
+    try
+      TempBmp.Canvas.Brush.Color := clBtnFace;
+      TempBmp.Canvas.FillRect(Rect(0, 0, IconSize.X, IconSize.Y));
+      TempBmp.Canvas.Draw(0, 0, TempIcon);
+    finally
+      DestroyIcon(TempIcon.Handle);
+      TempIcon.Handle := 0;
     end;
-end;
+
+    // Replace only the disabled image for the current physical image index.
+    // The normal/dark icon remains managed by Notepad++.
+    ConvertBitmapToDisabled(TempBmp);
+
+    NewIcon := CreateIconFromBitmap(TempBmp);
+    if NewIcon <> 0 then
+    try
+      ImageList_ReplaceIcon(DisabledListHandle, ImgIdx, NewIcon);
+    finally
+      DestroyIcon(NewIcon);
+    end;
+  end;
 
 begin
   if not IsNppMinVersion(8, 0) then
@@ -1375,57 +1317,93 @@ begin
   if ToolbarHandle = 0 then
     Exit;
 
-  for Index := 0 to High(FToolbarButtons) do
+  // Remove every plugin toolbar button currently present.
+  // Buttons may have been reordered or partially hidden, so each command is
+  // looked up repeatedly until no toolbar button with that command remains.
+  for FuncIndex := 0 to High(FToolbarButtons) do
   begin
     repeat
-      ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, FToolbarButtons[Index].CmdID, 0);
+      ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, WPARAM(FToolbarButtons[FuncIndex].CmdID), 0);
       if ButtonIndex >= 0 then
         SendMessage(ToolbarHandle, TB_DELETEBUTTON, ButtonIndex, 0);
     until ButtonIndex < 0;
-    FToolbarButtons[Index].Visible := False;
+
+    FToolbarButtons[FuncIndex].Visible := False;
   end;
 
+  // Reload the persisted logical toolbar configuration.
+  // Each item is stored as "toolbarButtonIndex:visible", and the item order
+  // in the string is the desired toolbar order.
   ToolbarConfig := GetToolbarConfiguration;
-
   Items := ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty);
-  for Index := 0 to High(Items) do
-  begin
-    Parts := Items[Index].Split([':']);
-    if Length(Parts) = 2 then
-    begin
-      Val(Parts[0], FuncIndex, Code);
-      if (Code = 0) and (FuncIndex >= 0) and (FuncIndex < Length(FToolbarButtons)) then
-      begin
-        FToolbarButtons[FuncIndex].Sequence := Index;
-        FToolbarButtons[FuncIndex].Visible := (Parts[1] = '1');
-      end;
-    end;
-  end;
 
-  for Index := 0 to High(FToolbarButtons) do
+  for ConfigIndex := 0 to High(Items) do
   begin
-    FuncIndex := GetSequenceIndex(Index);
-    if FuncIndex < 0 then
+    Parts := Items[ConfigIndex].Split([':']);
+    if Length(Parts) <> 2 then
       Continue;
 
-    if not FToolbarButtons[FuncIndex].Visible then
+    if not TryStrToInt(Parts[0], FuncIndex) then
       Continue;
+
+    if (FuncIndex < 0) or (FuncIndex > High(FToolbarButtons)) then
+      Continue;
+
+    Visible := Parts[1] = '1';
+
+    // Store the logical order and visibility back into the in-memory model.
+    FToolbarButtons[FuncIndex].Sequence := ConfigIndex;
+    FToolbarButtons[FuncIndex].Visible := Visible;
+
+    if not Visible then
+      Continue;
+
+    // Insert only visible buttons, already carrying the correct command id
+    // and enabled/disabled state.
+    PrepareButton(FToolbarButtons[FuncIndex]);
 
     SendMessage(ToolbarHandle, TB_ADDBUTTONS, 1, LPARAM(@FToolbarButtons[FuncIndex].Button));
 
+    // Force the state once more after insertion. This helps after dark/light
+    // mode changes, where the toolbar can refresh its internal state.
+    SendMessage(ToolbarHandle, TB_SETSTATE, WPARAM(FToolbarButtons[FuncIndex].CmdID), LPARAM(FToolbarButtons[FuncIndex].Button.fsState));
   end;
 
   SendMessage(ToolbarHandle, TB_AUTOSIZE, 0, 0);
   SendMessage(ToolbarHandle, TB_SETMAXTEXTROWS, 0, 0);
 
-  InvalidateRect(ToolbarHandle, nil, True);
+  // Rebuild the disabled image list after the toolbar has been recreated.
+  // At this point the physical iBitmap values are the current valid ones.
+  NormalListHandle := SendMessage(ToolbarHandle, TB_GETIMAGELIST, 0, 0);
+  DisabledListHandle := SendMessage(ToolbarHandle, TB_GETDISABLEDIMAGELIST, 0, 0);
 
+  if (NormalListHandle <> 0) and (DisabledListHandle <> 0) then
+  begin
+    ImageList_GetIconSize(NormalListHandle, IconSize.X, IconSize.Y);
+
+    TempBmp := TBitmap.Create;
+    TempIcon := TIcon.Create;
+    try
+      TempBmp.PixelFormat := pf32bit;
+      TempBmp.SetSize(IconSize.X, IconSize.Y);
+
+      for FuncIndex := 0 to High(FToolbarButtons) do
+        if FToolbarButtons[FuncIndex].Visible then
+          RefreshDisabledImage(FToolbarButtons[FuncIndex].CmdID);
+    finally
+      TempIcon.Free;
+      TempBmp.Free;
+    end;
+  end;
+
+  // Ask the native toolbar to repaint with the new order, visibility,
+  // enabled state, and disabled images.
+  InvalidateRect(ToolbarHandle, nil, True);
   ShowWindow(ToolbarHandle, SW_SHOW);
   UpdateWindow(ToolbarHandle);
 
   if Assigned(FormProjects) then
-    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideToolbar), FormProjects.Visible);
-
+    CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
 end;
 
 procedure TESPHomePlugin.FreeToolbarResources;
@@ -1447,6 +1425,54 @@ begin
     end;
     with FToolbarButtons[Index] do
       FillChar(IconData, SizeOf(IconData), 0);
+  end;
+end;
+
+procedure TESPHomePlugin.EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
+var
+  CmdID: Integer;
+  ButtonIndex: LRESULT;
+  ButtonState: LRESULT;
+  ToolbarHandle: HWND;
+
+function GetIndex: Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to High(Plugin.FToolbarButtons) do
+    if Plugin.FToolbarButtons[I].CmdID = CmdID then
+    begin
+      Result := I;
+      Exit
+    end;
+end;
+
+begin
+  ToolbarHandle := Plugin.GetToolbarHandle;
+  CmdID := CmdIdFromMenuItemIdx(MenuItemIdx);
+
+  if (ToolbarHandle = 0) or (CmdID < 0) then
+    Exit;
+
+  ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, WPARAM(CmdID), 0);
+  if ButtonIndex < 0 then
+    Exit;
+
+  ButtonState := SendMessage(ToolbarHandle, TB_GETSTATE, WPARAM(CmdID), 0);
+  if ButtonState < 0 then
+    Exit;
+
+  if State then
+    ButtonState := ButtonState or TBSTATE_ENABLED
+  else
+    ButtonState := ButtonState and not TBSTATE_ENABLED;
+
+  if SendMessage(ToolbarHandle, TB_SETSTATE, WPARAM(CmdID), LPARAM(ButtonState)) >= 0 then
+  begin
+    ButtonIndex := GetIndex;
+    if ButtonIndex >= 0 then
+      Plugin.FToolbarButtons[ButtonIndex].Enabled := State;
   end;
 end;
 
@@ -1495,6 +1521,7 @@ begin
   begin
     EnableMenuItem(Index, Status);
     EnableToolbarItem(Index, Status);
+    //SetToolbarItemEnabled(CmdIdFromMenuItemIdx(Index), Status);
   end;
 end;
 
