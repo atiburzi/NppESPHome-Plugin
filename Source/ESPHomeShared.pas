@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, System.Generics.Collections, Winapi.Windows, Vcl.ComCtrls, Vcl.Graphics, Vcl.VirtualImage, Vcl.ImageCollection, Vcl.VirtualImageList, XMLIntf, IniFiles,
-  System.UITypes, NppSupport, Winapi.CommCtrl;
+  System.UITypes, NppSupport;
 
 const
   PingTimeout = 3 * 1000;
@@ -585,9 +585,7 @@ begin
     begin
       DownloadTemplateFileFromGitHub;
       TD(rsTemplatesXMLDownloaded).WindowCaption(rsMessageBoxInfo).Info.OK.SetFlags([tfAllowDialogCancellation]).Execute(nil);
-    end
-    else
-      TFile.Create(TemplateFile);
+    end;
   end;
   if FileExists(AFileName) then
   begin
@@ -927,7 +925,6 @@ procedure ReplaceBitmapHue(ABitmap: Vcl.Graphics.TBitmap; const SourceColor: TAl
   const MinSaturation: Single = 0.15);
 type
   PRGBQuadArray = ^TRGBQuadArray;
-
   TRGBQuadArray = array[0..MaxInt div SizeOf(TRGBQuad) - 1] of TRGBQuad;
 
   function HueDistance(const H1, H2: Single): Single;

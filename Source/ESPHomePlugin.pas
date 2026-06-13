@@ -4,8 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.CommCtrl, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared,
-  Vcl.BaseImageCollection, Vcl.ImageCollection, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList;
+  Vcl.ImageCollection, Vcl.BaseImageCollection;
 
 const
   csPluginName = 'NppESPHome';
@@ -194,7 +193,7 @@ implementation
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, System.StrUtils, System.UIConsts,
+  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, System.StrUtils,
   UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs, Vcl.Controls,
   System.Math,
   System.UITypes,
@@ -334,18 +333,6 @@ begin
     IsShift := Shift;
     Key := AKey;
   end;
-end;
-
-function GetToolbarIconForCurrentMode(
-  const IconData: TToolbarIconsWithDarkMode): HICON;
-begin
-  Result := 0;
-  if Plugin.IsDarkModeEnabled and (IconData.ToolbarIconDarkMode <> 0) then
-    Exit(IconData.ToolbarIconDarkMode);
-  if IconData.ToolbarIcon <> 0 then
-    Exit(IconData.ToolbarIcon);
-  if IconData.ToolbarIconDarkMode <> 0 then
-    Exit(IconData.ToolbarIconDarkMode);
 end;
 
 procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);

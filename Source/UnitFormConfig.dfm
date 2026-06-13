@@ -342,7 +342,7 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 339
+          Width = 233
           Height = 30
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
@@ -604,8 +604,8 @@ object FormConfig: TFormConfig
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 8
-          Width = 276
-          Height = 30
+          Width = 200
+          Height = 45
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
             'ommand is executed:'
@@ -856,160 +856,7 @@ object FormConfig: TFormConfig
   end
   object VirtualImageList: TVirtualImageList
     AutoFill = True
-    Images = <
-      item
-        CollectionIndex = 0
-        Name = 'adddep'
-      end
-      item
-        CollectionIndex = 1
-        Name = 'addprj'
-      end
-      item
-        CollectionIndex = 2
-        Name = 'cancel'
-      end
-      item
-        CollectionIndex = 3
-        Name = 'clean'
-      end
-      item
-        CollectionIndex = 4
-        Name = 'cleanall'
-      end
-      item
-        CollectionIndex = 5
-        Name = 'compile'
-      end
-      item
-        CollectionIndex = 6
-        Name = 'configure'
-      end
-      item
-        CollectionIndex = 7
-        Name = 'console'
-      end
-      item
-        CollectionIndex = 8
-        Name = 'dependency'
-      end
-      item
-        CollectionIndex = 9
-        Name = 'ESPHome'
-      end
-      item
-        CollectionIndex = 10
-        Name = 'explorer'
-      end
-      item
-        CollectionIndex = 11
-        Name = 'help'
-      end
-      item
-        CollectionIndex = 12
-        Name = 'logs'
-      end
-      item
-        CollectionIndex = 13
-        Name = 'mc_bk72xx'
-      end
-      item
-        CollectionIndex = 14
-        Name = 'mc_esp32'
-      end
-      item
-        CollectionIndex = 15
-        Name = 'mc_esp8266'
-      end
-      item
-        CollectionIndex = 16
-        Name = 'mc_host'
-      end
-      item
-        CollectionIndex = 17
-        Name = 'mc_ln882x'
-      end
-      item
-        CollectionIndex = 18
-        Name = 'mc_rp2040'
-      end
-      item
-        CollectionIndex = 19
-        Name = 'mc_rtl87xx'
-      end
-      item
-        CollectionIndex = 20
-        Name = 'more'
-      end
-      item
-        CollectionIndex = 21
-        Name = 'none'
-      end
-      item
-        CollectionIndex = 22
-        Name = 'npp'
-      end
-      item
-        CollectionIndex = 23
-        Name = 'NppESPHome'
-      end
-      item
-        CollectionIndex = 24
-        Name = 'open'
-      end
-      item
-        CollectionIndex = 25
-        Name = 'project'
-      end
-      item
-        CollectionIndex = 26
-        Name = 'refreshusb'
-      end
-      item
-        CollectionIndex = 27
-        Name = 'removedep'
-      end
-      item
-        CollectionIndex = 28
-        Name = 'removeprj'
-      end
-      item
-        CollectionIndex = 29
-        Name = 'run'
-      end
-      item
-        CollectionIndex = 30
-        Name = 'select'
-      end
-      item
-        CollectionIndex = 31
-        Name = 'serial'
-      end
-      item
-        CollectionIndex = 32
-        Name = 'showhide'
-      end
-      item
-        CollectionIndex = 33
-        Name = 'terminal'
-      end
-      item
-        CollectionIndex = 34
-        Name = 'upgrade'
-      end
-      item
-        CollectionIndex = 35
-        Name = 'upload'
-      end
-      item
-        CollectionIndex = 36
-        Name = 'wifi'
-      end
-      item
-        CollectionIndex = 37
-        Name = 'window'
-      end>
-    ImageCollection = Resources.LightModeImages
+    Images = <>
     Width = 20
     Height = 20
     Left = 304

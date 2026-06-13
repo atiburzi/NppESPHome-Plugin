@@ -113,8 +113,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
-        <VerInfo_Build>129</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.129;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Build>136</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.136;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
         <MapFile>3</MapFile>
         <DCC_MapFile>3</DCC_MapFile>
         <ILINK_MapFileType>DetailedSegments</ILINK_MapFileType>
@@ -130,18 +130,16 @@ explorer.exe /select,"$(OUTPUTPATH)"]]></PostBuildEvent>
         <PostBuildEventCancelOnError>false</PostBuildEventCancelOnError>
         <DCC_ExeOutput>..\Bin\$(Platform)</DCC_ExeOutput>
         <PostBuildEventExecuteWhen>TargetOutOfDate</PostBuildEventExecuteWhen>
-        <VerInfo_Release>28</VerInfo_Release>
-        <VerInfo_AutoIncVersion>false</VerInfo_AutoIncVersion>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.28.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Release>46</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.2.46.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
         <VerInfo_Build>0</VerInfo_Build>
+        <VerInfo_MinorVer>2</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_Release>44</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2026;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.44.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2026;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.2.46.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Release>44</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2026;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.44.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2026;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.2.46.0;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

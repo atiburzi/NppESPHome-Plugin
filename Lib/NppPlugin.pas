@@ -164,6 +164,7 @@ type
     function GetFullPathFromBufferId(ABufferId: NativeInt): string;
     function GetCurrentBufferDirty(AViewIdx: Integer): Boolean;
     function GetDarkModeColors(PColors: PNppDarkModeColors): Boolean;
+    function GetToolbarIconSetChoice: Integer;
 
     function GetOpenFilesCnt(CntType: Integer): Integer;
     function GetOpenFiles(CntType: Integer): TStringDynArray;
@@ -742,6 +743,11 @@ begin
   Result := false;
   if IsDarkModeEnabled then
     Result := SendMessage(NppData.NppHandle, NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LParam(PColors)) > 0;
+end;
+
+function TNppPlugin.GetToolbarIconSetChoice: Integer;
+begin
+  Result := SendMessage(NppData.NppHandle, NPPM_GETTOOLBARICONSETCHOICE, 0, 0);
 end;
 
 function TNppPlugin.GetOpenFilesCnt(CntType: Integer): Integer;

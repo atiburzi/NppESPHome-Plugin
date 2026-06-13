@@ -5,10 +5,11 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForms, Vcl.StdCtrls, Vcl.ComCtrls,
-  Vcl.ImageCollection, Vcl.ImgList, Vcl.VirtualImageList, JvCombobox, JvListComb,
+  Vcl.VirtualImageList, JvListComb,
   Vcl.WinXPanels, Vcl.ExtCtrls,
-  JvEdit, Vcl.BaseImageCollection, System.ImageList, JvExStdCtrls,
-  Vcl.VirtualImage, Vcl.Buttons;
+  JvEdit,
+  Vcl.VirtualImage, Vcl.Buttons, System.ImageList, Vcl.ImgList, JvExStdCtrls,
+  JvCombobox;
 
 type
   TFormConfig = class(TNppPluginForm)

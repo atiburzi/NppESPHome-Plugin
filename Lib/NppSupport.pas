@@ -884,6 +884,11 @@ const
 	// lParam: 0 (not used)
 	// Return toolbar icon set choice as an integer value. Here are 5 possible values:
 	// 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
+    nppToolbarFluentSmall       = 0;
+    nppToolbarFluentLarge       = 1;
+    nppToolbarFilledFluentSmall = 2;
+    nppToolbarFilledFluentLarge = 3;
+    nppToolbarStandardSmall     = 4;
 
   NPPM_GETNPPSETTINGSDIRPATH      = (NPPMSG + 119);
 	// int NPPM_GETNPPSETTINGSDIRPATH(size_t strLen, wchar_t *settingsDirPath)

@@ -4,8 +4,8 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, System.UITypes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ImageCollection, NppPlugin, NppPluginForms,
-  Vcl.ComCtrls, Vcl.ImgList, Vcl.VirtualImageList, System.ImageList;
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, NppPlugin, NppPluginForms,
+  Vcl.ComCtrls, Vcl.VirtualImageList, System.ImageList, Vcl.ImgList;
 
 type
   TFormToolbar = class(TNppPluginForm)
@@ -70,7 +70,14 @@ var
 begin
   inherited ToggleDarkMode;
   AssignWindowIcon(Icon);
-  AssignImageResources(VirtualImagelist);
+
+  if Plugin.GetToolbarIconSetChoice = nppToolbarStandardSmall then
+    VirtualImageList.ImageCollection := Resources.LowResImages
+  else if Plugin.IsDarkModeEnabled then
+    VirtualImageList.ImageCollection := Resources.StandardImages
+  else
+    VirtualImageList.ImageCollection := Resources.LightModeImages;
+
   if Plugin.IsDarkModeEnabled then
   begin
     DarkModeColors := Default(TNppDarkModeColors);

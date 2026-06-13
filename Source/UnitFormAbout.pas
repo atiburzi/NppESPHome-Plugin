@@ -4,8 +4,8 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, NppPlugin, NppPluginForms, Vcl.Imaging.pngimage,
-  Vcl.VirtualImage, Vcl.BaseImageCollection, Vcl.ImageCollection;
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, NppPlugin, NppPluginForms,
+  Vcl.VirtualImage, Vcl.ImageCollection, Vcl.BaseImageCollection;
 
 type
   TFormAbout = class(TNppPluginForm)

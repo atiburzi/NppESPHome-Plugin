@@ -5,10 +5,11 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Classes, ESPHomeShared, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginDockingForms,
-  Vcl.StdCtrls, Vcl.ImgList, Vcl.VirtualImageList, Vcl.ImageCollection,
+  Vcl.StdCtrls, Vcl.VirtualImageList,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Menus, VirtualTrees.BaseTree, VirtualTrees,
-  VirtualTrees.Types, Vcl.ActnList, JvStaticText, System.Actions, System.ImageList, Vcl.BaseImageCollection, JvExControls, VirtualTrees.BaseAncestorVCL,
-  VirtualTrees.AncestorVCL, Vcl.ToolWin, Vcl.Buttons;
+  VirtualTrees.Types, Vcl.ActnList, JvStaticText, JvExControls,
+  Vcl.Buttons, System.Actions, System.ImageList, Vcl.ImgList,
+  VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL, Vcl.ToolWin, System.UITypes;
 
 type
   PProjectNode = ^TProjectNode;
