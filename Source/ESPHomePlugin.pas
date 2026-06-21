@@ -3,7 +3,7 @@ unit ESPHomePlugin;
 interface
 
 uses
-  Winapi.Windows, Winapi.CommCtrl, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared,
+  Winapi.Windows, Winapi.CommCtrl, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared,
   Vcl.ImageCollection, Vcl.BaseImageCollection;
 
 const
@@ -152,7 +152,6 @@ type
 
     procedure InitializeToolbarConfiguration;
     procedure RegisterToolbarConfiguration;
-//    procedure RefreshToolbarDisabledImages;
     procedure RefreshToolbarConfiguration;
     procedure FreeToolbarResources;
 
@@ -194,7 +193,7 @@ implementation
 
 uses
   JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, System.StrUtils,
-  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs, Vcl.Controls,
+  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs,
   System.Math,
   System.UITypes,
   System.IOUtils;
@@ -897,12 +896,16 @@ begin
 end;
 
 procedure TESPHomePlugin.DoNppnFileSaved;
+
 begin
   if not OperationsOngoing then
   begin
     RefreshNppTitle;
     RefreshPluginMenu;
   end;
+  if GetFullPathFromBufferId(SCNotification.nmhdr.idFrom) = TemplateFile then
+    if Assigned(FormProjects) then
+      FormProjects.ReloadAndRefreshTemplates;
 end;
 
 procedure TESPHomePlugin.DoNppToolbarIconsetChanged;
@@ -1054,8 +1057,8 @@ begin
   AddPluginFunction(fiProjectOpenFiles, miProjectOpenFiles, _ProjectOpenFiles, nil);
   AddPluginMenuSeparator;
   AddPluginFunction(fiCommandRun, miCommandRun, _CommandRun, MakeShortcutKey(False, False, False, $78));
-  AddPluginFunction(fiCommandCompile, miCommandCompile, _CommandCompile, MakeShortcutKey(False, False, False, $77));
-  AddPluginFunction(fiCommandUpload, miCommandUpload, _CommandUpload, MakeShortcutKey(True, False, False, $77));
+  AddPluginFunction(fiCommandCompile, miCommandCompile, _CommandCompile, MakeShortcutKey(True, False, False, $78));
+  AddPluginFunction(fiCommandUpload, miCommandUpload, _CommandUpload, MakeShortcutKey(False, False, True, $78));
   AddPluginFunction(fiCommandLogs, miCommandLogs, _CommandLogs, nil);
   AddPluginFunction(fiCommandClean, miCommandClean, _CommandClean, nil);
   AddPluginFunction(fiCommandCleanAll, miCommandCleanAll, _CommandCleanAll, nil);

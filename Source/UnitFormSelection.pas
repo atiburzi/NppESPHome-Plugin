@@ -3,7 +3,7 @@ unit UnitFormSelection;
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
+  System.SysUtils, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForms;
 
 type
@@ -35,10 +35,6 @@ implementation
 
 uses
   ESPHomeShared, ESPHomePlugin, NppSupport, Math, TDMB;
-
-resourcestring
-  rsRemoveProjectFile = 'Remove selected Project';
-
 
 procedure TFormSelection.ButtonAddProjectClick(Sender: TObject);
 var

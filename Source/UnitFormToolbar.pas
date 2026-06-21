@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Classes, System.UITypes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, NppPlugin, NppPluginForms,
-  Vcl.ComCtrls, Vcl.VirtualImageList, System.ImageList, Vcl.ImgList;
+  Vcl.ComCtrls, Vcl.VirtualImageList, Vcl.ImgList, System.ImageList;
 
 type
   TFormToolbar = class(TNppPluginForm)

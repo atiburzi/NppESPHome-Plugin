@@ -2,7 +2,6 @@ __history
 __recovery
 __Win64
 __Win32
-External
 *.dcu
 *.exe
 *.identcache
@@ -11,4 +10,4 @@ External
 *.res
 *.upx
 *.~dsk
-Tarra.cmd
+

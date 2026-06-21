@@ -4,8 +4,8 @@ object FormAbout: TFormAbout
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'About...'
-  ClientHeight = 216
-  ClientWidth = 490
+  ClientHeight = 200
+  ClientWidth = 486
   Color = clWhite
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,12 +18,14 @@ object FormAbout: TFormAbout
   object PanelMain: TPanel
     Left = 0
     Top = 0
-    Width = 490
-    Height = 216
+    Width = 486
+    Height = 200
     Align = alClient
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
+    ExplicitWidth = 488
+    ExplicitHeight = 208
     object LabelAppName1: TLabel
       Left = 246
       Top = 20

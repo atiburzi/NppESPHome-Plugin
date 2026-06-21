@@ -102,7 +102,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 387
       Height = 277
-      ActiveCard = CardConsoleOptions
+      ActiveCard = CardRunOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -223,7 +223,6 @@ object FormConfig: TFormConfig
           Width = 30
           Height = 29
           Hint = 'Refresh the current list of available USB ports'
-          ImageIndex = 26
           ImageName = 'refreshusb'
           Images = VirtualImageList
           Flat = True
@@ -342,8 +341,8 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 233
-          Height = 30
+          Width = 114
+          Height = 75
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -604,8 +603,8 @@ object FormConfig: TFormConfig
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 8
-          Width = 200
-          Height = 45
+          Width = 114
+          Height = 75
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
             'ommand is executed:'

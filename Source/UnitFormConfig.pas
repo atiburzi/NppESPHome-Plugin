@@ -8,8 +8,8 @@ uses
   Vcl.VirtualImageList, JvListComb,
   Vcl.WinXPanels, Vcl.ExtCtrls,
   JvEdit,
-  Vcl.VirtualImage, Vcl.Buttons, System.ImageList, Vcl.ImgList, JvExStdCtrls,
-  JvCombobox;
+  Vcl.VirtualImage, Vcl.Buttons, Vcl.ImgList,
+  JvCombobox, System.ImageList, JvExStdCtrls;
 
 type
   TFormConfig = class(TNppPluginForm)

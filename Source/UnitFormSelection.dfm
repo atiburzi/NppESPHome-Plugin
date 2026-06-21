@@ -12,6 +12,7 @@ object FormSelection: TFormSelection
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Position = poMainFormCenter
   ShowHint = True
   OnCreate = FormCreate
   TextHeight = 15

@@ -7,9 +7,11 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginDockingForms,
   Vcl.StdCtrls, Vcl.VirtualImageList,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Menus, VirtualTrees.BaseTree, VirtualTrees,
-  VirtualTrees.Types, Vcl.ActnList, JvStaticText, JvExControls,
-  Vcl.Buttons, System.Actions, System.ImageList, Vcl.ImgList,
-  VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL, Vcl.ToolWin, System.UITypes;
+  VirtualTrees.Types, Vcl.ActnList,
+  Vcl.Buttons, Vcl.ImgList,
+  System.UITypes,
+  JvLinkLabel, System.Actions, System.ImageList, JvExControls,
+  VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL, Vcl.ToolWin;
 
 type
   PProjectNode = ^TProjectNode;
@@ -69,7 +71,6 @@ type
     PopupMenuTemplates: TPopupMenu;
     PopupMenuEditTemplatesXMLFile: TMenuItem;
     PopupMenuReloadXMLFileConfiguration: TMenuItem;
-    StaticTextDescription: TJvStaticText;
     ButtonMenuTemplates: TSpeedButton;
     PopUpMenuN5: TMenuItem;
     PopupMenuDownloadTemplates: TMenuItem;
@@ -92,6 +93,8 @@ type
     ToolButtonAddPrj: TToolButton;
     ToolButtonRemovePrj: TToolButton;
     ToolButtonSettings: TToolButton;
+    PanelStaticText: TPanel;
+    StaticTextDescription: TJvLinkLabel;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
@@ -137,12 +140,17 @@ type
     procedure ToolButtonExplorerClick(Sender: TObject);
     procedure ActionAddDepsExecute(Sender: TObject);
     procedure ActionRemoveDepExecute(Sender: TObject);
+    procedure StaticTextDescriptionLinkClick(Sender: TObject;
+      LinkNumber: Integer; LinkText, LinkParam: string);
+
+
   private
     { Private declarations }
   public
     procedure ToggleDarkMode; override;
     procedure RefreshProjectsList;
     procedure RefreshCategoryList;
+    procedure ReloadAndRefreshTemplates;
     procedure RefreshTemplatesList(const Component: string = ''; const Category: string = '');
     procedure RefreshToolbar;
     procedure CurrentDocumentChanged;
@@ -157,7 +165,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Types, System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils, TDMB;
+  System.Types, System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
 
 procedure TFormProjects.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -234,6 +242,15 @@ begin
   ComboBoxCategories.Items.EndUpdate;  
 end;
 
+procedure TFormProjects.ReloadAndRefreshTemplates;
+begin
+  TemplateList.Refresh;
+  VirtualStringTreeTemplates.BeginUpdate;
+  RefreshCategoryList;
+  RefreshTemplatesList(EditTextFilter.Text, ComboBoxCategories.Text);;
+  VirtualStringTreeTemplates.EndUpdate;
+end;
+
 procedure TFormProjects.RefreshTemplatesList(const Component: string = ''; const Category: string = '');
 var
   Template: TTemplate;
@@ -287,12 +304,6 @@ begin
   begin
     Self.Color := clBtnFace;
     Self.Font.Color := clWindowText;
-//    VirtualStringTreeProjects.Images := VirtualImageList20;
-//    ToolbarCommands.Images := VirtualImageList24;
-//    PopupMenuAddRemove.Images := VirtualImageList24;
-//    PopupMenuProjects.Images := VirtualImageList24;
-//    EditTextFilter.Images := VirtualImageList16;
-//    ButtonMenuTemplates.Images := VirtualImageList24;
     ToolbarCommands.HotTrackColor := clActiveCaption;
   end;
   VirtualStringTreeProjects.Colors.FocusedSelectionColor := ToolbarCommands.HotTrackColor;
@@ -442,17 +453,27 @@ begin
   ESPHomePlugin.Plugin.RefreshPluginMenu;
 end;
 
+resourcestring
+  rsOpenOnlineHelp = 'Open help';
+
 procedure TFormProjects.VirtualStringTreeTemplatesChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
+  S: string;
   Data: PTemplate;
 begin
   inherited;
+  S := '';
   if Assigned(Node) then
   begin
     Data := Sender.GetNodeData(Node);
     if Assigned(Data) then
-      StaticTextDescription.Caption := Data^.Description;
+    begin
+      S := Data^.Description;
+      if Data.OnlineHelp <> '' then
+        S := Format('%s <link href="%s">%s</link>', [S, Data^.OnlineHelp, rsOpenOnlineHelp]);
+    end;
   end;
+  StaticTextDescription.Caption := S;
 end;
 
 procedure TFormProjects.VirtualStringTreeTemplatesDblClick(Sender: TObject);
@@ -488,7 +509,10 @@ var
 begin
   inherited;
   Data := Sender.GetNodeData(Node);
-  HintText := Data^.Description;
+  if Column = 2 then
+    HintText := Data^.OnlineHelp
+  else
+    HintText := Data^.Description;
 end;
 
 procedure TFormProjects.VirtualStringTreeTemplatesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
@@ -498,6 +522,7 @@ var
 begin
   inherited;
   Data := Sender.GetNodeData(Node);
+  CellText := '';
   if Column = 0 then
     CellText := Data^.Name
   else if Column = 1 then
@@ -671,20 +696,24 @@ begin
   ConfigIniFile.WriteInteger(csSectionGeneral, csKeyProjectPanelSize, PanelTop.Height);
 end;
 
+procedure TFormProjects.StaticTextDescriptionLinkClick(Sender: TObject;
+  LinkNumber: Integer; LinkText, LinkParam: string);
+begin
+  inherited;
+  ShellExecute(0, 'open', PChar(LinkParam), nil, nil, SW_SHOWNORMAL);
+end;
+
 procedure TFormProjects.PopupMenuReloadXMLFileConfigurationClick(Sender: TObject);
 begin
   inherited;
-  TemplateList.Refresh;
-  VirtualStringTreeTemplates.BeginUpdate;
-  RefreshCategoryList;
-  RefreshTemplatesList(EditTextFilter.Text, ComboBoxCategories.Text);;  
-  VirtualStringTreeTemplates.EndUpdate;
+  ReloadAndRefreshTemplates;
 end;
 
 procedure TFormProjects.PopupMenuTemplatesPopup(Sender: TObject);
 begin
   inherited;
-  PopupMenuDownloadTemplates.Enabled := not (TFile.Exists(TemplateFile) and (TFile.GetSize(TemplateFile) > 0));
+  //PopupMenuAddTemplate.Enabled := Plugin.GetFullPathFromBufferId(Plugin.GetCurrentBufferId) = TemplateFile;
+  PopupMenuReloadXMLFileConfiguration.Enabled := TFile.Exists(TemplateFile) and (TFile.GetSize(TemplateFile) > 0);
 end;
 
 procedure TFormProjects.ComboBoxCategoriesChange(Sender: TObject);
@@ -694,13 +723,18 @@ begin
 end;
 
 procedure TFormProjects.PopupMenuDownloadTemplatesClick(Sender: TObject);
+var
+  Flag: Boolean;
 begin
-  if TD(rsConfirmOverwriteTemplates).Text(rsConfirmOverwriteTemplates2).Text(rsConfirmOverwriteTemplates3).WindowCaption(rsMessageBoxWarning).Warning.YesNo.
+  if TD(rsConfirmOverwriteTemplates).Text(rsConfirmOverwriteTemplates2).Text(rsConfirmOverwriteTemplates3).Verification(rsConfirmOverwriteTemplates4, @Flag).WindowCaption(rsMessageBoxWarning).Warning.YesNo.
     SetFlags([tfAllowDialogCancellation]).Execute(Self) = mrYes then
   begin
-    DownloadTemplateFileFromGitHub;
-    PopupMenuReloadXMLFileConfigurationClick(nil);
-    TD(rsTemplatesXMLDownloaded).WindowCaption(rsMessageBoxInfo).Info.OK.SetFlags([tfAllowDialogCancellation]).Execute(Self);
+    if Flag then
+    begin
+      DownloadTemplateFileFromGitHub;
+      PopupMenuReloadXMLFileConfigurationClick(nil);
+      TD(rsTemplatesXMLDownloaded).WindowCaption(rsMessageBoxInfo).Info.OK.SetFlags([tfAllowDialogCancellation]).Execute(Self);
+    end;
   end;
 end;
 

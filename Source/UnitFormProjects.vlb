@@ -106,9 +106,6 @@ Coordinates=346,10,98,58
 [PopupMenuRun]
 Coordinates=1048,441,107,36
 
-[PopupMenuTemplates]
-Coordinates=1029,491,143,36
-
 [PopupMenuProjects]
 Coordinates=890,491,130,36
 
@@ -127,12 +124,9 @@ Coordinates=394,491,100,36
 [ToolButtonOpen]
 Coordinates=384,144,108,36
 
-[StaticTextDescription]
+[]
 Coordinates=237,144,137,36
 Visible=True
-
-[]
-Coordinates=497,304,124,36
 
 [PopupMenuEditTemplatesXMLFile]
 Coordinates=684,1,144,36
@@ -145,4 +139,7 @@ Coordinates=1048,386,149,36
 
 [VirtualImageList16]
 Coordinates=138,343,149,36
+
+[PopupMenuTemplates]
+Coordinates=1029,491,143,36
 

@@ -54,6 +54,7 @@ object FormProjects: TFormProjects
     TabOrder = 0
     Transparent = True
     Wrapable = False
+    ExplicitWidth = 481
     object ToolButtonOpen: TToolButton
       Left = 0
       Top = 0
@@ -170,6 +171,7 @@ object FormProjects: TFormProjects
     ParentColor = True
     ParentDoubleBuffered = False
     TabOrder = 1
+    ExplicitWidth = 481
     object GroupBoxProjects: TGroupBox
       Left = 0
       Top = 0
@@ -180,6 +182,7 @@ object FormProjects: TFormProjects
       Caption = 'Active Project'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
+      ExplicitWidth = 481
       DesignSize = (
         483
         494)
@@ -228,11 +231,11 @@ object FormProjects: TFormProjects
     Align = alClient
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
-    DoubleBuffered = True
     DoubleBufferedMode = dbmRequested
     ParentColor = True
-    ParentDoubleBuffered = False
     TabOrder = 2
+    ExplicitWidth = 481
+    ExplicitHeight = 566
     DesignSize = (
       483
       574)
@@ -245,6 +248,8 @@ object FormProjects: TFormProjects
       Caption = 'Templates'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
+      ExplicitWidth = 477
+      ExplicitHeight = 557
       DesignSize = (
         479
         565)
@@ -307,12 +312,13 @@ object FormProjects: TFormProjects
         Sorted = True
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
+        ExplicitWidth = 331
       end
       object VirtualStringTreeTemplates: TVirtualStringTree
-        Left = 5
+        Left = 6
         Top = 76
         Width = 467
-        Height = 420
+        Height = 398
         Anchors = [akLeft, akTop, akRight, akBottom]
         Colors.GridLineColor = clMedGray
         DefaultNodeHeight = 19
@@ -322,11 +328,11 @@ object FormProjects: TFormProjects
         Header.Font.Height = -12
         Header.Font.Name = 'Segoe UI'
         Header.Font.Style = []
-        Header.Height = 15
-        Header.Options = [hoColumnResize, hoRestrictDrag, hoVisible, hoDisableAnimatedResize]
+        Header.Options = [hoColumnResize, hoRestrictDrag, hoShowImages, hoVisible, hoDisableAnimatedResize]
         Header.ParentFont = False
         Header.SortColumn = 0
         HintMode = hmHint
+        Images = VirtualImageList16
         ParentColor = True
         TabOrder = 2
         TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
@@ -355,21 +361,33 @@ object FormProjects: TFormProjects
             Width = 300
           end>
       end
-      object StaticTextDescription: TJvStaticText
-        Left = 5
-        Top = 502
+      object PanelStaticText: TPanel
+        Left = 6
+        Top = 480
         Width = 467
-        Height = 58
+        Height = 78
         Anchors = [akLeft, akRight, akBottom]
-        AutoSize = False
-        BorderStyle = sbsSingle
-        Layout = tlTop
+        ParentColor = True
         TabOrder = 3
-        TextMargins.X = 0
-        TextMargins.Y = 0
-        WordWrap = True
-        ExplicitTop = 494
+        ExplicitTop = 472
         ExplicitWidth = 465
+        object StaticTextDescription: TJvLinkLabel
+          Left = 1
+          Top = 1
+          Width = 465
+          Height = 76
+          Caption = ''
+          Text.Strings = (
+            '')
+          Transparent = True
+          LinkColor = clHotLight
+          LinkColorClicked = clFuchsia
+          LinkColorHot = clRed
+          OnLinkClick = StaticTextDescriptionLinkClick
+          Align = alClient
+          ExplicitTop = 0
+          ExplicitHeight = 80
+        end
       end
     end
   end
