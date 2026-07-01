@@ -93,7 +93,7 @@ end;
 
 destructor TNppPluginForm.Destroy;
 begin
-  if (HandleAllocated) then
+  if HandleAllocated then
     UnregisterForm();
   inherited;
 end;
@@ -103,15 +103,17 @@ end;
 procedure TNppPluginForm.RegisterForm();
 begin
   if not CanRegister then
-    exit;
+    Exit;
   FRegistered := SendMessage(Self.Plugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, Handle) <> 0;
 end;
+
+
 
 // Unregister plugin's dialog in Notepad++
 procedure TNppPluginForm.UnregisterForm();
 begin
   if (not FRegistered) or (not CanRegister) or (not HandleAllocated) then
-    exit;
+    Exit;
   SendMessage(Self.Plugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, Handle);
 end;
 
@@ -145,20 +147,22 @@ var
 begin
   if (ParentWindow <> 0) and GetWindowRect(ParentWindow, ParentRect) then
   begin
-    TargetRect := Bounds(Max(ParentRect.Left, (ParentRect.Left + ParentRect.Right - Width) div 2),
-      Max(ParentRect.Top, (ParentRect.Top + ParentRect.Bottom - Height) div 2), Width, Height);
+    TargetRect := Bounds(Max(ParentRect.Left, (ParentRect.Left + ParentRect.Right - Width) div 2), Max(ParentRect.Top, (ParentRect.Top + ParentRect.Bottom -
+      Height) div 2), Width, Height);
 
     CurMonitor := Screen.MonitorFromRect(TargetRect);
     MonitorRect := CurMonitor.BoundsRect;
     WorkareaRect := CurMonitor.WorkareaRect;
 
-    TargetRect.Location := Point(EnsureRange(TargetRect.Left, MonitorRect.Left, IfThen(CurMonitor.Primary, WorkareaRect.Right, MonitorRect.Right) -
-      TargetRect.Width), EnsureRange(TargetRect.Top, MonitorRect.Top, IfThen(CurMonitor.Primary, WorkareaRect.Bottom, MonitorRect.Bottom) - TargetRect.Height));
+    TargetRect.Location := Point(EnsureRange(TargetRect.Left, MonitorRect.Left, IfThen(CurMonitor.Primary, WorkareaRect.Right, MonitorRect.Right) - TargetRect.Width),
+      EnsureRange(TargetRect.Top, MonitorRect.Top, IfThen(CurMonitor.Primary, WorkareaRect.Bottom, MonitorRect.Bottom) - TargetRect.Height));
 
     BoundsRect := TargetRect;
   end;
   inherited;
 end;
+
+// Perform close action according to plugin's needs
 
 // Perform close action according to plugin's needs
 procedure TNppPluginForm.DoClose(var Action: TCloseAction);

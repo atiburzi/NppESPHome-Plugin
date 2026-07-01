@@ -142,6 +142,9 @@ type
     procedure ActionRemoveDepExecute(Sender: TObject);
     procedure StaticTextDescriptionLinkClick(Sender: TObject;
       LinkNumber: Integer; LinkText, LinkParam: string);
+    procedure VirtualStringTreeProjectsGetHint(Sender: TBaseVirtualTree;
+      Node: PVirtualNode; Column: TColumnIndex;
+      var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
 
 
   private
@@ -379,6 +382,20 @@ begin
   if Assigned(Node) then
     S := PProjectNode(Node.GetData)^.FileName;
   ESPHomePlugin.Plugin.OpenFile(S);
+end;
+
+procedure TFormProjects.VirtualStringTreeProjectsGetHint(
+  Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
+var
+  Data: PProjectNode;
+begin
+  inherited;
+  if Assigned(Node) then
+  begin
+    Data := Sender.GetNodeData(Node);
+    HintText := ExtractFileDir(Data.FileName);
+  end;
 end;
 
 procedure TFormProjects.VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var

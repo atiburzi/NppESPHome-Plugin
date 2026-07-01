@@ -34,28 +34,11 @@ const
 
 type
   // Enum to specify the type of version info to query
-  TFileVersionInfoTag = (
-    fvitCompanyName,
-    fvitFileDescription,
-    fvitComments,
-    fvitProductName,
-    fvitInternalName,
-    fvitOriginalFilename,
-    fvitFileVersion,
-    fvitProductVersion,
-    fvitLegalCopyright,
-    fvitLegalTrademarks,
-    fvitPrivateBuild,
-    fvitSpecialBuild
-  );
-
+  TFileVersionInfoTag = (fvitCompanyName, fvitFileDescription, fvitComments, fvitProductName, fvitInternalName, fvitOriginalFilename, fvitFileVersion,
+    fvitProductVersion, fvitLegalCopyright, fvitLegalTrademarks, fvitPrivateBuild, fvitSpecialBuild);
 
   // Enum to specify the type of numeric version info to query
-  TNumericFileVersionInfoTag = (
-    nfvitFileVersion,
-    nfvitProductVersion
-  );
-
+  TNumericFileVersionInfoTag = (nfvitFileVersion, nfvitProductVersion);
 
   // Class to read version infos from EXE or DLL files
   TFileVersionInfo = class
@@ -63,50 +46,67 @@ type
     class function GetVersionInfoTagName(const InfoTag: TFileVersionInfoTag): string; static;
     class function GetVersionInfoFriendlyTagName(const InfoTag: TFileVersionInfoTag): string; static;
     class function GetVersionInfo(const FileName: string; const InfoTag: TFileVersionInfoTag; var LangId: Word; out Buffer: string): boolean; static;
-
     class function GetNumericVersionInfoTagName(const InfoTag: TNumericFileVersionInfoTag): string; static;
     class function GetNumericVersionInfoFriendlyTagName(const InfoTag: TNumericFileVersionInfoTag): string; static;
-    class function GetNumericVersionInfo(const FileName: string; const InfoTag: TNumericFileVersionInfoTag; out VersionMajor, VersionMinor, Release, Build: integer): boolean; static;
-
+    class function GetNumericVersionInfo(const FileName: string; const InfoTag: TNumericFileVersionInfoTag; out VersionMajor, VersionMinor, Release, Build:
+      integer): boolean; static;
     class function GetLanguageName(LangId: Word): string;
-
   end;
-
-
 
 implementation
 
 type
   TFileVersionTagMapping = record
-    TagName:         string;
+    TagName: string;
     TagFriendlyName: string;
   end;
 
-
 var
-  szVersionInfoTags: array[TFileVersionInfoTag] of TFileVersionTagMapping =
-  (
-    (TagName: 'CompanyName'     ; TagFriendlyName: 'Company name'     ),
-    (TagName: 'FileDescription' ; TagFriendlyName: 'Description'      ),
-    (TagName: 'Comments'        ; TagFriendlyName: 'Comments'         ),
-    (TagName: 'ProductName'     ; TagFriendlyName: 'Product name'     ),
-    (TagName: 'InternalName'    ; TagFriendlyName: 'Internal name'    ),
-    (TagName: 'OriginalFilename'; TagFriendlyName: 'Original filename'),
-    (TagName: 'FileVersion'     ; TagFriendlyName: 'File version'     ),
-    (TagName: 'ProductVersion'  ; TagFriendlyName: 'Product version'  ),
-    (TagName: 'LegalCopyright'  ; TagFriendlyName: 'Copyright'        ),
-    (TagName: 'LegalTrademarks' ; TagFriendlyName: 'Trademarks'       ),
-    (TagName: 'PrivateBuild'    ; TagFriendlyName: 'Private build'    ),
-    (TagName: 'SpecialBuild'    ; TagFriendlyName: 'Special build'    )
-  );
+  szVersionInfoTags: array[TFileVersionInfoTag] of TFileVersionTagMapping = ((
+    TagName: 'CompanyName';
+    TagFriendlyName: 'Company name'
+  ), (
+    TagName: 'FileDescription';
+    TagFriendlyName: 'Description'
+  ), (
+    TagName: 'Comments';
+    TagFriendlyName: 'Comments'
+  ), (
+    TagName: 'ProductName';
+    TagFriendlyName: 'Product name'
+  ), (
+    TagName: 'InternalName';
+    TagFriendlyName: 'Internal name'
+  ), (
+    TagName: 'OriginalFilename';
+    TagFriendlyName: 'Original filename'
+  ), (
+    TagName: 'FileVersion';
+    TagFriendlyName: 'File version'
+  ), (
+    TagName: 'ProductVersion';
+    TagFriendlyName: 'Product version'
+  ), (
+    TagName: 'LegalCopyright';
+    TagFriendlyName: 'Copyright'
+  ), (
+    TagName: 'LegalTrademarks';
+    TagFriendlyName: 'Trademarks'
+  ), (
+    TagName: 'PrivateBuild';
+    TagFriendlyName: 'Private build'
+  ), (
+    TagName: 'SpecialBuild';
+    TagFriendlyName: 'Special build'
+  ));
 
-
-  szNumericVersionInfoTags: array[TNumericFileVersionInfoTag] of TFileVersionTagMapping =
-  (
-    (TagName: 'FileVersion'   ; TagFriendlyName: 'File version'   ),
-    (TagName: 'ProductVersion'; TagFriendlyName: 'Product version')
-  );
-
+  szNumericVersionInfoTags: array[TNumericFileVersionInfoTag] of TFileVersionTagMapping = ((
+    TagName: 'FileVersion';
+    TagFriendlyName: 'File version'
+  ), (
+    TagName: 'ProductVersion';
+    TagFriendlyName: 'Product version'
+  ));
 
 // =============================================================================
 // Class TFileVersionInfo
@@ -116,7 +116,6 @@ class function TFileVersionInfo.GetVersionInfoTagName(const InfoTag: TFileVersio
 begin
   Result := szVersionInfoTags[InfoTag].TagName;
 end;
-
 
 class function TFileVersionInfo.GetVersionInfoFriendlyTagName(const InfoTag: TFileVersionInfoTag): string;
 begin
@@ -131,29 +130,29 @@ type
   {$POINTERMATH OFF}
 
   TLangCodepage = packed record
-    wLangId:   WORD;
+    wLangId: WORD;
     wCodePage: WORD;
   end;
 
 var
-  dwLen:           DWORD;
-  dwHandle:        DWORD;
-  lpData:          pointer;
-  lpTranslate:     PLangCodepage;
-  cbTranslate:     UINT;
-  lpszSubData:     string;
+  dwLen: DWORD;
+  dwHandle: DWORD;
+  lpData: pointer;
+  lpTranslate: PLangCodepage;
+  cbTranslate: UINT;
+  lpszSubData: string;
   lpszVersionData: PChar;
-  dwBytes:         UINT;
-  wLangId:         WORD;
-  bEngFound:       boolean;
-  i:               integer;
-
+  dwBytes: UINT;
+  wLangId: WORD;
+  bEngFound: boolean;
+  i: integer;
 begin
   Result := false;
   Buffer := '';
 
   dwLen := GetFileVersionInfoSize(PChar(FileName), dwHandle);
-  if dwLen = 0 then exit;
+  if dwLen = 0 then
+    exit;
 
   GetMem(lpData, dwLen);
 
@@ -164,28 +163,22 @@ begin
     if not VerQueryValue(lpData, '\VarFileInfo\Translation', pointer(lpTranslate), cbTranslate) then
       exit;
 
-    wLangId   := LangId;
+    wLangId := LangId;
     bEngFound := false;
 
     for i := 0 to Pred(cbTranslate div sizeof(TLangCodepage)) do
     begin
-      if (lpTranslate[i].wLangId = LangId        ) or
-         (lpTranslate[i].wLangId = wLangIdEnglish) or
-         not bEngFound                             then
+      if (lpTranslate[i].wLangId = LangId) or (lpTranslate[i].wLangId = wLangIdEnglish) or not bEngFound then
       begin
-        lpszSubData := Format('\StringFileInfo\%.4x%.4x\%s',
-                              [lpTranslate[i].wLangId,
-                               lpTranslate[i].wCodePage,
-                               szVersionInfoTags[InfoTag].TagName
-                              ]);
+        lpszSubData := Format('\StringFileInfo\%.4x%.4x\%s', [lpTranslate[i].wLangId, lpTranslate[i].wCodePage, szVersionInfoTags[InfoTag].TagName]);
 
         if not VerQueryValue(lpData, PChar(lpszSubData), pointer(lpszVersionData), dwBytes) then
           continue;
 
-        Buffer    := Format('%s', [lpszVersionData]);
-        wLangId   := lpTranslate[i].wLangId;
+        Buffer := Format('%s', [lpszVersionData]);
+        wLangId := lpTranslate[i].wLangId;
         bEngFound := (lpTranslate[i].wLangId = wLangIdEnglish);
-        Result    := true;
+        Result := true;
 
         if lpTranslate[i].wLangId = LangId then
           break;
@@ -199,37 +192,35 @@ begin
   end;
 end;
 
-
 class function TFileVersionInfo.GetNumericVersionInfoTagName(const InfoTag: TNumericFileVersionInfoTag): string;
 begin
   Result := szNumericVersionInfoTags[InfoTag].TagName;
 end;
-
 
 class function TFileVersionInfo.GetNumericVersionInfoFriendlyTagName(const InfoTag: TNumericFileVersionInfoTag): string;
 begin
   Result := szNumericVersionInfoTags[InfoTag].TagFriendlyName;
 end;
 
-
-class function TFileVersionInfo.GetNumericVersionInfo(const FileName: string; const InfoTag: TNumericFileVersionInfoTag; out VersionMajor, VersionMinor, Release, Build: integer): boolean;
+class function TFileVersionInfo.GetNumericVersionInfo(const FileName: string; const InfoTag: TNumericFileVersionInfoTag; out VersionMajor, VersionMinor, Release,
+  Build: integer): boolean;
 var
-  dwLen:    DWORD;
+  dwLen: DWORD;
   dwHandle: DWORD;
-  lpData:   pointer;
-  dwBytes:  UINT;
+  lpData: pointer;
+  dwBytes: UINT;
   FileInfo: PVSFixedFileInfo;
-
 begin
-  Result       := false;
+  Result := false;
 
   VersionMajor := 0;
   VersionMinor := 0;
-  Release      := 0;
-  Build        := 0;
+  Release := 0;
+  Build := 0;
 
   dwLen := GetFileVersionInfoSize(PChar(FileName), dwHandle);
-  if dwLen = 0 then exit;
+  if dwLen = 0 then
+    exit;
 
   GetMem(lpData, dwLen);
 
@@ -242,20 +233,20 @@ begin
 
     case InfoTag of
       nfvitProductVersion:
-      begin
-        VersionMajor := (FileInfo.dwProductVersionMS) shr 16;
-        VersionMinor := (FileInfo.dwProductVersionMS) and $FFFF;
-        Release      := (FileInfo.dwProductVersionLS) shr 16;
-        Build        := (FileInfo.dwProductVersionLS) and $FFFF;
-      end;
+        begin
+          VersionMajor := (FileInfo.dwProductVersionMS) shr 16;
+          VersionMinor := (FileInfo.dwProductVersionMS) and $FFFF;
+          Release := (FileInfo.dwProductVersionLS) shr 16;
+          Build := (FileInfo.dwProductVersionLS) and $FFFF;
+        end;
 
       nfvitFileVersion:
-      begin
-        VersionMajor := (FileInfo.dwFileVersionMS) shr 16;
-        VersionMinor := (FileInfo.dwFileVersionMS) and $FFFF;
-        Release      := (FileInfo.dwFileVersionLS) shr 16;
-        Build        := (FileInfo.dwFileVersionLS) and $FFFF;
-      end;
+        begin
+          VersionMajor := (FileInfo.dwFileVersionMS) shr 16;
+          VersionMinor := (FileInfo.dwFileVersionMS) and $FFFF;
+          Release := (FileInfo.dwFileVersionLS) shr 16;
+          Build := (FileInfo.dwFileVersionLS) and $FFFF;
+        end;
     end;
 
     Result := true;
@@ -270,7 +261,6 @@ class function TFileVersionInfo.GetLanguageName(LangId: Word): string;
 var
   Buffer: string;
   BufLen: integer;
-
 begin
   Result := '';
   Buffer := '';

@@ -28,7 +28,6 @@ object FormProjects: TFormProjects
     Beveled = True
     ResizeStyle = rsUpdate
     OnMoved = SplitterMoved
-    ExplicitTop = 600
   end
   object ToolBarCommands: TToolBar
     Left = 0
@@ -39,8 +38,8 @@ object FormProjects: TFormProjects
     Margins.Top = 4
     Margins.Right = 4
     Margins.Bottom = 4
-    ButtonHeight = 32
-    ButtonWidth = 32
+    ButtonHeight = 36
+    ButtonWidth = 37
     DoubleBuffered = True
     DrawingStyle = dsGradient
     Flat = False
@@ -54,14 +53,13 @@ object FormProjects: TFormProjects
     TabOrder = 0
     Transparent = True
     Wrapable = False
-    ExplicitWidth = 481
     object ToolButtonOpen: TToolButton
       Left = 0
       Top = 0
       Action = ActionOpen
     end
     object ToolButtonSep0: TToolButton
-      Left = 32
+      Left = 30
       Top = 0
       Width = 8
       ImageIndex = 8
@@ -69,24 +67,24 @@ object FormProjects: TFormProjects
       Style = tbsSeparator
     end
     object ToolButtonAddDeps: TToolButton
-      Left = 40
+      Left = 38
       Top = 0
       Action = ActionAddDeps
     end
     object ToolButtonRemoveDep: TToolButton
-      Left = 72
+      Left = 69
       Top = 0
       Action = ActionRemoveDep
     end
     object ToolButtonSep1: TToolButton
-      Left = 104
+      Left = 99
       Top = 0
       Width = 5
       ImageName = 'remove'
       Style = tbsSeparator
     end
     object ToolButtonRun: TToolButton
-      Left = 109
+      Left = 104
       Top = 0
       HelpType = htKeyword
       Margins.Left = 4
@@ -96,7 +94,7 @@ object FormProjects: TFormProjects
       Action = ActionRun
     end
     object ToolButtonCompile: TToolButton
-      Left = 141
+      Left = 134
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -105,7 +103,7 @@ object FormProjects: TFormProjects
       Action = ActionCompile
     end
     object ToolButtonUpload: TToolButton
-      Left = 173
+      Left = 165
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -114,7 +112,7 @@ object FormProjects: TFormProjects
       Action = ActionUpload
     end
     object ToolButtonShowLogs: TToolButton
-      Left = 205
+      Left = 195
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -123,7 +121,7 @@ object FormProjects: TFormProjects
       Action = ActionShowLogs
     end
     object ToolButtonClean: TToolButton
-      Left = 237
+      Left = 226
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -132,29 +130,29 @@ object FormProjects: TFormProjects
       Action = ActionClean
     end
     object ToolButtonSep2: TToolButton
-      Left = 269
+      Left = 256
       Top = 0
-      Width = 5
+      Width = 6
       Style = tbsSeparator
     end
     object ToolButtonAddPrj: TToolButton
-      Left = 274
+      Left = 262
       Top = 0
       Action = ActionAddProject
     end
     object ToolButtonRemovePrj: TToolButton
-      Left = 306
+      Left = 293
       Top = 0
       Action = ActionRemoveProject
     end
     object ToolButtonSep3: TToolButton
-      Left = 338
+      Left = 323
       Top = 0
       Width = 8
       Style = tbsSeparator
     end
     object ToolButtonSettings: TToolButton
-      Left = 346
+      Left = 331
       Top = 0
       Action = ActionSettings
     end
@@ -171,7 +169,6 @@ object FormProjects: TFormProjects
     ParentColor = True
     ParentDoubleBuffered = False
     TabOrder = 1
-    ExplicitWidth = 481
     object GroupBoxProjects: TGroupBox
       Left = 0
       Top = 0
@@ -182,16 +179,12 @@ object FormProjects: TFormProjects
       Caption = 'Active Project'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
-      ExplicitWidth = 481
-      DesignSize = (
-        483
-        494)
       object VirtualStringTreeProjects: TVirtualStringTree
-        Left = 5
-        Top = 19
-        Width = 474
-        Height = 472
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Left = 2
+        Top = 17
+        Width = 479
+        Height = 475
+        Align = alClient
         BorderStyle = bsNone
         Colors.DropMarkColor = clWhite
         Colors.DropTargetColor = clCream
@@ -204,6 +197,7 @@ object FormProjects: TFormProjects
         Header.AutoSizeIndex = 0
         Header.Height = 15
         Header.MainColumn = -1
+        HintMode = hmHint
         Images = VirtualImageList20
         ParentColor = True
         TabOrder = 0
@@ -215,10 +209,13 @@ object FormProjects: TFormProjects
         OnDblClick = VirtualStringTreeProjectsDblClick
         OnGetText = VirtualStringTreeProjectsGetText
         OnGetImageIndex = VirtualStringTreeProjectsGetImageIndex
+        OnGetHint = VirtualStringTreeProjectsGetHint
         OnGetPopupMenu = VirtualStringTreeProjectsGetPopupMenu
         OnNodeClick = VirtualStringTreeProjectsNodeClick
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+        ExplicitTop = 18
+        ExplicitWidth = 480
         Columns = <>
       end
     end
@@ -234,8 +231,6 @@ object FormProjects: TFormProjects
     DoubleBufferedMode = dbmRequested
     ParentColor = True
     TabOrder = 2
-    ExplicitWidth = 481
-    ExplicitHeight = 566
     DesignSize = (
       483
       574)
@@ -248,8 +243,6 @@ object FormProjects: TFormProjects
       Caption = 'Templates'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
-      ExplicitWidth = 477
-      ExplicitHeight = 557
       DesignSize = (
         479
         565)
@@ -299,26 +292,24 @@ object FormProjects: TFormProjects
         TabOrder = 0
         OnChange = EditTextFilterChange
         OnRightButtonClick = EditTextFilterRightButtonClick
-        ExplicitWidth = 331
       end
       object ComboBoxCategories: TComboBox
         Left = 115
         Top = 48
         Width = 333
-        Height = 22
+        Height = 26
         Style = csOwnerDrawFixed
         Anchors = [akLeft, akTop, akRight]
         ParentColor = True
         Sorted = True
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
-        ExplicitWidth = 331
       end
       object VirtualStringTreeTemplates: TVirtualStringTree
         Left = 6
         Top = 76
-        Width = 467
-        Height = 398
+        Width = 345
+        Height = 257
         Anchors = [akLeft, akTop, akRight, akBottom]
         Colors.GridLineColor = clMedGray
         DefaultNodeHeight = 19
@@ -345,6 +336,8 @@ object FormProjects: TFormProjects
         OnGetHint = VirtualStringTreeTemplatesGetHint
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+        ExplicitWidth = 465
+        ExplicitHeight = 398
         Columns = <
           item
             CheckType = ctNone
@@ -369,8 +362,6 @@ object FormProjects: TFormProjects
         Anchors = [akLeft, akRight, akBottom]
         ParentColor = True
         TabOrder = 3
-        ExplicitTop = 472
-        ExplicitWidth = 465
         object StaticTextDescription: TJvLinkLabel
           Left = 1
           Top = 1
@@ -385,8 +376,7 @@ object FormProjects: TFormProjects
           LinkColorHot = clRed
           OnLinkClick = StaticTextDescriptionLinkClick
           Align = alClient
-          ExplicitTop = 0
-          ExplicitHeight = 80
+          ExplicitHeight = 77
         end
       end
     end

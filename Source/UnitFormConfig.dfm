@@ -102,7 +102,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 387
       Height = 277
-      ActiveCard = CardRunOptions
+      ActiveCard = CardCleanOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -119,8 +119,9 @@ object FormConfig: TFormConfig
         object LabelDependencies: TLabel
           Left = 24
           Top = 8
-          Width = 261
-          Height = 105
+          Width = 353
+          Height = 129
+          AutoSize = False
           Caption = 
             'Project files that depend on this project. '#13#10'They open in Notepa' +
             'd++ using the Open Project File and Dependencies command, and, i' +
@@ -185,6 +186,7 @@ object FormConfig: TFormConfig
           Hint = 
             'Log level reported into the console window during the ESPHome co' +
             'mmand execution.'
+          AutoSize = False
           Caption = 'ESPHome Log Level:'
         end
         object LabelDevice: TLabel
@@ -192,14 +194,16 @@ object FormConfig: TFormConfig
           Top = 11
           Width = 128
           Height = 15
+          AutoSize = False
           Caption = 'Target device (--device):'
           FocusControl = ComboBoxDevice
         end
         object LabelOptionESPHomeAdditionalParameters: TLabel
           Left = 23
           Top = 110
-          Width = 273
-          Height = 30
+          Width = 346
+          Height = 67
+          AutoSize = False
           Caption = 
             'Manually specify additional command line switches'#13#10'for the ESPHo' +
             'me command line:'
@@ -209,6 +213,7 @@ object FormConfig: TFormConfig
           Top = 34
           Width = 251
           Height = 15
+          AutoSize = False
           Caption = 'Applicable to Run, Upload and Logs commands.'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -341,8 +346,9 @@ object FormConfig: TFormConfig
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
           Top = 109
-          Width = 114
-          Height = 75
+          Width = 347
+          Height = 52
+          AutoSize = False
           Caption = 
             'Manually specify additional command line switches when "Run" com' +
             'mand is executed:'
@@ -353,6 +359,7 @@ object FormConfig: TFormConfig
           Top = 10
           Width = 232
           Height = 30
+          AutoSize = False
           Caption = 
             'No Logs (Disable log view)'#13#10'Add "--no-logs" switch to "Run" comm' +
             'and.'
@@ -363,6 +370,7 @@ object FormConfig: TFormConfig
           Top = 59
           Width = 229
           Height = 30
+          AutoSize = False
           Caption = 
             'Reset (Reset the device before starting logs)'#13#10'Add "--reset" swi' +
             'tch to "Run" command.'
@@ -386,7 +394,7 @@ object FormConfig: TFormConfig
         end
         object EditOptionRunAdditionalParameters: TJvEdit
           Left = 22
-          Top = 143
+          Top = 146
           Width = 347
           Height = 21
           Flat = True
@@ -427,6 +435,7 @@ object FormConfig: TFormConfig
           Top = 10
           Width = 289
           Height = 30
+          AutoSize = False
           Caption = 
             'Generate Only (doesn'#39't compile firmware)'#13#10'Add "--only-generate" ' +
             'switch to "Compile" command.'
@@ -434,8 +443,9 @@ object FormConfig: TFormConfig
         object LabelOptionCompileAdditionalParameters: TLabel
           Left = 22
           Top = 60
-          Width = 257
-          Height = 30
+          Width = 347
+          Height = 69
+          AutoSize = False
           Caption = 
             'Manually specify additional command line switches when "Compile"' +
             ' command is executed:'
@@ -493,14 +503,15 @@ object FormConfig: TFormConfig
           Left = 26
           Top = 8
           Width = 273
-          Height = 30
+          Height = 55
+          AutoSize = False
           Caption = 
             'Manually specify additional command line switches'#13#10'when "Upload"' +
             ' command is executed:'
         end
         object EditOptionUploadAdditionalParameters: TJvEdit
           Left = 26
-          Top = 42
+          Top = 45
           Width = 323
           Height = 21
           Flat = True
@@ -541,6 +552,7 @@ object FormConfig: TFormConfig
           Top = 8
           Width = 249
           Height = 30
+          AutoSize = False
           Caption = 
             'Reset (Reset the device before starting the logs)'#13#10'Add "--reset"' +
             ' switch to "Logs" command.'
@@ -548,8 +560,9 @@ object FormConfig: TFormConfig
         object LabelOptionLogsAdditionalParameters: TLabel
           Left = 22
           Top = 59
-          Width = 273
-          Height = 30
+          Width = 347
+          Height = 86
+          AutoSize = False
           Caption = 
             'Manually specify additional command line switches'#13#10'when "Logs" c' +
             'ommand is executed:'
@@ -564,7 +577,7 @@ object FormConfig: TFormConfig
         end
         object EditOptionLogsAdditionalParameters: TJvEdit
           Left = 22
-          Top = 92
+          Top = 98
           Width = 347
           Height = 21
           Flat = True
@@ -580,6 +593,7 @@ object FormConfig: TFormConfig
           Top = 8
           Width = 29
           Height = 19
+          AutoSize = False
           Caption = '<a href="https://esphome.io/guides/cli/#logs-command">Help</a>'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -603,8 +617,9 @@ object FormConfig: TFormConfig
         object LabelOptionCleanAdditionalParameters: TLabel
           Left = 22
           Top = 8
-          Width = 114
-          Height = 75
+          Width = 339
+          Height = 57
+          AutoSize = False
           Caption = 
             'Manually specify additional command line switches when "Clean" c' +
             'ommand is executed:'
@@ -627,7 +642,7 @@ object FormConfig: TFormConfig
         end
         object EditOptionCleanAdditionalParameters: TJvEdit
           Left = 22
-          Top = 44
+          Top = 47
           Width = 347
           Height = 21
           Flat = True
@@ -656,6 +671,7 @@ object FormConfig: TFormConfig
           Hint = 
             'Select the way in which the project file(s) are auto saved befor' +
             'e ESPHome commands are started'
+          AutoSize = False
           Caption = 'Autosave before starting ESPHome commands:'
         end
         object ComboBoxOptionAutosave: TJvImageComboBox
@@ -713,6 +729,7 @@ object FormConfig: TFormConfig
           Top = 12
           Width = 276
           Height = 15
+          AutoSize = False
           Caption = 'When the ESPHome command finishes successfully:'
         end
         object LabelOptionConsoleAlwaysOnTop: TLabel
@@ -720,6 +737,7 @@ object FormConfig: TFormConfig
           Top = 160
           Width = 75
           Height = 15
+          AutoSize = False
           Caption = 'Always on top'
         end
         object LabelOptionConsolePosition: TLabel
@@ -727,6 +745,7 @@ object FormConfig: TFormConfig
           Top = 105
           Width = 227
           Height = 15
+          AutoSize = False
           Caption = 'Choose the console position on the screen:'
         end
         object LabelOptionConsoleMonitor: TLabel
@@ -734,6 +753,7 @@ object FormConfig: TFormConfig
           Top = 59
           Width = 296
           Height = 15
+          AutoSize = False
           Caption = 'Choose the monitor where ESPHome Console will open:'
         end
         object LabelOptionConsoleSoloMode: TLabel
@@ -741,6 +761,7 @@ object FormConfig: TFormConfig
           Top = 160
           Width = 128
           Height = 15
+          AutoSize = False
           Caption = 'Allows only one console'
         end
         object ComboBoxOptionConsoleAutoclose: TJvImageComboBox

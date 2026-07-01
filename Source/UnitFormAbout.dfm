@@ -4,7 +4,7 @@ object FormAbout: TFormAbout
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'About...'
-  ClientHeight = 200
+  ClientHeight = 230
   ClientWidth = 486
   Color = clWhite
   Font.Charset = DEFAULT_CHARSET
@@ -19,13 +19,13 @@ object FormAbout: TFormAbout
     Left = 0
     Top = 0
     Width = 486
-    Height = 200
+    Height = 230
     Align = alClient
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
-    ExplicitWidth = 488
-    ExplicitHeight = 208
+    ExplicitWidth = 484
+    ExplicitHeight = 222
     object LabelAppName1: TLabel
       Left = 246
       Top = 20
@@ -72,7 +72,7 @@ object FormAbout: TFormAbout
     end
     object VirtualImageLogo: TVirtualImage
       Left = 17
-      Top = 20
+      Top = 8
       Width = 192
       Height = 192
       ImageCollection = ImageCollection
@@ -83,7 +83,7 @@ object FormAbout: TFormAbout
     end
     object ButtonOk: TButton
       Left = 399
-      Top = 187
+      Top = 197
       Width = 75
       Height = 25
       Cancel = True
@@ -1166,6 +1166,6 @@ object FormAbout: TFormAbout
           end>
       end>
     Left = 424
-    Top = 24
+    Top = 16
   end
 end

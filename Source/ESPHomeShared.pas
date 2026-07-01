@@ -255,6 +255,10 @@ function IsValidHttpUrl(const AUrl: string): Boolean;
 function GetBit(const Value: Int64; BitPos: ShortInt): Boolean;
 function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 
+// Shortcut management
+function ShortcutToString(const S: PShortcutKey): string;
+function MakeShortcutKey(const Ctrl, Alt, Shift: Boolean; const AKey: UCHAR): PShortcutKey;
+
 // Process Management (Monitoring and Killing background tasks)
 function IsPIDRunning(PID: DWORD): Boolean;
 function KillProcessByPID(PID: DWORD): Boolean;
@@ -878,6 +882,55 @@ begin
       Result := Index;
       Exit
     end;
+end;
+
+// ============================================================================
+// Shortcut Management Functions
+// ============================================================================
+
+{
+  Purpose: Converts a Notepad++ shortcut record into a readable menu suffix.
+  Used when refreshing dynamic menu captions so remapped shortcuts stay visible.
+}
+function ShortcutToString(const S: PShortcutKey): string;
+var
+  Parts: TArray<string>;
+  KeyName: array [0 .. 255] of Char;
+begin
+  SetLength(Parts, 0);
+  // Collect active modifiers first, preserving the familiar shortcut order.
+  if S.IsCtrl then
+    Parts := Parts + ['Ctrl'];
+  if S.IsAlt then
+    Parts := Parts + ['Alt'];
+  if S.IsShift then
+    Parts := Parts + ['Shift'];
+  if S.Key <> 0 then
+  begin
+    // Ask Windows for a localized key name; fall back to the raw virtual-key code.
+    if GetKeyNameText(MapVirtualKey(S.Key, MAPVK_VK_TO_VSC) shl 16, KeyName, Length(KeyName)) > 0 then
+      Parts := Parts + [KeyName]
+    else
+      Parts := Parts + [Format('VK_%d', [S.Key])];
+  end;
+  Result := Trim(string.Join('+', Parts));
+end;
+
+{
+  Purpose: Allocates and initializes a Notepad++ shortcut definition.
+  The returned pointer is passed to AddFuncItem when registering commands.
+}
+function MakeShortcutKey(const Ctrl, Alt, Shift: Boolean; const AKey: UCHAR): PShortcutKey;
+begin
+  // Notepad++ expects a pointer that stays valid after registration.
+  Result := New(PShortcutKey);
+  with Result^ do
+  begin
+    IsCtrl := Ctrl;
+    IsAlt := Alt;
+    IsShift := Shift;
+    Key := AKey;
+  end;
 end;
 
 // ============================================================================
