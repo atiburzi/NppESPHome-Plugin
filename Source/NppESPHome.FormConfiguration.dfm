@@ -684,7 +684,7 @@ object FormConfig: TFormConfig
             'e ESPHome commands are started'
           Style = csOwnerDrawVariable
           ButtonStyle = fsLighter
-          DroppedWidth = 353
+          DroppedWidth = 441
           ImageHeight = 0
           ImageWidth = 0
           ItemHeight = 19
@@ -771,7 +771,7 @@ object FormConfig: TFormConfig
           Height = 25
           Style = csOwnerDrawVariable
           ButtonStyle = fsLighter
-          DroppedWidth = 346
+          DroppedWidth = 432
           ImageHeight = 0
           ImageWidth = 0
           ItemHeight = 19
@@ -806,7 +806,7 @@ object FormConfig: TFormConfig
           Height = 25
           Style = csOwnerDrawVariable
           ButtonStyle = fsLighter
-          DroppedWidth = 346
+          DroppedWidth = 432
           ImageHeight = 0
           ImageWidth = 0
           ItemHeight = 19
@@ -853,7 +853,7 @@ object FormConfig: TFormConfig
           Height = 25
           Style = csOwnerDrawVariable
           ButtonStyle = fsLighter
-          DroppedWidth = 346
+          DroppedWidth = 432
           ImageHeight = 0
           ImageWidth = 0
           ItemHeight = 19

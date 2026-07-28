@@ -11,3 +11,4 @@ __Win32
 *.upx
 *.~dsk
 
+*.xlat.$*

@@ -24,8 +24,6 @@ object FormAbout: TFormAbout
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
-    ExplicitWidth = 484
-    ExplicitHeight = 222
     object LabelAppName1: TLabel
       Left = 246
       Top = 20
@@ -43,9 +41,9 @@ object FormAbout: TFormAbout
     object LabelVersion: TLabel
       Left = 246
       Top = 70
-      Width = 44
+      Width = 38
       Height = 15
-      Caption = 'Versione'
+      Caption = 'Version'
       Transparent = True
     end
     object LabelCopyright: TLabel
@@ -106,7 +104,7 @@ object FormAbout: TFormAbout
     object LinkLabel2: TLinkLabel
       Left = 246
       Top = 137
-      Width = 115
+      Width = 116
       Height = 19
       Caption = '<a href="https://esphome.io/">ESPHome web portal</a>'
       TabOrder = 1
@@ -115,8 +113,8 @@ object FormAbout: TFormAbout
     object LinkLabel3: TLinkLabel
       Left = 246
       Top = 158
-      Width = 171
-      Height = 19
+      Width = 172
+      Height = 20
       Caption = 
         '<a href="https://notepad-plus-plus.org/resources/#plugins">Notep' +
         'ad++ Plugins home page</a>'

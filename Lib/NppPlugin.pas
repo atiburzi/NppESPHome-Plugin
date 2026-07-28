@@ -23,7 +23,7 @@ unit NppPlugin;
 
 interface
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Vcl.Forms, SciSupport, NppSupport,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Vcl.Forms, NppScintilla, NppMessages,
   NppMenuCmdID;
 
 

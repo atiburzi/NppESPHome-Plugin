@@ -1,10 +1,10 @@
-unit UnitFormToolbar;
+unit NppESPHome.FormToolbar;
 
 interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, System.UITypes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, NppPlugin, NppPluginForms,
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, NppPlugin, NppPluginForm,
   Vcl.ComCtrls, Vcl.VirtualImageList, Vcl.ImgList, System.ImageList;
 
 type
@@ -42,7 +42,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ESPHomePlugin, ESPHomeShared, NppSupport, System.StrUtils;
+  NppESPHome.Plugin, NppESPHome.Shared, NppMessages, System.StrUtils;
 
 procedure TFormToolbar.ButtonOkClick(Sender: TObject);
 begin

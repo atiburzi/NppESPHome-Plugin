@@ -19,7 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppSupport;
+unit NppMessages;
 
 
 interface
@@ -1265,14 +1265,12 @@ type
     uniEnd
   );
 
-
   // ---------------------------------------------------------------------------
   // External lexer auto indent mode enumeration
   // ---------------------------------------------------------------------------
   TExternalLexerAutoIndentMode = (
     Standard, C_Like, Custom
   );
-
 
   // ---------------------------------------------------------------------------
   // Macro status enumeration
@@ -1285,18 +1283,12 @@ type
   // ---------------------------------------------------------------------------
   // Windows version enumeration
   // ---------------------------------------------------------------------------
-  TWinVer = (
-    WV_UNKNOWN, WV_WIN32S, WV_95,    WV_98,   WV_ME,   WV_NT,    WV_W2K,   WV_XP,
-    WV_S2003,   WV_XPX64,  WV_VISTA, WV_WIN7, WV_WIN8, WV_WIN81, WV_WIN10, WV_WIN11
-  );
-
+  TWinVer = (WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV_S2003, WV_XPX64, WV_VISTA, WV_WIN7, WV_WIN8, WV_WIN81, WV_WIN10, WV_WIN11);
 
   // ---------------------------------------------------------------------------
   // Processor platform enumeration
   // ---------------------------------------------------------------------------
-  TPlatform = (
-    PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64
-  );
+  TPlatform = (PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64);
 
   // ---------------------------------------------------------------------------
   // Support of generic dark mode for plugin dialogs
@@ -1321,7 +1313,6 @@ type
 
   // Set plugin keyboard shortcut
   PShortcutKey = ^TShortcutKey;
-
   TShortcutKey = record
     IsCtrl: Boolean;
     IsAlt: Boolean;
@@ -1371,7 +1362,6 @@ type
     ModuleName: nppPChar;    // the name of your plugin module (with extension .dll)
   end;
 
-
   // Loading/saving sessions
   TSessionInfo = record
     SessionFilePathName: nppPChar;           // the full path name of session file to save
@@ -1379,14 +1369,12 @@ type
     Files: array of nppPChar;  // session files' full path
   end;
 
-
   // Inter-plugin communication
   TCommunicationInfo = record
     internalMsg: Cardinal;  // message-id (defined by dest-plugin)
     srcModuleName: nppPChar;  // complete module name (with extension .dll) of src-plugin
     info: Pointer;   // pointer to block of informations to be exchanged
   end;
-
 
   // ---------------------------------------------------------------------------
   // Defines for Items Functions
@@ -1396,7 +1384,6 @@ type
   FuncItemCmdProc = procedure; cdecl;
 
   PFuncItem = ^TFuncItem;
-
   TFuncItem = packed record
     ItemName: array[0..FNITEM_NAMELEN - 1] of nppChar;
     Func: FuncItemCmdProc;
@@ -1405,9 +1392,7 @@ type
     ShortcutKey: PShortcutKey;
   end;
 
-
 implementation
-
 
 end.
 

@@ -1,13 +1,13 @@
 // About dialog unit for the NppESPHome plugin.
 // Contains the modal form that displays plugin version, copyright, project links,
 // and applies Notepad++ dark mode colors/icons to the dialog.
-unit UnitFormAbout;
+unit NppESPHome.FormAbout;
 
 interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, NppPlugin, NppPluginForms,
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, NppPlugin, NppPluginForm,
   Vcl.VirtualImage, Vcl.ImageCollection, Vcl.BaseImageCollection;
 
 type
@@ -51,7 +51,7 @@ implementation
 {$R *.dfm}
 
 uses
-  NppSupport, ESPHomeShared, Winapi.ShellAPI;
+  NppMessages, NppESPHome.Shared, Winapi.ShellAPI;
 
 resourcestring
   // Localized caption prefix used for the plugin version label
@@ -64,7 +64,7 @@ resourcestring
 }
 procedure TFormAbout.FormCreate(Sender: TObject);
 begin
-  with Plugin do
+  with ParentPlugin do
     // Get*Version values are exposed by the NppPlugin base class.
     LabelVersion.Caption := Format('%s: %d.%d.%d.%d', [rsVersionAbout, GetMajorVersion, GetMinorVersion, GetReleaseNumber, GetBuildNumber]);
 
@@ -133,11 +133,11 @@ begin
   // icon used by the rest of the plugin.
   AssignWindowIcon(Icon);
 
-  if (Plugin.IsDarkModeEnabled) then
+  if (ParentPlugin.IsDarkModeEnabled) then
   begin
     // Retrieve the active Notepad++ dark mode palette and apply it to this form.
     DarkModeColors := Default(TNppDarkModeColors);
-    Plugin.GetDarkModeColors(@DarkModeColors);
+    ParentPlugin.GetDarkModeColors(@DarkModeColors);
 
     // The About dialog uses standard labels, so colors are assigned explicitly.
     Self.Color := TColor(DarkModeColors.Background);

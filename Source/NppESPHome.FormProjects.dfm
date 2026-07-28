@@ -59,7 +59,7 @@ object FormProjects: TFormProjects
       Action = ActionOpen
     end
     object ToolButtonSep0: TToolButton
-      Left = 30
+      Left = 32
       Top = 0
       Width = 8
       ImageIndex = 8
@@ -67,24 +67,24 @@ object FormProjects: TFormProjects
       Style = tbsSeparator
     end
     object ToolButtonAddDeps: TToolButton
-      Left = 38
+      Left = 40
       Top = 0
       Action = ActionAddDeps
     end
     object ToolButtonRemoveDep: TToolButton
-      Left = 69
+      Left = 72
       Top = 0
       Action = ActionRemoveDep
     end
     object ToolButtonSep1: TToolButton
-      Left = 99
+      Left = 104
       Top = 0
       Width = 5
       ImageName = 'remove'
       Style = tbsSeparator
     end
     object ToolButtonRun: TToolButton
-      Left = 104
+      Left = 109
       Top = 0
       HelpType = htKeyword
       Margins.Left = 4
@@ -94,7 +94,7 @@ object FormProjects: TFormProjects
       Action = ActionRun
     end
     object ToolButtonCompile: TToolButton
-      Left = 134
+      Left = 141
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -103,7 +103,7 @@ object FormProjects: TFormProjects
       Action = ActionCompile
     end
     object ToolButtonUpload: TToolButton
-      Left = 165
+      Left = 173
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -112,7 +112,7 @@ object FormProjects: TFormProjects
       Action = ActionUpload
     end
     object ToolButtonShowLogs: TToolButton
-      Left = 195
+      Left = 205
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -121,7 +121,7 @@ object FormProjects: TFormProjects
       Action = ActionShowLogs
     end
     object ToolButtonClean: TToolButton
-      Left = 226
+      Left = 237
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -130,29 +130,29 @@ object FormProjects: TFormProjects
       Action = ActionClean
     end
     object ToolButtonSep2: TToolButton
-      Left = 256
+      Left = 269
       Top = 0
       Width = 6
       Style = tbsSeparator
     end
     object ToolButtonAddPrj: TToolButton
-      Left = 262
+      Left = 275
       Top = 0
       Action = ActionAddProject
     end
     object ToolButtonRemovePrj: TToolButton
-      Left = 293
+      Left = 307
       Top = 0
       Action = ActionRemoveProject
     end
     object ToolButtonSep3: TToolButton
-      Left = 323
+      Left = 339
       Top = 0
       Width = 8
       Style = tbsSeparator
     end
     object ToolButtonSettings: TToolButton
-      Left = 331
+      Left = 347
       Top = 0
       Action = ActionSettings
     end
@@ -214,8 +214,6 @@ object FormProjects: TFormProjects
         OnNodeClick = VirtualStringTreeProjectsNodeClick
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-        ExplicitTop = 18
-        ExplicitWidth = 480
         Columns = <>
       end
     end
@@ -305,55 +303,6 @@ object FormProjects: TFormProjects
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
       end
-      object VirtualStringTreeTemplates: TVirtualStringTree
-        Left = 6
-        Top = 76
-        Width = 345
-        Height = 257
-        Anchors = [akLeft, akTop, akRight, akBottom]
-        Colors.GridLineColor = clMedGray
-        DefaultNodeHeight = 19
-        Header.AutoSizeIndex = 0
-        Header.Font.Charset = DEFAULT_CHARSET
-        Header.Font.Color = clWindowText
-        Header.Font.Height = -12
-        Header.Font.Name = 'Segoe UI'
-        Header.Font.Style = []
-        Header.Options = [hoColumnResize, hoRestrictDrag, hoShowImages, hoVisible, hoDisableAnimatedResize]
-        Header.ParentFont = False
-        Header.SortColumn = 0
-        HintMode = hmHint
-        Images = VirtualImageList16
-        ParentColor = True
-        TabOrder = 2
-        TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
-        TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowVertGridLines, toThemeAware, toUseBlendedImages, toFullVertGridLines]
-        TreeOptions.SelectionOptions = [toFullRowSelect, toRightClickSelect, toSelectNextNodeOnRemoval]
-        OnChange = VirtualStringTreeTemplatesChange
-        OnDblClick = VirtualStringTreeTemplatesDblClick
-        OnEnter = VirtualStringTreeTemplatesDblClick
-        OnGetText = VirtualStringTreeTemplatesGetText
-        OnGetHint = VirtualStringTreeTemplatesGetHint
-        Touch.InteractiveGestures = [igPan, igPressAndTap]
-        Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-        ExplicitWidth = 465
-        ExplicitHeight = 398
-        Columns = <
-          item
-            CheckType = ctNone
-            Options = [coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coSmartResize, coAllowFocus, coEditable, coStyleColor]
-            Position = 0
-            Text = 'Component'
-            Width = 300
-          end
-          item
-            CheckType = ctNone
-            Options = [coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coSmartResize, coAllowFocus, coEditable, coStyleColor]
-            Position = 1
-            Text = 'Category'
-            Width = 300
-          end>
-      end
       object PanelStaticText: TPanel
         Left = 6
         Top = 480
@@ -361,7 +310,7 @@ object FormProjects: TFormProjects
         Height = 78
         Anchors = [akLeft, akRight, akBottom]
         ParentColor = True
-        TabOrder = 3
+        TabOrder = 2
         object StaticTextDescription: TJvLinkLabel
           Left = 1
           Top = 1
@@ -376,7 +325,63 @@ object FormProjects: TFormProjects
           LinkColorHot = clRed
           OnLinkClick = StaticTextDescriptionLinkClick
           Align = alClient
-          ExplicitHeight = 77
+        end
+      end
+      object PanelTemplates: TPanel
+        Left = 6
+        Top = 77
+        Width = 467
+        Height = 397
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        ParentColor = True
+        ShowCaption = False
+        TabOrder = 3
+        object VirtualStringTreeTemplates: TVirtualStringTree
+          Left = 1
+          Top = 1
+          Width = 465
+          Height = 395
+          Align = alClient
+          Colors.GridLineColor = clMedGray
+          DefaultNodeHeight = 19
+          Header.AutoSizeIndex = 0
+          Header.Font.Charset = DEFAULT_CHARSET
+          Header.Font.Color = clWindowText
+          Header.Font.Height = -12
+          Header.Font.Name = 'Segoe UI'
+          Header.Font.Style = []
+          Header.Options = [hoColumnResize, hoRestrictDrag, hoShowImages, hoVisible, hoDisableAnimatedResize]
+          Header.ParentFont = False
+          Header.SortColumn = 0
+          HintMode = hmHint
+          Images = VirtualImageList16
+          ParentColor = True
+          TabOrder = 0
+          TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
+          TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowVertGridLines, toThemeAware, toUseBlendedImages, toFullVertGridLines]
+          TreeOptions.SelectionOptions = [toFullRowSelect, toRightClickSelect, toSelectNextNodeOnRemoval]
+          OnChange = VirtualStringTreeTemplatesChange
+          OnDblClick = VirtualStringTreeTemplatesDblClick
+          OnEnter = VirtualStringTreeTemplatesDblClick
+          OnGetText = VirtualStringTreeTemplatesGetText
+          OnGetHint = VirtualStringTreeTemplatesGetHint
+          Touch.InteractiveGestures = [igPan, igPressAndTap]
+          Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+          Columns = <
+            item
+              CheckType = ctNone
+              Options = [coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+              Position = 0
+              Text = 'Component'
+              Width = 300
+            end
+            item
+              CheckType = ctNone
+              Options = [coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coSmartResize, coAllowFocus, coEditable, coStyleColor]
+              Position = 1
+              Text = 'Category'
+              Width = 300
+            end>
         end
       end
     end

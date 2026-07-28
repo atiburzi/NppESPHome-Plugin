@@ -113,8 +113,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Debugger_HostApplication>C:\Program Files\Notepad++\notepad++.exe</Debugger_HostApplication>
-        <VerInfo_Build>150</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.150;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
+        <VerInfo_Build>164</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Andrea Tiburzi 2025;FileDescription=ESPHome Plugin for Notepad++;FileVersion=1.0.26.164;InternalName=NppESPHome;LegalCopyright=;LegalTrademarks=;OriginalFilename=NppESPHome.dll;ProgramID=$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Notepad++ plugin designed to act as a wrapper for ESPHome</VerInfo_Keys>
         <MapFile>3</MapFile>
         <DCC_MapFile>3</DCC_MapFile>
         <ILINK_MapFileType>DetailedSegments</ILINK_MapFileType>
@@ -146,40 +146,36 @@ explorer.exe /select,"$(OUTPUTPATH)"]]></PostBuildEvent>
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\Lib\NppPlugin.pas"/>
-        <DCCReference Include="..\Lib\NppPluginForms.pas">
-            <Form>NppPluginForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Lib\NppPluginDockingForms.pas">
-            <Form>NppPluginDockingForm</Form>
-        </DCCReference>
-        <DCCReference Include="..\Lib\NppSupport.pas"/>
+        <DCCReference Include="..\Lib\NppMessages.pas"/>
         <DCCReference Include="..\Lib\NppMenuCmdID.pas"/>
-        <DCCReference Include="..\Lib\SciSupport.pas"/>
+        <DCCReference Include="..\Lib\NppScintilla.pas"/>
         <DCCReference Include="..\Lib\FileVersionInfo.pas"/>
-        <DCCReference Include="UnitFormSelection.pas">
+        <DCCReference Include="NppESPHome.FormSelectProject.pas">
             <Form>FormSelection</Form>
         </DCCReference>
-        <DCCReference Include="UnitFormConfig.pas">
+        <DCCReference Include="NppESPHome.FormConfiguration.pas">
             <Form>FormConfiguration</Form>
         </DCCReference>
-        <DCCReference Include="ESPHomeShared.pas"/>
-        <DCCReference Include="UnitFormAbout.pas">
+        <DCCReference Include="NppESPHome.Shared.pas"/>
+        <DCCReference Include="NppESPHome.FormAbout.pas">
             <Form>FormAbout</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="UnitFormToolbar.pas">
+        <DCCReference Include="NppESPHome.FormToolbar.pas">
             <Form>FormToolbar</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="UnitFormProjects.pas">
+        <DCCReference Include="NppESPHome.FormProjects.pas">
             <Form>FormProjects</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="ESPHomePlugin.pas">
+        <DCCReference Include="NppESPHome.Plugin.pas">
             <Form>Resources</Form>
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\Lib\NppPluginDockingForm.pas"/>
+        <DCCReference Include="..\Lib\NppPluginForm.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

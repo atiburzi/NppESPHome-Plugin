@@ -1,10 +1,10 @@
-unit UnitFormProjects;
+unit NppESPHome.FormProjects;
 
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes, ESPHomeShared, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginDockingForms,
+  Winapi.Windows, System.SysUtils, System.Classes, NppESPHome.Plugin, NppESPHome.Shared, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,  NppPluginDockingForm,
   Vcl.StdCtrls, Vcl.VirtualImageList,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Menus, VirtualTrees.BaseTree, VirtualTrees,
   VirtualTrees.Types, Vcl.ActnList,
@@ -95,6 +95,7 @@ type
     ToolButtonSettings: TToolButton;
     PanelStaticText: TPanel;
     StaticTextDescription: TJvLinkLabel;
+    PanelTemplates: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
@@ -168,7 +169,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Types, System.StrUtils, ESPHomePlugin, NppSupport, SciSupport, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
+  System.Types, System.StrUtils, NppMessages, NppScintilla, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
 
 procedure TFormProjects.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -330,13 +331,13 @@ end;
 procedure TFormProjects.ToolButtonExplorerClick(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.StartExplorer;
+  Plugin.StartExplorer;
 end;
 
 procedure TFormProjects.ToolButtonTerminalClick(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.StartTerminal;
+  Plugin.StartTerminal;
 end;
 
 procedure TFormProjects.VirtualStringTreeProjectsChange(
@@ -348,8 +349,8 @@ begin
   if Assigned(Node) then
   begin
     FileName := PProjectNode(Node.GetData)^.FileName;
-    if FileName <> ESPHomePlugin.Plugin.GetFullCurrentPath then
-      ESPHomePlugin.Plugin.SwitchToFile(FileName);
+    if FileName <> Plugin.GetFullCurrentPath then
+      Plugin.SwitchToFile(FileName);
   end;
 end;
 
@@ -381,7 +382,7 @@ begin
   Node := TVirtualStringTree(Sender).FocusedNode;
   if Assigned(Node) then
     S := PProjectNode(Node.GetData)^.FileName;
-  ESPHomePlugin.Plugin.OpenFile(S);
+  Plugin.OpenFile(S);
 end;
 
 procedure TFormProjects.VirtualStringTreeProjectsGetHint(
@@ -466,8 +467,8 @@ begin
       ProjectList.Current := Data^.Project;
   end;
   RefreshToolbar;
-  ESPHomePlugin.Plugin.RefreshNppTitle;
-  ESPHomePlugin.Plugin.RefreshPluginMenu;
+  Plugin.RefreshNppTitle;
+  Plugin.RefreshPluginMenu;
 end;
 
 resourcestring
@@ -560,7 +561,7 @@ begin
     Data := Node.GetData;
     if Assigned(Data) then
       if Data.Level >= 0 then
-        ESPHomePlugin.Plugin.DependencyRemove(Data.FileName);
+        Plugin.DependencyRemove(Data.FileName);
   end;
 end;
 
@@ -581,7 +582,7 @@ begin
       else
         ProjectList.Current := nil;
       ProjectList.SaveConfig;
-      ESPHomePlugin.Plugin.RefreshProjectList;
+      Plugin.RefreshProjectList;
     end;
   end;
 end;
@@ -589,7 +590,7 @@ end;
 procedure TFormProjects.ActionAddDepsExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.DependencyAdd;
+  Plugin.DependencyAdd;
 end;
 
 procedure TFormProjects.ActionAddProjectExecute(Sender: TObject);
@@ -611,7 +612,7 @@ begin
       ProjectList.Add(Project);
       ProjectList.Current := Project;
       ProjectList.SaveConfig;
-      ESPHomePlugin.Plugin.RefreshProjectList;
+      Plugin.RefreshProjectList;
     end
     else
     begin
@@ -625,49 +626,49 @@ end;
 procedure TFormProjects.ActionCleanAllExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.CommandCleanAll;
+  Plugin.CommandCleanAll;
 end;
 
 procedure TFormProjects.ActionCleanExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.CommandClean;
+  Plugin.CommandClean;
 end;
 
 procedure TFormProjects.ActionCompileExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.CommandCompile;
+  Plugin.CommandCompile;
 end;
 
 procedure TFormProjects.ActionOpenExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.ProjectOpenFiles;
+  Plugin.ProjectOpenFiles;
 end;
 
 procedure TFormProjects.ActionRunExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.CommandRun;
+  Plugin.CommandRun;
 end;
 
 procedure TFormProjects.ActionSettingsExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.ProjectConfigure;
+  Plugin.ProjectConfigure;
 end;
 
 procedure TFormProjects.ActionShowLogsExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.CommandLogs;
+  Plugin.CommandLogs;
 end;
 
 procedure TFormProjects.ActionUploadExecute(Sender: TObject);
 begin
   inherited;
-  ESPHomePlugin.Plugin.CommandUpload;
+  Plugin.CommandUpload;
 end;
 
 procedure TFormProjects.ButtonMenuTemplatesClick(Sender: TObject);
@@ -785,8 +786,8 @@ begin
   begin
     ProjectList.Current := P;
     RefreshToolbar;
-    ESPHomePlugin.Plugin.RefreshPluginMenu;
-    ESPHomePlugin.Plugin.RefreshNppTitle;
+    Plugin.RefreshPluginMenu;
+    Plugin.RefreshNppTitle;
   end;
   Node := GetVirtualNodeFromFileName(FileName);
   if Assigned(Node) then

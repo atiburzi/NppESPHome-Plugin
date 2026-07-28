@@ -1,10 +1,10 @@
-unit UnitFormConfig;
+unit NppESPHome.FormConfiguration;
 
 interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForms, Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForm, Vcl.StdCtrls, Vcl.ComCtrls,
   Vcl.VirtualImageList, JvListComb,
   Vcl.WinXPanels, Vcl.ExtCtrls,
   JvEdit,
@@ -121,7 +121,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ESPHomeShared, ESPHomePlugin, UnitFormProjects, NppSupport, Registry, Math,Winapi.ShellAPI;
+  NppESPHome.Shared, NppESPHome.Plugin, NppESPHome.FormProjects, NppMessages, Registry, Math,Winapi.ShellAPI;
 
 procedure RecalcListBoxScrollWidth(AListBox: TListBox);
 var
@@ -153,7 +153,7 @@ begin
     ListBoxDependencies.Items.Clear;
     ListBoxDependencies.Items.AddStrings(ProjectList.Current.OptionDependencies);
     RecalcListBoxScrollWidth(ListBoxDependencies);
-    ESPHomePlugin.Plugin.RefreshProjectList;
+    Plugin.RefreshProjectList;
     if Assigned(FormProjects) then
       FormProjects.CurrentDocumentChanged;
   end;
@@ -183,7 +183,7 @@ begin
     if ListBoxDependencies.Count > 0 then
       ListBoxDependencies.ItemIndex := Max(0, Sel - 1);
     RecalcListBoxScrollWidth(ListBoxDependencies);
-    ESPHomePlugin.Plugin.RefreshProjectList;
+    Plugin.RefreshProjectList;
     if Assigned(FormProjects) then
       FormProjects.CurrentDocumentChanged;
   end;

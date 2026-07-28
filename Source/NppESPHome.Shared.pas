@@ -1,12 +1,12 @@
 // Central shared unit for the NppESPHome plugin.
 // Contains core classes for managing ESPHome projects, templates, system utilities, and UI image manipulation.
-unit ESPHomeShared;
+unit NppESPHome.Shared;
 
 interface
 
 uses
   System.Classes, System.Generics.Collections, Winapi.Windows, Vcl.ComCtrls, Vcl.Graphics, Vcl.VirtualImage, Vcl.ImageCollection, Vcl.VirtualImageList, XMLIntf, IniFiles,
-  System.UITypes, NppSupport;
+  System.UITypes, NppMessages;
 
 const
   PingTimeout = 3 * 1000; // Timeout for pinging devices, in milliseconds
@@ -280,7 +280,7 @@ procedure AssignImageResources(AVirtualImageList: TVirtualImageList); overload;
 implementation
 
 uses
-  ESPHomePlugin, SysUtils, System.StrUtils, Neslib.Yaml, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc, System.IOUtils, System.NetEncoding, System.Net.HttpClient,
+  NppESPHome.Plugin, SysUtils, System.StrUtils, Neslib.Yaml, TDMB, Vcl.Dialogs, Vcl.Controls, Xml.XMLDoc, System.IOUtils, System.NetEncoding, System.Net.HttpClient,
   System.Net.HttpClientComponent, System.Net.URLClient, TlHelp32, System.UIConsts;
 
 // ============================================================================

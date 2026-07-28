@@ -1,12 +1,12 @@
 // Main Notepad++ plugin unit for NppESPHome.
 // Registers the plugin commands, manages Notepad++ events, toolbar integration,
 // project commands, and the project docking window lifecycle.
-unit ESPHomePlugin;
+unit NppESPHome.Plugin;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.CommCtrl, System.SysUtils, System.Classes, Vcl.Graphics, NppSupport, NppPlugin, NppPluginForms, NppPluginDockingForms, ESPHomeShared,
+  Winapi.Windows, Winapi.CommCtrl, System.SysUtils, System.Classes, Vcl.Graphics, NppMessages, NppPlugin, NppPluginForm, NppPluginDockingForm, NppESPHome.Shared,
   Vcl.ImageCollection, Vcl.BaseImageCollection;
 
 const
@@ -209,8 +209,8 @@ implementation
 {$B-}
 
 uses
-  JvCreateProcess, Winapi.ShellAPI, UnitFormSelection, UnitFormConfig, System.StrUtils,
-  UnitFormToolbar, UnitFormAbout, UnitFormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs,
+  JvCreateProcess, Winapi.ShellAPI, NppESPHome.FormSelectProject, NppESPHome.FormConfiguration, System.StrUtils,
+  NppESPHome.FormToolbar, NppESPHome.FormAbout, NppESPHome.FormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs,
   System.Math,
   System.UITypes,
   System.IOUtils;
@@ -513,46 +513,49 @@ begin
 
     // Configure the external console process but keep it hidden until it is positioned.
     ESPHomeProcess := TJvCreateProcess.Create(nil);
-    ESPHomeProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
-    ESPHomeProcess.CommandLine := CommandLine;
-    ESPHomeProcess.CurrentDirectory := ExtractFilePath(ProjectList.Current.FileName);
-    ESPHomeProcess.CreationFlags := ESPHomeProcess.CreationFlags + [cfNewConsole];
+    try
+      ESPHomeProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
+      ESPHomeProcess.CommandLine := CommandLine;
+      ESPHomeProcess.CurrentDirectory := ExtractFilePath(ProjectList.Current.FileName);
+      ESPHomeProcess.CreationFlags := ESPHomeProcess.CreationFlags + [cfNewConsole];
 
-    // Set a user-friendly console title based on the command and project name.
-    with ESPHomeProcess.StartupInfo do
-    begin
-      ShowWindow := swHide;
-      DefaultWindowState := False;
-      // Add command-specific options such as reset, no-logs, or only-generate.
-      case Command of
-        scRun: Title := rsConsoleCommandRun;
-        scCompile: Title := rsConsoleCommandCompile;
-        scUpload: Title := rsConsoleCommandUpload;
-        scLogs: Title := rsConsoleCommandLogs;
-        scClean: Title := rsConsoleCommandClean;
-        scCleanAll: Title := rsConsoleCommandCleanAll;
+      // Set a user-friendly console title based on the command and project name.
+      with ESPHomeProcess.StartupInfo do
+      begin
+        ShowWindow := swHide;
+        DefaultWindowState := False;
+        // Add command-specific options such as reset, no-logs, or only-generate.
+        case Command of
+          scRun: Title := rsConsoleCommandRun;
+          scCompile: Title := rsConsoleCommandCompile;
+          scUpload: Title := rsConsoleCommandUpload;
+          scLogs: Title := rsConsoleCommandLogs;
+          scClean: Title := rsConsoleCommandClean;
+          scCleanAll: Title := rsConsoleCommandCleanAll;
+        end;
+        Title := Format('%s - [%s]', [Title, ProjectList.Current.FriendlyName]);
       end;
-      Title := Format('%s - [%s]', [Title, ProjectList.Current.FriendlyName]);
+
+      // Start the process, then locate the console window created for it.
+      ESPHomeProcess.Run;
+
+      LastConsolePID := ESPHomeProcess.ProcessInfo.dwProcessId;
+      ConsoleHandle := GetMainWindowHandleByPID(LastConsolePID, 3000);
+
+      // Once the window exists, move it to the requested screen position and show it.
+      if ConsoleHandle <> 0 then
+      begin
+        PositionWindow(ConsoleHandle, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows), GetOption(csKeyConsoleStartingMonitor, 0));
+        if GetOption(csKeyConsoleAlwaysOnTop, False) then
+          SetWindowPos(ConsoleHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+        ShowWindow(ConsoleHandle, SW_SHOW);
+      end
+      else
+        ESPHomeProcess.TerminateTree;
+    except
+      ESPHomeProcess.Free;
     end;
 
-    // Start the process, then locate the console window created for it.
-    ESPHomeProcess.Run;
-
-    LastConsolePID := ESPHomeProcess.ProcessInfo.dwProcessId;
-    ConsoleHandle := GetMainWindowHandleByPID(LastConsolePID, 3000);
-
-    // Once the window exists, move it to the requested screen position and show it.
-    if ConsoleHandle <> 0 then
-    begin
-      PositionWindow(ConsoleHandle, GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows), GetOption(csKeyConsoleStartingMonitor, 0));
-      if GetOption(csKeyConsoleAlwaysOnTop, False) then
-        SetWindowPos(ConsoleHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
-      ShowWindow(ConsoleHandle, SW_SHOW);
-    end
-    else
-      ESPHomeProcess.TerminateTree;
-
-    ESPHomeProcess.Free;
   end;
 end;
 
@@ -576,42 +579,45 @@ var
 begin
   // Configure a strict file dialog so only existing ESPHome YAML files are selectable.
   FileOpen := TFileOpenDialog.Create(nil);
-  FileOpen.DefaultExtension := '.yaml';
-  FileOpen.Title := rsProjectAddFileOpenTitle;
-  FileOpen.Options := [fdoStrictFileTypes, fdoForceFileSystem, fdoFileMustExist];
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsProjectAddFileTypeItem;
-  FileTypeItem.FileMask := '*.yaml';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsProjectAddFileTypeItem;
-  FileTypeItem.FileMask := '*.yal';
-  if FileOpen.Execute(NppData.NppHandle) then
-  begin
-    // Prevent duplicate project registrations for the same YAML file.
-    if Assigned(ProjectList.GetProjectFromFileName(FileOpen.FileName)) then
-      TD(Format(rsProjectAlreadyExists, [ExtractFileName(FileOpen.FileName)])).WindowCaption(rsMessageBoxError).
-        Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(nil)
-    else
+  try
+    FileOpen.DefaultExtension := '.yaml';
+    FileOpen.Title := rsProjectAddFileOpenTitle;
+    FileOpen.Options := [fdoStrictFileTypes, fdoForceFileSystem, fdoFileMustExist];
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsProjectAddFileTypeItem;
+    FileTypeItem.FileMask := '*.yaml';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsProjectAddFileTypeItem;
+    FileTypeItem.FileMask := '*.yal';
+    if FileOpen.Execute(NppData.NppHandle) then
     begin
-      // Parse the selected YAML immediately; invalid ESPHome files are rejected.
-      Project := TProject.Create(FileOpen.FileName);
-      if Project.IsValid then
-      begin
-        // Make the newly added project current and persist the updated project list.
-        ProjectList.Add(Project);
-        ProjectList.Current := Project;
-        ProjectList.SaveConfig;
-        RefreshProjectList;
-      end
+      // Prevent duplicate project registrations for the same YAML file.
+      if Assigned(ProjectList.GetProjectFromFileName(FileOpen.FileName)) then
+        TD(Format(rsProjectAlreadyExists, [ExtractFileName(FileOpen.FileName)])).WindowCaption(rsMessageBoxError).
+          Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(nil)
       else
       begin
-        Project.Free;
-        TD(Format(rsInvalidProjectFile, [ExtractFileName(FileOpen.FileName)])).Text(rsInvalidProjectFile2).WindowCaption(rsMessageBoxError).
-          Error.OK.SetFlags([tfAllowDialogCancellation]).Execute(nil);
+        // Parse the selected YAML immediately; invalid ESPHome files are rejected.
+        Project := TProject.Create(FileOpen.FileName);
+        if Project.IsValid then
+        begin
+          // Make the newly added project current and persist the updated project list.
+          ProjectList.Add(Project);
+          ProjectList.Current := Project;
+          ProjectList.SaveConfig;
+          RefreshProjectList;
+        end
+        else
+        begin
+          Project.Free;
+          TD(Format(rsInvalidProjectFile, [ExtractFileName(FileOpen.FileName)])).Text(rsInvalidProjectFile2).WindowCaption(rsMessageBoxError).
+            Error.OK.SetFlags([tfAllowDialogCancellation]).Execute(nil);
+        end;
       end;
     end;
+  finally
+    FileOpen.Free;
   end;
-  FileOpen.Free;
 end;
 
 {
@@ -1125,52 +1131,54 @@ begin
 
   // Configure a strict file dialog so only existing ESPHome YAML files are selectable.
   FileOpen := TFileOpenDialog.Create(nil);
-  FileOpen.DefaultExtension := '.yaml';
-  FileOpen.Title := Format(rsDependencyAddFileOpenTitle, [ProjectList.Current.FriendlyName]);
-  // Allow multi-select because ESPHome projects often use several companion files.
-  FileOpen.Options := [fdoForceFileSystem, fdoAllowMultiSelect, fdoFileMustExist, fdoNoDereferenceLinks, fdoForceShowHidden];
-  FileOpen.DefaultFolder := ExtractFileDir(ProjectList.Current.FileName);
+  try
+    FileOpen.DefaultExtension := '.yaml';
+    FileOpen.Title := Format(rsDependencyAddFileOpenTitle, [ProjectList.Current.FriendlyName]);
+    // Allow multi-select because ESPHome projects often use several companion files.
+    FileOpen.Options := [fdoForceFileSystem, fdoAllowMultiSelect, fdoFileMustExist, fdoNoDereferenceLinks, fdoForceShowHidden];
+    FileOpen.DefaultFolder := ExtractFileDir(ProjectList.Current.FileName);
 
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem1;
-  FileTypeItem.FileMask := '*.yaml';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem2;
-  FileTypeItem.FileMask := '*.yal';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem3;
-  FileTypeItem.FileMask := '*.csv';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem4;
-  FileTypeItem.FileMask := '*.h';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem5;
-  FileTypeItem.FileMask := '*.cpp';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem6;
-  FileTypeItem.FileMask := '*.inc';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem7;
-  FileTypeItem.FileMask := '*.txt';
-  FileTypeItem := FileOpen.FileTypes.Add;
-  FileTypeItem.DisplayName := rsDependencyAddFileTypeItem8;
-  FileTypeItem.FileMask := '*.*';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem1;
+    FileTypeItem.FileMask := '*.yaml';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem2;
+    FileTypeItem.FileMask := '*.yal';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem3;
+    FileTypeItem.FileMask := '*.csv';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem4;
+    FileTypeItem.FileMask := '*.h';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem5;
+    FileTypeItem.FileMask := '*.cpp';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem6;
+    FileTypeItem.FileMask := '*.inc';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem7;
+    FileTypeItem.FileMask := '*.txt';
+    FileTypeItem := FileOpen.FileTypes.Add;
+    FileTypeItem.DisplayName := rsDependencyAddFileTypeItem8;
+    FileTypeItem.FileMask := '*.*';
 
-  if FileOpen.Execute(NppData.NppHandle) then
-  begin
-    // Add selected files to the de-duplicating dependency list.
-    ProjectList.Current.OptionDependencies.AddStrings(FileOpen.Files);
-    // The main project YAML is implicit and should not be stored as a dependency.
-    Index := ProjectList.Current.OptionDependencies.IndexOf(ProjectList.Current.FileName);
-    if Index >= 0 then
-      ProjectList.Current.OptionDependencies.Delete(Index);
-    ProjectList.Current.SaveOptionDependencies;
-    RefreshProjectList;
-    if Assigned(FormProjects) then
-      FormProjects.CurrentDocumentChanged;
+    if FileOpen.Execute(NppData.NppHandle) then
+    begin
+      // Add selected files to the de-duplicating dependency list.
+      ProjectList.Current.OptionDependencies.AddStrings(FileOpen.Files);
+      // The main project YAML is implicit and should not be stored as a dependency.
+      Index := ProjectList.Current.OptionDependencies.IndexOf(ProjectList.Current.FileName);
+      if Index >= 0 then
+        ProjectList.Current.OptionDependencies.Delete(Index);
+      ProjectList.Current.SaveOptionDependencies;
+      RefreshProjectList;
+      if Assigned(FormProjects) then
+        FormProjects.CurrentDocumentChanged;
+    end;
+  except
+    FileOpen.Free;
   end;
-
-  FileOpen.Free;
 end;
 
 resourcestring
@@ -1193,8 +1201,7 @@ begin
     begin
       // Find the dependency by full path so duplicate display names are not ambiguous.
       I := ProjectList.Current.OptionDependencies.IndexOf(DepFile);
-      // Index 0 is reserved by existing project/dependency semantics, so leave it intact.
-      if I > 0 then
+      if I >= 0 then
       begin
         ProjectList.Current.OptionDependencies.Delete(I);
         ProjectList.Current.SaveOptionDependencies;

@@ -19,7 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppPluginForms;
+unit NppPluginForm;
 
 
 interface
@@ -27,7 +27,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Math, System.Types,
   System.Classes, Vcl.Controls, Vcl.Forms,
-  NppSupport, NppPlugin;
+  NppMessages, NppPlugin;
 
 type
   TNppPluginForm = class(TForm)
@@ -46,7 +46,7 @@ type
     procedure UnregisterForm();
 
   public
-    Plugin: TNppPlugin;
+    ParentPlugin: TNppPlugin;
     DefaultCloseAction: TCloseAction;
 
     constructor Create(ParentPlugin: TNppPlugin); reintroduce; overload; virtual;
@@ -63,31 +63,29 @@ type
 
 implementation
 
-{$R *.dfm}
-
 // Constructor for main dialogs
 constructor TNppPluginForm.Create(ParentPlugin: TNppPlugin);
 begin
-  Self.Plugin := ParentPlugin;
+  Self.ParentPlugin := ParentPlugin;
   DefaultCloseAction := caNone;
   FThemeInitialized := False;
   FRegistered := False;
   inherited Create(nil);
-  ParentWindow := Self.Plugin.NppData.NppHandle;
+  ParentWindow := ParentPlugin.NppData.NppHandle;
   RegisterForm();
-  if Plugin.IsNppMinVersion(8, 410) then
+  if ParentPlugin.IsNppMinVersion(8, 410) then
     ToggleDarkMode;
 end;
 
 // Constructor for sub dialogs
 constructor TNppPluginForm.Create(AOwner: TNppPluginForm);
 begin
-  Self.Plugin := AOwner.Plugin;
+  ParentPlugin := AOwner.ParentPlugin;
   DefaultCloseAction := caNone;
   FThemeInitialized := False;
   FRegistered := False;
   inherited Create(AOwner);
-  if Plugin.IsNppMinVersion(8, 410) then
+  if ParentPlugin.IsNppMinVersion(8, 410) then
     ToggleDarkMode;
 end;
 
@@ -104,7 +102,7 @@ procedure TNppPluginForm.RegisterForm();
 begin
   if not CanRegister then
     Exit;
-  FRegistered := SendMessage(Self.Plugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, Handle) <> 0;
+  FRegistered := SendMessage(ParentPlugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, Handle) <> 0;
 end;
 
 
@@ -114,12 +112,12 @@ procedure TNppPluginForm.UnregisterForm();
 begin
   if (not FRegistered) or (not CanRegister) or (not HandleAllocated) then
     Exit;
-  SendMessage(Self.Plugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, Handle);
+  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, Handle);
 end;
 
 function TNppPluginForm.CanRegister: Boolean;
 begin
-  Result := (Assigned(Self.Plugin) and IsWindow(self.Plugin.NppData.NppHandle) and self.HandleAllocated);
+  Result := (Assigned(ParentPlugin) and IsWindow(ParentPlugin.NppData.NppHandle) and Self.HandleAllocated);
 end;
 
 // Set caption of GUI controls
@@ -183,13 +181,13 @@ begin
     DmFlag := dmfInit;
     FThemeInitialized := True;
   end;
-  if Assigned(Plugin) and Plugin.IsNppMinVersion(8, 540) then
+  if Assigned(ParentPlugin) and ParentPlugin.IsNppMinVersion(8, 540) then
     SubclassAndTheme(DmFlag);
 end;
 
 procedure TNppPluginForm.SubclassAndTheme(DmFlag: TNppDarkMode);
 begin
-  SendMessage(Plugin.NppData.NppHandle, NPPM_DARKMODESUBCLASSANDTHEME, WPARAM(DmFlag), LPARAM(Self.Handle));
+  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DARKMODESUBCLASSANDTHEME, WPARAM(DmFlag), LPARAM(Self.Handle));
 end;
 
 // This is going to help us solve the problems we are having because of N++ handling our messages

@@ -1,10 +1,10 @@
-unit UnitFormSelection;
+unit NppESPHome.FormSelectProject;
 
 interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForms;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForm;
 
 type
   TFormSelection = class(TNppPluginForm)
@@ -34,7 +34,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ESPHomeShared, ESPHomePlugin, NppSupport, Math, TDMB;
+  NppESPHome.Shared, NppESPHome.Plugin, NppMessages, Math, TDMB;
 
 procedure TFormSelection.ButtonAddProjectClick(Sender: TObject);
 var
@@ -56,7 +56,7 @@ begin
       ProjectList.Current := Project;
       ProjectList.SaveConfig;
       RefreshComboBox;
-      ESPHomePlugin.Plugin.RefreshProjectList;
+      Plugin.RefreshProjectList;
     end
     else
     begin
@@ -85,7 +85,7 @@ begin
         ProjectList.Current := nil;
       ProjectList.SaveConfig;
       RefreshComboBox;
-      ESPHomePlugin.Plugin.RefreshProjectList;
+      Plugin.RefreshProjectList;
     end;
   end;
 end;
@@ -115,7 +115,7 @@ begin
   inherited;
   if (ComboBoxProject.ItemIndex >= 0) and (ComboBoxProject.Items.Count > 0) then
     ProjectList.Current := ProjectList.GetProjectFromUIName(ComboBoxProject.Items[ComboBoxProject.ItemIndex]);
-  ESPHomePlugin.Plugin.RefreshProjectList;
+  Plugin.RefreshProjectList;
 end;
 
 procedure TFormSelection.FormCreate(Sender: TObject);

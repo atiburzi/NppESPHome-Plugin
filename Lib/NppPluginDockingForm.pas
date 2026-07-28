@@ -19,7 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppPluginDockingForms;
+unit NppPluginDockingForm;
 
 
 interface
@@ -28,7 +28,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms,
 
-  NppSupport, NppPlugin, NppPluginForms;
+  NppMessages, NppPlugin, NppPluginForm;
 
 
 type
@@ -80,8 +80,6 @@ resourcestring
   rsMessageDoNotUseThisConstructor = 'Do not use this constructor';
   rsMessagePluginFrameworkError = 'Plugin Framework error';
 
-{$R *.dfm}
-
 
 // =============================================================================
 // Class TNppDockingForm
@@ -109,7 +107,7 @@ constructor TNppPluginDockingForm.Create(NppParent: TNppPlugin; DlgId: Integer);
 begin
   inherited Create(NppParent);
   FDlgId := DlgId;
-  CmdId := Self.Plugin.CmdIdFromMenuItemIdx(DlgId);
+  CmdId := ParentPlugin.CmdIdFromMenuItemIdx(DlgId);
   RegisterDockingForm(FNppDefaultDockingMask);
   RemoveControlParent(Self);
 end;
@@ -154,7 +152,7 @@ begin
   StringToWideChar(ExtractFileName(FTbData.ModuleName), FTbData.ModuleName, 1000);
   StringToWideChar('', FTbData.AdditionalInfo, 1);
 
-  SendMessage(Self.Plugin.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, LPARAM(@FTbData));
+  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, LPARAM(@FTbData));
   Visible := true;
 end;
 
@@ -165,7 +163,7 @@ end;
 
 procedure TNppPluginDockingForm.Show;
 begin
-  SendMessage(Self.Plugin.NppData.NppHandle, NPPM_DMMSHOW, 0, LPARAM(Self.Handle));
+  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMSHOW, 0, LPARAM(Self.Handle));
   inherited Show;
   DoShow;
 end;
@@ -173,7 +171,7 @@ end;
 
 procedure TNppPluginDockingForm.Hide;
 begin
-  SendMessage(Self.Plugin.NppData.NppHandle, NPPM_DMMHIDE, 0, LPARAM(Self.Handle));
+  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMHIDE, 0, LPARAM(Self.Handle));
   inherited Hide;
   DoHide;
 end;
@@ -185,7 +183,7 @@ end;
 
 procedure TNppPluginDockingForm.OnWM_NOTIFY(var Msg: TWMNotify);
 begin
-  if (Self.Plugin.NppData.NppHandle = Msg.NMHdr.hwndFrom) then
+  if (ParentPlugin.NppData.NppHandle = Msg.NMHdr.hwndFrom) then
   begin
     Msg.Result := 0;
     if (Msg.NMHdr.code = DMN_CLOSE) then
@@ -220,7 +218,7 @@ end;
 procedure TNppPluginDockingForm.UpdateDisplayInfo(Info: String);
 begin
   StringToWideChar(Info, FTbData.AdditionalInfo, 1000);
-  SendMessage(Plugin.NppData.NppHandle, NPPM_DMMUPDATEDISPINFO, 0, LPARAM(Self.Handle));
+  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMUPDATEDISPINFO, 0, LPARAM(Self.Handle));
 end;
 
 

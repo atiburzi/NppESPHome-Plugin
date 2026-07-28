@@ -27,19 +27,19 @@ uses
   Winapi.Windows,
   Winapi.Messages,
   NppPlugin in '..\Lib\NppPlugin.pas',
-  NppPluginForms in '..\Lib\NppPluginForms.pas' {NppPluginForm},
-  NppPluginDockingForms in '..\Lib\NppPluginDockingForms.pas' {NppPluginDockingForm},
-  NppSupport in '..\Lib\NppSupport.pas',
+  NppMessages in '..\Lib\NppMessages.pas',
   NppMenuCmdID in '..\Lib\NppMenuCmdID.pas',
-  SciSupport in '..\Lib\SciSupport.pas',
+  NppScintilla in '..\Lib\NppScintilla.pas',
   FileVersionInfo in '..\Lib\FileVersionInfo.pas',
-  UnitFormSelection in 'UnitFormSelection.pas' {FormSelection},
-  UnitFormConfig in 'UnitFormConfig.pas' {FormConfiguration},
-  ESPHomeShared in 'ESPHomeShared.pas',
-  UnitFormAbout in 'UnitFormAbout.pas' {FormAbout},
-  UnitFormToolbar in 'UnitFormToolbar.pas' {FormToolbar},
-  UnitFormProjects in 'UnitFormProjects.pas' {FormProjects},
-  ESPHomePlugin in 'ESPHomePlugin.pas' {Resources: TDataModule};
+  NppESPHome.FormSelectProject in 'NppESPHome.FormSelectProject.pas' {FormSelection},
+  NppESPHome.FormConfiguration in 'NppESPHome.FormConfiguration.pas' {FormConfiguration},
+  NppESPHome.Shared in 'NppESPHome.Shared.pas',
+  NppESPHome.FormAbout in 'NppESPHome.FormAbout.pas' {FormAbout},
+  NppESPHome.FormToolbar in 'NppESPHome.FormToolbar.pas' {FormToolbar},
+  NppESPHome.FormProjects in 'NppESPHome.FormProjects.pas' {FormProjects},
+  NppESPHome.Plugin in 'NppESPHome.Plugin.pas' {Resources: TDataModule},
+  NppPluginDockingForm in '..\Lib\NppPluginDockingForm.pas',
+  NppPluginForm in '..\Lib\NppPluginForm.pas';
 
 {$R *.res}
 
