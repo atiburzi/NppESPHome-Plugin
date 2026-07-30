@@ -1,3 +1,5 @@
+// Project selection dialog for NppESPHome.
+// Lets the user choose, add, or remove a known project and propagates the selection to the plugin UI.
 unit NppESPHome.FormSelectProject;
 
 interface
@@ -7,6 +9,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForm;
 
 type
+  // Modal dialog that mirrors ProjectList and manages the current selection.
   TFormSelection = class(TNppPluginForm)
     GroupBoxCurrentProject: TGroupBox;
     ComboBoxProject: TComboBox;
@@ -36,6 +39,11 @@ implementation
 uses
   NppESPHome.Shared, NppESPHome.Plugin, NppMessages, Math, TDMB;
 
+// *****************************************************************************
+// Purpose: Adds a selected ESPHome YAML file to the known-project list,
+// rejecting duplicates and invalid files before persisting and refreshing the
+// UI.
+// *****************************************************************************
 procedure TFormSelection.ButtonAddProjectClick(Sender: TObject);
 var
   Project: TProject;
@@ -43,6 +51,7 @@ begin
   inherited;
   if FileOpenDialogProject.Execute(Self.Handle) then
   begin
+    // Prevent duplicate entries before constructing a new project object.
     if Assigned(ProjectList.GetProjectFromFileName(FileOpenDialogProject.FileName)) then
     begin
       TD(Format(rsProjectAlreadyExists, [ExtractFileName(FileOpenDialogProject.FileName)])).WindowCaption(rsMessageBoxError).
@@ -52,6 +61,7 @@ begin
     Project := TProject.Create(FileOpenDialogProject.FileName);
     if Project.IsValid then
     begin
+      // A valid project transfers ownership to the object list.
       ProjectList.Add(Project);
       ProjectList.Current := Project;
       ProjectList.SaveConfig;
@@ -67,6 +77,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Removes the current project from the known-project list after
+// confirmation and selects the nearest remaining project.
+// *****************************************************************************
 procedure TFormSelection.ButtonRemoveProjectClick(Sender: TObject);
 var
   I: Integer;
@@ -90,6 +104,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Applies the current Notepad++ palette and window icon to the project
+// selection dialog.
+// *****************************************************************************
 procedure TFormSelection.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
@@ -110,6 +128,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Makes the combo-box selection current and refreshes all
+// project-dependent plugin state.
+// *****************************************************************************
 procedure TFormSelection.ComboBoxProjectChange(Sender: TObject);
 begin
   inherited;
@@ -118,12 +140,19 @@ begin
   Plugin.RefreshProjectList;
 end;
 
+// *****************************************************************************
+// Purpose: Initializes the project selector from the shared project list.
+// *****************************************************************************
 procedure TFormSelection.FormCreate(Sender: TObject);
 begin
   inherited;
   RefreshComboBox;
 end;
 
+// *****************************************************************************
+// Purpose: Rebuilds the project combo box and restores the item corresponding
+// to the current project.
+// *****************************************************************************
 procedure TFormSelection.RefreshComboBox;
 var
   P: TProject;

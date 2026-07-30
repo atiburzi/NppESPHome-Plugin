@@ -37,10 +37,7 @@ const
 const
   csDefaultEmpty = '';
   csSectionGeneral = 'General';
-  //csSectionProjects = 'Projects';
   csKeyCurrentProject = 'CurrentProject';
-  //csKeyToolbarBitmap = 'ToolbarBitmap';
-  //csKeyToolbarSequence = 'ToolbarSequence';
   csKeyToolbarConfig = 'ToolbarConfig';
   csKeyProjectWindow = 'ProjectWindow';
   csKeyProjectPanelSize = 'ProjectPanelSize';
@@ -103,13 +100,6 @@ resourcestring
   rsMessageBoxWarning = 'ESPHome Plugin Warning';
   rsMessageBoxInfo = 'ESPHome Plugin Information';
   rsESPHomeDocURL = 'https://www.esphome.io/components/';
-
-resourcestring
-  rsInvalidESPHomeInstallation = 'No valid installation of ESPHome has been found on your system.' +
-    #13#10'Please (re)install ESPHome following the instructions available on the following web page:' +
-    #13#13#10'https://www.esphome.io/guides/installing_esphome/';
-  rsNoProjectSelected = 'No ESPHome project is currently selected.' + #13#13#10'To use this command, please select the current project and try again.' +
-    #13#10'You can select it through the menù command:' + #13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
 
 resourcestring
   rsProjectAlreadyExists = 'Project "%s" already exists among the configured projects.';
@@ -287,11 +277,12 @@ uses
 // TProject Implementation
 // ============================================================================
 
-{
-  Purpose: Initializes a new TProject instance by parsing the provided YAML file.
-  It extracts critical ESPHome configurations (like device name, microcontroller type,
-  board type, framework, and modules like WiFi or WebServer).
-}
+// *****************************************************************************
+// Purpose: Initializes a new TProject instance by parsing the provided YAML
+// file. It extracts critical ESPHome configurations (like device name,
+// microcontroller type, board type, framework, and modules like WiFi or
+// WebServer).
+// *****************************************************************************
 constructor TProject.Create(const AFileName: string);
 var
   Index: Integer;
@@ -395,10 +386,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Returns the friendly name of the project if one is defined in the YAML.
-  If not, it falls back to the technical internal name.
-}
+// *****************************************************************************
+// Purpose: Returns the friendly name of the project if one is defined in the
+// YAML. If not, it falls back to the technical internal name.
+// *****************************************************************************
 function TProject.GetFriendlyName: string;
 begin
   if FFriendlyName <> '' then
@@ -407,11 +398,11 @@ begin
     Result := FName;
 end;
 
-{
-  Purpose: Generates a formatted string used primarily for displaying the project
-  in UI elements like dropdown menus or ListViews.
-  Format: "FriendlyName - ("filename.yaml" in "C:\Path\To\Project")"
-}
+// *****************************************************************************
+// Purpose: Generates a formatted string used primarily for displaying the
+// project in UI elements like dropdown menus or ListViews.
+// Format: "FriendlyName - ("filename.yaml" in "C:\Path\To\Project")"
+// *****************************************************************************
 function TProject.GetUIName: string;
 begin
   Result := Format('%s - ("%s" in "%s")', [FriendlyName, ExtractFileName(FileName), ExtractFilePath(FileName)]);
@@ -433,10 +424,10 @@ resourcestring
   rsFieldYes = 'Yes';
   rsFieldNo = 'No';
 
-{
-  Purpose: Generates a comprehensive, multi-line string containing all parsed
-  hardware and software properties. Used mostly for tooltips or info panels.
-}
+// *****************************************************************************
+// Purpose: Generates a comprehensive, multi-line string containing all parsed
+// hardware and software properties. Used mostly for tooltips or info panels.
+// *****************************************************************************
 function TProject.GetDescription: string;
   // Local Helper: Appends a new line to the description only if the content is not empty.
   function SetupString(AText, ALabel, AContent: string): string;
@@ -473,6 +464,10 @@ begin
     Result := SetupString(Result, rsFieldWiFi, rsFieldDisabled);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the mutable list of dependency paths associated with this
+// project.
+// *****************************************************************************
 function TProject.GetOptionDeps: TStringList;
 begin
   Result := FOptionDeps;
@@ -485,6 +480,10 @@ end;
 // They use the project's absolute file path (FileName) as the INI Section Name.
 // This isolates configuration so that each project maintains its own state.
 
+// *****************************************************************************
+// Purpose: Reads a typed project option from the shared INI file, returning the
+// supplied default when configuration is unavailable.
+// *****************************************************************************
 function TProject.GetOption(const Option: string; const Default: Boolean): Boolean;
 begin
   Result := Default;
@@ -492,6 +491,10 @@ begin
     Result := ConfigIniFile.ReadBool(FileName, Option, Default);
 end;
 
+// *****************************************************************************
+// Purpose: Reads a typed project option from the shared INI file, returning the
+// supplied default when configuration is unavailable.
+// *****************************************************************************
 function TProject.GetOption(const Option: string; const Default: Integer): Integer;
 begin
   Result := Default;
@@ -499,6 +502,10 @@ begin
     Result := ConfigIniFile.ReadInteger(FileName, Option, Default);
 end;
 
+// *****************************************************************************
+// Purpose: Reads a typed project option from the shared INI file, returning the
+// supplied default when configuration is unavailable.
+// *****************************************************************************
 function TProject.GetOption(const Option: string; const Default: string): string;
 begin
   Result := Default;
@@ -506,28 +513,41 @@ begin
     Result := ConfigIniFile.ReadString(FileName, Option, Default);
 end;
 
+// *****************************************************************************
+// Purpose: Writes a typed project option to the shared INI file when
+// configuration storage is available.
+// *****************************************************************************
 procedure TProject.SetOption(const Option: string; const Value: Boolean);
 begin
   if Assigned(ConfigIniFile) then
     ConfigIniFile.WriteBool(FileName, Option, Value);
 end;
 
+// *****************************************************************************
+// Purpose: Writes a typed project option to the shared INI file when
+// configuration storage is available.
+// *****************************************************************************
 procedure TProject.SetOption(const Option: string; const Value: Integer);
 begin
   if Assigned(ConfigIniFile) then
     ConfigIniFile.WriteInteger(FileName, Option, Value);
 end;
 
+// *****************************************************************************
+// Purpose: Writes a typed project option to the shared INI file when
+// configuration storage is available.
+// *****************************************************************************
 procedure TProject.SetOption(const Option: string; const Value: string);
 begin
   if Assigned(ConfigIniFile) then
     ConfigIniFile.WriteString(FileName, Option, Value);
 end;
 
-{
-  Purpose: Reads the file dependencies (e.g., included YAML files, secrets.yaml)
-  associated with this specific project from the INI file and stores them in FOptionDeps.
-}
+// *****************************************************************************
+// Purpose: Reads the file dependencies (e.g., included YAML files,
+// secrets.yaml) associated with this specific project from the INI file and
+// stores them in FOptionDeps.
+// *****************************************************************************
 procedure TProject.LoadOptionDependencies;
 var
   I, Count: Integer;
@@ -548,10 +568,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Saves the current list of file dependencies to the INI file.
-  It first cleans up any existing dependency entries to avoid ghost records.
-}
+// *****************************************************************************
+// Purpose: Saves the current list of file dependencies to the INI file. It
+// first cleans up any existing dependency entries to avoid ghost records.
+// *****************************************************************************
 procedure TProject.SaveOptionDependencies;
 var
   S: string;
@@ -581,10 +601,11 @@ end;
 // TProjectList Implementation
 // ============================================================================
 
-{
-  Purpose: Initializes the list, enabling auto-free (objects are destroyed when removed),
-  and automatically loads previously saved projects from the INI file.
-}
+// *****************************************************************************
+// Purpose: Initializes the list, enabling auto-free (objects are destroyed when
+// removed), and automatically loads previously saved projects from the INI
+// file.
+// *****************************************************************************
 constructor TProjectList.Create;
 begin
   FCurrent := nil;
@@ -592,10 +613,10 @@ begin
   LoadConfig;
 end;
 
-{
-  Purpose: Sets the currently active project and saves this state to the INI file
-  so it persists across Notepad++ restarts.
-}
+// *****************************************************************************
+// Purpose: Sets the currently active project and saves this state to the INI
+// file so it persists across Notepad++ restarts.
+// *****************************************************************************
 procedure TProjectList.SetCurrent(P: TProject);
 begin
   if Assigned(P) and (Self.IndexOf(P) >= 0) then
@@ -611,10 +632,11 @@ begin
   end;
 end;
 
-{
-  Purpose: Retrieves the currently active project. If none is loaded in memory yet,
-  it attempts to read the last known project from the INI file (Lazy-loading).
-}
+// *****************************************************************************
+// Purpose: Retrieves the currently active project. If none is loaded in memory
+// yet, it attempts to read the last known project from the INI file
+// (Lazy-loading).
+// *****************************************************************************
 function TProjectList.GetCurrent: TProject;
 begin
   if not Assigned(FCurrent) then
@@ -622,10 +644,11 @@ begin
   Result := FCurrent;
 end;
 
-{
-  Purpose: Iterates over the INI file. Since every section (except 'General') represents
-  the file path of a project, it tries to instantiate a TProject for each section.
-}
+// *****************************************************************************
+// Purpose: Iterates over the INI file. Since every section (except 'General')
+// represents the file path of a project, it tries to instantiate a TProject for
+// each section.
+// *****************************************************************************
 procedure TProjectList.LoadConfig;
 var
   Project: TProject;
@@ -653,11 +676,11 @@ begin
   Sections.Free;
 end;
 
-{
-  Purpose: Iterates through memory to ensure autosave options are written.
-  It also performs a cleanup of the INI file, erasing sections for projects
-  that no longer exist or are invalid.
-}
+// *****************************************************************************
+// Purpose: Iterates through memory to ensure autosave options are written. It
+// also performs a cleanup of the INI file, erasing sections for projects that
+// no longer exist or are invalid.
+// *****************************************************************************
 procedure TProjectList.SaveConfig;
 var
   Project: TProject;
@@ -681,12 +704,12 @@ begin
   Sections.Free;
 end;
 
-{
-  Purpose: Searches the loaded projects by their absolute file path.
-  If IncludeDeps is True, it will also return the project if the queried filename
-  belongs to one of the project's dependencies (e.g., finding the master project
-  when a user opens a secrets.yaml file).
-}
+// *****************************************************************************
+// Purpose: Searches the loaded projects by their absolute file path. If
+// IncludeDeps is True, it will also return the project if the queried filename
+// belongs to one of the project's dependencies (e.g., finding the master
+// project when a user opens a secrets.yaml file).
+// *****************************************************************************
 function TProjectList.GetProjectFromFileName(const FileName: string; const IncludeDeps: boolean = False): TProject;
 var
   S: string;
@@ -715,9 +738,9 @@ begin
   end;
 end;
 
-{
-  Purpose: Finds a project based on its generated UI Name string.
-}
+// *****************************************************************************
+// Purpose: Finds a project based on its generated UI Name string.
+// *****************************************************************************
 function TProjectList.GetProjectFromUIName(const UIName: string): TProject;
 var
   P: TProject;
@@ -735,10 +758,11 @@ end;
 // TTemplateList Implementation
 // ============================================================================
 
-{
-  Purpose: Initializes the template manager. If the local XML file containing
-  ESPHome templates is missing, it prompts the user to download it directly from GitHub.
-}
+// *****************************************************************************
+// Purpose: Initializes the template manager. If the local XML file containing
+// ESPHome templates is missing, it prompts the user to download it directly
+// from GitHub.
+// *****************************************************************************
 constructor TTemplateList.Create(const AFileName: string);
 begin
   inherited Create;
@@ -765,10 +789,11 @@ end;
 resourcestring
   rsErrorReadingTemplateFile = 'The following error has been encountered reading the XML Template file:';
 
-{
-  Purpose: Parses the NppESPHome.xml file, extracting the template Name, Category,
-  Description, and the actual YAML snippet. Populates the list in memory.
-}
+// *****************************************************************************
+// Purpose: Parses the NppESPHome.xml file, extracting the template Name,
+// Category, Description, and the actual YAML snippet. Populates the list in
+// memory.
+// *****************************************************************************
 procedure TTemplateList.Refresh;
 var
   Index: Integer;
@@ -808,10 +833,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Populates a standard TStrings object (like a ComboBox) with templates,
-  applying an optional Category filter and a text Search filter.
-}
+// *****************************************************************************
+// Purpose: Populates a standard TStrings object (like a ComboBox) with
+// templates, applying an optional Category filter and a text Search filter.
+// *****************************************************************************
 procedure TTemplateList.RetrieveTemplates(S: TStrings; const Category: string; const Filter: string);
 var
   Item: string;
@@ -831,10 +856,11 @@ begin
   List.Free;
 end;
 
-{
-  Purpose: Overloaded version of RetrieveTemplates. Instead of strings, it populates
-  a UI ListView component (TListItems) with the Name as the caption and Category as a sub-item.
-}
+// *****************************************************************************
+// Purpose: Overloaded version of RetrieveTemplates. Instead of strings, it
+// populates a UI ListView component (TListItems) with the Name as the caption
+// and Category as a sub-item.
+// *****************************************************************************
 procedure TTemplateList.RetrieveTemplates(S: TListItems; const Category: string; const Filter: string);
 var
   Item: TListItem;
@@ -850,9 +876,10 @@ begin
     end;
 end;
 
-{
-  Purpose: Extracts a unique list of all template categories available in the XML.
-}
+// *****************************************************************************
+// Purpose: Extracts a unique list of all template categories available in the
+// XML.
+// *****************************************************************************
 procedure TTemplateList.RetrieveCategories(S: TStrings);
 var
   Category: string;
@@ -868,9 +895,10 @@ begin
   Categories.Free;
 end;
 
-{
-  Purpose: Helper function to find the array index of a template based on its Name.
-}
+// *****************************************************************************
+// Purpose: Helper function to find the array index of a template based on its
+// Name.
+// *****************************************************************************
 function TTemplateList.IndexOfName(const AName: string): NativeInt;
 var
   Index: NativeInt;
@@ -888,10 +916,11 @@ end;
 // Shortcut Management Functions
 // ============================================================================
 
-{
-  Purpose: Converts a Notepad++ shortcut record into a readable menu suffix.
-  Used when refreshing dynamic menu captions so remapped shortcuts stay visible.
-}
+// *****************************************************************************
+// Purpose: Converts a Notepad++ shortcut record into a readable menu suffix.
+// Used when refreshing dynamic menu captions so remapped shortcuts stay
+// visible.
+// *****************************************************************************
 function ShortcutToString(const S: PShortcutKey): string;
 var
   Parts: TArray<string>;
@@ -916,10 +945,10 @@ begin
   Result := Trim(string.Join('+', Parts));
 end;
 
-{
-  Purpose: Allocates and initializes a Notepad++ shortcut definition.
-  The returned pointer is passed to AddFuncItem when registering commands.
-}
+// *****************************************************************************
+// Purpose: Allocates and initializes a Notepad++ shortcut definition. The
+// returned pointer is passed to AddFuncItem when registering commands.
+// *****************************************************************************
 function MakeShortcutKey(const Ctrl, Alt, Shift: Boolean; const AKey: UCHAR): PShortcutKey;
 begin
   // Notepad++ expects a pointer that stays valid after registration.
@@ -937,9 +966,10 @@ end;
 // Process Management Utilities
 // ============================================================================
 
-{
-  Purpose: Checks if a Windows process (given its Process ID) is still actively running.
-}
+// *****************************************************************************
+// Purpose: Checks if a Windows process (given its Process ID) is still actively
+// running.
+// *****************************************************************************
 function IsPIDRunning(PID: DWORD): Boolean;
 var
   Res: DWORD;
@@ -958,9 +988,9 @@ begin
   end;
 end;
 
-{
-  Purpose: Forcibly terminates a single running process by its PID.
-}
+// *****************************************************************************
+// Purpose: Forcibly terminates a single running process by its PID.
+// *****************************************************************************
 function KillProcessByPID(PID: DWORD): Boolean;
 var
   hProcess: THandle;
@@ -977,10 +1007,11 @@ begin
   end;
 end;
 
-{
-  Purpose: Terminates a process AND all its child processes recursively.
-  Crucial for command-line tools like ESPHome, which might spawn Python or PlatformIO child processes.
-}
+// *****************************************************************************
+// Purpose: Terminates a process AND all its child processes recursively.
+// Crucial for command-line tools like ESPHome, which might spawn Python or
+// PlatformIO child processes.
+// *****************************************************************************
 function KillProcessTree(PID: DWORD): Boolean;
 var
   hSnap: THandle;
@@ -1010,15 +1041,17 @@ end;
 // Structure used to pass target PID and receive the window handle in the EnumWindows callback
 type
   PFindWindowRecord = ^TFindWindowRecord;
+  // Mutable state passed through EnumWindows while locating the visible main
+  // window that belongs to a particular process ID.
   TFindWindowRecord = record
     PID: DWORD;
     FoundHWND: HWND;
   end;
 
-{
-  Purpose: Callback function used by the Windows API EnumWindows.
-  It is called once for every top-level window on the screen.
-}
+// *****************************************************************************
+// Purpose: Callback function used by the Windows API EnumWindows. It is called
+// once for every top-level window on the screen.
+// *****************************************************************************
 function EnumWindowsCallback(Handle: HWND; lParam: lParam): BOOL; stdcall;
 var
   WindowPID: DWORD;
@@ -1038,11 +1071,11 @@ begin
   end;
 end;
 
-{
-  Purpose: Finds the main Window Handle (HWND) of a running application given its PID.
-  It includes a timeout mechanism because GUI applications take a few milliseconds
-  to actually create their windows after the process starts.
-}
+// *****************************************************************************
+// Purpose: Finds the main Window Handle (HWND) of a running application given
+// its PID. It includes a timeout mechanism because GUI applications take a few
+// milliseconds to actually create their windows after the process starts.
+// *****************************************************************************
 function GetMainWindowHandleByPID(const TargetPID: DWORD; Timeout: Integer = 3000): HWND;
 var
   SearchRec: TFindWindowRecord;
@@ -1068,10 +1101,10 @@ end;
 // Path and Environment Utilities
 // ============================================================================
 
-{
-  Purpose: Retrieves all environment variables of the current Windows session
-  (like %PATH%, %APPDATA%) and stores them in a TStrings list.
-}
+// *****************************************************************************
+// Purpose: Retrieves all environment variables of the current Windows session
+// (like %PATH%, %APPDATA%) and stores them in a TStrings list.
+// *****************************************************************************
 procedure GetEnvironmentVars(List: TStrings);
 var
   EnvBlock: PChar;
@@ -1094,10 +1127,10 @@ begin
 end;
 
 
-{
-  Purpose: Validates whether a given string is a formally correct URL
-           and uses either the HTTP or HTTPS protocol.
-}
+// *****************************************************************************
+// Purpose: Validates whether a given string is a formally correct URL and uses
+// either the HTTP or HTTPS protocol.
+// *****************************************************************************
 function IsValidHttpUrl(const AUrl: string): Boolean;
 var
   LUri: TURI;
@@ -1116,10 +1149,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Searches for an executable file (e.g., "esphome.exe") across all
-  directories defined in the system's %PATH% variable.
-}
+// *****************************************************************************
+// Purpose: Searches for an executable file (e.g., "esphome.exe") across all
+// directories defined in the system's %PATH% variable.
+// *****************************************************************************
 function FindFileInPath(const FileName: string): string;
 var
   Buffer: array[0..MAX_PATH - 1] of WideChar;
@@ -1134,11 +1167,12 @@ begin
     Result := StrPas(Buffer); // Convert WideChar array to Delphi string
 end;
 
-{
-  Purpose: Converts a long Windows path containing spaces into an old 8.3 DOS-style path
-  (e.g., "C:\Program Files" -> "C:\PROGRA~1"). Required for compatibility with some
-  legacy command line tools that break when encountering spaces.
-}
+// *****************************************************************************
+// Purpose: Converts a long Windows path containing spaces into an old 8.3
+// DOS-style path (e.g., "C:\Program Files" -> "C:\PROGRA~1"). Required for
+// compatibility with some legacy command line tools that break when
+// encountering spaces.
+// *****************************************************************************
 function ShortFileName(const LongFileName: string): string;
 var
   ShortName: array[0..MAX_PATH] of Char;
@@ -1151,10 +1185,10 @@ end;
 resourcestring
   rsTemplatesGitHubUrl = 'https://raw.githubusercontent.com/atiburzi/NppESPHome-Plugin/refs/heads/main/Templates/NppESPHome.xml';
 
-{
-  Purpose: Downloads the default XML templates file directly from the GitHub repository
-  and saves it to the local plugin directory.
-}
+// *****************************************************************************
+// Purpose: Downloads the default XML templates file directly from the GitHub
+// repository and saves it to the local plugin directory.
+// *****************************************************************************
 procedure DownloadTemplateFileFromGitHub;
 var
   HTTP: TNetHTTPClient;
@@ -1183,18 +1217,20 @@ end;
 // UI & Image Manipulation Utilities
 // ============================================================================
 
-{
-  Purpose: Checks if the user's custom toolbar configuration contains any valid icon handles.
-}
+// *****************************************************************************
+// Purpose: Checks if the user's custom toolbar configuration contains any valid
+// icon handles.
+// *****************************************************************************
 function HasToolbarIcon(const IconData: TToolbarIconsWithDarkMode): Boolean;
 begin
   Result := (IconData.ToolbarBmp <> 0) or (IconData.ToolbarIcon <> 0) or (IconData.ToolbarIconDarkMode <> 0);
 end;
 
-{
-  Purpose: Converts a standard VCL TBitmap graphic into a Windows Hardware Icon Handle (HICON).
-  This is needed to assign icons to system-level objects like Windows Forms or Taskbar items.
-}
+// *****************************************************************************
+// Purpose: Converts a standard VCL TBitmap graphic into a Windows Hardware Icon
+// Handle (HICON). This is needed to assign icons to system-level objects like
+// Windows Forms or Taskbar items.
+// *****************************************************************************
 function CreateIconFromBitmap(Bitmap: Vcl.Graphics.TBitmap): HICON;
 var
   IconInfo: TIconInfo;
@@ -1207,10 +1243,11 @@ begin
   Result := CreateIconIndirect(IconInfo);
 end;
 
-{
-  Purpose: Mutates an image by converting all visible pixels to pure black.
-  Used to dynamically generate "Dark Mode" silhouette icons from standard icons.
-}
+// *****************************************************************************
+// Purpose: Mutates an image by converting all visible pixels to pure black.
+// Used to dynamically generate "Dark Mode" silhouette icons from standard
+// icons.
+// *****************************************************************************
 procedure ConvertBitmapToBlack(Bitmap: Vcl.Graphics.TBitmap);
 var
   x, y: Integer;
@@ -1238,10 +1275,11 @@ begin
   end;
 end;
 
-{
-  Purpose: Applies a "disabled" visual state to an icon. It converts the image to
-  grayscale and reduces its opacity, making it look washed out (standard Windows UI behavior).
-}
+// *****************************************************************************
+// Purpose: Applies a "disabled" visual state to an icon. It converts the image
+// to grayscale and reduces its opacity, making it look washed out (standard
+// Windows UI behavior).
+// *****************************************************************************
 procedure ConvertBitmapToDisabled(Bitmap: Vcl.Graphics.TBitmap);
 var
   x, y: Integer;
@@ -1274,11 +1312,11 @@ begin
   end;
 end;
 
-{
-  Purpose: Finds pixels of a specific color (SourceColor) and dynamically changes
-  them to a new color (TargetColor) without losing shadows/highlights.
-  It uses the HSL (Hue, Saturation, Lightness) color space to achieve this.
-}
+// *****************************************************************************
+// Purpose: Finds pixels of a specific color (SourceColor) and dynamically
+// changes them to a new color (TargetColor) without losing shadows/highlights.
+// It uses the HSL (Hue, Saturation, Lightness) color space to achieve this.
+// *****************************************************************************
 procedure ReplaceBitmapHue(ABitmap: Vcl.Graphics.TBitmap; const SourceColor: TAlphaColor; const TargetColor: TAlphaColor; const HueTolerance: Single = 30 / 360;
   const MinSaturation: Single = 0.15);
 type
@@ -1339,11 +1377,11 @@ begin
   end;
 end;
 
-{
-  Purpose: Clones an entire ImageCollection, running the ConvertBitmapToBlack routine
-  on every single image inside it. Used during application startup to generate a
-  Dark Mode compatible icon set.
-}
+// *****************************************************************************
+// Purpose: Clones an entire ImageCollection, running the ConvertBitmapToBlack
+// routine on every single image inside it. Used during application startup to
+// generate a Dark Mode compatible icon set.
+// *****************************************************************************
 procedure PopulateBlackImageCollection(ASource, ADest: TImageCollection);
 var
   I, J: Integer;
@@ -1386,9 +1424,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Assigns an icon to a Windows form/dialog based on the application's current theme.
-}
+// *****************************************************************************
+// Purpose: Assigns an icon to a Windows form/dialog based on the application's
+// current theme.
+// *****************************************************************************
 procedure AssignWindowIcon(AIcon: TIcon);
 var
   Icon: TIcon;
@@ -1412,10 +1451,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Points a TVirtualImage component to the correct ImageCollection based
-  on Notepad++'s current theme (Dark Mode vs Light Mode).
-}
+// *****************************************************************************
+// Purpose: Points a TVirtualImage component to the correct ImageCollection
+// based on Notepad++'s current theme (Dark Mode vs Light Mode).
+// *****************************************************************************
 procedure AssignImageResources(AVirtualImage: TVirtualImage); overload;
 begin
   if Plugin.IsDarkModeEnabled then
@@ -1424,10 +1463,10 @@ begin
     AVirtualImage.ImageCollection := Resources.LightModeImages;
 end;
 
-{
-  Purpose: Overloaded method that does the same as above, but for a TVirtualImageList
-  (used by Toolbars and Menus).
-}
+// *****************************************************************************
+// Purpose: Overloaded method that does the same as above, but for a
+// TVirtualImageList (used by Toolbars and Menus).
+// *****************************************************************************
 procedure AssignImageResources(AVirtualImageList: TVirtualImageList);
 begin
   if Plugin.IsDarkModeEnabled then
@@ -1440,24 +1479,25 @@ end;
 // Bitwise Utilities
 // ============================================================================
 
-{
-  Purpose: Reads the state (1 or 0) of a specific bit inside an integer.
-  How it works: It shifts a '1' left by BitPos to create a mask (e.g., 001000),
-  then uses bitwise AND. If the result is not 0, the bit was active.
-}
+// *****************************************************************************
+// Purpose: Reads the state (1 or 0) of a specific bit inside an integer.
+// How it works: It shifts a '1' left by BitPos to create a mask (e.g., 001000),
+// then uses bitwise AND. If the result is not 0, the bit was active.
+// *****************************************************************************
 function GetBit(const Value: Int64; BitPos: ShortInt): Boolean;
 begin
   Result := (Value and (1 shl BitPos)) <> 0;
 end;
 
-{
-  Purpose: Modifies a specific bit inside an integer to either 1 (True) or 0 (False).
-  How it works:
-  1. (Value and not (1 shl BitPos)) -> Creates a mask with a 0 at the target position
-     and 1s elsewhere, effectively clearing that bit.
-  2. (Ord(State) shl BitPos) -> Shifts a 1 or 0 to the target position.
-  3. OR combines them, injecting the new state without affecting other bits.
-}
+// *****************************************************************************
+// Purpose: Modifies a specific bit inside an integer to either 1 (True) or 0
+// (False).
+// How it works:
+// 1. (Value and not (1 shl BitPos)) -> Creates a mask with a 0 at the target
+//    position and 1s elsewhere, effectively clearing that bit.
+// 2. (Ord(State) shl BitPos) -> Shifts a 1 or 0 to the target position.
+// 3. OR combines them, injecting the new state without affecting other bits.
+// *****************************************************************************
 function SetBit(const Value: Int64; BitPos: ShortInt; State: Boolean): Int64;
 begin
   Result := (Value and not (1 shl BitPos)) or (Ord(State) shl BitPos);

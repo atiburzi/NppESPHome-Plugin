@@ -1,3 +1,5 @@
+// Project configuration dialog for NppESPHome.
+// Edits command, console, device, dependency, and Notepad++ integration options for the current project.
 unit NppESPHome.FormConfiguration;
 
 interface
@@ -12,6 +14,9 @@ uses
   JvCombobox, System.ImageList, JvExStdCtrls;
 
 type
+  // Modal editor for all settings stored against the current ESPHome project.
+  // Event handlers persist changes immediately, while dynamic controls mirror
+  // devices, monitors, dependencies, and theme resources discovered at runtime.
   TFormConfig = class(TNppPluginForm)
     ButtonClose: TButton;
     GroupBoxProject: TGroupBox;
@@ -123,6 +128,10 @@ implementation
 uses
   NppESPHome.Shared, NppESPHome.Plugin, NppESPHome.FormProjects, NppMessages, Registry, Math,Winapi.ShellAPI;
 
+// *****************************************************************************
+// Purpose: Measures all list-box items and sets a horizontal scroll width wide
+// enough for the longest dependency path.
+// *****************************************************************************
 procedure RecalcListBoxScrollWidth(AListBox: TListBox);
 var
   I, W, MaxW: Integer;
@@ -138,6 +147,11 @@ begin
   AListBox.ScrollWidth := MaxW + 8;
 end;
 
+// *****************************************************************************
+// Purpose: Adds selected dependency files to the current project, removes the
+// main project file if selected, persists the list, and refreshes dependent
+// views.
+// *****************************************************************************
 procedure TFormConfig.ButtonAddDepsClick(Sender: TObject);
 var
   I: Integer;
@@ -159,6 +173,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Removes all selected dependency entries, persists the updated list,
+// and restores a useful list selection.
+// *****************************************************************************
 procedure TFormConfig.ButtonRemoveDepsClick(Sender: TObject);
 var
   I, Sel: Integer;
@@ -167,6 +185,7 @@ begin
   inherited;
   Sel := -1;
   Deleted := False;
+  // Iterate backwards so deleting selected rows cannot shift pending indexes.
   for I := ListBoxDependencies.Count - 1 downto 0 do
   begin
     if ListBoxDependencies.Selected[I] then
@@ -189,120 +208,187 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Persists whether ESPHome console windows should remain above other
+// windows.
+// *****************************************************************************
 procedure TFormConfig.CheckBoxOptionAlwaysOnTopClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyConsoleAlwaysOnTop, CheckBoxOptionAlwaysOnTop.Checked);
 end;
 
+// *****************************************************************************
+// Purpose: Persists whether compile should generate source files without
+// completing a full build.
+// *****************************************************************************
 procedure TFormConfig.CheckBoxOptionCompileGenerateOnlyClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyCompileGenerateOnly, CheckBoxOptionCompileGenerateOnly.Checked);
 end;
 
+// *****************************************************************************
+// Purpose: Persists whether the logs command should reset the connected device.
+// *****************************************************************************
 procedure TFormConfig.CheckBoxOptionLogsResetClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyLogsReset, CheckBoxOptionLogsReset.Checked);
 end;
 
+// *****************************************************************************
+// Purpose: Persists whether the run command should suppress the log stream.
+// *****************************************************************************
 procedure TFormConfig.CheckBoxOptionRunNoLogsClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyRunNoLogs, CheckBoxOptionRunNoLogs.Checked);
 end;
 
+// *****************************************************************************
+// Purpose: Persists whether the run command should reset the connected device.
+// *****************************************************************************
 procedure TFormConfig.CheckBoxOptionRunResetClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyRunReset, CheckBoxOptionRunReset.Checked);
 end;
 
+// *****************************************************************************
+// Purpose: Persists whether a newly launched ESPHome console should replace an
+// existing one.
+// *****************************************************************************
 procedure TFormConfig.CheckBoxOptionSoloModeClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyConsoleSoloMode, CheckBoxOptionSoloMode.Checked);
 end;
 
+// *****************************************************************************
+// Purpose: Persists the selected Notepad++ auto-save policy used before ESPHome
+// commands run.
+// *****************************************************************************
 procedure TFormConfig.ComboBoxOptionAutosaveChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyNppAutosave, ComboBoxOptionAutosave.ItemIndex);
 end;
 
+// *****************************************************************************
+// Purpose: Persists additional command-line parameters for the clean command.
+// *****************************************************************************
 procedure TFormConfig.EditOptionCleanAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyCleanExtraParameters, EditOptionCleanAdditionalParameters.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Persists additional command-line parameters for the compile command.
+// *****************************************************************************
 procedure TFormConfig.EditOptionCompileAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyCompileExtraParameters, EditOptionCompileAdditionalParameters.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Persists command-line parameters shared by all ESPHome invocations.
+// *****************************************************************************
 procedure TFormConfig.EditOptionESPHomeAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyESPHomeExtraParameters, EditOptionESPHomeAdditionalParameters.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Persists additional command-line parameters for the logs command.
+// *****************************************************************************
 procedure TFormConfig.EditOptionLogsAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyLogsExtraParameters, EditOptionLogsAdditionalParameters.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Persists additional command-line parameters for the run command.
+// *****************************************************************************
 procedure TFormConfig.EditOptionRunAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyRunExtraParameters, EditOptionRunAdditionalParameters.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Persists additional command-line parameters for the upload command.
+// *****************************************************************************
 procedure TFormConfig.EditOptionUploadAdditionalParametersChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyUploadExtraParameters, EditOptionUploadAdditionalParameters.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Persists whether a successful ESPHome console process should close
+// automatically.
+// *****************************************************************************
 procedure TFormConfig.ComboBoxOptionConsoleAutocloseChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyConsoleAutoClose, (ComboBoxOptionConsoleAutoclose.ItemIndex = 1));
 end;
 
+// *****************************************************************************
+// Purpose: Persists the physical monitor selected for newly created console
+// windows.
+// *****************************************************************************
 procedure TFormConfig.ComboBoxOptionConsoleMonitorChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyConsoleStartingMonitor, Integer(ComboBoxOptionConsoleMonitor.Items.Objects[ComboBoxOptionConsoleMonitor.ItemIndex]));
 end;
 
+// *****************************************************************************
+// Purpose: Persists the preferred starting position for newly created console
+// windows.
+// *****************************************************************************
 procedure TFormConfig.ComboBoxOptionConsolePositionChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyConsoleStartingPosition, ComboBoxOptionConsolePosition.ItemIndex);
 end;
 
+// *****************************************************************************
+// Purpose: Persists the selected upload or logging target for the current
+// project.
+// *****************************************************************************
 procedure TFormConfig.ComboBoxDeviceChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyESPHomeTargetDevice, ComboBoxDevice.Items[ComboBoxDevice.ItemIndex].Text);
 end;
 
+// *****************************************************************************
+// Purpose: Persists the ESPHome log level selected for the current project.
+// *****************************************************************************
 procedure TFormConfig.ComboBoxLogLevelChange(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyESPHomeLogLevel, ComboBoxLogLevel.ItemIndex);
 end;
 
+// *****************************************************************************
+// Purpose: Enumerates available monitors, labels their resolution and primary
+// status, and restores the saved selection.
+// *****************************************************************************
 procedure PopulateMonitorCombo(Combo: TJvImageComboBox; Index: Integer);
 var
   I: Integer;
   S: string;
 begin
   Combo.Items.Clear;
+  // Store the zero-based monitor number in Objects for direct persistence.
   for I := 0 to Screen.MonitorCount - 1 do
   begin
     S := Format('Monitor %d [%dx%d]', [I + 1, Screen.Monitors[I].Width, Screen.Monitors[I].Height]);
@@ -314,6 +400,10 @@ begin
     Combo.ItemIndex := Index;
 end;
 
+// *****************************************************************************
+// Purpose: Loads every project option into the corresponding control, populates
+// dynamic lists, and applies the active theme.
+// *****************************************************************************
 procedure TFormConfig.FormCreate(Sender: TObject);
 begin
   inherited;
@@ -360,6 +450,9 @@ begin
   ToggleDarkMode;
 end;
 
+// *****************************************************************************
+// Purpose: Opens a clicked help URL in the user's default browser.
+// *****************************************************************************
 procedure TFormConfig.LinkLabelHelpLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 begin
   inherited;
@@ -367,6 +460,10 @@ begin
     ShellExecute(0, 'open', PChar(Link), nil, nil, SW_SHOWNORMAL);
 end;
 
+// *****************************************************************************
+// Purpose: Applies the current Notepad++ palette, icon set, and control colors
+// to the configuration dialog.
+// *****************************************************************************
 procedure TFormConfig.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
@@ -402,6 +499,10 @@ begin
 
 end;
 
+// *****************************************************************************
+// Purpose: Rebuilds the target-device list from automatic, serial-port, and
+// Wi-Fi choices and restores the saved target.
+// *****************************************************************************
 procedure TFormConfig.PopulateComboDevice;
 var
   Index: Integer;
@@ -434,24 +535,39 @@ begin
         ComboBoxDevice.ItemIndex := Index;
 end;
 
+// *****************************************************************************
+// Purpose: Refreshes the list of currently available target devices.
+// *****************************************************************************
 procedure TFormConfig.SpeedButtonRefreshClick(Sender: TObject);
 begin
   inherited;
   PopulateComboDevice;
 end;
 
+// *****************************************************************************
+// Purpose: Shows the option card associated with the selected navigation-tree
+// node.
+// *****************************************************************************
 procedure TFormConfig.TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
 begin
   inherited;
   CardProjectOptions.CardPanel.ActiveCardIndex:= TreeViewOptions.Selected.StateIndex;
 end;
 
+// *****************************************************************************
+// Purpose: Prevents the option navigation tree from collapsing its permanently
+// visible hierarchy.
+// *****************************************************************************
 procedure TFormConfig.TreeViewOptionsCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
 begin
   inherited;
   AllowCollapse := False;
 end;
 
+// *****************************************************************************
+// Purpose: Draws selected and unselected option nodes with colors compatible
+// with the active theme.
+// *****************************************************************************
 procedure TFormConfig.TreeViewOptionsCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
 begin
   inherited;
@@ -467,11 +583,15 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Maps each option-page state index to its named navigation icon.
+// *****************************************************************************
 procedure TFormConfig.TreeViewOptionsGetImageIndex(Sender: TObject; Node: TTreeNode);
 var
   ImageName: string;
 begin
   inherited;
+  // StateIndex is shared with CardPanel.ActiveCardIndex and names each page.
   case Node.StateIndex of
     0: ImageName := 'project';
     1: ImageName := 'esphome';

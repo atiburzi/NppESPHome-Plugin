@@ -1,3 +1,5 @@
+// Dockable project and template browser for NppESPHome.
+// Keeps project files, dependencies, templates, and their related commands synchronized with Notepad++.
 unit NppESPHome.FormProjects;
 
 interface
@@ -15,6 +17,8 @@ uses
 
 type
   PProjectNode = ^TProjectNode;
+  // Data stored in each node of the project tree. Root nodes represent projects;
+  // non-negative Level values identify dependency children.
   TProjectNode = record
     Caption: string;
     FileName: string;
@@ -23,6 +27,9 @@ type
   end;
 
 type
+  // Main dockable plugin window containing the project and template browsers.
+  // It coordinates selection with Notepad++, exposes project commands, and lets
+  // users filter or insert reusable YAML templates.
   TFormProjects = class(TNppPluginDockingForm)
     VirtualImageList24: TVirtualImageList;
     ToolBarCommands: TToolBar;
@@ -171,6 +178,10 @@ implementation
 uses
   System.Types, System.StrUtils, NppMessages, NppScintilla, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
 
+// *****************************************************************************
+// Purpose: Persists that the docked project window was hidden when Notepad++
+// closes it with caHide.
+// *****************************************************************************
 procedure TFormProjects.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   inherited;
@@ -178,6 +189,10 @@ begin
     ConfigIniFile.WriteBool(csSectionGeneral, csKeyProjectWindow, False);
 end;
 
+// *****************************************************************************
+// Purpose: Restores layout state, configures tree node storage, and fills the
+// project, category, and template views.
+// *****************************************************************************
 procedure TFormProjects.FormCreate(Sender: TObject);
 begin
   inherited;
@@ -189,6 +204,10 @@ begin
   RefreshTemplatesList;
 end;
 
+// *****************************************************************************
+// Purpose: Rebuilds the project tree with one root per project and child nodes
+// for dependencies, then restores current selection and command state.
+// *****************************************************************************
 procedure TFormProjects.RefreshProjectsList;
 var
   P: TProject;
@@ -207,6 +226,7 @@ begin
       Data.FileName := P.FileName;
       Data.Level := -1;
       Data.Project := P;
+      // Dependency nodes retain their owning project for context-menu actions.
       for I := 0 to P.OptionDependencies.Count - 1 do
       begin
         Data := VirtualStringTreeProjects.GetNodeData(VirtualStringTreeProjects.AddChild(Node));
@@ -227,6 +247,10 @@ begin
   RefreshToolbar;
 end;
 
+// *****************************************************************************
+// Purpose: Builds a unique template-category list and selects the catch-all
+// category.
+// *****************************************************************************
 procedure TFormProjects.RefreshCategoryList;
 var
   Category: string;
@@ -246,6 +270,10 @@ begin
   ComboBoxCategories.Items.EndUpdate;  
 end;
 
+// *****************************************************************************
+// Purpose: Reloads templates from XML and refreshes categories and filtered
+// template nodes as one visual update.
+// *****************************************************************************
 procedure TFormProjects.ReloadAndRefreshTemplates;
 begin
   TemplateList.Refresh;
@@ -255,6 +283,10 @@ begin
   VirtualStringTreeTemplates.EndUpdate;
 end;
 
+// *****************************************************************************
+// Purpose: Filters templates by category and text, rebuilds their nodes, and
+// sizes columns to their content.
+// *****************************************************************************
 procedure TFormProjects.RefreshTemplatesList(const Component: string = ''; const Category: string = '');
 var
   Template: TTemplate;
@@ -285,6 +317,10 @@ begin
 end;
 
 
+// *****************************************************************************
+// Purpose: Applies the Notepad++ theme, images, selection colors, toolbar
+// colors, and window icon to the docking form.
+// *****************************************************************************
 procedure TFormProjects.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
@@ -328,18 +364,28 @@ begin
 
 end;
 
+// *****************************************************************************
+// Purpose: Opens Windows Explorer in the current project directory.
+// *****************************************************************************
 procedure TFormProjects.ToolButtonExplorerClick(Sender: TObject);
 begin
   inherited;
   Plugin.StartExplorer;
 end;
 
+// *****************************************************************************
+// Purpose: Opens a command shell in the current project directory.
+// *****************************************************************************
 procedure TFormProjects.ToolButtonTerminalClick(Sender: TObject);
 begin
   inherited;
   Plugin.StartTerminal;
 end;
 
+// *****************************************************************************
+// Purpose: Switches Notepad++ to the file represented by the newly focused
+// project-tree node.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsChange(
   Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
@@ -354,12 +400,19 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Keeps project roots expanded so dependency nodes remain visible.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
 begin
   inherited;
   Allowed := False;
 end;
 
+// *****************************************************************************
+// Purpose: Sorts project-tree nodes case-insensitively by their display
+// caption.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsCompareNodes(
   Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex;
   var Result: Integer);
@@ -372,6 +425,9 @@ begin
   Result := CompareText(Data1^.Caption, Data2^.Caption);
 end;
 
+// *****************************************************************************
+// Purpose: Opens the file represented by the focused project-tree node.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsDblClick(Sender: TObject);
 var
   S: string;
@@ -385,6 +441,10 @@ begin
   Plugin.OpenFile(S);
 end;
 
+// *****************************************************************************
+// Purpose: Displays the containing directory of the file represented by a
+// project-tree node.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsGetHint(
   Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
   var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
@@ -399,6 +459,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Selects a dependency file-type icon or project microcontroller icon
+// for a project-tree node.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var
   Ghosted: Boolean; var ImageIndex: TImageIndex);
 var
@@ -421,6 +485,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Chooses the project or dependency context menu according to the
+// clicked node level.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsGetPopupMenu(
   Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
   const P: TPoint; var AskParent: Boolean; var PopupMenu: TPopupMenu);
@@ -440,6 +508,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Provides the display text for project roots and dependency child
+// nodes.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
 var
@@ -453,6 +525,10 @@ begin
     CellText := Data^.Caption;
 end;
 
+// *****************************************************************************
+// Purpose: Makes the clicked node's owning project current and refreshes
+// toolbar, title, and menu state.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsNodeClick(
   Sender: TBaseVirtualTree; const HitInfo: THitInfo);
 var
@@ -474,6 +550,10 @@ end;
 resourcestring
   rsOpenOnlineHelp = 'Open help';
 
+// *****************************************************************************
+// Purpose: Displays the selected template description and appends an
+// online-help link when available.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeTemplatesChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
   S: string;
@@ -494,6 +574,10 @@ begin
   StaticTextDescription.Caption := S;
 end;
 
+// *****************************************************************************
+// Purpose: Inserts the selected template YAML at the current position in the
+// active Scintilla editor.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeTemplatesDblClick(Sender: TObject);
 var
   Data: PTemplate;
@@ -509,6 +593,7 @@ begin
     Data := VirtualStringTreeTemplates.GetNodeData(Node);
     if Assigned(Data) then
     begin
+      // Resolve the active Scintilla view before inserting UTF-8 YAML text.
       SendMessage(Plugin.NppData.NppHandle, NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@currentScintilla));
       if currentScintilla = 0 then
         hSci := Plugin.NppData.ScintillaMainHandle
@@ -520,6 +605,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Provides online-help or description text for template tooltips
+// according to the hovered column.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeTemplatesGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
   var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
 var
@@ -533,6 +622,10 @@ begin
     HintText := Data^.Description;
 end;
 
+// *****************************************************************************
+// Purpose: Provides template name and category text for the template tree
+// columns.
+// *****************************************************************************
 procedure TFormProjects.VirtualStringTreeTemplatesGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
 var
@@ -547,6 +640,9 @@ begin
     CellText := Data^.Category;
 end;
 
+// *****************************************************************************
+// Purpose: Removes the single selected dependency from its owning project.
+// *****************************************************************************
 procedure TFormProjects.ActionRemoveDepExecute(Sender: TObject);
 var
   Node: PVirtualNode;
@@ -565,6 +661,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Removes the current project after confirmation, preserves project
+// files, and selects a remaining project.
+// *****************************************************************************
 procedure TFormProjects.ActionRemoveProjectExecute(Sender: TObject);
 var
   I: Integer;
@@ -587,12 +687,20 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Delegates dependency selection and addition to the plugin command
+// layer.
+// *****************************************************************************
 procedure TFormProjects.ActionAddDepsExecute(Sender: TObject);
 begin
   inherited;
   Plugin.DependencyAdd;
 end;
 
+// *****************************************************************************
+// Purpose: Adds a selected valid ESPHome project, rejects duplicates, persists
+// it, and refreshes the project UI.
+// *****************************************************************************
 procedure TFormProjects.ActionAddProjectExecute(Sender: TObject);
 var
   Project: TProject;
@@ -623,54 +731,82 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Runs ESPHome clean-all for the current project.
+// *****************************************************************************
 procedure TFormProjects.ActionCleanAllExecute(Sender: TObject);
 begin
   inherited;
   Plugin.CommandCleanAll;
 end;
 
+// *****************************************************************************
+// Purpose: Runs ESPHome clean for the current project.
+// *****************************************************************************
 procedure TFormProjects.ActionCleanExecute(Sender: TObject);
 begin
   inherited;
   Plugin.CommandClean;
 end;
 
+// *****************************************************************************
+// Purpose: Compiles the current ESPHome project.
+// *****************************************************************************
 procedure TFormProjects.ActionCompileExecute(Sender: TObject);
 begin
   inherited;
   Plugin.CommandCompile;
 end;
 
+// *****************************************************************************
+// Purpose: Opens the current project file and all configured dependencies in
+// Notepad++.
+// *****************************************************************************
 procedure TFormProjects.ActionOpenExecute(Sender: TObject);
 begin
   inherited;
   Plugin.ProjectOpenFiles;
 end;
 
+// *****************************************************************************
+// Purpose: Runs the current ESPHome project.
+// *****************************************************************************
 procedure TFormProjects.ActionRunExecute(Sender: TObject);
 begin
   inherited;
   Plugin.CommandRun;
 end;
 
+// *****************************************************************************
+// Purpose: Opens the configuration dialog for the current project.
+// *****************************************************************************
 procedure TFormProjects.ActionSettingsExecute(Sender: TObject);
 begin
   inherited;
   Plugin.ProjectConfigure;
 end;
 
+// *****************************************************************************
+// Purpose: Starts the ESPHome log stream for the current project.
+// *****************************************************************************
 procedure TFormProjects.ActionShowLogsExecute(Sender: TObject);
 begin
   inherited;
   Plugin.CommandLogs;
 end;
 
+// *****************************************************************************
+// Purpose: Uploads the current ESPHome project to the selected target.
+// *****************************************************************************
 procedure TFormProjects.ActionUploadExecute(Sender: TObject);
 begin
   inherited;
   Plugin.CommandUpload;
 end;
 
+// *****************************************************************************
+// Purpose: Displays the template popup menu directly below its toolbar button.
+// *****************************************************************************
 procedure TFormProjects.ButtonMenuTemplatesClick(Sender: TObject);
 var
   P: TPoint;
@@ -680,6 +816,10 @@ begin
   PopupMenuTemplates.Popup(P.X, P.Y);
 end;
 
+// *****************************************************************************
+// Purpose: Enables project and dependency commands according to the current
+// project and selected node level.
+// *****************************************************************************
 procedure TFormProjects.RefreshToolbar;
 var
   Data: PProjectNode;
@@ -693,6 +833,7 @@ begin
   ToolButtonClean.Enabled := Assigned(ProjectList.Current);
   ToolButtonRemovePrj.Enabled := Assigned(ProjectList.Current);
 
+  // Node-level actions depend on whether the selection is a root or dependency.
   if VirtualStringTreeProjects.SelectedCount = 1 then
   begin
     Data := VirtualStringTreeProjects.GetFirstSelected.GetData;
@@ -708,12 +849,19 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Persists the resized height of the project panel.
+// *****************************************************************************
 procedure TFormProjects.SplitterMoved(Sender: TObject);
 begin
   inherited;
   ConfigIniFile.WriteInteger(csSectionGeneral, csKeyProjectPanelSize, PanelTop.Height);
 end;
 
+// *****************************************************************************
+// Purpose: Opens the selected template documentation link in the default
+// browser.
+// *****************************************************************************
 procedure TFormProjects.StaticTextDescriptionLinkClick(Sender: TObject;
   LinkNumber: Integer; LinkText, LinkParam: string);
 begin
@@ -721,12 +869,20 @@ begin
   ShellExecute(0, 'open', PChar(LinkParam), nil, nil, SW_SHOWNORMAL);
 end;
 
+// *****************************************************************************
+// Purpose: Reloads the local template XML file and refreshes the template
+// browser.
+// *****************************************************************************
 procedure TFormProjects.PopupMenuReloadXMLFileConfigurationClick(Sender: TObject);
 begin
   inherited;
   ReloadAndRefreshTemplates;
 end;
 
+// *****************************************************************************
+// Purpose: Enables template reload only when the configured XML file exists and
+// is not empty.
+// *****************************************************************************
 procedure TFormProjects.PopupMenuTemplatesPopup(Sender: TObject);
 begin
   inherited;
@@ -734,12 +890,20 @@ begin
   PopupMenuReloadXMLFileConfiguration.Enabled := TFile.Exists(TemplateFile) and (TFile.GetSize(TemplateFile) > 0);
 end;
 
+// *****************************************************************************
+// Purpose: Reapplies the current text and category filters to the template
+// list.
+// *****************************************************************************
 procedure TFormProjects.ComboBoxCategoriesChange(Sender: TObject);
 begin
   inherited;
   RefreshTemplatesList(EditTextFilter.Text, ComboBoxCategories.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Confirms replacement, downloads the default template XML, reloads
+// it, and reports success.
+// *****************************************************************************
 procedure TFormProjects.PopupMenuDownloadTemplatesClick(Sender: TObject);
 var
   Flag: Boolean;
@@ -756,24 +920,37 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Opens the local template XML file in Notepad++ for editing.
+// *****************************************************************************
 procedure TFormProjects.PopupMenuEditTemplatesXMLFileClick(Sender: TObject);
 begin
   inherited;
   Plugin.OpenFile(TemplateFile, False);
 end;
 
+// *****************************************************************************
+// Purpose: Refreshes templates as the name filter changes.
+// *****************************************************************************
 procedure TFormProjects.EditTextFilterChange(Sender: TObject);
 begin
   inherited;
   RefreshTemplatesList(EditTextFilter.Text, ComboBoxCategories.Text);
 end;
 
+// *****************************************************************************
+// Purpose: Clears the template text filter.
+// *****************************************************************************
 procedure TFormProjects.EditTextFilterRightButtonClick(Sender: TObject);
 begin
   inherited;
   EditTextFilter.Text := '';
 end;
 
+// *****************************************************************************
+// Purpose: Synchronizes the current project and project-tree selection with the
+// active Notepad++ document.
+// *****************************************************************************
 procedure TFormProjects.CurrentDocumentChanged;
 var
   P: TProject;
@@ -781,6 +958,7 @@ var
   Node: PVirtualNode;
 begin
   FileName := PlugIn.GetFullCurrentPath;
+  // Dependency matches also make their owning project current.
   P := ProjectList.GetProjectFromFileName(FileName, True);
   if Assigned(P) then
   begin
@@ -797,6 +975,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Searches the project tree for the node whose stored path exactly
+// matches the requested file.
+// *****************************************************************************
 function TFormProjects.GetVirtualNodeFromFileName(const FileName: string): PVirtualNode;
 var
   Node: PVirtualNode;

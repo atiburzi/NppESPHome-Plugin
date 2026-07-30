@@ -1,3 +1,5 @@
+// Toolbar customization dialog for NppESPHome.
+// Edits plugin-command order and visibility, then persists and applies the resulting native toolbar layout.
 unit NppESPHome.FormToolbar;
 
 interface
@@ -8,6 +10,8 @@ uses
   Vcl.ComCtrls, Vcl.VirtualImageList, Vcl.ImgList, System.ImageList;
 
 type
+  // Modal editor whose root nodes represent configurable toolbar commands.
+  // Node order defines toolbar order and checked state defines visibility.
   TFormToolbar = class(TNppPluginForm)
     VirtualImageList: TVirtualImageList;
     TreeViewToolbar: TTreeView;
@@ -44,6 +48,10 @@ implementation
 uses
   NppESPHome.Plugin, NppESPHome.Shared, NppMessages, System.StrUtils;
 
+// *****************************************************************************
+// Purpose: Persists the edited toolbar layout, rebuilds the native toolbar, and
+// refreshes plugin command state.
+// *****************************************************************************
 procedure TFormToolbar.ButtonOkClick(Sender: TObject);
 begin
   inherited;
@@ -52,18 +60,30 @@ begin
   TESPHomePlugin(Plugin).RefreshPluginMenu;
 end;
 
+// *****************************************************************************
+// Purpose: Reloads the default toolbar order and visibility into the editor
+// without immediately persisting it.
+// *****************************************************************************
 procedure TFormToolbar.ButtonResetClick(Sender: TObject);
 begin
   inherited;
   LoadConfiguration(True);
 end;
 
+// *****************************************************************************
+// Purpose: Initializes the dialog theme and loads the saved toolbar
+// configuration.
+// *****************************************************************************
 procedure TFormToolbar.FormCreate(Sender: TObject);
 begin
   ToggleDarkMode;
   LoadConfiguration;
 end;
 
+// *****************************************************************************
+// Purpose: Synchronizes the dialog palette and image collection with the active
+// Notepad++ theme and icon-size choice.
+// *****************************************************************************
 procedure TFormToolbar.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
@@ -71,6 +91,7 @@ begin
   inherited ToggleDarkMode;
   AssignWindowIcon(Icon);
 
+  // Small-icon mode has a dedicated collection; other modes follow the theme.
   if Plugin.GetToolbarIconSetChoice = nppToolbarStandardSmall then
     VirtualImageList.ImageCollection := Resources.LowResImages
   else if Plugin.IsDarkModeEnabled then
@@ -95,6 +116,10 @@ end;
 var
   DragNode: TTreeNode;
 
+// *****************************************************************************
+// Purpose: Moves the dragged command before or after the target node according
+// to the vertical drop position.
+// *****************************************************************************
 procedure TFormToolbar.TreeViewToolbarDragDrop(Sender, Source: TObject; X, Y: Integer);
 var
   DropNode: TTreeNode;
@@ -109,6 +134,7 @@ begin
     R := DropNode.DisplayRect(False);
     TreeViewToolbar.Items.BeginUpdate;
     try
+      // The upper and lower halves of a row mean insert-before and insert-after.
       if Y < R.Top + (R.Height div 2) then
         DragNode.MoveTo(DropNode, naInsert)
       else
@@ -123,6 +149,10 @@ begin
     DragNode := nil;
 end;
 
+// *****************************************************************************
+// Purpose: Accepts valid toolbar-tree drags and highlights the prospective
+// target node.
+// *****************************************************************************
 procedure TFormToolbar.TreeViewToolbarDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 var
   DropNode: TTreeNode;
@@ -137,6 +167,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Clears the transient node reference when a drag operation ends.
+// *****************************************************************************
 procedure TFormToolbar.TreeViewToolbarEndDrag(Sender, Target: TObject; X,
   Y: Integer);
 begin
@@ -144,6 +177,10 @@ begin
   DragNode := nil;
 end;
 
+// *****************************************************************************
+// Purpose: Supports command reordering with Ctrl+Up and Ctrl+Down while
+// preserving selection and visibility.
+// *****************************************************************************
 procedure TFormToolbar.TreeViewToolbarKeyDown(
   Sender: TObject; var Key: Word; Shift: TShiftState);
 var
@@ -190,6 +227,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Selects the node whose state icon was clicked so later operations
+// act on the same command.
+// *****************************************************************************
 procedure TFormToolbar.TreeViewToolbarMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
@@ -201,12 +242,20 @@ begin
     TreeViewToolbar.Selected := Node;
 end;
 
+// *****************************************************************************
+// Purpose: Captures the selected node as the source of a toolbar reorder
+// operation.
+// *****************************************************************************
 procedure TFormToolbar.TreeViewToolbarStartDrag(Sender: TObject; var DragObject: TDragObject);
 begin
   inherited;
   DragNode := TreeViewToolbar.Selected;
 end;
 
+// *****************************************************************************
+// Purpose: Populates the tree from the saved or default toolbar configuration,
+// resolving command captions and images.
+// *****************************************************************************
 procedure TFormToolbar.LoadConfiguration(const ADefault: Boolean = False);
 var
   Button: PToolbarButton;
@@ -238,12 +287,17 @@ begin
       Continue;
     Node := TreeViewToolbar.Items.Add(nil, Plugin.GetFuncByCmdID(Button^.CmdID).ItemName);
     Node.ImageIndex := Image;
+    // Preserve the model index independently of the node''s visual position.
     Node.StateIndex := Index;
     Node.SelectedIndex := Image;
     Node.Checked := Parts[1] = '1';
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Serializes the current command order and checked state to the plugin
+// INI file.
+// *****************************************************************************
 procedure TFormToolbar.SaveConfiguration;
 var
   Node: TTreeNode;

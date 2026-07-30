@@ -1,7 +1,7 @@
 # NppESPHome Plugin
 
 <p align="center">
-  <img src="Art/main.png" alt="NppESPHome Main Win (Light)"><br>
+  <img src="Art/main.png" alt="NppESPHome dockable project and template window"><br>
 </p>
 
 <p align="center">
@@ -34,187 +34,286 @@
   </a>
 </p>
 
-A polished **Notepad++ plugin** written in **Delphi** that brings **[ESPHome](https://github.com/esphome/esphome)** workflows closer to the editor on Windows.
+NppESPHome is a Windows plugin written in Delphi that integrates common
+[ESPHome](https://github.com/esphome/esphome) workflows into Notepad++. It
+manages multiple projects and their related files, builds project-specific
+ESPHome command lines, provides a configurable native toolbar, and inserts
+reusable YAML snippets from an XML template library.
 
-It reduces the friction of routine ESPHome tasks by centralizing project selection, configuration, command execution, and template insertion directly inside Notepad++. The result is a tighter, faster, and more predictable workflow for users who already rely on Notepad++ as their main editor.
-
----
-
-## Quick Summary
-
-- Built for **Windows**
-- Integrates directly with **Notepad++**
-- Designed for **[ESPHome](https://github.com/esphome/esphome)** project workflows
-- Automates **Run / Compile / Upload / Logs / Clean / Clean-All**
-- Supports **project-specific settings**
-- Includes **dockable UI**, **toolbar**, and **template tools**
-- Supports both **Light** and **Dark** modes
-- Requires **ESPHome to be already installed**
+The plugin is a front end for the ESPHome command-line tools. It does not
+replace ESPHome and does not include the ESPHome runtime.
 
 ---
 
+## Highlights
 
-## Why it Exists
-
-ESPHome is powerful, flexible, and productive, but because it only has a command-line interface, it can become repetitive and annoying to use.
-
-When working on development, it is common to:
-- Repeat the same command-line calls
-- Reopen the same YAML files and dependencies
-- Switch constantly between editor, shell, and file manager
-- Reconfigure the same options across sessions
-
-This plugin was created to reduce that friction.
-
-Instead of using Notepad++ only as a text editor while depending on command line for the rest, **NppESPHome Plugin** turns Notepad++ into a practical ESPHome IDE. It does not replace ESPHome itself; it simply makes ESPHome easier to use inside an editor-centric workflow.
-
----
-
-## What it Does
-
-The plugin focuses on the parts of ESPHome development that benefit most from direct editor integration:
-
-- Project selection and switching
-- Per-project configuration
-- One-click command execution
-- Template-based code insertion
-- Console behavior control
-- Persistent UI layout
-- Handy utility shortcuts for documentation and system tools
-
-It is designed to be useful both for small personal projects and for larger sets of ESPHome devices where consistency and speed matter more over time.
+- Multiple ESPHome projects with a persistent current-project selection
+- YAML project validation and extraction of device metadata
+- Manually managed dependency files for each project
+- Direct **Run**, **Compile**, **Upload**, **Logs**, **Clean**, and
+  **Clean-All** commands
+- Per-project command, target, auto-save, and console options
+- Dockable project and template window synchronized with the active document
+- XML-based, searchable, and editable YAML template library
+- Configurable Notepad++ toolbar with persistent order and visibility
+- Light and Dark mode integration, including toolbar icon-set changes
+- Shortcuts for ESPHome documentation, upgrade, terminal, and File Explorer
 
 ---
 
-## Features
+## Requirements
 
-### Streamlined workflow
+- Windows
+- Notepad++ with the same architecture as the plugin DLL (`Win32` or `Win64`)
+- ESPHome installed and `esphome.exe` available through the Windows `PATH`
+- Notepad++ 8.0 or newer for custom toolbar configuration
 
-The plugin is built around the concept of an ESPHome **project**, making the workflow smoother, more intuitive, and more productive than repeatedly working from the command line alone.
+The presence of `esphome.exe` is checked when an ESPHome command is invoked.
+The **Upgrade ESPHome** utility also requires `pip.exe` to be available through
+the `PATH`.
 
-### Project configuration dialogs
-
-Quickly select and configure your current project using dedicated dialogs directly inside Notepad++.
-
-### One-click ESPHome commands
-
-The plugin automatically generates the correct command line for the current project and lets you launch:
-
-- **Run**
-- **Compile**
-- **Upload**
-- **Logs**
-- **Clean**
-- **Clean-All**
-
-These actions are available from:
-- The plugin menu
-- Toolbar buttons
-- The floating window
-- Custom keyboard shortcuts in Notepad++
-
-### Console positioning control
-
-Options to control the ESPHome console behaviour include:
-
-- **Console Solo Mode** to terminate existing processes before starting a new one
-- **Position on the screen** options
-- **Custom monitor** placement support
-- **Always On Top** support
-
-### UI and usability improvements
-
-The plugin includes several quality-of-life enhancements:
-
-- Persistent layouts
-- Customizable toolbar
-- Full support for Light and Dark themes
-
-### Smart YAML validation
-
-The plugin parses project YAML files to validate structure and detect whether they include features such as Online access or WebServer support.
-
-### Flexible device communication
-
-Communication ports can be configured with automatic detection of active serial and network connections, making device interaction and uploads easier to manage.
-
-### Command customization
-
-You can personalize options for each ESPHome command and store them as part of the current project configuration.
-
-### Advanced configuration
-
-Fine-tune logging behavior, automatic console closing, and custom command-line arguments for more advanced workflows.
-
-### Auto-save integration
-
-Project files can be automatically saved before running ESPHome commands, helping keep development flow uninterrupted.
-
-### Multi-source management
-
-The plugin supports dependency files, allowing simultaneous editing of multiple related sources in the same project. Multi-file open and save operations are included to improve productivity.
-
-### Custom Notepad++ toolbar
-
-An integrated toolbar provides quick access to the plugin’s most important actions and can be customized to fit your preferred workflow.
-
-### Templates for ESPHome components
-
-A dockable template window displays a customizable list of ESPHome components, making it easy to insert reusable snippets and speed up YAML editing.
-
-### Full Light and Dark mode support
-
-All plugin windows and the toolbar are designed to work correctly in both Notepad++ Light and Dark modes.
-
-### Extra utilities
-
-Additional non-ESPHome helper functions include:
-
-- Opening the official ESPHome web documentation
-- Updating ESPHome to the latest version
-- Launching a command prompt from the project folder
-- Opening File Explorer directly in the project folder
+See the
+[ESPHome installation guide](https://www.esphome.io/guides/installing_esphome/)
+and the
+[Notepad++ manual plugin installation guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually).
 
 ---
 
-## Feature Matrix
+## Installation
 
-| Capability | Status | Notes |
-|---|---:|---|
-| Project selection | Included | Active project determines command target |
-| Per-project settings | Included | Stored in `NppESPHome.ini` |
-| Run / Compile / Upload / Logs / Clean | Included | Available from menu, toolbar, shortcuts, and floating window |
-| Clean All | Included | Deeper cleanup support |
-| Console Solo Mode | Included | Prevents overlapping processes |
-| Console auto-close | Included | Optional behavior |
-| Console placement control | Included | Better command window handling |
-| YAML parsing and checks | Included | Feature-aware validation support |
-| WebServer / Online detection | Included | Based on project YAML |
-| Serial / network port detection | Included | Helps with uploads and logs |
-| Dependency-aware project handling | Included | Supports multi-file workflows |
-| Template browser | Included | XML-based and customizable |
-| Toolbar integration | Included | Requires Notepad++ 8.0+ |
-| Light mode support | Included | Fully supported |
-| Dark mode support | Included | Fully supported |
-| Documentation shortcut | Included | Opens official ESPHome docs |
-| ESPHome update shortcut | Included | Utility command |
-| Multilingual UI | Planned | Architecture already prepared |
+1. Download the DLL for the architecture of your Notepad++ installation from
+   the [`Bin` directory](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin).
+2. Create a plugin subdirectory named `NppESPHome` below the Notepad++ plugin
+   directory.
+3. Copy the DLL to:
+
+   ```text
+   <Notepad++>\plugins\NppESPHome\NppESPHome.dll
+   ```
+
+4. Restart Notepad++.
+
+The plugin creates its INI and template files in the configuration directory
+provided by Notepad++ rather than beside the installed DLL.
 
 ---
 
-## Typical Workflow
+## Getting Started
 
-A common workflow with the plugin looks like this:
+1. Choose **Plugins → NppESPHome → Add Project** and select an existing
+   `.yaml` or `.yal` ESPHome file.
+2. Use **Select Project** to make one of the known projects current.
+3. Open **Configure Project** to select command, target, auto-save, and console
+   options.
+4. Add any YAML, CSV, C/C++ header/source, include, text, or other related files
+   that should be treated as project dependencies.
+5. Execute an ESPHome command from the plugin menu, the Notepad++ toolbar, or
+   the dockable project window.
+6. Double-click a template to insert its YAML at the current editor selection.
 
-1. Select one or more ESPHome projects through **Select Project**
-2. Choose the active project
-3. Configure project-specific behavior through **Configure Project**
-4. Open the main YAML file or its dependencies
-5. Develop your YAML code in Notepad++
-6. Run **Compile**, **Upload**, **Logs**, or **Run** directly from the plugin
-7. Use templates and utility actions to speed up repetitive work
+Removing a project or dependency removes only its registration from the plugin;
+it never deletes the underlying file.
 
-This tighter edit-test-run loop is the main value of the plugin.
+---
+
+## Project Model
+
+When a project is added, the plugin parses the YAML file and accepts it when it
+contains:
+
+- a non-empty `esphome.name`;
+- one supported top-level platform: `esp32`, `esp8266`, `bk72xx`, `ln882x`,
+  `rp2040`, `rtl87xx`, or `host`.
+
+Values referenced as `$name` or `${name}` are resolved from the top-level
+`substitutions` section, including nested substitutions. The parser extracts
+the friendly name, platform, board, framework, and the presence of `wifi` and
+`web_server`. If `esphome.friendly_name` is absent, the project name is used for
+display.
+
+Each known project can have an arbitrary list of dependency files. The docked
+tree displays those files below their owning project, can open the complete set
+in one action, and can save them together before running ESPHome.
+
+Activating either a main YAML file or one of its registered dependencies makes
+the owning project current. The selection in the docked tree, command state,
+plugin menu, toolbar, and project suffix in the Notepad++ title are updated
+accordingly.
+
+---
+
+## ESPHome Commands
+
+Every command runs in the current project's directory and passes the absolute
+project filename to `esphome.exe`.
+
+| Command | Generated ESPHome command | Project-specific options |
+|---|---|---|
+| Run | `run` | Target device, `--reset`, `--no-logs`, extra parameters |
+| Compile | `compile` | `--only-generate`, extra parameters |
+| Upload | `upload` | Target device, extra parameters |
+| Logs | `logs` | Target device, `--reset`, extra parameters |
+| Clean | `clean` | Extra parameters |
+| Clean-All | `clean-all` | Requires explicit confirmation |
+
+The selected ESPHome log level is added before the command with `-l` and can be
+**Critical**, **Error**, **Warning**, **Info**, **Debug**, or **Default**. A
+separate global extra-parameters field is also inserted before the command;
+each supported command has its own additional-parameters field.
+
+### Target Device
+
+The target is stored per project and can be:
+
+- **None**, which leaves target selection to ESPHome;
+- one of the Windows serial `COM` ports listed from the system registry;
+- **OTA**, which generates `--device OTA`.
+
+The plugin enumerates serial ports when the configuration form is opened. It
+does not scan the network for ESPHome nodes.
+
+### Auto-Save
+
+Before starting a command, the plugin can save:
+
+- nothing;
+- only the current project's main file;
+- the project file and all registered dependencies;
+- every open Notepad++ document.
+
+### Console Behavior
+
+Console settings are also stored per project:
+
+- close after a successful command and pause on failure, or remain open;
+- keep the console always on top;
+- let Windows position it, center it, or place it in any screen corner;
+- select the monitor used for placement;
+- enable **Solo Mode**, which terminates the previous plugin-launched ESPHome
+  console before starting another one.
+
+The plugin also terminates its last running ESPHome console when Notepad++ shuts
+down.
+
+---
+
+## Dockable Project and Template Window
+
+The main plugin window is a Notepad++ docking form, not a separate project
+editor. It contains two resizable areas.
+
+### Projects
+
+The project tree provides:
+
+- project roots with platform-specific icons;
+- dependency children with file-type icons;
+- selection and opening of the represented file;
+- add/remove project and dependency actions;
+- project configuration and open-all-files actions;
+- direct ESPHome command buttons;
+- shortcuts to a terminal and File Explorer in the project directory.
+
+The window visibility and the project/template splitter height are persisted.
+Notepad++ manages the docking side and docking layout.
+
+### Templates
+
+Templates are loaded from `NppESPHome.xml` in the Notepad++ plugin
+configuration directory. Each XML component contains:
+
+```xml
+<Component>
+  <Name>Template name</Name>
+  <Category>Category</Category>
+  <OnlineHelp>https://example.com/help</OnlineHelp>
+  <Description>Template description</Description>
+  <YAML><![CDATA[
+  # YAML inserted into the editor
+  ]]></YAML>
+</Component>
+```
+
+The browser supports:
+
+- filtering template names as text is typed;
+- filtering by category;
+- displaying descriptions and optional online-help links;
+- inserting UTF-8 YAML at the current selection with a double-click;
+- opening the local XML file in Notepad++ for editing;
+- manual reload and automatic reload after the XML file is saved;
+- downloading or restoring the default XML from this repository after
+  confirmation.
+
+If the local XML file is missing on first load, the plugin offers to download
+the default template collection.
+
+---
+
+## Configurable Notepad++ Toolbar
+
+Toolbar customization is available with Notepad++ 8.0 or newer from
+**Plugins → NppESPHome → Configure Toolbar**.
+
+For every supported plugin command, the dialog can:
+
+- show or hide its toolbar button using a checkbox;
+- reorder it with drag and drop;
+- move it with `Ctrl+Up` and `Ctrl+Down`;
+- restore the default order and visibility;
+- apply and persist changes without restarting Notepad++.
+
+The toolbar rebuild preserves the command association and enabled state. Icons
+are refreshed when Notepad++ switches between Light and Dark mode or changes
+between standard and small toolbar icon sets.
+
+---
+
+## Menu Commands and Default Shortcuts
+
+All commands are available below **Plugins → NppESPHome**. Notepad++ can remap
+their shortcuts through its **Shortcut Mapper**; the plugin refreshes displayed
+captions after a remap.
+
+| Command | Default shortcut |
+|---|---:|
+| Select Project | `Ctrl+Alt+F10` |
+| Configure Project | `Ctrl+F10` |
+| Run | `F9` |
+| Compile | `Ctrl+F9` |
+| Upload | `Shift+F9` |
+| ESPHome Documentation | `Ctrl+F1` |
+
+Other menu entries include adding/removing projects, opening project files,
+Logs, Clean, Clean-All, upgrading ESPHome, opening a project terminal or File
+Explorer, showing/hiding the docked window, configuring the toolbar, and About.
+
+The terminal starts in the project directory and receives two convenience
+environment variables:
+
+```text
+ESPHome=<absolute path to esphome.exe>
+ESPProject=<absolute path to the current project YAML>
+```
+
+**Upgrade ESPHome** runs `pip.exe install --upgrade esphome`, then displays the
+installed ESPHome version. **ESPHome Documentation** opens the official
+component documentation in the default browser.
+
+---
+
+## Configuration and Persistence
+
+The plugin uses the configuration directory reported by Notepad++.
+
+| File | Stored data |
+|---|---|
+| `NppESPHome.ini` | Known/current projects, dependencies, per-project command and console options, docked-window state, splitter size, and toolbar configuration |
+| `NppESPHome.xml` | User-editable YAML template collection |
+
+Each project is stored in an INI section named with the absolute path of its
+main YAML file. Removing a project also removes its corresponding settings
+section.
 
 ---
 
@@ -222,214 +321,66 @@ This tighter edit-test-run loop is the main value of the plugin.
 
 <div align="center">
 
-| Main window | Project configuration | Configuration |
+| Dockable window | Project selection | Project configuration |
 |---|---|---|
-| <img src="Art/main_light.png" width="240" alt="Floating main window"> | <img src="Art/select.png" width="240" alt="Select Project window"> | <img src="Art/config.png" width="240" alt="Configure Project window"> |
+| <img src="Art/main_light.png" width="240" alt="Dockable project and template window"> | <img src="Art/select.png" width="240" alt="Select Project window"> | <img src="Art/config.png" width="240" alt="Configure Project window"> |
 
 | Menu integration | Console execution | Toolbar configuration |
 |---|---|---|
-| <img src="Art/menu.png" width="240" alt="Plugin menu"> | <img src="Art/console.png" width="240" alt="ESPHome console"> | <img src="Art/toolbar.png" width="240" alt="Toolbar screenshot"> |
+| <img src="Art/menu.png" width="240" alt="Plugin menu"> | <img src="Art/console.png" width="240" alt="ESPHome console"> | <img src="Art/toolbar.png" width="240" alt="Toolbar configuration"> |
 
 </div>
 
 ---
 
-## Application Windows
+## Building from Source
 
-<details open>
-<summary><strong>Select Project</strong></summary>
+The Delphi project is in [`Source`](Source), with shared Notepad++ plugin base
+classes in [`Lib`](Lib), bundled third-party source and object files in
+[`External`](External), default snippets in [`Templates`](Templates), and
+prebuilt DLLs in [`Bin`](Bin).
 
-When the plugin starts, it reads the list of previously added ESPHome projects from the configuration file and restores them. One project is treated as the **active project**, and that project becomes the target for the main commands.
+The documented development baseline is:
 
-From **Plugins → NppESPHome → Select Project**, you can:
+- Delphi 12
+- Notepad++ 8.8.3
+- ESPHome 2025.3.0
 
-- Choose the active project
-- Add a new project by selecting its YAML file
-- Remove a project from the list of known projects
+The project builds `Win32` and `Win64` configurations and adds `Lib` and
+`External` to the Delphi unit search path.
 
-This keeps switching between device configurations quick and predictable.
+The Notepad++ plugin base was partially derived from and adapted from
+[NppUISpy 1.2](https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib).
+Third-party libraries and components used by the project include:
 
-</details>
+- [Virtual-TreeView 8.3](https://github.com/JAM-Software/Virtual-TreeView)
+- [ComPort Library 4.11](http://comport.sf.net/)
+- [LibYAML 0.2.5](https://github.com/yaml/libyaml)
+- [JEDI Visual Component Library 3.50](https://github.com/project-jedi/jvcl)
+- [Task Dialog Message Box with Fluent Interface](https://specials.rejbrand.se/dev/classes/TDMessageBox/TDMessageBox.html)
 
-<details>
-<summary><strong>Configure Project</strong></summary>
-
-Once the current project has been selected, you can define how the plugin should interact with both ESPHome and Notepad++.
-
-Typical options include:
-
-- Auto-save behavior
-- Console handling preferences
-- Custom command-line parameters
-- Logging configuration
-- Execution behavior
-- Auto-close settings
-
-These settings are stored on a per-project basis, which makes it easy to adapt the plugin to different devices and workflows.
-
-</details>
-
-<details>
-<summary><strong>Floating Window</strong></summary>
-
-The floating window acts as a compact control center inside Notepad++.
-
-It combines:
-
-- Project navigation
-- Quick command access
-- Dependency visibility
-- Template browsing
-- Snippet insertion
-
-The goal is to keep the most useful actions close at hand without interrupting editing.
-
-</details>
-
-<details>
-<summary><strong>ESPHome Commands</strong></summary>
-
-The plugin gives you direct access to the five main ESPHome commands:
-
-- Run
-- Compile
-- Upload
-- Logs
-- Clean
-- Clean-All
-
-Normally, in a Windows shell, you would need to invoke `esphome.exe` manually and provide the correct sequence of parameters. The plugin automates that process by generating the command line from the selected project and its saved configuration.
-
-The command runs in a Windows console that can remain open or close automatically depending on your chosen settings.
-
-</details>
+Delphi packages that are not bundled in the repository must be installed or
+available through the compiler's library search path.
 
 ---
 
-## What it Does and Does Not Do
+## Contributing
 
-The plugin does **not** replace ESPHome.  
-It simplifies interaction with ESPHome directly from Notepad++.
+Bug reports, feature proposals, and pull requests are welcome. For significant
+changes, opening an issue first makes it easier to agree on behavior and scope.
 
-To work correctly, the following requirements must already be met:
-
-- **ESPHome must already be installed on your system**
-- **Notepad++ must also be installed**
-- **Notepad++ 8.0 or higher** is recommended and required for toolbar support
-
-ESPHome installation guide:  
-[https://www.esphome.io/guides/installing_esphome/](https://www.esphome.io/guides/installing_esphome/)
-
-If ESPHome is not found during Notepad++ startup, the plugin will display an error message.
-
----
-
-## Installation
-
-If you simply want to use the plugin and do not plan to compile it yourself, you can download the DLL here:
-
-[Download the DLL](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Bin)
-
-The plugin DLL must be placed in the `plugins` subfolder of the Notepad++ installation folder, inside the subfolder with the same name as the plugin binary without the file extension, according to this guide:
-
-[Notepad++ manual plugin installation guide](https://npp-user-manual.org/docs/plugins/#install-plugin-manually)
-
-### Important
-
-- Use the DLL architecture that matches your Notepad++ installation (**x86 / x64**)
-- ESPHome must already be installed
-- If ESPHome is not detected at startup, the plugin will show an error
-
-ESPHome installation guide:  
-[https://www.esphome.io/guides/installing_esphome/](https://www.esphome.io/guides/installing_esphome/)
-
----
-
-## Plugin Settings
-
-Settings are stored in the default Notepad++ plugin settings folder in the file:
-
-`NppESPHome.ini`
-
-This file contains project data, active project state, layout information, and plugin preferences.
-
----
-
-## Source Code
-
-The source code is available here:
-
-[The source](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Source)
-
-It is written in **Delphi** and is made available primarily so that advanced users can build their own custom versions or inspect and adapt the implementation.
-
-Contributions are welcome:
-
-- Bug-fix pull requests are appreciated when they are reproducible or clearly useful
-- Pull requests for new features are welcome
-- The best way to start is by opening an issue first
-
-Useful links:
-
-- [Pull requests](https://github.com/atiburzi/NppESPHome-Plugin/pulls)
 - [Issues](https://github.com/atiburzi/NppESPHome-Plugin/issues)
+- [Pull requests](https://github.com/atiburzi/NppESPHome-Plugin/pulls)
+- [Source code](https://github.com/atiburzi/NppESPHome-Plugin/tree/main/Source)
 
 ---
 
 ## License
 
-The source code is released under the **MPL 2.0** license:
+The source code is released under the
+[Mozilla Public License 2.0](http://mozilla.org/MPL/2.0/).
 
-> Copyright © 2025 Andrea Tiburzi  
-> This Source Code Form is subject to the terms of the Mozilla Public  
-> License, v. 2.0. If a copy of the MPL was not distributed with this  
-> file, You can obtain one at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).
-
----
-
-## Build Environment
-
-NppESPHome Plugin has been compiled with **Delphi 12** and tested with the following versions:
-
-- Notepad++ 8.8.3
-- ESPHome 2025.3.0
-
-It will likely work with older and newer versions as well, although those combinations are not fully documented here.
-
----
-
-## Dependencies to Compile
-
-Libraries used to implement the Notepad++ plugin were partially taken from [NppUISpy plugin for Notepad++ ver. 1.2](https://github.com/dinkumoil/NppUISpy/tree/master/src/Lib) and adapted for this project.
-
-The following additional third-party libraries are required to compile the source:
-
-- [JAM-Software Virtual-TreeView ver. 8.3](https://github.com/JAM-Software/Virtual-TreeView)
-- [ComPort Library ver. 4.11](http://comport.sf.net/)
-- [LibYAML ver. 0.2.5](https://github.com/yaml/libyaml)
-- [JEDI Visual Component Library ver 3.50](https://github.com/project-jedi/jvcl)
-- [Task Dialog Message Box with Fluent Interface](https://specials.rejbrand.se/dev/classes/TDMessageBox/TDMessageBox.html)
-
-These libraries must be available in the Delphi default library search path.
-
----
-
-## Future Enhancements
-
-The plugin architecture already takes multilingual support into account, even though it is not implemented yet.
-
-Possible future improvements include:
-
-- More built-in templates
-- Expanded diagnostics
-- More automation helpers
-- Better customization for larger project collections
-- Localization support
-
----
-
-## Final Note
-
-If you use **Notepad++** as your primary editor and regularly work with **ESPHome** on Windows, this plugin is designed to make that workflow faster, smoother, and less repetitive.
-
-It preserves the flexibility of ESPHome while making the most common actions much easier to reach.
+> Copyright © 2025 Andrea Tiburzi
+> This Source Code Form is subject to the terms of the Mozilla Public License,
+> v. 2.0. If a copy of the MPL was not distributed with this file, you can
+> obtain one at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).

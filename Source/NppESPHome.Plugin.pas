@@ -229,91 +229,162 @@ resourcestring
 // Notepad++ invokes these plain procedures, and each wrapper forwards the call
 // to the current plugin instance where the real implementation lives.
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.ProjectAdd.
+// *****************************************************************************
 procedure _ProjectAdd; cdecl;
 begin
 	Plugin.ProjectAdd;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.ProjectSelect.
+// *****************************************************************************
 procedure _ProjectSelect; cdecl;
 begin
 	Plugin.ProjectSelect;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.ProjectRemove.
+// *****************************************************************************
 procedure _ProjectRemove; cdecl;
 begin
 	Plugin.ProjectRemove;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.ProjectConfigure.
+// *****************************************************************************
 procedure _ProjectConfigure; cdecl;
 begin
 	Plugin.ProjectConfigure;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.ProjectOpenFiles.
+// *****************************************************************************
 procedure _ProjectOpenFiles; cdecl;
 begin
 	Plugin.ProjectOpenFiles;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.CommandRun.
+// *****************************************************************************
 procedure _CommandRun; cdecl;
 begin
 	Plugin.CommandRun;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.CommandCompile.
+// *****************************************************************************
 procedure _CommandCompile; cdecl;
 begin
 	Plugin.CommandCompile;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.CommandUpload.
+// *****************************************************************************
 procedure _CommandUpload; cdecl;
 begin
 	Plugin.CommandUpload;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.CommandLogs.
+// *****************************************************************************
 procedure _CommandLogs; cdecl;
 begin
 	Plugin.CommandLogs;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.CommandClean.
+// *****************************************************************************
 procedure _CommandClean; cdecl;
 begin
 	Plugin.CommandClean;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.CommandCleanAll.
+// *****************************************************************************
 procedure _CommandCleanAll; cdecl;
 begin
 	Plugin.CommandCleanAll;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to TESPHomePlugin.StartHelp.
+// *****************************************************************************
 procedure _StartHelp; cdecl;
 begin
 	Plugin.StartHelp;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.StartUpgrade.
+// *****************************************************************************
 procedure _StartUpgrade; cdecl;
 begin
 	Plugin.StartUpgrade;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.StartTerminal.
+// *****************************************************************************
 procedure _StartTerminal; cdecl;
 begin
 	Plugin.StartTerminal;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.StartExplorer.
+// *****************************************************************************
 procedure _StartExplorer; cdecl;
 begin
 	Plugin.StartExplorer;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.ShowHidePrjWin.
+// *****************************************************************************
 procedure _ShowHidePrjWin; cdecl;
 begin
 	Plugin.ShowHidePrjWin;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.ConfigToolbar.
+// *****************************************************************************
 procedure _ConfigToolbar; cdecl;
 begin
 	Plugin.ConfigToolbar;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.AboutWindow.
+// *****************************************************************************
 procedure _AboutWindow; cdecl;
 begin
 	Plugin.AboutWindow;
@@ -325,10 +396,10 @@ end;
 // Local Helper Functions
 // ============================================================================
 
-{
-  Purpose: Moves an external console window to the configured monitor position.
-  It preserves the current window size and only adjusts the top-left corner.
-}
+// *****************************************************************************
+// Purpose: Moves an external console window to the configured monitor position.
+// It preserves the current window size and only adjusts the top-left corner.
+// *****************************************************************************
 procedure PositionWindow(Wnd: HWND; Position: Integer; Monitor: Integer = 0; Margin: Integer = -1);
 var
   R: TRect;
@@ -391,11 +462,12 @@ begin
   end;
 end;
 
-{
-  Purpose: Builds and launches an ESPHome command for the current project.
-  It applies project options, auto-save behavior, log level, target device, console
-  positioning, and optional single-console mode before showing the command window.
-}
+// *****************************************************************************
+// Purpose: Builds and launches an ESPHome command for the current project. It
+// applies project options, auto-save behavior, log level, target device,
+// console positioning, and optional single-console mode before showing the
+// command window.
+// *****************************************************************************
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
   CommandStr: array [scRun .. scCleanAll] of string = ('run', 'compile', 'upload', 'logs', 'clean', 'clean-all');
@@ -567,10 +639,10 @@ resourcestring
 // Project Menu Commands
 // ============================================================================
 
-{
-  Purpose: Lets the user select an existing ESPHome YAML file and adds it
-  to the known project list after validating it as a project.
-}
+// *****************************************************************************
+// Purpose: Lets the user select an existing ESPHome YAML file and adds it to
+// the known project list after validating it as a project.
+// *****************************************************************************
 procedure TESPHomePlugin.ProjectAdd;
 var
   Project: TProject;
@@ -620,10 +692,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Opens the project selection dialog and refreshes the Notepad++ title
-  and plugin menu state after the selection changes.
-}
+// *****************************************************************************
+// Purpose: Opens the project selection dialog and refreshes the Notepad++ title
+// and plugin menu state after the selection changes.
+// *****************************************************************************
 procedure TESPHomePlugin.ProjectSelect;
 var
   FormSelection: TFormSelection;
@@ -639,10 +711,10 @@ begin
   RefreshPluginMenu;
 end;
 
-{
-  Purpose: Removes the current project from the configured project list after
-  user confirmation. The project files themselves are left untouched.
-}
+// *****************************************************************************
+// Purpose: Removes the current project from the configured project list after
+// user confirmation. The project files themselves are left untouched.
+// *****************************************************************************
 procedure TESPHomePlugin.ProjectRemove;
 var
   I: Integer;
@@ -667,9 +739,9 @@ begin
   end;
 end;
 
-{
-  Purpose: Opens the configuration dialog for the currently selected project.
-}
+// *****************************************************************************
+// Purpose: Opens the configuration dialog for the currently selected project.
+// *****************************************************************************
 procedure TESPHomePlugin.ProjectConfigure;
 var
   FormConfiguration: TFormConfig;
@@ -686,10 +758,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Opens the current project file and all configured dependency files
-  in Notepad++, then returns focus to the main project file.
-}
+// *****************************************************************************
+// Purpose: Opens the current project file and all configured dependency files
+// in Notepad++, then returns focus to the main project file.
+// *****************************************************************************
 procedure TESPHomePlugin.ProjectOpenFiles;
 var
   FileName: string;
@@ -716,55 +788,56 @@ end;
 // ESPHome Command Menu Handlers
 // ============================================================================
 
-{
-  Purpose: Runs the configured ESPHome 'run' command for the current project.
-}
+// *****************************************************************************
+// Purpose: Runs the configured ESPHome 'run' command for the current project.
+// *****************************************************************************
 procedure TESPHomePlugin.CommandRun;
 begin
   if CheckESPHome and CheckCurrentProject then
     ExecuteESPHomeCommand(scRun);
 end;
 
-{
-  Purpose: Runs the ESPHome compile command for the current project.
-}
+// *****************************************************************************
+// Purpose: Runs the ESPHome compile command for the current project.
+// *****************************************************************************
 procedure TESPHomePlugin.CommandCompile;
 begin
   if CheckESPHome and CheckCurrentProject then
     ExecuteESPHomeCommand(scCompile);
 end;
 
-{
-  Purpose: Uploads the current project using the configured ESPHome target device.
-}
+// *****************************************************************************
+// Purpose: Uploads the current project using the configured ESPHome target
+// device.
+// *****************************************************************************
 procedure TESPHomePlugin.CommandUpload;
 begin
   if CheckESPHome and CheckCurrentProject then
     ExecuteESPHomeCommand(scUpload);
 end;
 
-{
-  Purpose: Opens ESPHome logs for the current project.
-}
+// *****************************************************************************
+// Purpose: Opens ESPHome logs for the current project.
+// *****************************************************************************
 procedure TESPHomePlugin.CommandLogs;
 begin
   if CheckESPHome and CheckCurrentProject then
     ExecuteESPHomeCommand(scLogs);
 end;
 
-{
-  Purpose: Runs ESPHome clean for the current project build files.
-}
+// *****************************************************************************
+// Purpose: Runs ESPHome clean for the current project build files.
+// *****************************************************************************
 procedure TESPHomePlugin.CommandClean;
 begin
   if CheckESPHome and CheckCurrentProject then
     ExecuteESPHomeCommand(scClean);
 end;
 
-{
-  Purpose: Confirms and runs ESPHome clean-all for the current project.
-  This is intentionally guarded because it can remove large PlatformIO caches.
-}
+// *****************************************************************************
+// Purpose: Confirms and runs ESPHome clean-all for the current project. This is
+// intentionally guarded because it can remove large PlatformIO caches.
+// *****************************************************************************
 procedure TESPHomePlugin.CommandCleanAll;
 begin
   if CheckESPHome and CheckCurrentProject then
@@ -783,19 +856,19 @@ end;
 // Utility Menu Commands
 // ============================================================================
 
-{
-  Purpose: Opens the ESPHome online documentation in the user's browser.
-}
+// *****************************************************************************
+// Purpose: Opens the ESPHome online documentation in the user's browser.
+// *****************************************************************************
 procedure TESPHomePlugin.StartHelp;
 begin
   // Let Windows choose the default browser for the ESPHome documentation URL.
   ShellExecute(0, 'open', PChar(rsESPHomeDocURL), nil, nil, SW_SHOWNORMAL);
 end;
 
-{
-  Purpose: Starts a console command that upgrades ESPHome through pip and
-  prints the installed ESPHome version afterward.
-}
+// *****************************************************************************
+// Purpose: Starts a console command that upgrades ESPHome through pip and
+// prints the installed ESPHome version afterward.
+// *****************************************************************************
 procedure TESPHomePlugin.StartUpgrade;
 var
   JvCreateProcess: TJvCreateProcess;
@@ -812,10 +885,10 @@ begin
   JvCreateProcess.Free;
 end;
 
-{
-  Purpose: Opens a command shell in the current project folder and injects
-  useful ESPHome and project path environment variables.
-}
+// *****************************************************************************
+// Purpose: Opens a command shell in the current project folder and injects
+// useful ESPHome and project path environment variables.
+// *****************************************************************************
 procedure TESPHomePlugin.StartTerminal;
 var
   JvCreateProcess: TJvCreateProcess;
@@ -837,9 +910,9 @@ begin
   JvCreateProcess.Free;
 end;
 
-{
-  Purpose: Opens Windows Explorer in the current project folder.
-}
+// *****************************************************************************
+// Purpose: Opens Windows Explorer in the current project folder.
+// *****************************************************************************
 procedure TESPHomePlugin.StartExplorer;
 begin
   if not CheckCurrentProject then
@@ -849,10 +922,10 @@ begin
     ShellExecute(0, 'open', PChar(ExtractFilePath(ProjectList.Current.FileName)), nil, nil, SW_SHOWNORMAL);
 end;
 
-{
-  Purpose: Toggles the docked project window visibility and persists the
-  choice in the plugin configuration INI.
-}
+// *****************************************************************************
+// Purpose: Toggles the docked project window visibility and persists the choice
+// in the plugin configuration INI.
+// *****************************************************************************
 procedure TESPHomePlugin.ShowHidePrjWin;
 begin
   if Assigned(FormProjects) then
@@ -884,9 +957,9 @@ end;
 //            Bitmap.Free;
 //          end;
 
-{
-  Purpose: Opens the toolbar customization dialog.
-}
+// *****************************************************************************
+// Purpose: Opens the toolbar customization dialog.
+// *****************************************************************************
 procedure TESPHomePlugin.ConfigToolbar;
 begin
   // The toolbar dialog edits the persisted order and visibility configuration.
@@ -898,9 +971,9 @@ begin
   end;
 end;
 
-{
-  Purpose: Opens the plugin About dialog.
-}
+// *****************************************************************************
+// Purpose: Opens the plugin About dialog.
+// *****************************************************************************
 procedure TESPHomePlugin.AboutWindow;
 begin
   // The About form is modal so ownership and lifetime stay simple.
@@ -916,10 +989,10 @@ end;
 // Plugin Registration and Notepad++ Notifications
 // ============================================================================
 
-{
-  Purpose: Registers one Notepad++ function item and stores the plugin's
-  stable action identifier at the returned function item index.
-}
+// *****************************************************************************
+// Purpose: Registers one Notepad++ function item and stores the plugin's stable
+// action identifier at the returned function item index.
+// *****************************************************************************
 function TESPHomePlugin.AddPluginFunction(FuncItemName: string; FuncItemDescription: nppString; FuncCmdProc: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; MenuChecked: Boolean = False): Integer;
 begin
   // Let the base plugin register the command, then store our stable ID beside it.
@@ -928,10 +1001,10 @@ begin
   FFuncItemsNames[Result] := FuncItemName;
 end;
 
-{
-  Purpose: Registers a separator line in the Notepad++ plugin menu and stores
-  a generated placeholder ID for index alignment.
-}
+// *****************************************************************************
+// Purpose: Registers a separator line in the Notepad++ plugin menu and stores a
+// generated placeholder ID for index alignment.
+// *****************************************************************************
 function TESPHomePlugin.AddPluginMenuSeparator: Integer;
 begin
   // Separators still occupy function indexes, so they need placeholder IDs.
@@ -940,11 +1013,11 @@ begin
   FFuncItemsNames[Result] := Format('Sep$%2d', [Result]);
 end;
 
-{
-  Purpose: Handles the Notepad++ ready notification.
-  Initializes toolbar state, creates the project docking form, restores its
-  visibility, and refreshes menu/title state.
-}
+// *****************************************************************************
+// Purpose: Handles the Notepad++ ready notification. Initializes toolbar state,
+// creates the project docking form, restores its visibility, and refreshes
+// menu/title state.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnReady;
 begin
   inherited;
@@ -984,10 +1057,11 @@ begin
   RefreshPluginMenu;
 end;
 
-{
-  Purpose: Handles plugin shutdown by terminating active ESPHome consoles and
-  freeing global lists, configuration objects, forms, toolbar icons, and resources.
-}
+// *****************************************************************************
+// Purpose: Handles plugin shutdown by terminating active ESPHome consoles and
+// freeing global lists, configuration objects, forms, toolbar icons, and
+// resources.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnShutdown;
 begin
   // Stop a still-running ESPHome console before unloading the plugin.
@@ -1008,29 +1082,29 @@ begin
   inherited;
 end;
 
-{
-  Purpose: Refreshes dynamic menu captions after Notepad++ shortcut changes.
-}
+// *****************************************************************************
+// Purpose: Refreshes dynamic menu captions after Notepad++ shortcut changes.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnShortcutRemapped;
 begin
   RefreshNppTitle;
   RefreshPluginMenu;
 end;
 
-{
-  Purpose: Receives the Notepad++ toolbar creation/modification notification
-  and prepares the plugin toolbar button model and icon handles.
-}
+// *****************************************************************************
+// Purpose: Receives the Notepad++ toolbar creation/modification notification
+// and prepares the plugin toolbar button model and icon handles.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnToolbarModification;
 begin
   inherited;
   InitializeToolbarConfiguration;
 end;
 
-{
-  Purpose: Reacts to Notepad++ dark mode changes by updating plugin forms,
-  toolbar images, and command enabled state.
-}
+// *****************************************************************************
+// Purpose: Reacts to Notepad++ dark mode changes by updating plugin forms,
+// toolbar images, and command enabled state.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnDarkModeChanged;
 begin
   if Assigned(FormProjects) then
@@ -1040,10 +1114,10 @@ begin
   RefreshPluginMenu;
 end;
 
-{
-  Purpose: Synchronizes the project window, title, and menu state when the
-  active Notepad++ document changes.
-}
+// *****************************************************************************
+// Purpose: Synchronizes the project window, title, and menu state when the
+// active Notepad++ document changes.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnBufferActivated;
 begin
   // Ignore notifications caused by plugin-controlled file open/save batches.
@@ -1056,9 +1130,9 @@ begin
   end;
 end;
 
-{
-  Purpose: Refreshes title and menu state after Notepad++ opens a file.
-}
+// *****************************************************************************
+// Purpose: Refreshes title and menu state after Notepad++ opens a file.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnFileOpened;
 begin
   // Ignore notifications caused by plugin-controlled file open/save batches.
@@ -1069,10 +1143,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Refreshes UI state after a save and reloads templates when the
-  plugin template XML file has been saved.
-}
+// *****************************************************************************
+// Purpose: Refreshes UI state after a save and reloads templates when the
+// plugin template XML file has been saved.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppnFileSaved;
 
 begin
@@ -1088,10 +1162,10 @@ begin
       FormProjects.ReloadAndRefreshTemplates;
 end;
 
-{
-  Purpose: Rebuilds toolbar configuration after Notepad++ changes its toolbar
-  icon set. The refresh runs asynchronously to let Notepad++ finish its update.
-}
+// *****************************************************************************
+// Purpose: Rebuilds toolbar configuration after Notepad++ changes its toolbar
+// icon set. The refresh runs asynchronously to let Notepad++ finish its update.
+// *****************************************************************************
 procedure TESPHomePlugin.DoNppToolbarIconsetChanged;
 begin
   // Rebuild shortly after Notepad++ swaps its internal image lists.
@@ -1113,10 +1187,10 @@ resourcestring
 // Project Dependencies and File Saving
 // ============================================================================
 
-{
-  Purpose: Lets the user add one or more dependency files to the current
-  project and persists the updated dependency list.
-}
+// *****************************************************************************
+// Purpose: Lets the user add one or more dependency files to the current
+// project and persists the updated dependency list.
+// *****************************************************************************
 procedure TESPHomePlugin.DependencyAdd;
 var
   Index: Integer;
@@ -1185,10 +1259,10 @@ resourcestring
   rsKnownDependencyRemoval = 'Dependency file "%s" is going to be removed from the "%s" project.';
   rsKnownDependencyRemoval2 = 'Are you sure?';
 
-{
-  Purpose: Removes a dependency file from the current project after user
-  confirmation, then refreshes the project window.
-}
+// *****************************************************************************
+// Purpose: Removes a dependency file from the current project after user
+// confirmation, then refreshes the project window.
+// *****************************************************************************
 procedure TESPHomePlugin.DependencyRemove(const DepFile: string);
 var
   I: Integer;
@@ -1213,9 +1287,9 @@ begin
   end;
 end;
 
-{
-  Purpose: Saves the current project's main YAML file in Notepad++.
-}
+// *****************************************************************************
+// Purpose: Saves the current project's main YAML file in Notepad++.
+// *****************************************************************************
 procedure TESPHomePlugin.SaveProject;
 begin
   if Assigned(ProjectList.Current) then
@@ -1223,10 +1297,10 @@ begin
     SaveFile(ProjectList.Current.FileName);
 end;
 
-{
-  Purpose: Saves the current project file and every configured dependency file
-  in Notepad++.
-}
+// *****************************************************************************
+// Purpose: Saves the current project file and every configured dependency file
+// in Notepad++.
+// *****************************************************************************
 procedure TESPHomePlugin.SaveProjectAndDependencies;
 var
   S: string;
@@ -1245,10 +1319,10 @@ end;
 // Construction, Lookup, and Toolbar Configuration
 // ============================================================================
 
-{
-  Purpose: Returns a pointer to a toolbar button record by array index, or
-  nil when the requested index is outside the current toolbar model.
-}
+// *****************************************************************************
+// Purpose: Returns a pointer to a toolbar button record by array index, or nil
+// when the requested index is outside the current toolbar model.
+// *****************************************************************************
 function TESPHomePlugin.GetToolbarButton(Index: Integer): PToolbarButton;
 begin
   Result := nil;
@@ -1256,18 +1330,18 @@ begin
     Result := @FToolbarButtons[Index];
 end;
 
-{
-  Purpose: Returns the number of toolbar buttons managed by the plugin.
-}
+// *****************************************************************************
+// Purpose: Returns the number of toolbar buttons managed by the plugin.
+// *****************************************************************************
 function TESPHomePlugin.GetToolbarButtonCount: Integer;
 begin
   Result := Length(FToolbarButtons);
 end;
 
-{
-  Purpose: Creates the plugin instance, prepares image resources, sets the
-  plugin name, and registers all Notepad++ menu commands and shortcuts.
-}
+// *****************************************************************************
+// Purpose: Creates the plugin instance, prepares image resources, sets the
+// plugin name, and registers all Notepad++ menu commands and shortcuts.
+// *****************************************************************************
 constructor TESPHomePlugin.Create;
 begin
   inherited Create;
@@ -1311,10 +1385,10 @@ begin
 
 end;
 
-{
-  Purpose: Receives Notepad++ host data and initializes plugin-wide file paths,
-  configuration storage, project list, and template list.
-}
+// *****************************************************************************
+// Purpose: Receives Notepad++ host data and initializes plugin-wide file paths,
+// configuration storage, project list, and template list.
+// *****************************************************************************
 procedure TESPHomePlugin.SetInfo(NppData: TNppData);
 begin
   inherited SetInfo(NppData);
@@ -1328,10 +1402,10 @@ begin
   TemplateList := TTemplateList.Create(TemplateFile);
 end;
 
-{
-  Purpose: Resolves the plugin's stable function ID from a Notepad++ function
-  item index.
-}
+// *****************************************************************************
+// Purpose: Resolves the plugin's stable function ID from a Notepad++ function
+// item index.
+// *****************************************************************************
 function TESPHomePlugin.GetFuncItemIdFromIndex(const Index: Integer): string;
 begin
   Result := '';
@@ -1340,10 +1414,10 @@ begin
     Result := FFuncItemsNames[Index];
 end;
 
-{
-  Purpose: Finds the Notepad++ function item index associated with a stable
-  plugin function ID.
-}
+// *****************************************************************************
+// Purpose: Finds the Notepad++ function item index associated with a stable
+// plugin function ID.
+// *****************************************************************************
 function TESPHomePlugin.GetIndexFromFuncItemName(const FuncItemName: string): Integer;
 var
   Index: Integer;
@@ -1358,18 +1432,18 @@ begin
     end;
 end;
 
-{
-  Purpose: Resolves the Notepad++ command ID for a stable plugin function ID.
-}
+// *****************************************************************************
+// Purpose: Resolves the Notepad++ command ID for a stable plugin function ID.
+// *****************************************************************************
 function TESPHomePlugin.GetCmdIdFromFuncItemName(const FuncItemName: string): Integer;
 begin
   Result := CmdIdFromMenuItemIdx(GetIndexFromFuncItemName(FuncItemName));
 end;
 
-{
-  Purpose: Builds the default toolbar configuration and, unless requested
-  otherwise, reads and validates the persisted user toolbar configuration.
-}
+// *****************************************************************************
+// Purpose: Builds the default toolbar configuration and, unless requested
+// otherwise, reads and validates the persisted user toolbar configuration.
+// *****************************************************************************
 function TESPHomePlugin.GetToolbarConfiguration(const ADefault: Boolean = False): string;
 var
   Regex: TRegEx;
@@ -1398,10 +1472,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Creates the in-memory toolbar button model and registers the light,
-  dark, and low-resolution toolbar icons with Notepad++.
-}
+// *****************************************************************************
+// Purpose: Creates the in-memory toolbar button model and registers the light,
+// dark, and low-resolution toolbar icons with Notepad++.
+// *****************************************************************************
 procedure TESPHomePlugin.InitializeToolbarConfiguration;
 var
   Bitmap: TBitmap;
@@ -1447,10 +1521,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Reads the native Notepad++ TBBUTTON records for plugin commands so
-  they can later be deleted, reinserted, reordered, or restyled safely.
-}
+// *****************************************************************************
+// Purpose: Reads the native Notepad++ TBBUTTON records for plugin commands so
+// they can later be deleted, reinserted, reordered, or restyled safely.
+// *****************************************************************************
 procedure TESPHomePlugin.RegisterToolbarConfiguration;
 var
   Index: Integer;
@@ -1498,6 +1572,10 @@ end;
 // The important rule is that cached TBBUTTON data is used only as a template.
 // Runtime-sensitive values such as the physical toolbar index and iBitmap are
 // always resolved again from the current toolbar instance.
+// *****************************************************************************
+// Purpose: Rebuilds the native Notepad++ toolbar from the saved logical order,
+// visibility, enabled state, and current image lists.
+// *****************************************************************************
 procedure TESPHomePlugin.RefreshToolbarConfiguration;
 var
   Items: TArray<string>;
@@ -1678,10 +1756,10 @@ begin
     CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
 end;
 
-{
-  Purpose: Releases all GDI bitmap and icon handles owned by the plugin toolbar
-  button model, then clears the stored handle fields.
-}
+// *****************************************************************************
+// Purpose: Releases all GDI bitmap and icon handles owned by the plugin toolbar
+// button model, then clears the stored handle fields.
+// *****************************************************************************
 procedure TESPHomePlugin.FreeToolbarResources;
 var
   Index: Integer;
@@ -1706,10 +1784,10 @@ begin
   end;
 end;
 
-{
-  Purpose: Enables or disables a plugin toolbar button by Notepad++ menu item
-  index and mirrors the state into the toolbar button model.
-}
+// *****************************************************************************
+// Purpose: Enables or disables a plugin toolbar button by Notepad++ menu item
+// index and mirrors the state into the toolbar button model.
+// *****************************************************************************
 procedure TESPHomePlugin.EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
 var
   CmdID: Integer;
@@ -1717,6 +1795,10 @@ var
   ButtonState: LRESULT;
   ToolbarHandle: HWND;
 
+// *****************************************************************************
+// Purpose: Finds the toolbar model entry whose command ID matches the command
+// currently being enabled or disabled.
+// *****************************************************************************
 function GetIndex: Integer;
 var
   I: Integer;
@@ -1764,18 +1846,18 @@ end;
 // UI Refresh and Validation Helpers
 // ============================================================================
 
-{
-  Purpose: Placeholder for future logic that refreshes only the current
-  project state without rebuilding the whole project list.
-}
+// *****************************************************************************
+// Purpose: Placeholder for future logic that refreshes only the current project
+// state without rebuilding the whole project list.
+// *****************************************************************************
 procedure TESPHomePlugin.RefreshCurrentProject;
 begin
 end;
 
-{
-  Purpose: Refreshes the docked project list, Notepad++ window title, and
-  plugin menu state after project data changes.
-}
+// *****************************************************************************
+// Purpose: Refreshes the docked project list, Notepad++ window title, and
+// plugin menu state after project data changes.
+// *****************************************************************************
 procedure TESPHomePlugin.RefreshProjectList;
 begin
   // The docked window owns the visible project tree/list.
@@ -1785,10 +1867,10 @@ begin
   RefreshPluginMenu;
 end;
 
-{
-  Purpose: Appends the current ESPHome project name to the Notepad++ main window
-  title, replacing any previous plugin-added project suffix.
-}
+// *****************************************************************************
+// Purpose: Appends the current ESPHome project name to the Notepad++ main
+// window title, replacing any previous plugin-added project suffix.
+// *****************************************************************************
 procedure TESPHomePlugin.RefreshNppTitle;
 const
   SepChar = '|';
@@ -1806,10 +1888,10 @@ begin
   SetWindowText(NppData.NppHandle, PChar(Title));
 end;
 
-{
-  Purpose: Updates dynamic menu text, shortcut hints, menu enabled state, and
-  toolbar enabled state according to whether a project is selected.
-}
+// *****************************************************************************
+// Purpose: Updates dynamic menu text, shortcut hints, menu enabled state, and
+// toolbar enabled state according to whether a project is selected.
+// *****************************************************************************
 procedure TESPHomePlugin.RefreshPluginMenu;
 var
   Text: string;
@@ -1818,6 +1900,10 @@ var
   PFunc: PFuncItem;
   ProjectAssigned: Boolean;
 
+// *****************************************************************************
+// Purpose: Resolves a stable function identifier and updates the matching menu
+// and toolbar enabled state.
+// *****************************************************************************
 procedure EnableItem(FuncItemID: string; Status: Boolean);
 var
   Index: Integer;
@@ -1869,10 +1955,10 @@ begin
 
 end;
 
-{
-  Purpose: Verifies that esphome.exe was found and shows a user-facing error
-  dialog when ESPHome is not installed or not available in PATH.
-}
+// *****************************************************************************
+// Purpose: Verifies that esphome.exe was found and shows a user-facing error
+// dialog when ESPHome is not installed or not available in PATH.
+// *****************************************************************************
 function TESPHomePlugin.CheckESPHome: Boolean;
 begin
   Result := False;
@@ -1884,10 +1970,10 @@ begin
     Result := True;
 end;
 
-{
-  Purpose: Verifies that a current project is selected and shows a user-facing
-  warning when project-specific commands cannot run.
-}
+// *****************************************************************************
+// Purpose: Verifies that a current project is selected and shows a user-facing
+// warning when project-specific commands cannot run.
+// *****************************************************************************
 function TESPHomePlugin.CheckCurrentProject: Boolean;
 begin
   Result := False;

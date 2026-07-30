@@ -104,7 +104,7 @@ object FormAbout: TFormAbout
     object LinkLabel2: TLinkLabel
       Left = 246
       Top = 137
-      Width = 116
+      Width = 115
       Height = 19
       Caption = '<a href="https://esphome.io/">ESPHome web portal</a>'
       TabOrder = 1
@@ -113,8 +113,8 @@ object FormAbout: TFormAbout
     object LinkLabel3: TLinkLabel
       Left = 246
       Top = 158
-      Width = 172
-      Height = 20
+      Width = 171
+      Height = 19
       Caption = 
         '<a href="https://notepad-plus-plus.org/resources/#plugins">Notep' +
         'ad++ Plugins home page</a>'
