@@ -100,8 +100,8 @@ provided by Notepad++ rather than beside the installed DLL.
 
 ## Getting Started
 
-1. Choose **Plugins → NppESPHome → Add Project** and select an existing
-   `.yaml` or `.yal` ESPHome file.
+1. Choose **Plugins → NppESPHome → Add Project** and select an existing ESPHome
+   YAML project file.
 2. Use **Select Project** to make one of the known projects current.
 3. Open **Configure Project** to select command, target, auto-save, and console
    options.
@@ -159,7 +159,8 @@ project filename to `esphome.exe`.
 The selected ESPHome log level is added before the command with `-l` and can be
 **Critical**, **Error**, **Warning**, **Info**, **Debug**, or **Default**. A
 separate global extra-parameters field is also inserted before the command;
-each supported command has its own additional-parameters field.
+**Run**, **Compile**, **Upload**, **Logs**, and **Clean** also have their own
+additional-parameters fields.
 
 ### Target Device
 
@@ -265,15 +266,15 @@ For every supported plugin command, the dialog can:
 
 The toolbar rebuild preserves the command association and enabled state. Icons
 are refreshed when Notepad++ switches between Light and Dark mode or changes
-between standard and small toolbar icon sets.
+among its Fluent UI, Filled Fluent UI, and Standard toolbar icon sets.
 
 ---
 
 ## Menu Commands and Default Shortcuts
 
 All commands are available below **Plugins → NppESPHome**. Notepad++ can remap
-their shortcuts through its **Shortcut Mapper**; the plugin refreshes displayed
-captions after a remap.
+their shortcuts through its **Shortcut Mapper**; the plugin then refreshes its
+dynamic **Configure Project** menu caption.
 
 | Command | Default shortcut |
 |---|---:|
@@ -319,15 +320,18 @@ section.
 
 ## Screenshots
 
+Click a preview to open its dedicated large-view page. Each page includes a
+link back to this README.
+
 <div align="center">
 
 | Dockable window | Project selection | Project configuration |
 |---|---|---|
-| <img src="Art/main_light.png" width="240" alt="Dockable project and template window"> | <img src="Art/select.png" width="240" alt="Select Project window"> | <img src="Art/config.png" width="240" alt="Configure Project window"> |
+| <a href="Art/screenshots/dockable-dark.md"><img src="Art/main_dark.png" width="240" alt="Dockable project and template window in Dark mode"></a> | <a href="Art/screenshots/project-selection-dark.md"><img src="Art/select_dark.png" width="240" alt="Select Project window in Dark mode"></a> | <a href="Art/screenshots/project-configuration-dark.md"><img src="Art/config_dark.png" width="240" alt="Configure Project window in Dark mode"></a> |
 
 | Menu integration | Console execution | Toolbar configuration |
 |---|---|---|
-| <img src="Art/menu.png" width="240" alt="Plugin menu"> | <img src="Art/console.png" width="240" alt="ESPHome console"> | <img src="Art/toolbar.png" width="240" alt="Toolbar configuration"> |
+| <a href="Art/screenshots/menu-integration-dark.md"><img src="Art/menu_dark.png" width="240" alt="Plugin menu in Dark mode"></a> | <a href="Art/screenshots/console-execution.md"><img src="Art/console.png" width="240" alt="ESPHome console"></a> | <a href="Art/screenshots/toolbar-configuration-dark.md"><img src="Art/toolbar_dark.png" width="240" alt="Toolbar configuration in Dark mode"></a> |
 
 </div>
 
@@ -354,8 +358,8 @@ The Notepad++ plugin base was partially derived from and adapted from
 Third-party libraries and components used by the project include:
 
 - [Virtual-TreeView 8.3](https://github.com/JAM-Software/Virtual-TreeView)
-- [ComPort Library 4.11](http://comport.sf.net/)
-- [LibYAML 0.2.5](https://github.com/yaml/libyaml)
+- [Neslib.Yaml](https://github.com/neslib/Neslib.Yaml), backed by
+  [LibYAML 0.2.5](https://github.com/yaml/libyaml)
 - [JEDI Visual Component Library 3.50](https://github.com/project-jedi/jvcl)
 - [Task Dialog Message Box with Fluent Interface](https://specials.rejbrand.se/dev/classes/TDMessageBox/TDMessageBox.html)
 
