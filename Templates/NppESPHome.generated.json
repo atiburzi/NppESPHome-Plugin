@@ -1,0 +1,3388 @@
+{
+  "source_repository": "https://github.com/esphome/esphome.io",
+  "source_branch": "current",
+  "source_commit": "7c494bb0d85d51bb946415cdd7e46a7cd345a9ef",
+  "source_commit_date": "2026-08-06T08:08:57+12:00",
+  "generated": [
+    {
+      "name": "1-Wire Bus via DS2484",
+      "url": "https://esphome.io/components/one_wire/ds2484/",
+      "source": "one_wire/ds2484.mdx"
+    },
+    {
+      "name": "1-Wire Bus via GPIO",
+      "url": "https://esphome.io/components/one_wire/gpio/",
+      "source": "one_wire/gpio.mdx"
+    },
+    {
+      "name": "Alarm Control Panel Component",
+      "url": "https://esphome.io/components/alarm_control_panel/",
+      "source": "alarm_control_panel/index.mdx"
+    },
+    {
+      "name": "Template Alarm Control Panel",
+      "url": "https://esphome.io/components/alarm_control_panel/template/",
+      "source": "alarm_control_panel/template.mdx"
+    },
+    {
+      "name": "Audio ADC Core",
+      "url": "https://esphome.io/components/audio_adc/",
+      "source": "audio_adc/index.mdx"
+    },
+    {
+      "name": "ES7210",
+      "url": "https://esphome.io/components/audio_adc/es7210/",
+      "source": "audio_adc/es7210.mdx"
+    },
+    {
+      "name": "ES7243E",
+      "url": "https://esphome.io/components/audio_adc/es7243e/",
+      "source": "audio_adc/es7243e.mdx"
+    },
+    {
+      "name": "AIC3204",
+      "url": "https://esphome.io/components/audio_dac/aic3204/",
+      "source": "audio_dac/aic3204.mdx"
+    },
+    {
+      "name": "Audio DAC Core",
+      "url": "https://esphome.io/components/audio_dac/",
+      "source": "audio_dac/index.mdx"
+    },
+    {
+      "name": "ES8156",
+      "url": "https://esphome.io/components/audio_dac/es8156/",
+      "source": "audio_dac/es8156.mdx"
+    },
+    {
+      "name": "ES8311",
+      "url": "https://esphome.io/components/audio_dac/es8311/",
+      "source": "audio_dac/es8311.mdx"
+    },
+    {
+      "name": "ES8388",
+      "url": "https://esphome.io/components/audio_dac/es8388/",
+      "source": "audio_dac/es8388.mdx"
+    },
+    {
+      "name": "PCM5122",
+      "url": "https://esphome.io/components/audio_dac/pcm5122/",
+      "source": "audio_dac/pcm5122.mdx"
+    },
+    {
+      "name": "Audio File Component",
+      "url": "https://esphome.io/components/audio_file/",
+      "source": "audio_file/index.mdx"
+    },
+    {
+      "name": "AirTouch AT581x Radar",
+      "url": "https://esphome.io/components/at581x/",
+      "source": "at581x.mdx"
+    },
+    {
+      "name": "DFRobot mmWave Radar",
+      "url": "https://esphome.io/components/dfrobot_sen0395/",
+      "source": "dfrobot_sen0395.mdx"
+    },
+    {
+      "name": "Matrix keypad",
+      "url": "https://esphome.io/components/matrix_keypad/",
+      "source": "matrix_keypad.mdx"
+    },
+    {
+      "name": "PipSolar PV Inverter",
+      "url": "https://esphome.io/components/pipsolar/",
+      "source": "pipsolar.mdx"
+    },
+    {
+      "name": "PN7150 NFC",
+      "url": "https://esphome.io/components/pn7150/",
+      "source": "pn7150.mdx"
+    },
+    {
+      "name": "PN7160 NFC",
+      "url": "https://esphome.io/components/pn7160/",
+      "source": "pn7160.mdx"
+    },
+    {
+      "name": "Pylontech Battery",
+      "url": "https://esphome.io/components/pylontech/",
+      "source": "pylontech.mdx"
+    },
+    {
+      "name": "Wiegand keypad and tag reader",
+      "url": "https://esphome.io/components/wiegand/",
+      "source": "wiegand.mdx"
+    },
+    {
+      "name": "Analog Threshold Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/analog_threshold/",
+      "source": "binary_sensor/analog_threshold.mdx"
+    },
+    {
+      "name": "Binary Sensor Component",
+      "url": "https://esphome.io/components/binary_sensor/",
+      "source": "binary_sensor/index.mdx"
+    },
+    {
+      "name": "CAP1188 Capacitive Touch Sensor",
+      "url": "https://esphome.io/components/binary_sensor/cap1188/",
+      "source": "binary_sensor/cap1188.mdx"
+    },
+    {
+      "name": "ESP32 Bluetooth Low Energy Device",
+      "url": "https://esphome.io/components/binary_sensor/ble_presence/",
+      "source": "binary_sensor/ble_presence.mdx"
+    },
+    {
+      "name": "ESP32 Touch Pad",
+      "url": "https://esphome.io/components/binary_sensor/esp32_touch/",
+      "source": "binary_sensor/esp32_touch.mdx"
+    },
+    {
+      "name": "GPIO Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/gpio/",
+      "source": "binary_sensor/gpio.mdx"
+    },
+    {
+      "name": "Haier Climate Binary Sensors",
+      "url": "https://esphome.io/components/binary_sensor/haier/",
+      "source": "binary_sensor/haier.mdx"
+    },
+    {
+      "name": "Home Assistant Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/homeassistant/",
+      "source": "binary_sensor/homeassistant.mdx"
+    },
+    {
+      "name": "Hydreon Rain Sensor Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/hydreon_rgxx/",
+      "source": "binary_sensor/hydreon_rgxx.mdx"
+    },
+    {
+      "name": "LVGL Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/lvgl/",
+      "source": "binary_sensor/lvgl.mdx"
+    },
+    {
+      "name": "Modbus Controller Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/modbus_controller/",
+      "source": "binary_sensor/modbus_controller.mdx"
+    },
+    {
+      "name": "MPR121 Capacitive Touch Sensor",
+      "url": "https://esphome.io/components/binary_sensor/mpr121/",
+      "source": "binary_sensor/mpr121.mdx"
+    },
+    {
+      "name": "Nextion Binary Sensor Component",
+      "url": "https://esphome.io/components/binary_sensor/nextion/",
+      "source": "binary_sensor/nextion.mdx"
+    },
+    {
+      "name": "NFC Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/nfc/",
+      "source": "binary_sensor/nfc.mdx"
+    },
+    {
+      "name": "Packet Transport Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/packet_transport/",
+      "source": "binary_sensor/packet_transport.mdx"
+    },
+    {
+      "name": "PN532 NFC/RFID",
+      "url": "https://esphome.io/components/binary_sensor/pn532/",
+      "source": "binary_sensor/pn532.mdx"
+    },
+    {
+      "name": "Qwiic PIR Motion Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/qwiic_pir/",
+      "source": "binary_sensor/qwiic_pir.mdx"
+    },
+    {
+      "name": "RC522 NFC/RFID",
+      "url": "https://esphome.io/components/binary_sensor/rc522/",
+      "source": "binary_sensor/rc522.mdx"
+    },
+    {
+      "name": "RDM6300 NFC/RFID",
+      "url": "https://esphome.io/components/binary_sensor/rdm6300/",
+      "source": "binary_sensor/rdm6300.mdx"
+    },
+    {
+      "name": "SDL Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/sdl/",
+      "source": "binary_sensor/sdl.mdx"
+    },
+    {
+      "name": "Status Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/status/",
+      "source": "binary_sensor/status.mdx"
+    },
+    {
+      "name": "Switch Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/switch/",
+      "source": "binary_sensor/switch.mdx"
+    },
+    {
+      "name": "Template Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/template/",
+      "source": "binary_sensor/template.mdx"
+    },
+    {
+      "name": "TTP229 Capacitive Touch Sensor",
+      "url": "https://esphome.io/components/binary_sensor/ttp229/",
+      "source": "binary_sensor/ttp229.mdx"
+    },
+    {
+      "name": "Tuya Binary Sensor",
+      "url": "https://esphome.io/components/binary_sensor/tuya/",
+      "source": "binary_sensor/tuya.mdx"
+    },
+    {
+      "name": "RP2040 BLE Component",
+      "url": "https://esphome.io/components/rp2040_ble/",
+      "source": "rp2040_ble.mdx"
+    },
+    {
+      "name": "Zephyr BLE Server",
+      "url": "https://esphome.io/components/zephyr_ble_server/",
+      "source": "zephyr_ble_server.mdx"
+    },
+    {
+      "name": "Button Component",
+      "url": "https://esphome.io/components/button/",
+      "source": "button/index.mdx"
+    },
+    {
+      "name": "Factory Reset Button",
+      "url": "https://esphome.io/components/button/factory_reset/",
+      "source": "button/factory_reset.mdx"
+    },
+    {
+      "name": "Generic Output Button",
+      "url": "https://esphome.io/components/button/output/",
+      "source": "button/output.mdx"
+    },
+    {
+      "name": "Haier Climate Buttons",
+      "url": "https://esphome.io/components/button/haier/",
+      "source": "button/haier.mdx"
+    },
+    {
+      "name": "Restart Button",
+      "url": "https://esphome.io/components/button/restart/",
+      "source": "button/restart.mdx"
+    },
+    {
+      "name": "Safe Mode Button",
+      "url": "https://esphome.io/components/button/safe_mode/",
+      "source": "button/safe_mode.mdx"
+    },
+    {
+      "name": "Shutdown Button",
+      "url": "https://esphome.io/components/button/shutdown/",
+      "source": "button/shutdown.mdx"
+    },
+    {
+      "name": "Template Button",
+      "url": "https://esphome.io/components/button/template/",
+      "source": "button/template.mdx"
+    },
+    {
+      "name": "UART Button",
+      "url": "https://esphome.io/components/button/uart/",
+      "source": "button/uart.mdx"
+    },
+    {
+      "name": "Wake-on-LAN Button",
+      "url": "https://esphome.io/components/button/wake_on_lan/",
+      "source": "button/wake_on_lan.mdx"
+    },
+    {
+      "name": "Camera Encoder",
+      "url": "https://esphome.io/components/camera/camera_encoder/",
+      "source": "camera/camera_encoder.mdx"
+    },
+    {
+      "name": "CAN Bus",
+      "url": "https://esphome.io/components/canbus/",
+      "source": "canbus/index.mdx"
+    },
+    {
+      "name": "ESP32 CAN",
+      "url": "https://esphome.io/components/canbus/esp32_can/",
+      "source": "canbus/esp32_can.mdx"
+    },
+    {
+      "name": "MCP2515",
+      "url": "https://esphome.io/components/canbus/mcp2515/",
+      "source": "canbus/mcp2515.mdx"
+    },
+    {
+      "name": "Anova Cooker",
+      "url": "https://esphome.io/components/climate/anova/",
+      "source": "climate/anova.mdx"
+    },
+    {
+      "name": "Bang Bang Climate Controller",
+      "url": "https://esphome.io/components/climate/bang_bang/",
+      "source": "climate/bang_bang.mdx"
+    },
+    {
+      "name": "BedJet",
+      "url": "https://esphome.io/components/climate/bedjet/",
+      "source": "climate/bedjet.mdx"
+    },
+    {
+      "name": "Climate Component",
+      "url": "https://esphome.io/components/climate/",
+      "source": "climate/index.mdx"
+    },
+    {
+      "name": "Haier Climate",
+      "url": "https://esphome.io/components/climate/haier/",
+      "source": "climate/haier.mdx"
+    },
+    {
+      "name": "IR Remote Climate",
+      "url": "https://esphome.io/components/climate/climate_ir/",
+      "source": "climate/climate_ir.mdx"
+    },
+    {
+      "name": "Midea Air Conditioner",
+      "url": "https://esphome.io/components/climate/midea/",
+      "source": "climate/midea.mdx"
+    },
+    {
+      "name": "Mitsubishi CN105 Climate",
+      "url": "https://esphome.io/components/climate/mitsubishi_cn105/",
+      "source": "climate/mitsubishi_cn105.mdx"
+    },
+    {
+      "name": "PID Climate",
+      "url": "https://esphome.io/components/climate/pid/",
+      "source": "climate/pid.mdx"
+    },
+    {
+      "name": "Thermostat Climate Controller",
+      "url": "https://esphome.io/components/climate/thermostat/",
+      "source": "climate/thermostat.mdx"
+    },
+    {
+      "name": "Tuya Climate",
+      "url": "https://esphome.io/components/climate/tuya/",
+      "source": "climate/tuya.mdx"
+    },
+    {
+      "name": "Uponor Smatrix Base Pulse Underfloor Heating",
+      "url": "https://esphome.io/components/uponor_smatrix/",
+      "source": "uponor_smatrix.mdx"
+    },
+    {
+      "name": "AM43 Cover",
+      "url": "https://esphome.io/components/cover/am43/",
+      "source": "cover/am43.mdx"
+    },
+    {
+      "name": "Cover Component",
+      "url": "https://esphome.io/components/cover/",
+      "source": "cover/index.mdx"
+    },
+    {
+      "name": "Current Based Cover",
+      "url": "https://esphome.io/components/cover/current_based/",
+      "source": "cover/current_based.mdx"
+    },
+    {
+      "name": "Endstop Cover",
+      "url": "https://esphome.io/components/cover/endstop/",
+      "source": "cover/endstop.mdx"
+    },
+    {
+      "name": "Feedback Cover",
+      "url": "https://esphome.io/components/cover/feedback/",
+      "source": "cover/feedback.mdx"
+    },
+    {
+      "name": "HE60R Garage Door Opener",
+      "url": "https://esphome.io/components/cover/he60r/",
+      "source": "cover/he60r.mdx"
+    },
+    {
+      "name": "Template Cover",
+      "url": "https://esphome.io/components/cover/template/",
+      "source": "cover/template.mdx"
+    },
+    {
+      "name": "Time Based Cover",
+      "url": "https://esphome.io/components/cover/time_based/",
+      "source": "cover/time_based.mdx"
+    },
+    {
+      "name": "Tormatic/Novoferm Cover",
+      "url": "https://esphome.io/components/cover/tormatic/",
+      "source": "cover/tormatic.mdx"
+    },
+    {
+      "name": "Tuya Cover",
+      "url": "https://esphome.io/components/cover/tuya/",
+      "source": "cover/tuya.mdx"
+    },
+    {
+      "name": "Datetime Component",
+      "url": "https://esphome.io/components/datetime/",
+      "source": "datetime/index.mdx"
+    },
+    {
+      "name": "Template Datetime",
+      "url": "https://esphome.io/components/datetime/template/",
+      "source": "datetime/template.mdx"
+    },
+    {
+      "name": "Font Renderer Component",
+      "url": "https://esphome.io/components/font/",
+      "source": "font.mdx"
+    },
+    {
+      "name": "Graph Component",
+      "url": "https://esphome.io/components/graph/",
+      "source": "graph.mdx"
+    },
+    {
+      "name": "QR Code Component",
+      "url": "https://esphome.io/components/qr_code/",
+      "source": "qr_code.mdx"
+    },
+    {
+      "name": "TM1651 Battery Display",
+      "url": "https://esphome.io/components/tm1651/",
+      "source": "tm1651.mdx"
+    },
+    {
+      "name": "Display Menu",
+      "url": "https://esphome.io/components/display_menu/",
+      "source": "display_menu/index.mdx"
+    },
+    {
+      "name": "Graphical Display Menu",
+      "url": "https://esphome.io/components/display_menu/graphical_display_menu/",
+      "source": "display_menu/graphical_display_menu.mdx"
+    },
+    {
+      "name": "LCD Menu",
+      "url": "https://esphome.io/components/display_menu/lcd_menu/",
+      "source": "display_menu/lcd_menu.mdx"
+    },
+    {
+      "name": "Addressable Light",
+      "url": "https://esphome.io/components/display/addressable_light/",
+      "source": "display/addressable_light.mdx"
+    },
+    {
+      "name": "Character-Based LCD Display",
+      "url": "https://esphome.io/components/display/lcd_display/",
+      "source": "display/lcd_display.mdx"
+    },
+    {
+      "name": "Display Component",
+      "url": "https://esphome.io/components/display/",
+      "source": "display/index.mdx"
+    },
+    {
+      "name": "Divoom Pixoo Display",
+      "url": "https://esphome.io/components/display/pixoo/",
+      "source": "display/pixoo.mdx"
+    },
+    {
+      "name": "ePaper SPI Display",
+      "url": "https://esphome.io/components/display/epaper_spi/",
+      "source": "display/epaper_spi.mdx"
+    },
+    {
+      "name": "HUB75 RGB LED Matrix Display",
+      "url": "https://esphome.io/components/display/hub75/",
+      "source": "display/hub75.mdx"
+    },
+    {
+      "name": "ILI9xxx TFT LCD Series",
+      "url": "https://esphome.io/components/display/ili9xxx/",
+      "source": "display/ili9xxx.mdx"
+    },
+    {
+      "name": "Inkplate 5, 6, 10 and 6 Plus",
+      "url": "https://esphome.io/components/display/inkplate/",
+      "source": "display/inkplate.mdx"
+    },
+    {
+      "name": "IT8951 E-Paper Display",
+      "url": "https://esphome.io/components/display/it8951/",
+      "source": "display/it8951.mdx"
+    },
+    {
+      "name": "MAX7219 7-Segment Display",
+      "url": "https://esphome.io/components/display/max7219/",
+      "source": "display/max7219.mdx"
+    },
+    {
+      "name": "MAX7219 Digit Display",
+      "url": "https://esphome.io/components/display/max7219digit/",
+      "source": "display/max7219digit.mdx"
+    },
+    {
+      "name": "MIPI DSI Display Driver",
+      "url": "https://esphome.io/components/display/mipi_dsi/",
+      "source": "display/mipi_dsi.mdx"
+    },
+    {
+      "name": "MIPI RGB Display Driver",
+      "url": "https://esphome.io/components/display/mipi_rgb/",
+      "source": "display/mipi_rgb.mdx"
+    },
+    {
+      "name": "MIPI SPI Display Driver",
+      "url": "https://esphome.io/components/display/mipi_spi/",
+      "source": "display/mipi_spi.mdx"
+    },
+    {
+      "name": "Nextion TFT LCD Display",
+      "url": "https://esphome.io/components/display/nextion/",
+      "source": "display/nextion.mdx"
+    },
+    {
+      "name": "PCD 8544 Display (Nokia 5110/3310)",
+      "url": "https://esphome.io/components/display/pcd8544/",
+      "source": "display/pcd8544.mdx"
+    },
+    {
+      "name": "PVVX MiThermometer Display",
+      "url": "https://esphome.io/components/display/pvvx_mithermometer/",
+      "source": "display/pvvx_mithermometer.mdx"
+    },
+    {
+      "name": "Quad SPI Displays",
+      "url": "https://esphome.io/components/display/qspi_dbi/",
+      "source": "display/qspi_dbi.mdx"
+    },
+    {
+      "name": "RPI_DPI_RGB Display Driver",
+      "url": "https://esphome.io/components/display/rpi_dpi_rgb/",
+      "source": "display/rpi_dpi_rgb.mdx"
+    },
+    {
+      "name": "SDL2 Display on host platform",
+      "url": "https://esphome.io/components/display/sdl/",
+      "source": "display/sdl.mdx"
+    },
+    {
+      "name": "SSD1306 OLED Display",
+      "url": "https://esphome.io/components/display/ssd1306/",
+      "source": "display/ssd1306.mdx"
+    },
+    {
+      "name": "SSD1322 OLED Display",
+      "url": "https://esphome.io/components/display/ssd1322/",
+      "source": "display/ssd1322.mdx"
+    },
+    {
+      "name": "SSD1325/7 OLED Display",
+      "url": "https://esphome.io/components/display/ssd1325/",
+      "source": "display/ssd1325.mdx"
+    },
+    {
+      "name": "SSD1327 OLED Display",
+      "url": "https://esphome.io/components/display/ssd1327/",
+      "source": "display/ssd1327.mdx"
+    },
+    {
+      "name": "SSD1331 OLED Display",
+      "url": "https://esphome.io/components/display/ssd1331/",
+      "source": "display/ssd1331.mdx"
+    },
+    {
+      "name": "SSD1351 OLED Display",
+      "url": "https://esphome.io/components/display/ssd1351/",
+      "source": "display/ssd1351.mdx"
+    },
+    {
+      "name": "ST7567 LCD Graphic Display",
+      "url": "https://esphome.io/components/display/st7567/",
+      "source": "display/st7567.mdx"
+    },
+    {
+      "name": "ST7701S Display Driver",
+      "url": "https://esphome.io/components/display/st7701s/",
+      "source": "display/st7701s.mdx"
+    },
+    {
+      "name": "ST7735 Display",
+      "url": "https://esphome.io/components/display/st7735/",
+      "source": "display/st7735.mdx"
+    },
+    {
+      "name": "ST7789V TFT LCD",
+      "url": "https://esphome.io/components/display/st7789v/",
+      "source": "display/st7789v.mdx"
+    },
+    {
+      "name": "ST7920 LCD Graphic Display",
+      "url": "https://esphome.io/components/display/st7920/",
+      "source": "display/st7920.mdx"
+    },
+    {
+      "name": "TM1621 LCD Display",
+      "url": "https://esphome.io/components/display/tm1621/",
+      "source": "display/tm1621.mdx"
+    },
+    {
+      "name": "TM1637 7-Segment Display",
+      "url": "https://esphome.io/components/display/tm1637/",
+      "source": "display/tm1637.mdx"
+    },
+    {
+      "name": "TM1638 7 Segment Display Keypad & LED Module",
+      "url": "https://esphome.io/components/display/tm1638/",
+      "source": "display/tm1638.mdx"
+    },
+    {
+      "name": "Waveshare E-Paper Display",
+      "url": "https://esphome.io/components/display/waveshare_epaper/",
+      "source": "display/waveshare_epaper.mdx"
+    },
+    {
+      "name": "Atlas Scientific Peristaltic Pump",
+      "url": "https://esphome.io/components/ezo_pmp/",
+      "source": "ezo_pmp.mdx"
+    },
+    {
+      "name": "Grove TB6612FNG Motor Drive",
+      "url": "https://esphome.io/components/grove_tb6612fng/",
+      "source": "grove_tb6612fng.mdx"
+    },
+    {
+      "name": "RTTTL Buzzer",
+      "url": "https://esphome.io/components/rtttl/",
+      "source": "rtttl.mdx"
+    },
+    {
+      "name": "Servo Component",
+      "url": "https://esphome.io/components/servo/",
+      "source": "servo.mdx"
+    },
+    {
+      "name": "Power Supply Component",
+      "url": "https://esphome.io/components/power_supply/",
+      "source": "power_supply.mdx"
+    },
+    {
+      "name": "SML (Smart Message Language)",
+      "url": "https://esphome.io/components/sml/",
+      "source": "sml.mdx"
+    },
+    {
+      "name": "SUN_GTIL2 Grid Tie Inverter",
+      "url": "https://esphome.io/components/sun_gtil2/",
+      "source": "sun_gtil2.mdx"
+    },
+    {
+      "name": "Copy Component",
+      "url": "https://esphome.io/components/copy/",
+      "source": "copy.mdx"
+    },
+    {
+      "name": "Demo Component",
+      "url": "https://esphome.io/components/demo/",
+      "source": "demo.mdx"
+    },
+    {
+      "name": "Improv via Serial",
+      "url": "https://esphome.io/components/improv_serial/",
+      "source": "improv_serial.mdx"
+    },
+    {
+      "name": "json Component",
+      "url": "https://esphome.io/components/json/",
+      "source": "json.mdx"
+    },
+    {
+      "name": "Mapping Component",
+      "url": "https://esphome.io/components/mapping/",
+      "source": "mapping.mdx"
+    },
+    {
+      "name": "Provisioning",
+      "url": "https://esphome.io/components/provisioning/",
+      "source": "provisioning.mdx"
+    },
+    {
+      "name": "Packages",
+      "url": "https://esphome.io/components/packages/",
+      "source": "packages.mdx"
+    },
+    {
+      "name": "Substitutions",
+      "url": "https://esphome.io/components/substitutions/",
+      "source": "substitutions.mdx"
+    },
+    {
+      "name": "Event Component",
+      "url": "https://esphome.io/components/event/",
+      "source": "event/index.mdx"
+    },
+    {
+      "name": "Template Event",
+      "url": "https://esphome.io/components/event/template/",
+      "source": "event/template.mdx"
+    },
+    {
+      "name": "UART Event",
+      "url": "https://esphome.io/components/event/uart/",
+      "source": "event/uart.mdx"
+    },
+    {
+      "name": "Binary Fan",
+      "url": "https://esphome.io/components/fan/binary/",
+      "source": "fan/binary.mdx"
+    },
+    {
+      "name": "Fan Component",
+      "url": "https://esphome.io/components/fan/",
+      "source": "fan/index.mdx"
+    },
+    {
+      "name": "H-bridge Fan",
+      "url": "https://esphome.io/components/fan/hbridge/",
+      "source": "fan/hbridge.mdx"
+    },
+    {
+      "name": "Speed Fan",
+      "url": "https://esphome.io/components/fan/speed/",
+      "source": "fan/speed.mdx"
+    },
+    {
+      "name": "Template Fan",
+      "url": "https://esphome.io/components/fan/template/",
+      "source": "fan/template.mdx"
+    },
+    {
+      "name": "Tuya Fan",
+      "url": "https://esphome.io/components/fan/tuya/",
+      "source": "fan/tuya.mdx"
+    },
+    {
+      "name": "I²C Bus",
+      "url": "https://esphome.io/components/i2c/",
+      "source": "i2c.mdx"
+    },
+    {
+      "name": "I²S Audio Component",
+      "url": "https://esphome.io/components/i2s_audio/",
+      "source": "i2s_audio.mdx"
+    },
+    {
+      "name": "OpenTherm",
+      "url": "https://esphome.io/components/opentherm/",
+      "source": "opentherm.mdx"
+    },
+    {
+      "name": "SPI Bus",
+      "url": "https://esphome.io/components/spi/",
+      "source": "spi.mdx"
+    },
+    {
+      "name": "TinyUSB",
+      "url": "https://esphome.io/components/tinyusb/",
+      "source": "tinyusb.mdx"
+    },
+    {
+      "name": "UART Bus",
+      "url": "https://esphome.io/components/uart/",
+      "source": "uart.mdx"
+    },
+    {
+      "name": "USB CDC-ACM Interface",
+      "url": "https://esphome.io/components/usb_cdc_acm/",
+      "source": "usb_cdc_acm.mdx"
+    },
+    {
+      "name": "USB Host Interface",
+      "url": "https://esphome.io/components/usb_host/",
+      "source": "usb_host.mdx"
+    },
+    {
+      "name": "USB Host UART Interface",
+      "url": "https://esphome.io/components/usb_uart/",
+      "source": "usb_uart.mdx"
+    },
+    {
+      "name": "Micro Wake Word",
+      "url": "https://esphome.io/components/micro_wake_word/",
+      "source": "micro_wake_word.mdx"
+    },
+    {
+      "name": "Voice Assistant",
+      "url": "https://esphome.io/components/voice_assistant/",
+      "source": "voice_assistant.mdx"
+    },
+    {
+      "name": "CH422G I/O Expander",
+      "url": "https://esphome.io/components/ch422g/",
+      "source": "ch422g.mdx"
+    },
+    {
+      "name": "CH423 I/O Expander",
+      "url": "https://esphome.io/components/ch423/",
+      "source": "ch423.mdx"
+    },
+    {
+      "name": "MAX6956 I/O Expander",
+      "url": "https://esphome.io/components/max6956/",
+      "source": "max6956.mdx"
+    },
+    {
+      "name": "MCP230xx I/O Expander",
+      "url": "https://esphome.io/components/mcp230xx/",
+      "source": "mcp230xx.mdx"
+    },
+    {
+      "name": "MCP23Sxx I/O Expander",
+      "url": "https://esphome.io/components/mcp23Sxx/",
+      "source": "mcp23Sxx.mdx"
+    },
+    {
+      "name": "PCA6416A I/O Expander",
+      "url": "https://esphome.io/components/pca6416a/",
+      "source": "pca6416a.mdx"
+    },
+    {
+      "name": "PCA9554 I/O Expander",
+      "url": "https://esphome.io/components/pca9554/",
+      "source": "pca9554.mdx"
+    },
+    {
+      "name": "PCF8574 I/O Expander",
+      "url": "https://esphome.io/components/pcf8574/",
+      "source": "pcf8574.mdx"
+    },
+    {
+      "name": "PI4IOE5V6408 8-Bit I2C I/O Expander",
+      "url": "https://esphome.io/components/pi4ioe5v6408/",
+      "source": "pi4ioe5v6408.mdx"
+    },
+    {
+      "name": "SN74HC165 I/O Expander (shift register)",
+      "url": "https://esphome.io/components/sn74hc165/",
+      "source": "sn74hc165.mdx"
+    },
+    {
+      "name": "SN74HC595 I/O Expander (shift register)",
+      "url": "https://esphome.io/components/sn74hc595/",
+      "source": "sn74hc595.mdx"
+    },
+    {
+      "name": "SX1509 16 channel I/O Expander with LED driver and keypad engine",
+      "url": "https://esphome.io/components/sx1509/",
+      "source": "sx1509.mdx"
+    },
+    {
+      "name": "TCA9548A I²C Multiplexer",
+      "url": "https://esphome.io/components/tca9548a/",
+      "source": "tca9548a.mdx"
+    },
+    {
+      "name": "TCA9555 I/O Expander",
+      "url": "https://esphome.io/components/tca9555/",
+      "source": "tca9555.mdx"
+    },
+    {
+      "name": "Waveshare CH32V003 I/O Expander",
+      "url": "https://esphome.io/components/waveshare_io_ch32v003/",
+      "source": "waveshare_io_ch32v003.mdx"
+    },
+    {
+      "name": "WeiKai SPI/I²C UART/IO Expander",
+      "url": "https://esphome.io/components/weikai/",
+      "source": "weikai.mdx"
+    },
+    {
+      "name": "XL9535 I/O Expander",
+      "url": "https://esphome.io/components/xl9535/",
+      "source": "xl9535.mdx"
+    },
+    {
+      "name": "Animation",
+      "url": "https://esphome.io/components/image/animation/",
+      "source": "image/animation.mdx"
+    },
+    {
+      "name": "File",
+      "url": "https://esphome.io/components/image/file/",
+      "source": "image/file.mdx"
+    },
+    {
+      "name": "Images",
+      "url": "https://esphome.io/components/image/",
+      "source": "image/index.mdx"
+    },
+    {
+      "name": "Online Image Component",
+      "url": "https://esphome.io/components/image/online_image/",
+      "source": "image/online_image.mdx"
+    },
+    {
+      "name": "Infrared Component",
+      "url": "https://esphome.io/components/infrared/",
+      "source": "infrared/index.mdx"
+    },
+    {
+      "name": "IR/RF Proxy",
+      "url": "https://esphome.io/components/ir_rf_proxy/",
+      "source": "ir_rf_proxy.mdx"
+    },
+    {
+      "name": "LightWaveRF",
+      "url": "https://esphome.io/components/lightwaverf/",
+      "source": "lightwaverf.mdx"
+    },
+    {
+      "name": "Beken SPI LED Strip",
+      "url": "https://esphome.io/components/light/beken_spi_led_strip/",
+      "source": "light/beken_spi_led_strip.mdx"
+    },
+    {
+      "name": "Binary Light",
+      "url": "https://esphome.io/components/light/binary/",
+      "source": "light/binary.mdx"
+    },
+    {
+      "name": "Cold White + Warm White Light",
+      "url": "https://esphome.io/components/light/cwww/",
+      "source": "light/cwww.mdx"
+    },
+    {
+      "name": "Color Temperature Light",
+      "url": "https://esphome.io/components/light/color_temperature/",
+      "source": "light/color_temperature.mdx"
+    },
+    {
+      "name": "ESP32 RMT LED Strip",
+      "url": "https://esphome.io/components/light/esp32_rmt_led_strip/",
+      "source": "light/esp32_rmt_led_strip.mdx"
+    },
+    {
+      "name": "FastLED Light",
+      "url": "https://esphome.io/components/light/fastled/",
+      "source": "light/fastled.mdx"
+    },
+    {
+      "name": "H-bridge Light",
+      "url": "https://esphome.io/components/light/hbridge/",
+      "source": "light/hbridge.mdx"
+    },
+    {
+      "name": "Light Component",
+      "url": "https://esphome.io/components/light/",
+      "source": "light/index.mdx"
+    },
+    {
+      "name": "Light Partition",
+      "url": "https://esphome.io/components/light/partition/",
+      "source": "light/partition.mdx"
+    },
+    {
+      "name": "LVGL Light",
+      "url": "https://esphome.io/components/light/lvgl/",
+      "source": "light/lvgl.mdx"
+    },
+    {
+      "name": "Monochromatic Light",
+      "url": "https://esphome.io/components/light/monochromatic/",
+      "source": "light/monochromatic.mdx"
+    },
+    {
+      "name": "NeoPixelBus Light",
+      "url": "https://esphome.io/components/light/neopixelbus/",
+      "source": "light/neopixelbus.mdx"
+    },
+    {
+      "name": "Pixoo Brightness",
+      "url": "https://esphome.io/components/light/pixoo/",
+      "source": "light/pixoo.mdx"
+    },
+    {
+      "name": "RGB Light",
+      "url": "https://esphome.io/components/light/rgb/",
+      "source": "light/rgb.mdx"
+    },
+    {
+      "name": "RGBCT Light",
+      "url": "https://esphome.io/components/light/rgbct/",
+      "source": "light/rgbct.mdx"
+    },
+    {
+      "name": "RGBW Light",
+      "url": "https://esphome.io/components/light/rgbw/",
+      "source": "light/rgbw.mdx"
+    },
+    {
+      "name": "RGBWW Light",
+      "url": "https://esphome.io/components/light/rgbww/",
+      "source": "light/rgbww.mdx"
+    },
+    {
+      "name": "RP2040 PIO LED Strip",
+      "url": "https://esphome.io/components/light/rp2040_pio_led_strip/",
+      "source": "light/rp2040_pio_led_strip.mdx"
+    },
+    {
+      "name": "Shelly Dimmer",
+      "url": "https://esphome.io/components/light/shelly_dimmer/",
+      "source": "light/shelly_dimmer.mdx"
+    },
+    {
+      "name": "Sonoff D1 Dimmer",
+      "url": "https://esphome.io/components/light/sonoff_d1/",
+      "source": "light/sonoff_d1.mdx"
+    },
+    {
+      "name": "SPI LED Strip Light",
+      "url": "https://esphome.io/components/light/spi_led_strip/",
+      "source": "light/spi_led_strip.mdx"
+    },
+    {
+      "name": "Status LED Light",
+      "url": "https://esphome.io/components/light/status_led/",
+      "source": "light/status_led.mdx"
+    },
+    {
+      "name": "Tuya Dimmer",
+      "url": "https://esphome.io/components/light/tuya/",
+      "source": "light/tuya.mdx"
+    },
+    {
+      "name": "Generic Output Lock",
+      "url": "https://esphome.io/components/lock/output/",
+      "source": "lock/output.mdx"
+    },
+    {
+      "name": "Lock Component",
+      "url": "https://esphome.io/components/lock/",
+      "source": "lock/index.mdx"
+    },
+    {
+      "name": "Template Lock",
+      "url": "https://esphome.io/components/lock/template/",
+      "source": "lock/template.mdx"
+    },
+    {
+      "name": "LVGL Animations",
+      "url": "https://esphome.io/components/lvgl/animation/",
+      "source": "lvgl/animation.mdx"
+    },
+    {
+      "name": "LVGL Graphics",
+      "url": "https://esphome.io/components/lvgl/",
+      "source": "lvgl/index.mdx"
+    },
+    {
+      "name": "LVGL Layouts",
+      "url": "https://esphome.io/components/lvgl/layouts/",
+      "source": "lvgl/layouts.mdx"
+    },
+    {
+      "name": "LVGL Widgets",
+      "url": "https://esphome.io/components/lvgl/widgets/",
+      "source": "lvgl/widgets.mdx"
+    },
+    {
+      "name": "Debug Component",
+      "url": "https://esphome.io/components/debug/",
+      "source": "debug.mdx"
+    },
+    {
+      "name": "ESP32 Camera Web Server Component",
+      "url": "https://esphome.io/components/esp32_camera_web_server/",
+      "source": "esp32_camera_web_server.mdx"
+    },
+    {
+      "name": "Logger Component",
+      "url": "https://esphome.io/components/logger/",
+      "source": "logger.mdx"
+    },
+    {
+      "name": "Prometheus Component",
+      "url": "https://esphome.io/components/prometheus/",
+      "source": "prometheus.mdx"
+    },
+    {
+      "name": "Safe Mode",
+      "url": "https://esphome.io/components/safe_mode/",
+      "source": "safe_mode.mdx"
+    },
+    {
+      "name": "Syslog Component",
+      "url": "https://esphome.io/components/syslog/",
+      "source": "syslog.mdx"
+    },
+    {
+      "name": "Web Server Component",
+      "url": "https://esphome.io/components/web_server/",
+      "source": "web_server.mdx"
+    },
+    {
+      "name": "DF-Player mini",
+      "url": "https://esphome.io/components/dfplayer/",
+      "source": "dfplayer.mdx"
+    },
+    {
+      "name": "I²S Audio Media Player",
+      "url": "https://esphome.io/components/media_player/i2s_audio/",
+      "source": "media_player/i2s_audio.mdx"
+    },
+    {
+      "name": "Media Player Components",
+      "url": "https://esphome.io/components/media_player/",
+      "source": "media_player/index.mdx"
+    },
+    {
+      "name": "Sendspin Group Media Player",
+      "url": "https://esphome.io/components/media_player/sendspin/",
+      "source": "media_player/sendspin.mdx"
+    },
+    {
+      "name": "Speaker Audio Media Player",
+      "url": "https://esphome.io/components/media_player/speaker/",
+      "source": "media_player/speaker.mdx"
+    },
+    {
+      "name": "Speaker Source Media Player",
+      "url": "https://esphome.io/components/media_player/speaker_source/",
+      "source": "media_player/speaker_source.mdx"
+    },
+    {
+      "name": "Audio File Media Source",
+      "url": "https://esphome.io/components/media_source/audio_file/",
+      "source": "media_source/audio_file.mdx"
+    },
+    {
+      "name": "Audio HTTP Media Source",
+      "url": "https://esphome.io/components/media_source/audio_http/",
+      "source": "media_source/audio_http.mdx"
+    },
+    {
+      "name": "Media Source Components",
+      "url": "https://esphome.io/components/media_source/",
+      "source": "media_source/index.mdx"
+    },
+    {
+      "name": "Sendspin Media Source",
+      "url": "https://esphome.io/components/media_source/sendspin/",
+      "source": "media_source/sendspin.mdx"
+    },
+    {
+      "name": "I²S Audio Microphone",
+      "url": "https://esphome.io/components/microphone/i2s_audio/",
+      "source": "microphone/i2s_audio.mdx"
+    },
+    {
+      "name": "Microphone Components",
+      "url": "https://esphome.io/components/microphone/",
+      "source": "microphone/index.mdx"
+    },
+    {
+      "name": "Audio Codec Configuration",
+      "url": "https://esphome.io/components/audio/",
+      "source": "audio.mdx"
+    },
+    {
+      "name": "BLE Component",
+      "url": "https://esphome.io/components/esp32_ble/",
+      "source": "esp32_ble.mdx"
+    },
+    {
+      "name": "ESP32 Camera Component",
+      "url": "https://esphome.io/components/esp32_camera/",
+      "source": "esp32_camera.mdx"
+    },
+    {
+      "name": "Exposure Notification Listener",
+      "url": "https://esphome.io/components/exposure_notifications/",
+      "source": "exposure_notifications.mdx"
+    },
+    {
+      "name": "Generic I²C device component",
+      "url": "https://esphome.io/components/i2c_device/",
+      "source": "i2c_device.mdx"
+    },
+    {
+      "name": "GPS Component",
+      "url": "https://esphome.io/components/gps/",
+      "source": "gps.mdx"
+    },
+    {
+      "name": "Grow Fingerprint Reader",
+      "url": "https://esphome.io/components/fingerprint_grow/",
+      "source": "fingerprint_grow.mdx"
+    },
+    {
+      "name": "HLK-FM22x Face Recognition Module",
+      "url": "https://esphome.io/components/hlk_fm22x/",
+      "source": "hlk_fm22x.mdx"
+    },
+    {
+      "name": "Key collector component",
+      "url": "https://esphome.io/components/key_collector/",
+      "source": "key_collector.mdx"
+    },
+    {
+      "name": "Modbus Component",
+      "url": "https://esphome.io/components/modbus/",
+      "source": "modbus.mdx"
+    },
+    {
+      "name": "Modbus Controller",
+      "url": "https://esphome.io/components/modbus_controller/",
+      "source": "modbus_controller.mdx"
+    },
+    {
+      "name": "Modbus Server",
+      "url": "https://esphome.io/components/modbus_server/",
+      "source": "modbus_server.mdx"
+    },
+    {
+      "name": "Runtime Statistics",
+      "url": "https://esphome.io/components/runtime_stats/",
+      "source": "runtime_stats.mdx"
+    },
+    {
+      "name": "Sendspin",
+      "url": "https://esphome.io/components/sendspin/",
+      "source": "sendspin.mdx"
+    },
+    {
+      "name": "Sprinkler Controller",
+      "url": "https://esphome.io/components/sprinkler/",
+      "source": "sprinkler.mdx"
+    },
+    {
+      "name": "Status LED",
+      "url": "https://esphome.io/components/status_led/",
+      "source": "status_led.mdx"
+    },
+    {
+      "name": "Sun",
+      "url": "https://esphome.io/components/sun/",
+      "source": "sun.mdx"
+    },
+    {
+      "name": "Tuya MCU",
+      "url": "https://esphome.io/components/tuya/",
+      "source": "tuya.mdx"
+    },
+    {
+      "name": "Z-Wave Proxy",
+      "url": "https://esphome.io/components/zwave_proxy/",
+      "source": "zwave_proxy.mdx"
+    },
+    {
+      "name": "BMI270 Accelerometer/Gyroscope Sensor",
+      "url": "https://esphome.io/components/motion/bmi270/",
+      "source": "motion/bmi270.mdx"
+    },
+    {
+      "name": "LSM6DS Accelerometer/Gyroscope Sensor",
+      "url": "https://esphome.io/components/motion/lsm6ds/",
+      "source": "motion/lsm6ds.mdx"
+    },
+    {
+      "name": "Motion Component (IMU)",
+      "url": "https://esphome.io/components/motion/",
+      "source": "motion/index.mdx"
+    },
+    {
+      "name": "QMI8658 Accelerometer/Gyroscope Sensor",
+      "url": "https://esphome.io/components/motion/qmi8658/",
+      "source": "motion/qmi8658.mdx"
+    },
+    {
+      "name": "Zigbee Component",
+      "url": "https://esphome.io/components/zigbee/",
+      "source": "zigbee.mdx"
+    },
+    {
+      "name": "Serial Proxy",
+      "url": "https://esphome.io/components/serial_proxy/",
+      "source": "serial_proxy.mdx"
+    },
+    {
+      "name": "Home Assistant Number",
+      "url": "https://esphome.io/components/number/homeassistant/",
+      "source": "number/homeassistant.mdx"
+    },
+    {
+      "name": "LVGL Number",
+      "url": "https://esphome.io/components/number/lvgl/",
+      "source": "number/lvgl.mdx"
+    },
+    {
+      "name": "Modbus Controller Number",
+      "url": "https://esphome.io/components/number/modbus_controller/",
+      "source": "number/modbus_controller.mdx"
+    },
+    {
+      "name": "Number Component",
+      "url": "https://esphome.io/components/number/",
+      "source": "number/index.mdx"
+    },
+    {
+      "name": "Template Number",
+      "url": "https://esphome.io/components/number/template/",
+      "source": "number/template.mdx"
+    },
+    {
+      "name": "Tuya Number",
+      "url": "https://esphome.io/components/number/tuya/",
+      "source": "number/tuya.mdx"
+    },
+    {
+      "name": "ESPHome OTA Updates",
+      "url": "https://esphome.io/components/ota/esphome/",
+      "source": "ota/esphome.mdx"
+    },
+    {
+      "name": "nRF52 Firmware Updates",
+      "url": "https://esphome.io/components/ota/zephyr_mcumgr/",
+      "source": "ota/zephyr_mcumgr.mdx"
+    },
+    {
+      "name": "OTA Update via HTTP Request",
+      "url": "https://esphome.io/components/ota/http_request/",
+      "source": "ota/http_request.mdx"
+    },
+    {
+      "name": "Over-the-Air Updates",
+      "url": "https://esphome.io/components/ota/",
+      "source": "ota/index.mdx"
+    },
+    {
+      "name": "Web Server OTA Updates",
+      "url": "https://esphome.io/components/ota/web_server/",
+      "source": "ota/web_server.mdx"
+    },
+    {
+      "name": "AC Dimmer Component",
+      "url": "https://esphome.io/components/output/ac_dimmer/",
+      "source": "output/ac_dimmer.mdx"
+    },
+    {
+      "name": "BLE Client Binary Output",
+      "url": "https://esphome.io/components/output/ble_client/",
+      "source": "output/ble_client.mdx"
+    },
+    {
+      "name": "BP1658CJ LED driver",
+      "url": "https://esphome.io/components/output/bp1658cj/",
+      "source": "output/bp1658cj.mdx"
+    },
+    {
+      "name": "BP5758D LED driver",
+      "url": "https://esphome.io/components/output/bp5758d/",
+      "source": "output/bp5758d.mdx"
+    },
+    {
+      "name": "DAC7678",
+      "url": "https://esphome.io/components/output/dac7678/",
+      "source": "output/dac7678.mdx"
+    },
+    {
+      "name": "ESP32 DAC",
+      "url": "https://esphome.io/components/output/esp32_dac/",
+      "source": "output/esp32_dac.mdx"
+    },
+    {
+      "name": "ESP32 LEDC Output",
+      "url": "https://esphome.io/components/output/ledc/",
+      "source": "output/ledc.mdx"
+    },
+    {
+      "name": "ESP8266 Software PWM Output",
+      "url": "https://esphome.io/components/output/esp8266_pwm/",
+      "source": "output/esp8266_pwm.mdx"
+    },
+    {
+      "name": "GP8403 Component",
+      "url": "https://esphome.io/components/output/gp8403/",
+      "source": "output/gp8403.mdx"
+    },
+    {
+      "name": "GPIO Output",
+      "url": "https://esphome.io/components/output/gpio/",
+      "source": "output/gpio.mdx"
+    },
+    {
+      "name": "LibreTiny PWM Output",
+      "url": "https://esphome.io/components/output/libretiny_pwm/",
+      "source": "output/libretiny_pwm.mdx"
+    },
+    {
+      "name": "MCP4461 Component",
+      "url": "https://esphome.io/components/output/mcp4461/",
+      "source": "output/mcp4461.mdx"
+    },
+    {
+      "name": "MCP4725 Output",
+      "url": "https://esphome.io/components/output/mcp4725/",
+      "source": "output/mcp4725.mdx"
+    },
+    {
+      "name": "MCP4728 Component",
+      "url": "https://esphome.io/components/output/mcp4728/",
+      "source": "output/mcp4728.mdx"
+    },
+    {
+      "name": "MCP47A1 Output",
+      "url": "https://esphome.io/components/output/mcp47a1/",
+      "source": "output/mcp47a1.mdx"
+    },
+    {
+      "name": "Modbus Controller Output",
+      "url": "https://esphome.io/components/output/modbus_controller/",
+      "source": "output/modbus_controller.mdx"
+    },
+    {
+      "name": "MY9231/MY9291 LED driver",
+      "url": "https://esphome.io/components/output/my9231/",
+      "source": "output/my9231.mdx"
+    },
+    {
+      "name": "Output Component",
+      "url": "https://esphome.io/components/output/",
+      "source": "output/index.mdx"
+    },
+    {
+      "name": "PCA9685",
+      "url": "https://esphome.io/components/output/pca9685/",
+      "source": "output/pca9685.mdx"
+    },
+    {
+      "name": "Sigma-Delta Output",
+      "url": "https://esphome.io/components/output/sigma_delta_output/",
+      "source": "output/sigma_delta_output.mdx"
+    },
+    {
+      "name": "Slow PWM Output",
+      "url": "https://esphome.io/components/output/slow_pwm/",
+      "source": "output/slow_pwm.mdx"
+    },
+    {
+      "name": "SM16716 LED driver",
+      "url": "https://esphome.io/components/output/sm16716/",
+      "source": "output/sm16716.mdx"
+    },
+    {
+      "name": "SM2135 LED driver",
+      "url": "https://esphome.io/components/output/sm2135/",
+      "source": "output/sm2135.mdx"
+    },
+    {
+      "name": "SM2235 LED driver",
+      "url": "https://esphome.io/components/output/sm2235/",
+      "source": "output/sm2235.mdx"
+    },
+    {
+      "name": "SM2335 LED driver",
+      "url": "https://esphome.io/components/output/sm2335/",
+      "source": "output/sm2335.mdx"
+    },
+    {
+      "name": "Template Output",
+      "url": "https://esphome.io/components/output/template/",
+      "source": "output/template.mdx"
+    },
+    {
+      "name": "TLC59208F",
+      "url": "https://esphome.io/components/output/tlc59208f/",
+      "source": "output/tlc59208f.mdx"
+    },
+    {
+      "name": "TLC5947 LED driver",
+      "url": "https://esphome.io/components/output/tlc5947/",
+      "source": "output/tlc5947.mdx"
+    },
+    {
+      "name": "TLC5971 LED driver",
+      "url": "https://esphome.io/components/output/tlc5971/",
+      "source": "output/tlc5971.mdx"
+    },
+    {
+      "name": "X9C Potentiometer Output",
+      "url": "https://esphome.io/components/output/x9c/",
+      "source": "output/x9c.mdx"
+    },
+    {
+      "name": "ESP-NOW Packet Transport Platform",
+      "url": "https://esphome.io/components/packet_transport/espnow/",
+      "source": "packet_transport/espnow.mdx"
+    },
+    {
+      "name": "SX126x Packet Transport Platform",
+      "url": "https://esphome.io/components/packet_transport/sx126x/",
+      "source": "packet_transport/sx126x.mdx"
+    },
+    {
+      "name": "SX127x Packet Transport Platform",
+      "url": "https://esphome.io/components/packet_transport/sx127x/",
+      "source": "packet_transport/sx127x.mdx"
+    },
+    {
+      "name": "UART Packet Transport Platform",
+      "url": "https://esphome.io/components/packet_transport/uart/",
+      "source": "packet_transport/uart.mdx"
+    },
+    {
+      "name": "UDP Packet Transport Platform",
+      "url": "https://esphome.io/components/packet_transport/udp/",
+      "source": "packet_transport/udp.mdx"
+    },
+    {
+      "name": "Radio Frequency Component",
+      "url": "https://esphome.io/components/radio_frequency/",
+      "source": "radio_frequency/index.mdx"
+    },
+    {
+      "name": "Logger Select",
+      "url": "https://esphome.io/components/select/logger/",
+      "source": "select/logger.mdx"
+    },
+    {
+      "name": "LVGL Select",
+      "url": "https://esphome.io/components/select/lvgl/",
+      "source": "select/lvgl.mdx"
+    },
+    {
+      "name": "Modbus Controller Select",
+      "url": "https://esphome.io/components/select/modbus_controller/",
+      "source": "select/modbus_controller.mdx"
+    },
+    {
+      "name": "Select Component",
+      "url": "https://esphome.io/components/select/",
+      "source": "select/index.mdx"
+    },
+    {
+      "name": "Template Select",
+      "url": "https://esphome.io/components/select/template/",
+      "source": "select/template.mdx"
+    },
+    {
+      "name": "Tuya Select",
+      "url": "https://esphome.io/components/select/tuya/",
+      "source": "select/tuya.mdx"
+    },
+    {
+      "name": "EMC2101 Fan Controller and Temperature sensor",
+      "url": "https://esphome.io/components/emc2101/",
+      "source": "emc2101.mdx"
+    },
+    {
+      "name": "MicroNova based pellet stove",
+      "url": "https://esphome.io/components/micronova/",
+      "source": "micronova.mdx"
+    },
+    {
+      "name": "Seeed Studio MR24HPC1 mmWave (Kit)",
+      "url": "https://esphome.io/components/seeed_mr24hpc1/",
+      "source": "seeed_mr24hpc1.mdx"
+    },
+    {
+      "name": "Seeed Studio MR60BHA2 60GHz mmWave Breathing and Heartbeat Detection Sensor Kit",
+      "url": "https://esphome.io/components/seeed_mr60bha2/",
+      "source": "seeed_mr60bha2.mdx"
+    },
+    {
+      "name": "Seeed Studio MR60FDA2 60GHz mmWave Fall Detection Sensor Kit",
+      "url": "https://esphome.io/components/seeed_mr60fda2/",
+      "source": "seeed_mr60fda2.mdx"
+    },
+    {
+      "name": "UFM-01 Flow Meter",
+      "url": "https://esphome.io/components/ufm01/",
+      "source": "ufm01.mdx"
+    },
+    {
+      "name": "VBus Component",
+      "url": "https://esphome.io/components/vbus/",
+      "source": "vbus.mdx"
+    },
+    {
+      "name": "Calibrate Linear Filter",
+      "url": "https://esphome.io/components/sensor/filter/calibrate_linear/",
+      "source": "sensor/filter/calibrate_linear.mdx"
+    },
+    {
+      "name": "Calibrate Polynomial Filter",
+      "url": "https://esphome.io/components/sensor/filter/calibrate_polynomial/",
+      "source": "sensor/filter/calibrate_polynomial.mdx"
+    },
+    {
+      "name": "Clamp Filter",
+      "url": "https://esphome.io/components/sensor/filter/clamp/",
+      "source": "sensor/filter/clamp.mdx"
+    },
+    {
+      "name": "Debounce Filter",
+      "url": "https://esphome.io/components/sensor/filter/debounce/",
+      "source": "sensor/filter/debounce.mdx"
+    },
+    {
+      "name": "Delta Filter",
+      "url": "https://esphome.io/components/sensor/filter/delta/",
+      "source": "sensor/filter/delta.mdx"
+    },
+    {
+      "name": "Exponential Moving Average Filter",
+      "url": "https://esphome.io/components/sensor/filter/exponential_moving_average/",
+      "source": "sensor/filter/exponential_moving_average.mdx"
+    },
+    {
+      "name": "Filter Out Filter",
+      "url": "https://esphome.io/components/sensor/filter/filter_out/",
+      "source": "sensor/filter/filter_out.mdx"
+    },
+    {
+      "name": "Heartbeat Filter",
+      "url": "https://esphome.io/components/sensor/filter/heartbeat/",
+      "source": "sensor/filter/heartbeat.mdx"
+    },
+    {
+      "name": "Lambda Filter",
+      "url": "https://esphome.io/components/sensor/filter/lambda/",
+      "source": "sensor/filter/lambda.mdx"
+    },
+    {
+      "name": "Max Filter",
+      "url": "https://esphome.io/components/sensor/filter/max/",
+      "source": "sensor/filter/max.mdx"
+    },
+    {
+      "name": "Median Filter",
+      "url": "https://esphome.io/components/sensor/filter/median/",
+      "source": "sensor/filter/median.mdx"
+    },
+    {
+      "name": "Min Filter",
+      "url": "https://esphome.io/components/sensor/filter/min/",
+      "source": "sensor/filter/min.mdx"
+    },
+    {
+      "name": "Multiply Filter",
+      "url": "https://esphome.io/components/sensor/filter/multiply/",
+      "source": "sensor/filter/multiply.mdx"
+    },
+    {
+      "name": "Offset Filter",
+      "url": "https://esphome.io/components/sensor/filter/offset/",
+      "source": "sensor/filter/offset.mdx"
+    },
+    {
+      "name": "Or Filter",
+      "url": "https://esphome.io/components/sensor/filter/or/",
+      "source": "sensor/filter/or.mdx"
+    },
+    {
+      "name": "Quantile Filter",
+      "url": "https://esphome.io/components/sensor/filter/quantile/",
+      "source": "sensor/filter/quantile.mdx"
+    },
+    {
+      "name": "Round Filter",
+      "url": "https://esphome.io/components/sensor/filter/round/",
+      "source": "sensor/filter/round.mdx"
+    },
+    {
+      "name": "Round To Multiple Of Filter",
+      "url": "https://esphome.io/components/sensor/filter/round_to_multiple_of/",
+      "source": "sensor/filter/round_to_multiple_of.mdx"
+    },
+    {
+      "name": "Round to Significant Digits Filter",
+      "url": "https://esphome.io/components/sensor/filter/round_to_significant_digits/",
+      "source": "sensor/filter/round_to_significant_digits.mdx"
+    },
+    {
+      "name": "Skip Initial Filter",
+      "url": "https://esphome.io/components/sensor/filter/skip_initial/",
+      "source": "sensor/filter/skip_initial.mdx"
+    },
+    {
+      "name": "Sliding Window Moving Average Filter",
+      "url": "https://esphome.io/components/sensor/filter/sliding_window_moving_average/",
+      "source": "sensor/filter/sliding_window_moving_average.mdx"
+    },
+    {
+      "name": "Throttle Average Filter",
+      "url": "https://esphome.io/components/sensor/filter/throttle_average/",
+      "source": "sensor/filter/throttle_average.mdx"
+    },
+    {
+      "name": "Throttle Filter",
+      "url": "https://esphome.io/components/sensor/filter/throttle/",
+      "source": "sensor/filter/throttle.mdx"
+    },
+    {
+      "name": "Throttle With Priority Filter",
+      "url": "https://esphome.io/components/sensor/filter/throttle_with_priority/",
+      "source": "sensor/filter/throttle_with_priority.mdx"
+    },
+    {
+      "name": "Timeout Filter",
+      "url": "https://esphome.io/components/sensor/filter/timeout/",
+      "source": "sensor/filter/timeout.mdx"
+    },
+    {
+      "name": "To Ntc Resistance Filter",
+      "url": "https://esphome.io/components/sensor/filter/to_ntc_resistance/",
+      "source": "sensor/filter/to_ntc_resistance.mdx"
+    },
+    {
+      "name": "To Ntc Temperature Filter",
+      "url": "https://esphome.io/components/sensor/filter/to_ntc_temperature/",
+      "source": "sensor/filter/to_ntc_temperature.mdx"
+    },
+    {
+      "name": "A01NYUB Waterproof Ultrasonic Sensor",
+      "url": "https://esphome.io/components/sensor/a01nyub/",
+      "source": "sensor/a01nyub.mdx"
+    },
+    {
+      "name": "A02YYUW Waterproof Ultrasonic Sensor",
+      "url": "https://esphome.io/components/sensor/a02yyuw/",
+      "source": "sensor/a02yyuw.mdx"
+    },
+    {
+      "name": "Absolute Humidity",
+      "url": "https://esphome.io/components/sensor/absolute_humidity/",
+      "source": "sensor/absolute_humidity.mdx"
+    },
+    {
+      "name": "ADC128S102 8-Channel 12-Bit A/D Converter",
+      "url": "https://esphome.io/components/sensor/adc128s102/",
+      "source": "sensor/adc128s102.mdx"
+    },
+    {
+      "name": "ADE7880 Power Sensor",
+      "url": "https://esphome.io/components/sensor/ade7880/",
+      "source": "sensor/ade7880.mdx"
+    },
+    {
+      "name": "ADE7953 Power Sensor",
+      "url": "https://esphome.io/components/sensor/ade7953/",
+      "source": "sensor/ade7953.mdx"
+    },
+    {
+      "name": "ADS1115 4-Channel 16-Bit A/D Converter",
+      "url": "https://esphome.io/components/sensor/ads1115/",
+      "source": "sensor/ads1115.mdx"
+    },
+    {
+      "name": "ADS1118 4-Channel 16-Bit A/D Converter with Internal Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/ads1118/",
+      "source": "sensor/ads1118.mdx"
+    },
+    {
+      "name": "AGS10 Volatile Organic Compound (VOC) Sensor",
+      "url": "https://esphome.io/components/sensor/ags10/",
+      "source": "sensor/ags10.mdx"
+    },
+    {
+      "name": "AHT10 Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/aht10/",
+      "source": "sensor/aht10.mdx"
+    },
+    {
+      "name": "Air Quality Index (AQI)",
+      "url": "https://esphome.io/components/sensor/aqi/",
+      "source": "sensor/aqi.mdx"
+    },
+    {
+      "name": "AirThings BLE Sensors",
+      "url": "https://esphome.io/components/sensor/airthings_ble/",
+      "source": "sensor/airthings_ble.mdx"
+    },
+    {
+      "name": "AM2315C Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/am2315c/",
+      "source": "sensor/am2315c.mdx"
+    },
+    {
+      "name": "AM2320 Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/am2320/",
+      "source": "sensor/am2320.mdx"
+    },
+    {
+      "name": "AM43 Sensor",
+      "url": "https://esphome.io/components/sensor/am43/",
+      "source": "sensor/am43.mdx"
+    },
+    {
+      "name": "AMS AS3935 Franklin Lightning Sensor",
+      "url": "https://esphome.io/components/sensor/as3935/",
+      "source": "sensor/as3935.mdx"
+    },
+    {
+      "name": "AMS iAQ-Core Indoor Air Quality Sensor",
+      "url": "https://esphome.io/components/sensor/iaqcore/",
+      "source": "sensor/iaqcore.mdx"
+    },
+    {
+      "name": "Analog Devices MAX17043 battery fuel gauge",
+      "url": "https://esphome.io/components/sensor/max17043/",
+      "source": "sensor/max17043.mdx"
+    },
+    {
+      "name": "Analog To Digital Sensor",
+      "url": "https://esphome.io/components/sensor/adc/",
+      "source": "sensor/adc.mdx"
+    },
+    {
+      "name": "APDS9306 Sensor",
+      "url": "https://esphome.io/components/sensor/apds9306/",
+      "source": "sensor/apds9306.mdx"
+    },
+    {
+      "name": "APDS9960 Sensor",
+      "url": "https://esphome.io/components/sensor/apds9960/",
+      "source": "sensor/apds9960.mdx"
+    },
+    {
+      "name": "AS5600 12-Bit Magnetic Position Sensor",
+      "url": "https://esphome.io/components/sensor/as5600/",
+      "source": "sensor/as5600.mdx"
+    },
+    {
+      "name": "AS7341 Spectral Color Sensor",
+      "url": "https://esphome.io/components/sensor/as7341/",
+      "source": "sensor/as7341.mdx"
+    },
+    {
+      "name": "ATM90E26 Power Sensor",
+      "url": "https://esphome.io/components/sensor/atm90e26/",
+      "source": "sensor/atm90e26.mdx"
+    },
+    {
+      "name": "ATM90E32 Power Sensor",
+      "url": "https://esphome.io/components/sensor/atm90e32/",
+      "source": "sensor/atm90e32.mdx"
+    },
+    {
+      "name": "b-parasite",
+      "url": "https://esphome.io/components/sensor/b_parasite/",
+      "source": "sensor/b_parasite.mdx"
+    },
+    {
+      "name": "Belling BL0906 Energy Monitor",
+      "url": "https://esphome.io/components/sensor/bl0906/",
+      "source": "sensor/bl0906.mdx"
+    },
+    {
+      "name": "Belling BL0940 Energy Monitor",
+      "url": "https://esphome.io/components/sensor/bl0940/",
+      "source": "sensor/bl0940.mdx"
+    },
+    {
+      "name": "Belling BL0942 Energy Monitor",
+      "url": "https://esphome.io/components/sensor/bl0942/",
+      "source": "sensor/bl0942.mdx"
+    },
+    {
+      "name": "BH1750 Ambient Light Sensor",
+      "url": "https://esphome.io/components/sensor/bh1750/",
+      "source": "sensor/bh1750.mdx"
+    },
+    {
+      "name": "BH1900NUX Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/bh1900nux/",
+      "source": "sensor/bh1900nux.mdx"
+    },
+    {
+      "name": "Binary Sensor Map",
+      "url": "https://esphome.io/components/sensor/binary_sensor_map/",
+      "source": "sensor/binary_sensor_map.mdx"
+    },
+    {
+      "name": "BL0939 Power Sensor",
+      "url": "https://esphome.io/components/sensor/bl0939/",
+      "source": "sensor/bl0939.mdx"
+    },
+    {
+      "name": "BLE Client Sensor",
+      "url": "https://esphome.io/components/sensor/ble_client/",
+      "source": "sensor/ble_client.mdx"
+    },
+    {
+      "name": "BME280 Temperature+Pressure+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/bme280/",
+      "source": "sensor/bme280.mdx"
+    },
+    {
+      "name": "BME680 Temperature+Pressure+Humidity+Gas Sensor",
+      "url": "https://esphome.io/components/sensor/bme680/",
+      "source": "sensor/bme680.mdx"
+    },
+    {
+      "name": "BME680 Temperature+Pressure+Humidity+Gas Sensor via BSEC",
+      "url": "https://esphome.io/components/sensor/bme680_bsec/",
+      "source": "sensor/bme680_bsec.mdx"
+    },
+    {
+      "name": "BME68x Temperature, Humidity, Pressure & Gas Sensor via BSEC2",
+      "url": "https://esphome.io/components/sensor/bme68x_bsec2/",
+      "source": "sensor/bme68x_bsec2.mdx"
+    },
+    {
+      "name": "BMI160 Accelerometer/Gyroscope Sensor",
+      "url": "https://esphome.io/components/sensor/bmi160/",
+      "source": "sensor/bmi160.mdx"
+    },
+    {
+      "name": "BMI270 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/bmi270/",
+      "source": "sensor/bmi270.mdx"
+    },
+    {
+      "name": "BMP085 Temperature+Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/bmp085/",
+      "source": "sensor/bmp085.mdx"
+    },
+    {
+      "name": "BMP280 Temperature+Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/bmp280/",
+      "source": "sensor/bmp280.mdx"
+    },
+    {
+      "name": "BMP388 / BMP390 Temperature+Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/bmp3xx/",
+      "source": "sensor/bmp3xx.mdx"
+    },
+    {
+      "name": "BMP581 Temperature+Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/bmp581/",
+      "source": "sensor/bmp581.mdx"
+    },
+    {
+      "name": "CCS811 eCO_2 and Volatile Organic Compound Sensor",
+      "url": "https://esphome.io/components/sensor/ccs811/",
+      "source": "sensor/ccs811.mdx"
+    },
+    {
+      "name": "cd74hc4067 Analog Multiplexer",
+      "url": "https://esphome.io/components/sensor/cd74hc4067/",
+      "source": "sensor/cd74hc4067.mdx"
+    },
+    {
+      "name": "CFSensor XGZP68xx Non-C Series Differential Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/xgzp68xx/",
+      "source": "sensor/xgzp68xx.mdx"
+    },
+    {
+      "name": "Combine the state of several sensors",
+      "url": "https://esphome.io/components/sensor/combination/",
+      "source": "sensor/combination.mdx"
+    },
+    {
+      "name": "CS5460A Power Sensor",
+      "url": "https://esphome.io/components/sensor/cs5460a/",
+      "source": "sensor/cs5460a.mdx"
+    },
+    {
+      "name": "CSE7761 Power Sensor",
+      "url": "https://esphome.io/components/sensor/cse7761/",
+      "source": "sensor/cse7761.mdx"
+    },
+    {
+      "name": "CSE7766 Power Sensor",
+      "url": "https://esphome.io/components/sensor/cse7766/",
+      "source": "sensor/cse7766.mdx"
+    },
+    {
+      "name": "CT Clamp Current Sensor",
+      "url": "https://esphome.io/components/sensor/ct_clamp/",
+      "source": "sensor/ct_clamp.mdx"
+    },
+    {
+      "name": "CUBIC CM1106 Single Beam NDIR CO2 Sensor Module",
+      "url": "https://esphome.io/components/sensor/cm1106/",
+      "source": "sensor/cm1106.mdx"
+    },
+    {
+      "name": "CUBIC PM2005/PM2105 Laser Particle Sensor Module",
+      "url": "https://esphome.io/components/sensor/pm2005/",
+      "source": "sensor/pm2005.mdx"
+    },
+    {
+      "name": "Dallas Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/dallas_temp/",
+      "source": "sensor/dallas_temp.mdx"
+    },
+    {
+      "name": "Daly BMS Sensor",
+      "url": "https://esphome.io/components/sensor/daly_bms/",
+      "source": "sensor/daly_bms.mdx"
+    },
+    {
+      "name": "Dew Point",
+      "url": "https://esphome.io/components/sensor/dew_point/",
+      "source": "sensor/dew_point.mdx"
+    },
+    {
+      "name": "DHT Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/dht/",
+      "source": "sensor/dht.mdx"
+    },
+    {
+      "name": "DHT12 Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/dht12/",
+      "source": "sensor/dht12.mdx"
+    },
+    {
+      "name": "DLMS Meter",
+      "url": "https://esphome.io/components/sensor/dlms_meter/",
+      "source": "sensor/dlms_meter.mdx"
+    },
+    {
+      "name": "DPS310/DPS368 Atmospheric Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/dps310/",
+      "source": "sensor/dps310.mdx"
+    },
+    {
+      "name": "DSMR Component",
+      "url": "https://esphome.io/components/sensor/dsmr/",
+      "source": "sensor/dsmr.mdx"
+    },
+    {
+      "name": "Duty Cycle Sensor",
+      "url": "https://esphome.io/components/sensor/duty_cycle/",
+      "source": "sensor/duty_cycle.mdx"
+    },
+    {
+      "name": "Duty Time",
+      "url": "https://esphome.io/components/sensor/duty_time/",
+      "source": "sensor/duty_time.mdx"
+    },
+    {
+      "name": "Eastron SDM Energy Monitor",
+      "url": "https://esphome.io/components/sensor/sdm_meter/",
+      "source": "sensor/sdm_meter.mdx"
+    },
+    {
+      "name": "EE895 CO₂, Temperature and Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/ee895/",
+      "source": "sensor/ee895.mdx"
+    },
+    {
+      "name": "ENS160 Volatile Organic Compound (VOC) and eCO₂ Sensor",
+      "url": "https://esphome.io/components/sensor/ens160/",
+      "source": "sensor/ens160.mdx"
+    },
+    {
+      "name": "ENS210 Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/ens210/",
+      "source": "sensor/ens210.mdx"
+    },
+    {
+      "name": "ESP32 Bluetooth Low Energy RSSI Sensor",
+      "url": "https://esphome.io/components/sensor/ble_rssi/",
+      "source": "sensor/ble_rssi.mdx"
+    },
+    {
+      "name": "EZO sensor circuits",
+      "url": "https://esphome.io/components/sensor/ezo/",
+      "source": "sensor/ezo.mdx"
+    },
+    {
+      "name": "FS3000 Air Velocity Sensor",
+      "url": "https://esphome.io/components/sensor/fs3000/",
+      "source": "sensor/fs3000.mdx"
+    },
+    {
+      "name": "FTLab GDK101 Gamma Radiation Sensor Module",
+      "url": "https://esphome.io/components/sensor/gdk101/",
+      "source": "sensor/gdk101.mdx"
+    },
+    {
+      "name": "GL-R01 I²C - Time Of Flight Mini LiDAR Laser Ranging Sensor",
+      "url": "https://esphome.io/components/sensor/gl_r01/",
+      "source": "sensor/gl_r01.mdx"
+    },
+    {
+      "name": "Grove Multichannel Gas Sensor V2",
+      "url": "https://esphome.io/components/sensor/grove_gas_mc_v2/",
+      "source": "sensor/grove_gas_mc_v2.mdx"
+    },
+    {
+      "name": "Growatt Solar",
+      "url": "https://esphome.io/components/sensor/growatt_solar/",
+      "source": "sensor/growatt_solar.mdx"
+    },
+    {
+      "name": "Grundfos Alpha3",
+      "url": "https://esphome.io/components/sensor/alpha3/",
+      "source": "sensor/alpha3.mdx"
+    },
+    {
+      "name": "Haier Climate Sensors",
+      "url": "https://esphome.io/components/sensor/haier/",
+      "source": "sensor/haier.mdx"
+    },
+    {
+      "name": "Havells Solar",
+      "url": "https://esphome.io/components/sensor/havells_solar/",
+      "source": "sensor/havells_solar.mdx"
+    },
+    {
+      "name": "HC8 CO₂ Sensor",
+      "url": "https://esphome.io/components/sensor/hc8/",
+      "source": "sensor/hc8.mdx"
+    },
+    {
+      "name": "HDC1080 Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/hdc1080/",
+      "source": "sensor/hdc1080.mdx"
+    },
+    {
+      "name": "HDC2010 High Precision Temperature and Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/hdc2010/",
+      "source": "sensor/hdc2010.mdx"
+    },
+    {
+      "name": "HDC2080 Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/hdc2080/",
+      "source": "sensor/hdc2080.mdx"
+    },
+    {
+      "name": "HDC302x Temperature and Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/hdc302x/",
+      "source": "sensor/hdc302x.mdx"
+    },
+    {
+      "name": "HHCCJCY10 Xiaomi MiFlora (Pink version)",
+      "url": "https://esphome.io/components/sensor/xiaomi_hhccjcy10/",
+      "source": "sensor/xiaomi_hhccjcy10.mdx"
+    },
+    {
+      "name": "HLW8012 Power Sensor",
+      "url": "https://esphome.io/components/sensor/hlw8012/",
+      "source": "sensor/hlw8012.mdx"
+    },
+    {
+      "name": "HLW8032 Power Sensor",
+      "url": "https://esphome.io/components/sensor/hlw8032/",
+      "source": "sensor/hlw8032.mdx"
+    },
+    {
+      "name": "HMC5883L Magnetometer",
+      "url": "https://esphome.io/components/sensor/hmc5883l/",
+      "source": "sensor/hmc5883l.mdx"
+    },
+    {
+      "name": "Home Assistant Sensor",
+      "url": "https://esphome.io/components/sensor/homeassistant/",
+      "source": "sensor/homeassistant.mdx"
+    },
+    {
+      "name": "Honeywell ABP 2 Pressure Sensors",
+      "url": "https://esphome.io/components/sensor/honeywellabp2_i2c/",
+      "source": "sensor/honeywellabp2_i2c.mdx"
+    },
+    {
+      "name": "Honeywell ABP Pressure Sensors",
+      "url": "https://esphome.io/components/sensor/honeywellabp/",
+      "source": "sensor/honeywellabp.mdx"
+    },
+    {
+      "name": "Honeywell HumidIcon (I2C HIH series) Temperature & Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/honeywell_hih_i2c/",
+      "source": "sensor/honeywell_hih_i2c.mdx"
+    },
+    {
+      "name": "HRXL/XL MaxSonar WR Series",
+      "url": "https://esphome.io/components/sensor/hrxl_maxsonar_wr/",
+      "source": "sensor/hrxl_maxsonar_wr.mdx"
+    },
+    {
+      "name": "HTE501 Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/hte501/",
+      "source": "sensor/hte501.mdx"
+    },
+    {
+      "name": "HTU21D | Si7021 | SHT21 Temperature & Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/htu21d/",
+      "source": "sensor/htu21d.mdx"
+    },
+    {
+      "name": "HTU31D Temperature & Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/htu31d/",
+      "source": "sensor/htu31d.mdx"
+    },
+    {
+      "name": "HX711 Load Cell Amplifier",
+      "url": "https://esphome.io/components/sensor/hx711/",
+      "source": "sensor/hx711.mdx"
+    },
+    {
+      "name": "Hydreon Rain Sensor",
+      "url": "https://esphome.io/components/sensor/hydreon_rgxx/",
+      "source": "sensor/hydreon_rgxx.mdx"
+    },
+    {
+      "name": "HYT271 Temperature & Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/hyt271/",
+      "source": "sensor/hyt271.mdx"
+    },
+    {
+      "name": "INA219 DC Current Sensor",
+      "url": "https://esphome.io/components/sensor/ina219/",
+      "source": "sensor/ina219.mdx"
+    },
+    {
+      "name": "INA226 DC current and power sensor",
+      "url": "https://esphome.io/components/sensor/ina226/",
+      "source": "sensor/ina226.mdx"
+    },
+    {
+      "name": "INA260 DC Current and Power sensor",
+      "url": "https://esphome.io/components/sensor/ina260/",
+      "source": "sensor/ina260.mdx"
+    },
+    {
+      "name": "INA2xx family of digital power monitors",
+      "url": "https://esphome.io/components/sensor/ina2xx/",
+      "source": "sensor/ina2xx.mdx"
+    },
+    {
+      "name": "INA3221 3-Channel DC Current Sensor",
+      "url": "https://esphome.io/components/sensor/ina3221/",
+      "source": "sensor/ina3221.mdx"
+    },
+    {
+      "name": "Inkbird IBS-TH1, IBS-TH1 Mini, and IBS-TH2 BLE Sensor",
+      "url": "https://esphome.io/components/sensor/inkbird_ibsth1_mini/",
+      "source": "sensor/inkbird_ibsth1_mini.mdx"
+    },
+    {
+      "name": "Integration Sensor",
+      "url": "https://esphome.io/components/sensor/integration/",
+      "source": "sensor/integration.mdx"
+    },
+    {
+      "name": "Internal Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/internal_temperature/",
+      "source": "sensor/internal_temperature.mdx"
+    },
+    {
+      "name": "JSN-SR04T Waterproof Ultrasonic Range Finder",
+      "url": "https://esphome.io/components/sensor/jsn_sr04t/",
+      "source": "sensor/jsn_sr04t.mdx"
+    },
+    {
+      "name": "Kamstrup Meter Protocol [KMP]",
+      "url": "https://esphome.io/components/sensor/kamstrup_kmp/",
+      "source": "sensor/kamstrup_kmp.mdx"
+    },
+    {
+      "name": "Kuntze pool monitor",
+      "url": "https://esphome.io/components/sensor/kuntze/",
+      "source": "sensor/kuntze.mdx"
+    },
+    {
+      "name": "LC709203F Battery Monitor",
+      "url": "https://esphome.io/components/sensor/lc709203f/",
+      "source": "sensor/lc709203f.mdx"
+    },
+    {
+      "name": "LD2410 Sensor",
+      "url": "https://esphome.io/components/sensor/ld2410/",
+      "source": "sensor/ld2410.mdx"
+    },
+    {
+      "name": "LD2412 Sensor",
+      "url": "https://esphome.io/components/sensor/ld2412/",
+      "source": "sensor/ld2412.mdx"
+    },
+    {
+      "name": "LD2420 24GHz mmWave Radar Sensor",
+      "url": "https://esphome.io/components/sensor/ld2420/",
+      "source": "sensor/ld2420.mdx"
+    },
+    {
+      "name": "LD2450 Sensor",
+      "url": "https://esphome.io/components/sensor/ld2450/",
+      "source": "sensor/ld2450.mdx"
+    },
+    {
+      "name": "Lite-On Ambient Light & Proximity Sensors",
+      "url": "https://esphome.io/components/sensor/ltr501/",
+      "source": "sensor/ltr501.mdx"
+    },
+    {
+      "name": "Lite-On Ambient Light & Proximity Sensors (Sensors)",
+      "url": "https://esphome.io/components/sensor/ltr_als_ps/",
+      "source": "sensor/ltr_als_ps.mdx"
+    },
+    {
+      "name": "LM75B Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/lm75b/",
+      "source": "sensor/lm75b.mdx"
+    },
+    {
+      "name": "LPS22 Barometric Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/lps22/",
+      "source": "sensor/lps22.mdx"
+    },
+    {
+      "name": "LSM6DS Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/lsm6ds/",
+      "source": "sensor/lsm6ds.mdx"
+    },
+    {
+      "name": "LTR390 UV and Ambient Light Sensor",
+      "url": "https://esphome.io/components/sensor/ltr390/",
+      "source": "sensor/ltr390.mdx"
+    },
+    {
+      "name": "LVGL Sensor",
+      "url": "https://esphome.io/components/sensor/lvgl/",
+      "source": "sensor/lvgl.mdx"
+    },
+    {
+      "name": "M5Stack KMeterISO I2C K-Type probe temperature sensor",
+      "url": "https://esphome.io/components/sensor/kmeteriso/",
+      "source": "sensor/kmeteriso.mdx"
+    },
+    {
+      "name": "M5Stack Unit 8 Angle",
+      "url": "https://esphome.io/components/sensor/m5stack_8angle/",
+      "source": "sensor/m5stack_8angle.mdx"
+    },
+    {
+      "name": "MAX31855 K-Type Thermocouple Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/max31855/",
+      "source": "sensor/max31855.mdx"
+    },
+    {
+      "name": "MAX31856 Thermocouple Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/max31856/",
+      "source": "sensor/max31856.mdx"
+    },
+    {
+      "name": "MAX31865 Platinum RTD Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/max31865/",
+      "source": "sensor/max31865.mdx"
+    },
+    {
+      "name": "MAX44009 Ambient Light Sensor",
+      "url": "https://esphome.io/components/sensor/max44009/",
+      "source": "sensor/max44009.mdx"
+    },
+    {
+      "name": "MAX6675 K-Type Thermocouple Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/max6675/",
+      "source": "sensor/max6675.mdx"
+    },
+    {
+      "name": "MAX9611/9612 High Side Current+Voltage+Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/max9611/",
+      "source": "sensor/max9611.mdx"
+    },
+    {
+      "name": "MCP3008 8-Channel 10-Bit A/D Converter",
+      "url": "https://esphome.io/components/sensor/mcp3008/",
+      "source": "sensor/mcp3008.mdx"
+    },
+    {
+      "name": "MCP3204 & MCP3208 12-Bit A/D Converters",
+      "url": "https://esphome.io/components/sensor/mcp3204/",
+      "source": "sensor/mcp3204.mdx"
+    },
+    {
+      "name": "MCP3221 12-bit ADC",
+      "url": "https://esphome.io/components/sensor/mcp3221/",
+      "source": "sensor/mcp3221.mdx"
+    },
+    {
+      "name": "MCP9600 Thermocouple Amplifier",
+      "url": "https://esphome.io/components/sensor/mcp9600/",
+      "source": "sensor/mcp9600.mdx"
+    },
+    {
+      "name": "MCP9808 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/mcp9808/",
+      "source": "sensor/mcp9808.mdx"
+    },
+    {
+      "name": "MH-Z19 CO_2 and Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/mhz19/",
+      "source": "sensor/mhz19.mdx"
+    },
+    {
+      "name": "MiCS 4514 Gas Sensor",
+      "url": "https://esphome.io/components/sensor/mics_4514/",
+      "source": "sensor/mics_4514.mdx"
+    },
+    {
+      "name": "MLX90393 Triple-axis Magnetometer",
+      "url": "https://esphome.io/components/sensor/mlx90393/",
+      "source": "sensor/mlx90393.mdx"
+    },
+    {
+      "name": "MLX90614  non-contact thermometer",
+      "url": "https://esphome.io/components/sensor/mlx90614/",
+      "source": "sensor/mlx90614.mdx"
+    },
+    {
+      "name": "MMC5603 Magnetometer",
+      "url": "https://esphome.io/components/sensor/mmc5603/",
+      "source": "sensor/mmc5603.mdx"
+    },
+    {
+      "name": "MMC5983 Magnetometer",
+      "url": "https://esphome.io/components/sensor/mmc5983/",
+      "source": "sensor/mmc5983.mdx"
+    },
+    {
+      "name": "Modbus Controller Sensor",
+      "url": "https://esphome.io/components/sensor/modbus_controller/",
+      "source": "sensor/modbus_controller.mdx"
+    },
+    {
+      "name": "Mopeka Pro Check BLE Sensor",
+      "url": "https://esphome.io/components/sensor/mopeka_pro_check/",
+      "source": "sensor/mopeka_pro_check.mdx"
+    },
+    {
+      "name": "Mopeka Standard Check BLE Sensor",
+      "url": "https://esphome.io/components/sensor/mopeka_std_check/",
+      "source": "sensor/mopeka_std_check.mdx"
+    },
+    {
+      "name": "Motion Sensor",
+      "url": "https://esphome.io/components/sensor/motion/",
+      "source": "sensor/motion.mdx"
+    },
+    {
+      "name": "MPL3115A2 Barometric Pressure/Altitude/Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/mpl3115a2/",
+      "source": "sensor/mpl3115a2.mdx"
+    },
+    {
+      "name": "MPU6050 Accelerometer/Gyroscope Sensor",
+      "url": "https://esphome.io/components/sensor/mpu6050/",
+      "source": "sensor/mpu6050.mdx"
+    },
+    {
+      "name": "MPU6886 Accelerometer/Gyroscope Sensor",
+      "url": "https://esphome.io/components/sensor/mpu6886/",
+      "source": "sensor/mpu6886.mdx"
+    },
+    {
+      "name": "MQTT Subscribe Sensor",
+      "url": "https://esphome.io/components/sensor/mqtt_subscribe/",
+      "source": "sensor/mqtt_subscribe.mdx"
+    },
+    {
+      "name": "MS5611 Atmospheric Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/ms5611/",
+      "source": "sensor/ms5611.mdx"
+    },
+    {
+      "name": "MS8607 Temperature+Pressure+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/ms8607/",
+      "source": "sensor/ms8607.mdx"
+    },
+    {
+      "name": "MSA301 and MSA311 Sensors",
+      "url": "https://esphome.io/components/sensor/msa3xx/",
+      "source": "sensor/msa3xx.mdx"
+    },
+    {
+      "name": "NAU7802 24-bit ADC",
+      "url": "https://esphome.io/components/sensor/nau7802/",
+      "source": "sensor/nau7802.mdx"
+    },
+    {
+      "name": "Nextion Sensor Component",
+      "url": "https://esphome.io/components/sensor/nextion/",
+      "source": "sensor/nextion.mdx"
+    },
+    {
+      "name": "NPI-19 Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/npi19/",
+      "source": "sensor/npi19.mdx"
+    },
+    {
+      "name": "NTC Sensor",
+      "url": "https://esphome.io/components/sensor/ntc/",
+      "source": "sensor/ntc.mdx"
+    },
+    {
+      "name": "Number Sensor",
+      "url": "https://esphome.io/components/sensor/number/",
+      "source": "sensor/number.mdx"
+    },
+    {
+      "name": "OpenEnergyMonitor EmonTx Sensors",
+      "url": "https://esphome.io/components/sensor/emontx/",
+      "source": "sensor/emontx.mdx"
+    },
+    {
+      "name": "OPT3001 Ambient Light Sensor",
+      "url": "https://esphome.io/components/sensor/opt3001/",
+      "source": "sensor/opt3001.mdx"
+    },
+    {
+      "name": "Packet Transport Sensor",
+      "url": "https://esphome.io/components/sensor/packet_transport/",
+      "source": "sensor/packet_transport.mdx"
+    },
+    {
+      "name": "Panasonic SN-GCJA5 Particulate Matter Sensor",
+      "url": "https://esphome.io/components/sensor/gcja5/",
+      "source": "sensor/gcja5.mdx"
+    },
+    {
+      "name": "Peacefair PZEM-004T Energy Monitor",
+      "url": "https://esphome.io/components/sensor/pzem004t/",
+      "source": "sensor/pzem004t.mdx"
+    },
+    {
+      "name": "Peacefair PZEM-004T V3 Energy Monitor",
+      "url": "https://esphome.io/components/sensor/pzemac/",
+      "source": "sensor/pzemac.mdx"
+    },
+    {
+      "name": "Peacefair PZEM-00X DC Energy Monitor",
+      "url": "https://esphome.io/components/sensor/pzemdc/",
+      "source": "sensor/pzemdc.mdx"
+    },
+    {
+      "name": "PM1006 Particulate Matter Sensor",
+      "url": "https://esphome.io/components/sensor/pm1006/",
+      "source": "sensor/pm1006.mdx"
+    },
+    {
+      "name": "PMSA003I Particulate Matter Sensor",
+      "url": "https://esphome.io/components/sensor/pmsa003i/",
+      "source": "sensor/pmsa003i.mdx"
+    },
+    {
+      "name": "PMSX003 Particulate Matter Sensor",
+      "url": "https://esphome.io/components/sensor/pmsx003/",
+      "source": "sensor/pmsx003.mdx"
+    },
+    {
+      "name": "PMWCS3 Capacitive Soil Moisture and Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/pmwcs3/",
+      "source": "sensor/pmwcs3.mdx"
+    },
+    {
+      "name": "Pulse Counter Sensor",
+      "url": "https://esphome.io/components/sensor/pulse_counter/",
+      "source": "sensor/pulse_counter.mdx"
+    },
+    {
+      "name": "Pulse Meter Sensor",
+      "url": "https://esphome.io/components/sensor/pulse_meter/",
+      "source": "sensor/pulse_meter.mdx"
+    },
+    {
+      "name": "Pulse Width Sensor",
+      "url": "https://esphome.io/components/sensor/pulse_width/",
+      "source": "sensor/pulse_width.mdx"
+    },
+    {
+      "name": "QMC5883L Magnetometer",
+      "url": "https://esphome.io/components/sensor/qmc5883l/",
+      "source": "sensor/qmc5883l.mdx"
+    },
+    {
+      "name": "QMI8658 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/qmi8658/",
+      "source": "sensor/qmi8658.mdx"
+    },
+    {
+      "name": "QMP6988 Temperature+Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/qmp6988/",
+      "source": "sensor/qmp6988.mdx"
+    },
+    {
+      "name": "Radon Eye BLE Sensors",
+      "url": "https://esphome.io/components/sensor/radon_eye_ble/",
+      "source": "sensor/radon_eye_ble.mdx"
+    },
+    {
+      "name": "RD-03D mmWave Radar",
+      "url": "https://esphome.io/components/sensor/rd03d/",
+      "source": "sensor/rd03d.mdx"
+    },
+    {
+      "name": "Resistance Sensor",
+      "url": "https://esphome.io/components/sensor/resistance/",
+      "source": "sensor/resistance.mdx"
+    },
+    {
+      "name": "Rotary Encoder Sensor",
+      "url": "https://esphome.io/components/sensor/rotary_encoder/",
+      "source": "sensor/rotary_encoder.mdx"
+    },
+    {
+      "name": "RuuviTag Open Source BLE Sensor",
+      "url": "https://esphome.io/components/sensor/ruuvitag/",
+      "source": "sensor/ruuvitag.mdx"
+    },
+    {
+      "name": "SCD30 CO₂, Temperature and Relative Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/scd30/",
+      "source": "sensor/scd30.mdx"
+    },
+    {
+      "name": "SCD4X CO₂, Temperature and Relative Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/scd4x/",
+      "source": "sensor/scd4x.mdx"
+    },
+    {
+      "name": "SDP3x / SDP800 Series Differential Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/sdp3x/",
+      "source": "sensor/sdp3x.mdx"
+    },
+    {
+      "name": "SDS011 Particulate Matter Sensor",
+      "url": "https://esphome.io/components/sensor/sds011/",
+      "source": "sensor/sds011.mdx"
+    },
+    {
+      "name": "Selec Energy Monitor",
+      "url": "https://esphome.io/components/sensor/selec_meter/",
+      "source": "sensor/selec_meter.mdx"
+    },
+    {
+      "name": "SEN0321 DFRobot Ozone Sensor",
+      "url": "https://esphome.io/components/sensor/sen0321/",
+      "source": "sensor/sen0321.mdx"
+    },
+    {
+      "name": "SEN21231 Person Sensor from Useful Sensors",
+      "url": "https://esphome.io/components/sensor/sen21231/",
+      "source": "sensor/sen21231.mdx"
+    },
+    {
+      "name": "Sen5x Series Environmental sensor",
+      "url": "https://esphome.io/components/sensor/sen5x/",
+      "source": "sensor/sen5x.mdx"
+    },
+    {
+      "name": "SEN6x Series Environmental Sensor",
+      "url": "https://esphome.io/components/sensor/sen6x/",
+      "source": "sensor/sen6x.mdx"
+    },
+    {
+      "name": "Sendspin Sensor",
+      "url": "https://esphome.io/components/sensor/sendspin/",
+      "source": "sensor/sendspin.mdx"
+    },
+    {
+      "name": "SenseAir CO_2 Sensor",
+      "url": "https://esphome.io/components/sensor/senseair/",
+      "source": "sensor/senseair.mdx"
+    },
+    {
+      "name": "Sensor Component",
+      "url": "https://esphome.io/components/sensor/",
+      "source": "sensor/index.mdx"
+    },
+    {
+      "name": "SFA30 Formaldehyde Sensor",
+      "url": "https://esphome.io/components/sensor/sfa30/",
+      "source": "sensor/sfa30.mdx"
+    },
+    {
+      "name": "SGP30 CO₂ and Volatile Organic Compound Sensor",
+      "url": "https://esphome.io/components/sensor/sgp30/",
+      "source": "sensor/sgp30.mdx"
+    },
+    {
+      "name": "SGP40 Volatile Organic Compound Sensor and SGP41 VOC and NOx Sensor",
+      "url": "https://esphome.io/components/sensor/sgp4x/",
+      "source": "sensor/sgp4x.mdx"
+    },
+    {
+      "name": "Sharp GP2Y1010AU0F PM2.5 Sensor",
+      "url": "https://esphome.io/components/sensor/gp2y1010au0f/",
+      "source": "sensor/gp2y1010au0f.mdx"
+    },
+    {
+      "name": "SHT3X-D Temperature+Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/sht3xd/",
+      "source": "sensor/sht3xd.mdx"
+    },
+    {
+      "name": "SHT4X Temperature and Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/sht4x/",
+      "source": "sensor/sht4x.mdx"
+    },
+    {
+      "name": "SHTCx Temperature+Humidity Sensors",
+      "url": "https://esphome.io/components/sensor/shtcx/",
+      "source": "sensor/shtcx.mdx"
+    },
+    {
+      "name": "SM300D2 7-in-1 Air Quality Sensor",
+      "url": "https://esphome.io/components/sensor/sm300d2/",
+      "source": "sensor/sm300d2.mdx"
+    },
+    {
+      "name": "SMT100 Soil Moisture Sensor",
+      "url": "https://esphome.io/components/sensor/smt100/",
+      "source": "sensor/smt100.mdx"
+    },
+    {
+      "name": "Sound Level Sensor",
+      "url": "https://esphome.io/components/sensor/sound_level/",
+      "source": "sensor/sound_level.mdx"
+    },
+    {
+      "name": "SPA06-003 Temperature+Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/spa06/",
+      "source": "sensor/spa06.mdx"
+    },
+    {
+      "name": "SPS30 Particulate Matter Sensor",
+      "url": "https://esphome.io/components/sensor/sps30/",
+      "source": "sensor/sps30.mdx"
+    },
+    {
+      "name": "STS3X Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/sts3x/",
+      "source": "sensor/sts3x.mdx"
+    },
+    {
+      "name": "STTS22H Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/stts22h/",
+      "source": "sensor/stts22h.mdx"
+    },
+    {
+      "name": "SY6970 Battery Management IC",
+      "url": "https://esphome.io/components/sensor/sy6970/",
+      "source": "sensor/sy6970.mdx"
+    },
+    {
+      "name": "T6613/15 CO2 Sensors",
+      "url": "https://esphome.io/components/sensor/t6615/",
+      "source": "sensor/t6615.mdx"
+    },
+    {
+      "name": "TC74 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/tc74/",
+      "source": "sensor/tc74.mdx"
+    },
+    {
+      "name": "TCS34725 RGB Color Sensor",
+      "url": "https://esphome.io/components/sensor/tcs34725/",
+      "source": "sensor/tcs34725.mdx"
+    },
+    {
+      "name": "TE-M3200 Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/tem3200/",
+      "source": "sensor/tem3200.mdx"
+    },
+    {
+      "name": "TEE501 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/tee501/",
+      "source": "sensor/tee501.mdx"
+    },
+    {
+      "name": "Teleinformation from Linky electrical counter.",
+      "url": "https://esphome.io/components/sensor/teleinfo/",
+      "source": "sensor/teleinfo.mdx"
+    },
+    {
+      "name": "Template Sensor",
+      "url": "https://esphome.io/components/sensor/template/",
+      "source": "sensor/template.mdx"
+    },
+    {
+      "name": "The Grove - Laser PM2.5 Sensor (HM3301)",
+      "url": "https://esphome.io/components/sensor/hm3301/",
+      "source": "sensor/hm3301.mdx"
+    },
+    {
+      "name": "ThermoPro BLE Sensors",
+      "url": "https://esphome.io/components/sensor/thermopro_ble/",
+      "source": "sensor/thermopro_ble.mdx"
+    },
+    {
+      "name": "TMP102 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/tmp102/",
+      "source": "sensor/tmp102.mdx"
+    },
+    {
+      "name": "TMP1075 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/tmp1075/",
+      "source": "sensor/tmp1075.mdx"
+    },
+    {
+      "name": "TMP117 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/tmp117/",
+      "source": "sensor/tmp117.mdx"
+    },
+    {
+      "name": "TOF10120 Time Of Flight Distance Sensor",
+      "url": "https://esphome.io/components/sensor/tof10120/",
+      "source": "sensor/tof10120.mdx"
+    },
+    {
+      "name": "Total Daily Energy Sensor",
+      "url": "https://esphome.io/components/sensor/total_daily_energy/",
+      "source": "sensor/total_daily_energy.mdx"
+    },
+    {
+      "name": "TSL2561 Ambient Light Sensor",
+      "url": "https://esphome.io/components/sensor/tsl2561/",
+      "source": "sensor/tsl2561.mdx"
+    },
+    {
+      "name": "TSL2591 Ambient Light Sensor",
+      "url": "https://esphome.io/components/sensor/tsl2591/",
+      "source": "sensor/tsl2591.mdx"
+    },
+    {
+      "name": "Tuya Sensor",
+      "url": "https://esphome.io/components/sensor/tuya/",
+      "source": "sensor/tuya.mdx"
+    },
+    {
+      "name": "TX20/TX23 Wind Speed/Direction Sensor",
+      "url": "https://esphome.io/components/sensor/tx20/",
+      "source": "sensor/tx20.mdx"
+    },
+    {
+      "name": "uFire ISE pH sensor",
+      "url": "https://esphome.io/components/sensor/ufire_ise/",
+      "source": "sensor/ufire_ise.mdx"
+    },
+    {
+      "name": "uFire Isolated EC sensor",
+      "url": "https://esphome.io/components/sensor/ufire_ec/",
+      "source": "sensor/ufire_ec.mdx"
+    },
+    {
+      "name": "Ultrasonic Distance Sensor",
+      "url": "https://esphome.io/components/sensor/ultrasonic/",
+      "source": "sensor/ultrasonic.mdx"
+    },
+    {
+      "name": "Uptime Sensor",
+      "url": "https://esphome.io/components/sensor/uptime/",
+      "source": "sensor/uptime.mdx"
+    },
+    {
+      "name": "VEML3235 Ambient Light Sensor",
+      "url": "https://esphome.io/components/sensor/veml3235/",
+      "source": "sensor/veml3235.mdx"
+    },
+    {
+      "name": "VEML7700 and VEML6030 Ambient Light Sensors",
+      "url": "https://esphome.io/components/sensor/veml7700/",
+      "source": "sensor/veml7700.mdx"
+    },
+    {
+      "name": "VL53L0X Time Of Flight Distance Sensor",
+      "url": "https://esphome.io/components/sensor/vl53l0x/",
+      "source": "sensor/vl53l0x.mdx"
+    },
+    {
+      "name": "WiFi Signal Sensor",
+      "url": "https://esphome.io/components/sensor/wifi_signal/",
+      "source": "sensor/wifi_signal.mdx"
+    },
+    {
+      "name": "WTS01 Temperature Sensor",
+      "url": "https://esphome.io/components/sensor/wts01/",
+      "source": "sensor/wts01.mdx"
+    },
+    {
+      "name": "Xiaomi Mijia BLE Sensors",
+      "url": "https://esphome.io/components/sensor/xiaomi_ble/",
+      "source": "sensor/xiaomi_ble.mdx"
+    },
+    {
+      "name": "Xiaomi Miscale Sensors",
+      "url": "https://esphome.io/components/sensor/xiaomi_miscale/",
+      "source": "sensor/xiaomi_miscale.mdx"
+    },
+    {
+      "name": "XIDIBEI XDB401 Pressure Sensor",
+      "url": "https://esphome.io/components/sensor/xdb401/",
+      "source": "sensor/xdb401.mdx"
+    },
+    {
+      "name": "Zio Ultrasonic Distance Sensor",
+      "url": "https://esphome.io/components/sensor/zio_ultrasonic/",
+      "source": "sensor/zio_ultrasonic.mdx"
+    },
+    {
+      "name": "ZyAura CO2 & Temperature & Humidity Sensor",
+      "url": "https://esphome.io/components/sensor/zyaura/",
+      "source": "sensor/zyaura.mdx"
+    },
+    {
+      "name": "I²S Audio Speaker",
+      "url": "https://esphome.io/components/speaker/i2s_audio/",
+      "source": "speaker/i2s_audio.mdx"
+    },
+    {
+      "name": "Mixer Speaker",
+      "url": "https://esphome.io/components/speaker/mixer/",
+      "source": "speaker/mixer.mdx"
+    },
+    {
+      "name": "Resampler Speaker",
+      "url": "https://esphome.io/components/speaker/resampler/",
+      "source": "speaker/resampler.mdx"
+    },
+    {
+      "name": "Router Speaker",
+      "url": "https://esphome.io/components/speaker/router/",
+      "source": "speaker/router.mdx"
+    },
+    {
+      "name": "Speaker Components",
+      "url": "https://esphome.io/components/speaker/",
+      "source": "speaker/index.mdx"
+    },
+    {
+      "name": "Stepper Component",
+      "url": "https://esphome.io/components/stepper/",
+      "source": "stepper/index.mdx"
+    },
+    {
+      "name": "Host Platform",
+      "url": "https://esphome.io/components/host/",
+      "source": "host.mdx"
+    },
+    {
+      "name": "BLE Client Switch",
+      "url": "https://esphome.io/components/switch/ble_client/",
+      "source": "switch/ble_client.mdx"
+    },
+    {
+      "name": "Factory Reset Switch",
+      "url": "https://esphome.io/components/switch/factory_reset/",
+      "source": "switch/factory_reset.mdx"
+    },
+    {
+      "name": "Generic Output Switch",
+      "url": "https://esphome.io/components/switch/output/",
+      "source": "switch/output.mdx"
+    },
+    {
+      "name": "GPIO Switch",
+      "url": "https://esphome.io/components/switch/gpio/",
+      "source": "switch/gpio.mdx"
+    },
+    {
+      "name": "H-bridge Switch",
+      "url": "https://esphome.io/components/switch/hbridge/",
+      "source": "switch/hbridge.mdx"
+    },
+    {
+      "name": "Haier Climate Switches",
+      "url": "https://esphome.io/components/switch/haier/",
+      "source": "switch/haier.mdx"
+    },
+    {
+      "name": "Home Assistant Switch",
+      "url": "https://esphome.io/components/switch/homeassistant/",
+      "source": "switch/homeassistant.mdx"
+    },
+    {
+      "name": "LVGL Switch",
+      "url": "https://esphome.io/components/switch/lvgl/",
+      "source": "switch/lvgl.mdx"
+    },
+    {
+      "name": "Modbus Controller Switch",
+      "url": "https://esphome.io/components/switch/modbus_controller/",
+      "source": "switch/modbus_controller.mdx"
+    },
+    {
+      "name": "Nextion Switch Component",
+      "url": "https://esphome.io/components/switch/nextion/",
+      "source": "switch/nextion.mdx"
+    },
+    {
+      "name": "Restart Switch",
+      "url": "https://esphome.io/components/switch/restart/",
+      "source": "switch/restart.mdx"
+    },
+    {
+      "name": "Safe Mode Switch",
+      "url": "https://esphome.io/components/switch/safe_mode/",
+      "source": "switch/safe_mode.mdx"
+    },
+    {
+      "name": "Shutdown Switch",
+      "url": "https://esphome.io/components/switch/shutdown/",
+      "source": "switch/shutdown.mdx"
+    },
+    {
+      "name": "Switch Component",
+      "url": "https://esphome.io/components/switch/",
+      "source": "switch/index.mdx"
+    },
+    {
+      "name": "Template Switch",
+      "url": "https://esphome.io/components/switch/template/",
+      "source": "switch/template.mdx"
+    },
+    {
+      "name": "Tuya Switch",
+      "url": "https://esphome.io/components/switch/tuya/",
+      "source": "switch/tuya.mdx"
+    },
+    {
+      "name": "UART Switch",
+      "url": "https://esphome.io/components/switch/uart/",
+      "source": "switch/uart.mdx"
+    },
+    {
+      "name": "LVGL Text",
+      "url": "https://esphome.io/components/text/lvgl/",
+      "source": "text/lvgl.mdx"
+    },
+    {
+      "name": "Template Text",
+      "url": "https://esphome.io/components/text/template/",
+      "source": "text/template.mdx"
+    },
+    {
+      "name": "Text Component",
+      "url": "https://esphome.io/components/text/",
+      "source": "text/index.mdx"
+    },
+    {
+      "name": "BLE Client Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/ble_client/",
+      "source": "text_sensor/ble_client.mdx"
+    },
+    {
+      "name": "ESP32 Bluetooth Low Energy Scanner",
+      "url": "https://esphome.io/components/text_sensor/ble_scanner/",
+      "source": "text_sensor/ble_scanner.mdx"
+    },
+    {
+      "name": "Ethernet Info Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/ethernet_info/",
+      "source": "text_sensor/ethernet_info.mdx"
+    },
+    {
+      "name": "Haier Climate Text Sensors",
+      "url": "https://esphome.io/components/text_sensor/haier/",
+      "source": "text_sensor/haier.mdx"
+    },
+    {
+      "name": "Home Assistant Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/homeassistant/",
+      "source": "text_sensor/homeassistant.mdx"
+    },
+    {
+      "name": "Key Collector Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/key_collector/",
+      "source": "text_sensor/key_collector.mdx"
+    },
+    {
+      "name": "LibreTiny Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/libretiny/",
+      "source": "text_sensor/libretiny.mdx"
+    },
+    {
+      "name": "LVGL Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/lvgl/",
+      "source": "text_sensor/lvgl.mdx"
+    },
+    {
+      "name": "Modbus Controller Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/modbus_controller/",
+      "source": "text_sensor/modbus_controller.mdx"
+    },
+    {
+      "name": "MQTT Subscribe Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/mqtt_subscribe/",
+      "source": "text_sensor/mqtt_subscribe.mdx"
+    },
+    {
+      "name": "Nextion Text Sensor Component",
+      "url": "https://esphome.io/components/text_sensor/nextion/",
+      "source": "text_sensor/nextion.mdx"
+    },
+    {
+      "name": "OpenThread Info Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/openthread_info/",
+      "source": "text_sensor/openthread_info.mdx"
+    },
+    {
+      "name": "Sendspin Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/sendspin/",
+      "source": "text_sensor/sendspin.mdx"
+    },
+    {
+      "name": "Template Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/template/",
+      "source": "text_sensor/template.mdx"
+    },
+    {
+      "name": "Text Sensor Component",
+      "url": "https://esphome.io/components/text_sensor/",
+      "source": "text_sensor/index.mdx"
+    },
+    {
+      "name": "Text Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/text/",
+      "source": "text_sensor/text.mdx"
+    },
+    {
+      "name": "Tuya Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/tuya/",
+      "source": "text_sensor/tuya.mdx"
+    },
+    {
+      "name": "Uptime Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/uptime/",
+      "source": "text_sensor/uptime.mdx"
+    },
+    {
+      "name": "Version Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/version/",
+      "source": "text_sensor/version.mdx"
+    },
+    {
+      "name": "WiFi Info Text Sensor",
+      "url": "https://esphome.io/components/text_sensor/wifi_info/",
+      "source": "text_sensor/wifi_info.mdx"
+    },
+    {
+      "name": "WL-134 Pet Tag Sensor",
+      "url": "https://esphome.io/components/text_sensor/wl_134/",
+      "source": "text_sensor/wl_134.mdx"
+    },
+    {
+      "name": "BM8563 Time Source",
+      "url": "https://esphome.io/components/time/bm8563/",
+      "source": "time/bm8563.mdx"
+    },
+    {
+      "name": "DS1307 Time Source",
+      "url": "https://esphome.io/components/time/ds1307/",
+      "source": "time/ds1307.mdx"
+    },
+    {
+      "name": "GPS Time Source",
+      "url": "https://esphome.io/components/time/gps/",
+      "source": "time/gps.mdx"
+    },
+    {
+      "name": "Home Assistant Time Source",
+      "url": "https://esphome.io/components/time/homeassistant/",
+      "source": "time/homeassistant.mdx"
+    },
+    {
+      "name": "Host Time Source",
+      "url": "https://esphome.io/components/time/host/",
+      "source": "time/host.mdx"
+    },
+    {
+      "name": "PCF85063 Time Source",
+      "url": "https://esphome.io/components/time/pcf85063/",
+      "source": "time/pcf85063.mdx"
+    },
+    {
+      "name": "PCF8563 Time Source",
+      "url": "https://esphome.io/components/time/pcf8563/",
+      "source": "time/pcf8563.mdx"
+    },
+    {
+      "name": "RX8130 Time Source",
+      "url": "https://esphome.io/components/time/rx8130/",
+      "source": "time/rx8130.mdx"
+    },
+    {
+      "name": "SNTP Time Source",
+      "url": "https://esphome.io/components/time/sntp/",
+      "source": "time/sntp.mdx"
+    },
+    {
+      "name": "Time Component",
+      "url": "https://esphome.io/components/time/",
+      "source": "time/index.mdx"
+    },
+    {
+      "name": "Zigbee Time Source",
+      "url": "https://esphome.io/components/time/zigbee/",
+      "source": "time/zigbee.mdx"
+    },
+    {
+      "name": "AXS15231 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/axs15231/",
+      "source": "touchscreen/axs15231.mdx"
+    },
+    {
+      "name": "chsc6x Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/chsc6x/",
+      "source": "touchscreen/chsc6x.mdx"
+    },
+    {
+      "name": "cst226 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/cst226/",
+      "source": "touchscreen/cst226.mdx"
+    },
+    {
+      "name": "CST328 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/cst328/",
+      "source": "touchscreen/cst328.mdx"
+    },
+    {
+      "name": "cst816 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/cst816/",
+      "source": "touchscreen/cst816.mdx"
+    },
+    {
+      "name": "cst9220 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/cst9220/",
+      "source": "touchscreen/cst9220.mdx"
+    },
+    {
+      "name": "EKTF2232 Touchscreen Controller",
+      "url": "https://esphome.io/components/touchscreen/ektf2232/",
+      "source": "touchscreen/ektf2232.mdx"
+    },
+    {
+      "name": "FT5X06 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/ft5x06/",
+      "source": "touchscreen/ft5x06.mdx"
+    },
+    {
+      "name": "FT63X6 Touchscreen Controller",
+      "url": "https://esphome.io/components/touchscreen/ft63x6/",
+      "source": "touchscreen/ft63x6.mdx"
+    },
+    {
+      "name": "GSL3670 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/gsl3670/",
+      "source": "touchscreen/gsl3670.mdx"
+    },
+    {
+      "name": "gt911 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/gt911/",
+      "source": "touchscreen/gt911.mdx"
+    },
+    {
+      "name": "Lilygo T5 4.7\" Touchscreen",
+      "url": "https://esphome.io/components/touchscreen/lilygo_t5_47/",
+      "source": "touchscreen/lilygo_t5_47.mdx"
+    },
+    {
+      "name": "SDL2 Touch Screen Emulator",
+      "url": "https://esphome.io/components/touchscreen/sdl/",
+      "source": "touchscreen/sdl.mdx"
+    },
+    {
+      "name": "st7123 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/st7123/",
+      "source": "touchscreen/st7123.mdx"
+    },
+    {
+      "name": "Touchscreen Components",
+      "url": "https://esphome.io/components/touchscreen/",
+      "source": "touchscreen/index.mdx"
+    },
+    {
+      "name": "TT21100 Touch Screen Controller",
+      "url": "https://esphome.io/components/touchscreen/tt21100/",
+      "source": "touchscreen/tt21100.mdx"
+    },
+    {
+      "name": "XPT2046 Touch Screen Controller (Updated version)",
+      "url": "https://esphome.io/components/touchscreen/xpt2046/",
+      "source": "touchscreen/xpt2046.mdx"
+    },
+    {
+      "name": "ESP32 Hosted Co-processor Update",
+      "url": "https://esphome.io/components/update/esp32_hosted/",
+      "source": "update/esp32_hosted.mdx"
+    },
+    {
+      "name": "Managed Updates via HTTP Request",
+      "url": "https://esphome.io/components/update/http_request/",
+      "source": "update/http_request.mdx"
+    },
+    {
+      "name": "Update Core",
+      "url": "https://esphome.io/components/update/",
+      "source": "update/index.mdx"
+    },
+    {
+      "name": "Template Valve",
+      "url": "https://esphome.io/components/valve/template/",
+      "source": "valve/template.mdx"
+    },
+    {
+      "name": "Valve Component",
+      "url": "https://esphome.io/components/valve/",
+      "source": "valve/index.mdx"
+    },
+    {
+      "name": "Template Water Heater",
+      "url": "https://esphome.io/components/water_heater/template/",
+      "source": "water_heater/template.mdx"
+    },
+    {
+      "name": "Water Heater Component",
+      "url": "https://esphome.io/components/water_heater/",
+      "source": "water_heater/index.mdx"
+    },
+    {
+      "name": "CC1101 Low-Power Sub-1 GHz RF Transceiver",
+      "url": "https://esphome.io/components/cc1101/",
+      "source": "cc1101.mdx"
+    },
+    {
+      "name": "Remote Receiver",
+      "url": "https://esphome.io/components/remote_receiver/",
+      "source": "remote_receiver.mdx"
+    },
+    {
+      "name": "Remote Transmitter",
+      "url": "https://esphome.io/components/remote_transmitter/",
+      "source": "remote_transmitter.mdx"
+    },
+    {
+      "name": "RF Bridge Component",
+      "url": "https://esphome.io/components/rf_bridge/",
+      "source": "rf_bridge.mdx"
+    },
+    {
+      "name": "Sim800L Component",
+      "url": "https://esphome.io/components/sim800l/",
+      "source": "sim800l.mdx"
+    },
+    {
+      "name": "SX126x Component",
+      "url": "https://esphome.io/components/sx126x/",
+      "source": "sx126x.mdx"
+    },
+    {
+      "name": "SX127x Component",
+      "url": "https://esphome.io/components/sx127x/",
+      "source": "sx127x.mdx"
+    }
+  ]
+}
