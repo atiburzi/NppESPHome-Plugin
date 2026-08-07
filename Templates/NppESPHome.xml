@@ -3,6 +3,7 @@
 <Component>
   <Name>New ESP32 Project Template</Name>
   <Category>Project</Category>
+	<OnlineHelp></OnlineHelp> 
   <Description>Template of a minimal ESP32 project.</Description>
   <YAML><![CDATA[
 substitutions:
@@ -59,6 +60,7 @@ time:
 <Component>
   <Name>New ESP8266 Project Template</Name>
   <Category>Project</Category>
+	<OnlineHelp></OnlineHelp> 
   <Description>Template of a minimal ESP8266 project.</Description>
   <YAML><![CDATA[
 substitutions:
@@ -114,6 +116,7 @@ time:
 <Component>
   <Name>MyWiFi Setup</Name>
   <Category>Personal</Category>
+	<OnlineHelp></OnlineHelp> 
   <Description>My configuration to include in WiFi definition.</Description>
   <YAML><![CDATA[
   ssid: !secret wifi_ssid
@@ -125,6 +128,7 @@ time:
 <Component>
   <Name>ESP32</Name>
   <Category>Microcontrollers</Category>
+	<OnlineHelp>https://www.esphome.io/components/esp32/</OnlineHelp> 
   <Description>ESP32 microcontroller configuration with extended options (board variant, flash size, CPU freq, framework, advanced settings).</Description>
   <YAML><![CDATA[
 esp32:                                 # https://www.esphome.io/components/esp32/   
@@ -165,30 +169,24 @@ esp32:                                 # https://www.esphome.io/components/esp32
 <Component>
   <Name>ESP8266</Name>
   <Category>Microcontrollers</Category>
+	<OnlineHelp>https://www.esphome.io/components/esp8266/</OnlineHelp> 
   <Description>Microcontroller ESP8266 configuration with extended options.</Description>
   <YAML><![CDATA[
 esp8266:                         # https://www.esphome.io/components/esp8266/
   board: nodemcuv2               # other options: esp01_1m, d1_mini, esp07, esp12e, esp8285, esp_wroom_02, esp210, modwifi
   framework:
-    version: recommended         # options: recommended / latest / dev
+    version: recommended         # or latest / dev
+    platform_version: latest     # override PlatformIO core if needed    
   restore_from_flash: false      # restore persistent preferences from flash (true/false)
   board_flash_mode: dout         # options: qio / qout / dio / dout
   early_pin_init: true           # initialize GPIOs early (true/false)
-  safe_mode: true                # enable safe mode on boot failures
-  power_save_mode: none          # WiFi power saving: none / light / high
-  board_build:
-    flash_size: 1MB              # typical flash sizes: 512KB / 1MB / 2MB / 4MB
-    cpu_frequency: 80MHz         # CPU frequency: 80MHz / 160MHz
-  framework:
-    type: arduino                # available type: arduino
-    version: recommended         # or latest / dev
-    platform_version: latest     # override PlatformIO core if needed
 ]]></YAML>
 </Component>
 
 <Component>
   <Name>RP2040</Name>
   <Category>Microcontrollers</Category>
+	<OnlineHelp>https://www.esphome.io/components/rp2040/</OnlineHelp> 
   <Description>Microcontroller RP2040 (e.g., Raspberry Pi Pico / Pico W) configuration.</Description>
   <YAML><![CDATA[
 rp2040:                          # https://www.esphome.io/components/rp2040/
@@ -209,6 +207,7 @@ rp2040:                          # https://www.esphome.io/components/rp2040/
 <Component>
   <Name>BK72xx</Name>
   <Category>Microcontrollers</Category>
+	<OnlineHelp>https://esphome.io/components/libretiny/</OnlineHelp> 	
   <Description>Microcontroller Beken BK72xx (BK7231N/T etc) configuration via LibreTiny platform in ESPHome.</Description>
   <YAML><![CDATA[
 bk72xx:                              # https://docs.libretiny.eu/docs/platform/beken-72xx/
@@ -225,6 +224,7 @@ bk72xx:                              # https://docs.libretiny.eu/docs/platform/b
 <Component>
   <Name>RTL87xx</Name>
   <Category>Microcontrollers</Category>
+	<OnlineHelp>https://esphome.io/components/libretiny/</OnlineHelp> 	
   <Description>Microcontroller Realtek RTL87xx (e.g., RTL8710BN / RTL8710BX) configuration via LibreTiny platform.</Description>
   <YAML><![CDATA[
 rtl87xx:                           # https://esphome.io/components/libretiny/
@@ -244,6 +244,7 @@ rtl87xx:                           # https://esphome.io/components/libretiny/
 <Component>
   <Name>LN882x</Name>
   <Category>Microcontrollers</Category>
+	<OnlineHelp>https://esphome.io/components/libretiny/</OnlineHelp> 
   <Description>Microcontroller LN882x (e.g., LN882HKI) configuration via LibreTiny platform for ESPHome.</Description>
   <YAML><![CDATA[
 ln882x:                               # https://esphome.io/components/libretiny/
@@ -263,6 +264,7 @@ ln882x:                               # https://esphome.io/components/libretiny/
 <Component>
   <Name>nRF52</Name>
   <Category>Microcontrollers</Category>
+	<OnlineHelp>https://www.esphome.io/components/nrf52/</OnlineHelp> 
   <Description>Microcontroller nRF52 (Nordic Semiconductor) configuration via ESPHome (Zephyr-based support).</Description>
   <YAML><![CDATA[
 nrf52:                                     # https://www.esphome.io/components/nrf52/
@@ -281,6 +283,7 @@ nrf52:                                     # https://www.esphome.io/components/n
 <Component>
   <Name>PSRAM</Name>
   <Category>Peripherals</Category>
+	<OnlineHelp>https://esphome.io/components/psram.html</OnlineHelp> 	
   <Description>External PSRAM (Pseudo-Static RAM) configuration for ESP32 modules/boards.</Description>
   <YAML><![CDATA[
 psram:                           # https://esphome.io/components/psram.html
@@ -307,6 +310,7 @@ psram:                           # https://esphome.io/components/psram.html
 <Component>
   <Name>deep_sleep</Name>
   <Category>Peripherals</Category>
+	<OnlineHelp>https://www.esphome.io/components/deep_sleep/</OnlineHelp>
   <Description>Deep sleep configuration for ESP8266/ESP32 to minimise power consumption.</Description>
   <YAML><![CDATA[
 deep_sleep:                            # https://www.esphome.io/components/deep_sleep/              
@@ -357,6 +361,7 @@ deep_sleep:                            # https://www.esphome.io/components/deep_
 <Component>
   <Name>ESP32-P4 LDO</Name>
   <Category>Peripherals</Category>
+	<OnlineHelp>https://esphome.io/components/esp_ldo/</OnlineHelp>
   <Description>Configuration for ESP32-P4 series boards using LDO regulator and power settings.</Description>
   <YAML><![CDATA[
 esp_ldo:
@@ -369,6 +374,7 @@ esp_ldo:
 <Component>
   <Name>ESPHome Core</Name>
   <Category>Core</Category>
+	<OnlineHelp>https://www.esphome.io/components/esphome/</OnlineHelp>
   <Description>Main ESPHome configuration for device identity, network, logs and OTA.</Description>
   <YAML><![CDATA[
 esphome:                             # https://www.esphome.io/components/esphome/
@@ -437,6 +443,7 @@ status_led:
 <Component>
   <Name>captive_portal</Name>
   <Category>Core</Category>
+	<OnlineHelp>https://esphome.io/components/captive_portal/</OnlineHelp>
   <Description>Captive portal for connecting WiFi devices without preconfigured credentials.</Description>
   <YAML><![CDATA[
 captive_portal:                     # https://esphome.io/components/captive_portal/
@@ -447,6 +454,7 @@ captive_portal:                     # https://esphome.io/components/captive_port
 <Component>
   <Name>external_components</Name>
   <Category>System</Category>
+	<OnlineHelp>https://www.esphome.io/components/external_components/</OnlineHelp>
   <Description>Support for loading external/custom components into ESPHome.</Description>
   <YAML><![CDATA[
 external_components:                        # https://www.esphome.io/components/external_components/
@@ -463,6 +471,7 @@ external_components:                        # https://www.esphome.io/components/
 <Component>
   <Name>globals</Name>
   <Category>System</Category>
+	<OnlineHelp>https://esphome.io/components/globals/</OnlineHelp>
   <Description>Global variables for storing and sharing values between components and automations.</Description>
   <YAML><![CDATA[
 globals:                              # https://esphome.io/components/globals/
@@ -484,6 +493,7 @@ globals:                              # https://esphome.io/components/globals/
 <Component>
   <Name>interval</Name>
   <Category>Automation</Category>
+	<OnlineHelp>https://esphome.io/components/interval.html</OnlineHelp>
   <Description>Defines recurring timed actions executed at fixed intervals.</Description>
   <YAML><![CDATA[
 interval:                            # https://esphome.io/components/interval.html
@@ -508,6 +518,7 @@ interval:                            # https://esphome.io/components/interval.ht
 <Component>
   <Name>wifi</Name>
   <Category>Network</Category>
+	<OnlineHelp>https://www.esphome.io/components/wifi/</OnlineHelp>
   <Description>WiFi configuration for ESPHome devices, including credentials, static networking, power settings and fallback AP.</Description>
   <YAML><![CDATA[
 wifi:                                 # https://www.esphome.io/components/wifi/
@@ -554,6 +565,7 @@ wifi:                                 # https://www.esphome.io/components/wifi/
 <Component>
   <Name>ethernet</Name>
   <Category>Network</Category>
+	<OnlineHelp>https://www.esphome.io/components/ethernet/</OnlineHelp>
   <Description>Configuration of Ethernet connectivity for ESPHome, including PHY type, pins and network settings.</Description>
   <YAML><![CDATA[
 ethernet:                              # https://www.esphome.io/components/ethernet/
@@ -589,6 +601,7 @@ ethernet:                              # https://www.esphome.io/components/ether
 <Component>
   <Name>esp32_hosted</Name>
   <Category>Hardware</Category>
+	<OnlineHelp>https://www.esphome.io/components/esp32_hosted/</OnlineHelp>
   <Description>ESP-Hosted co-processor configuration: use an ESP32 module as a network (Wi-Fi / BT) co-processor for a host MCU.</Description>
   <YAML><![CDATA[
 esp32_hosted:                         # https://www.esphome.io/components/esp32_hosted/
@@ -635,6 +648,7 @@ esp32_hosted:                         # https://www.esphome.io/components/esp32_
 <Component>
   <Name>openthread</Name>
   <Category>Network</Category>
+	<OnlineHelp>https://esphome.io/components/openthread.html</OnlineHelp>
   <Description>Configuration for Thread networking using OpenThread on ESPHome devices (e.g. ESP32-C6, ESP32-H2).</Description>
   <YAML><![CDATA[
 openthread:                           # https://esphome.io/components/openthread.html
@@ -667,6 +681,7 @@ openthread:                           # https://esphome.io/components/openthread
 <Component>
   <Name>api</Name>
   <Category>Communication</Category>
+	<OnlineHelp>https://esphome.io/components/api.html</OnlineHelp>
   <Description>Native API for direct communication between ESPHome devices and Home Assistant, including encryption, services, and callbacks.</Description>
   <YAML><![CDATA[
 api:                                  # https://esphome.io/components/api.html
@@ -701,6 +716,7 @@ api:                                  # https://esphome.io/components/api.html
 <Component>
   <Name>mqtt</Name>
   <Category>Communication</Category>
+	<OnlineHelp>https://esphome.io/components/mqtt.html</OnlineHelp>
   <Description>MQTT client configuration for ESPHome devices, enabling communication via an external MQTT broker.</Description>
   <YAML><![CDATA[
 mqtt:                                 # https://esphome.io/components/mqtt.html
@@ -734,6 +750,7 @@ mqtt:                                 # https://esphome.io/components/mqtt.html
 <Component>
   <Name>esp_now</Name>
   <Category>Communication</Category>
+	<OnlineHelp>https://esphome.io/components/espnow/</OnlineHelp>
   <Description>ESP-NOW peer-to-peer wireless communication for ESPHome devices, enabling low-latency and connectionless messaging.</Description>
   <YAML><![CDATA[
 esp_now:                              # https://esphome.io/components/esp_now.html
@@ -768,6 +785,7 @@ esp_now:                              # https://esphome.io/components/esp_now.ht
 <Component>
   <Name>http_request</Name>
   <Category>Communication</Category>
+	<OnlineHelp>https://esphome.io/components/http_request.html</OnlineHelp>
   <Description>HTTP client to perform GET, POST, PUT, PATCH or DELETE requests from ESPHome devices.</Description>
   <YAML><![CDATA[
 http_request:                         # https://esphome.io/components/http_request.html
@@ -815,6 +833,7 @@ script:
 <Component>
   <Name>Factory Reset</Name>
   <Category>Core</Category>
+	<OnlineHelp>https://esphome.io/components/factory_reset/</OnlineHelp>
   <Description>Factory reset component to clear all stored ESPHome preferences from flash and reboot the node, with optional fast power‑cycle reset and automation trigger.</Description>
   <YAML><![CDATA[
 factory_reset:
@@ -841,6 +860,7 @@ esp8266:
 <Component>
   <Name>Script</Name>
   <Category>Core</Category>
+	<OnlineHelp>https://esphome.io/components/script/</OnlineHelp>
   <Description>Defines a sequence of steps (actions) that can be executed from anywhere in the ESPHome configuration, optionally with parameters and control over concurrent executions.</Description>
   <YAML><![CDATA[
 script:
@@ -859,6 +879,7 @@ script:
 <Component>
   <Name>Network</Name>
   <Category>Core</Category>
+	<OnlineHelp>https://esphome.io/components/network/</OnlineHelp>
   <Description>Core network settings for ESPHome devices including IPv6 and performance options.</Description>
   <YAML><![CDATA[
 network:
@@ -871,6 +892,7 @@ network:
 <Component>
   <Name>mDNS</Name>
   <Category>Network</Category>
+	<OnlineHelp>https://esphome.io/components/mdns/</OnlineHelp>
   <Description>Enables multicast DNS (mDNS) to announce the node on the local network for device discovery by Home Assistant and ESPHome dashboard.</Description>
   <YAML><![CDATA[
 mdns:
@@ -887,6 +909,7 @@ mdns:
 <Component>
   <Name>WireGuard</Name>
   <Category>Network</Category>
+	<OnlineHelp>https://esphome.io/components/wireguard/</OnlineHelp>
   <Description>WireGuard VPN client for ESP32, ESP8266, and BK72xx microcontrollers with custom implementation supporting secure VPN tunnels to a remote peer.</Description>
   <YAML><![CDATA[
 wireguard:
@@ -943,6 +966,7 @@ text_sensor:
 <Component>
   <Name>StatsD</Name>
   <Category>Networking</Category>
+	<OnlineHelp>https://esphome.io/components/statsd/</OnlineHelp>
   <Description>StatsD protocol client to send sensor and binary sensor metrics to a StatsD server for aggregation and monitoring.</Description>
   <YAML><![CDATA[
 statsd:
@@ -964,6 +988,7 @@ statsd:
 <Component>
   <Name>UDP</Name>
   <Category>Networking</Category>
+	<OnlineHelp>https://esphome.io/components/udp/</OnlineHelp>
   <Description>Allows sending and receiving data over the network using the User Datagram Protocol (UDP), including multicast and broadcast support.</Description>
   <YAML><![CDATA[
 udp:
@@ -988,6 +1013,7 @@ on_receive:
 <Component>
   <Name>Packet Transport</Name>
   <Category>Communication</Category>
+	<OnlineHelp>https://esphome.io/components/packet_transport/</OnlineHelp>
   <Description>Enables ESPHome nodes to communicate directly by transmitting sensor and binary sensor states over supported transport channels (SX126x, SX127x, UART Bus, UDP) with optional encryption and replay protection.</Description>
   <YAML><![CDATA[
 packet_transport:
@@ -1037,6 +1063,7 @@ binary_sensor:
 <Component>
   <Name>ESP32 BLE Beacon</Name>
   <Category>Bluetooth</Category>
+	<OnlineHelp>https://esphome.io/components/esp32_ble_beacon/</OnlineHelp>
   <Description>Creates a Bluetooth Low Energy (BLE) Beacon using the ESP32 device, transmitting iBeacon packets for device tracking and location services.</Description>
   <YAML><![CDATA[
 esp32_ble_beacon:
@@ -1059,6 +1086,7 @@ esp32_ble_beacon:
 <Component>
   <Name>BLE Client</Name>
   <Category>Bluetooth</Category>
+	<OnlineHelp>https://esphome.io/components/ble_client/</OnlineHelp>
   <Description>Manages connections to Bluetooth Low Energy devices to query and control them. Does not directly expose sensors but enables integration with other components. Supports up to 3 devices due to ESP32 BLE stack limitations.</Description>
   <YAML><![CDATA[
 ble_client:
@@ -1116,6 +1144,7 @@ ble_client:
 <Component>
   <Name>ESP32 BLE Tracker</Name>
   <Category>Bluetooth</Category>
+	<OnlineHelp>https://esphome.io/components/esp32_ble_tracker/</OnlineHelp>
   <Description>Provides a global Bluetooth Low Energy (BLE) tracker hub for ESP32 devices to scan and track BLE devices on the network, supporting advanced scan parameters and automations based on received advertisements.</Description>
   <YAML><![CDATA[
 esp32_ble_tracker:
@@ -1168,6 +1197,7 @@ esp32_ble_tracker:
 <Component>
   <Name>BLE Server</Name>
   <Category>Bluetooth</Category>
+	<OnlineHelp>https://esphome.io/components/esp32_ble_server/</OnlineHelp>
   <Description>Sets up a BLE GATT server on ESP32, exposing device info and custom services with characteristics to allow data exchange and control via BLE clients.</Description>
   <YAML><![CDATA[
 esp32_ble_server:
@@ -1223,6 +1253,7 @@ esp32_ble_server:
 <Component>
   <Name>Bluetooth Proxy</Name>
   <Category>Bluetooth</Category>
+	<OnlineHelp>https://esphome.io/components/bluetooth_proxy/</OnlineHelp>
   <Description>Enables ESPHome devices to act as Bluetooth Low Energy (BLE) proxies, extending the Bluetooth coverage for Home Assistant by relaying BLE data and managing active connections with devices.</Description>
   <YAML><![CDATA[
 bluetooth_proxy:
@@ -1250,6 +1281,7 @@ bluetooth_proxy:
 <Component>
   <Name>Improv via BLE</Name>
   <Category>Bluetooth</Category>
+	<OnlineHelp>https://esphome.io/components/esp32_improv/</OnlineHelp>
   <Description>Implements the open Improv standard for configuring Wi-Fi on ESP32 devices via Bluetooth Low Energy (BLE) to receive credentials securely.</Description>
   <YAML><![CDATA[
 esp32_improv:
@@ -1296,6 +1328,7 @@ esp32_improv:
 <Component>
   <Name>Nordic UART Service (NUS)</Name>
   <Category>Bluetooth</Category>
+	<OnlineHelp>https://esphome.io/components/ble_nus/</OnlineHelp>
   <Description>Provides a Bluetooth Low Energy (BLE) UART interface based on the Nordic UART Service for streaming logs or enabling custom bidirectional communication.</Description>
   <YAML><![CDATA[
 ble_nus:

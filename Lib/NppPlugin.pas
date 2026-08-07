@@ -23,7 +23,7 @@ unit NppPlugin;
 
 interface
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Vcl.Forms, SciSupport, NppSupport,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Vcl.Forms, NppScintilla, NppMessages,
   NppMenuCmdID;
 
 
@@ -35,6 +35,7 @@ type
   // Plugin base class
   TNppPlugin = class(TObject)
   private
+    FNppData: TNppData;
     FPluginName: nppString;
     FPluginMajorVersion: Integer;
     FPluginMinorVersion: Integer;
@@ -42,65 +43,64 @@ type
     FPluginBuildNumber: Integer;
     FPluginCopyright: string;
     FSCNotification: PSCNotification;
-    FFuncArray: array of TFuncItem;
+    FFuncItemArray: array of TFuncItem;
 
     function GetVarSizeStringValue(DirType: cardinal; MaxSize: cardinal = $0000FFFF): string;
 
   protected
     // Internal utils
     procedure GetVersionInfo;
-
     function AddFuncItem(ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer; overload;
     function AddFuncItem(ItemIndex: Integer; ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer; overload;
-
     procedure AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIcons); overload;
     procedure AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode); overload;
 
     // Notepad++ notification handlers
     procedure DoNppnReady; virtual;
     procedure DoNppnToolbarModification; virtual;
-    procedure DoNppnBeforeShutDown; virtual;
-    procedure DoNppnCancelShutDown; virtual;
-    procedure DoNppnShutdown; virtual;
-    procedure DoNppnFileBeforeLoad; virtual;
-    procedure DoNppnFileLoadFailed; virtual;
-    procedure DoNppnFileBeforeOpen; virtual;
-    procedure DoNppnFileOpened; virtual;
     procedure DoNppnFileBeforeClose; virtual;
+    procedure DoNppnFileOpened; virtual;
     procedure DoNppnFileClosed; virtual;
+    procedure DoNppnFileBeforeOpen; virtual;
     procedure DoNppnFileBeforeSave; virtual;
     procedure DoNppnFileSaved; virtual;
+    procedure DoNppnShutdown; virtual;
+    procedure DoNppnBufferActivated; virtual;
+    procedure DoNppnLangChanged; virtual;
+    procedure DoNppnWordStylesUpdated; virtual;
+    procedure DoNppnShortcutRemapped; virtual;
+    procedure DoNppnFileBeforeLoad; virtual;
+    procedure DoNppnFileLoadFailed; virtual;
+    procedure DoNppnReadOnlyChanged; virtual;
+    procedure DoNppnDocOrderChanged; virtual;
+    procedure DoNppnSnapshotDirtyFileLoaded; virtual;
+    procedure DoNppnBeforeShutDown; virtual;
+    procedure DoNppnCancelShutDown; virtual;
     procedure DoNppnFileBeforeRename; virtual;
     procedure DoNppnFileRenameCancel; virtual;
     procedure DoNppnFileRenamed; virtual;
     procedure DoNppnFileBeforeDelete; virtual;
     procedure DoNppnFileDeleteFailed; virtual;
     procedure DoNppnFileDeleted; virtual;
-    procedure DoNppnBufferActivated; virtual;
-    procedure DoNppnLangChanged; virtual;
-    procedure DoNppnReadOnlyChanged; virtual;
-    procedure DoNppnDocOrderChanged; virtual;
-    procedure DoNppnShortcutRemapped; virtual;
-    procedure DoNppnWordStylesUpdated; virtual;
-    procedure DoNppnSnapshotDirtyFileLoaded; virtual;
     procedure DoNppnDarkModeChanged; virtual;
     procedure DoNppnCmdLinePluginMsg; virtual;
     procedure DoNppExternalLexerBuffer; virtual;
     procedure DoNppGlobalModified; virtual;
-
-    // Basic plugin properties
-    property PluginName: nppString read FPluginName write FPluginName;
-    property PluginMajorVersion: Integer read FPluginMajorVersion write FPluginMajorVersion;
-    property PluginMinorVersion: Integer read FPluginMinorVersion write FPluginMinorVersion;
-    property SCNotification: PSCNotification read FSCNotification;
+    procedure DoNppNativeLangChanged; virtual;
+    procedure DoNppToolbarIconsetChanged; virtual;
 
   public
-    NppData: TNppData;
-
     constructor Create; virtual;
     destructor Destroy; override;
 
     procedure BeforeDestruction; override;
+
+    // Basic plugin properties
+    property NppData: TNppData read FNppData;
+    property PluginName: nppString read FPluginName write FPluginName;
+    property PluginMajorVersion: Integer read FPluginMajorVersion write FPluginMajorVersion;
+    property PluginMinorVersion: Integer read FPluginMinorVersion write FPluginMinorVersion;
+    property SCNotification: PSCNotification read FSCNotification;
 
     // Plugin interface methods
     procedure MessageProc(var Msg: TMessage); virtual;
@@ -108,15 +108,18 @@ type
     procedure SetInfo(NppData: TNppData); virtual;
     function GetFuncsArray(out FuncsCount: Integer): Pointer;
     function GetFuncByIndex(const Index: Integer): PFuncItem;
+    function GetFuncByCmdID(const CmdID: Integer): PFuncItem;
     function GetName: nppPChar;
     function GetCurrentScintilla: HWND;
 
     // Utils and Npp message wrappers
-    function CmdIdFromMenuItemIdx(MenuItemIdx: Integer): cardinal;
+    function CmdIdFromMenuItemIdx(MenuItemIdx: Integer): Integer;
+
     procedure CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
     procedure EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
-    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
-    procedure PerformMenuCommand(MenuCmdId: cardinal; Param: Integer = 0; Delayed: Boolean = true);
+    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean); virtual;
+
+    procedure PerformMenuCommand(MenuCmdId: Integer; Param: Integer = 0; Delayed: Boolean = true);
 
     function GetMajorVersion: Integer;
     function GetMinorVersion: Integer;
@@ -145,7 +148,7 @@ type
     function GetToolbarHandle: HWND;
     function GetEncoding: Integer;
     function GetEOLFormat: Integer;
-    function GetLanguageType: Integer; // see TNppLang
+    function GetLanguageType: Integer;
     function GetLanguageName(ALangType: TNppLang): string;
     function GetLanguageDesc(ALangType: TNppLang): string;
 
@@ -161,6 +164,7 @@ type
     function GetFullPathFromBufferId(ABufferId: NativeInt): string;
     function GetCurrentBufferDirty(AViewIdx: Integer): Boolean;
     function GetDarkModeColors(PColors: PNppDarkModeColors): Boolean;
+    function GetToolbarIconSetChoice: Integer;
 
     function GetOpenFilesCnt(CntType: Integer): Integer;
     function GetOpenFiles(CntType: Integer): TStringDynArray;
@@ -180,6 +184,7 @@ type
     function SaveCurrentFile: Boolean; overload;
     function SaveAllFiles: Boolean; overload;
     function SwitchToFile(FileName: string): Boolean;
+
     procedure ReloadFile(FileName: string; Alert: Boolean);
     procedure ReloadCurrentFile(Alert: Boolean);
 
@@ -188,8 +193,6 @@ type
 implementation
 uses
   FileVersionInfo, Math, Winapi.CommCtrl;
-
-
 
 // =============================================================================
 // Class TNppPlugin
@@ -208,10 +211,10 @@ destructor TNppPlugin.Destroy;
 var
   Index: Integer;
 begin
-  for Index := 0 to Length(FFuncArray) - 1 do
+  for Index := 0 to Length(FFuncItemArray) - 1 do
   begin
-    if Assigned(FFuncArray[Index].ShortcutKey) then
-      Dispose(FFuncArray[Index].ShortcutKey);
+    if Assigned(FFuncItemArray[Index].ShortcutKey) then
+      Dispose(FFuncItemArray[Index].ShortcutKey);
   end;
   inherited;
 end;
@@ -241,9 +244,9 @@ begin
   if (Msg.Msg = WM_CREATE) then
   begin
     Menu := GetMenu(NppData.NppHandle);
-    for Index := 0 to Length(FFuncArray) - 1 do
-      if (FFuncArray[Index].ItemName[0] = '-') then
-        ModifyMenu(Menu, FFuncArray[Index].CmdID, MF_BYCOMMAND or MF_SEPARATOR, 0, nil);
+    for Index := 0 to Length(FFuncItemArray) - 1 do
+      if (FFuncItemArray[Index].ItemName[0] = '-') then
+        ModifyMenu(Menu, FFuncItemArray[Index].CmdID, MF_BYCOMMAND or MF_SEPARATOR, 0, nil);
   end;
   Dispatch(Msg);
 end;
@@ -282,26 +285,41 @@ begin
     NPPN_CMDLINEPLUGINMSG: DoNppnCmdLinePluginMsg;
     NPPN_EXTERNALLEXERBUFFER: DoNppExternalLexerBuffer;
     NPPN_GLOBALMODIFIED: DoNppGlobalModified;
+    NPPN_NATIVELANGCHANGED: DoNppNativeLangChanged;
+    NPPN_TOOLBARICONSETCHANGED: DoNppToolbarIconsetChanged;
   end;
 end;
 
 procedure TNppPlugin.SetInfo(NppData: TNppData);
 begin
-  Self.NppData := NppData;
+  Self.FNppData := NppData;
   Application.Handle := NppData.NppHandle;
 end;
 
 function TNppPlugin.GetFuncsArray(out FuncsCount: Integer): Pointer;
 begin
-  FuncsCount := Length(FFuncArray);
-  Result := FFuncArray;
+  FuncsCount := Length(FFuncItemArray);
+  Result := FFuncItemArray;
 end;
 
 function TNppPlugin.GetFuncByIndex(const Index: Integer): PFuncItem;
 begin
   Result := nil;
-  if Index < Length(FFuncArray) then
-    Result := @FFuncArray[Index];
+  if (Index >= 0) and (Index < Length(FFuncItemArray)) then
+    Result := @FFuncItemArray[Index];
+end;
+
+function TNppPlugin.GetFuncByCmdID(const CmdID: Integer): PFuncItem;
+var
+  Idx: Integer;
+begin
+  Result := nil;
+  for Idx := 0 to High(FFuncItemArray) do
+    if FFuncItemArray[Idx].CmdID = CmdID then
+    begin
+      Result := @FFuncItemArray[Idx];
+      Exit;
+    end;
 end;
 
 function TNppPlugin.GetName: nppPChar;
@@ -340,22 +358,22 @@ end;
 
 function TNppPlugin.AddFuncItem(ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
 begin
-  Result := Length(FFuncArray);
-  SetLength(FFuncArray, Result + 1);
-  StringToWideChar(ItemName, FFuncArray[Result].ItemName, Length(FFuncArray[Result].ItemName));
-  FFuncArray[Result].Func := Func;
-  FFuncArray[Result].ShortcutKey := ShortcutKey;
-  FFuncArray[Result].Checked := Checked;
+  Result := Length(FFuncItemArray);
+  SetLength(FFuncItemArray, Result + 1);
+  StringToWideChar(ItemName, FFuncItemArray[Result].ItemName, Length(FFuncItemArray[Result].ItemName));
+  FFuncItemArray[Result].Func := Func;
+  FFuncItemArray[Result].ShortcutKey := ShortcutKey;
+  FFuncItemArray[Result].Checked := Checked;
 end;
 
 function TNppPlugin.AddFuncItem(ItemIndex: Integer; ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
 begin
-  if Length(FFuncArray) <= ItemIndex then
-    SetLength(FFuncArray, ItemIndex + 1);
-  StringToWideChar(ItemName, FFuncArray[ItemIndex].ItemName, Length(FFuncArray[ItemIndex].ItemName));
-  FFuncArray[ItemIndex].Func := Func;
-  FFuncArray[ItemIndex].ShortcutKey := ShortcutKey;
-  FFuncArray[ItemIndex].Checked := Checked;
+  if Length(FFuncItemArray) <= ItemIndex then
+    SetLength(FFuncItemArray, ItemIndex + 1);
+  StringToWideChar(ItemName, FFuncItemArray[ItemIndex].ItemName, Length(FFuncItemArray[ItemIndex].ItemName));
+  FFuncItemArray[ItemIndex].Func := Func;
+  FFuncItemArray[ItemIndex].ShortcutKey := ShortcutKey;
+  FFuncItemArray[ItemIndex].Checked := Checked;
   Result := ItemIndex;
 end;
 
@@ -373,9 +391,11 @@ end;
 // Utils and message wrapper methods
 // -----------------------------------------------------------------------------
 
-function TNppPlugin.CmdIdFromMenuItemIdx(MenuItemIdx: Integer): cardinal;
+function TNppPlugin.CmdIdFromMenuItemIdx(MenuItemIdx: Integer): Integer;
 begin
-  Result := FFuncArray[MenuItemIdx].CmdID;
+  Result := -1;
+  if (Length(FFuncItemArray) > MenuItemIdx) and (MenuItemIdx >= 0) then
+    Result := FFuncItemArray[MenuItemIdx].CmdID;
 end;
 
 function EnumChildProc(Wnd: HWND; LParam: LPARAM): BOOL; stdcall;
@@ -427,7 +447,7 @@ begin
     SendMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
 end;
 
-procedure TNppPlugin.PerformMenuCommand(MenuCmdId: cardinal; Param: Integer = 0; Delayed: Boolean = true);
+procedure TNppPlugin.PerformMenuCommand(MenuCmdId: Integer; Param: Integer = 0; Delayed: Boolean = true);
 begin
   if Delayed then
     PostMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
@@ -723,6 +743,11 @@ begin
   Result := false;
   if IsDarkModeEnabled then
     Result := SendMessage(NppData.NppHandle, NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LParam(PColors)) > 0;
+end;
+
+function TNppPlugin.GetToolbarIconSetChoice: Integer;
+begin
+  Result := SendMessage(NppData.NppHandle, NPPM_GETTOOLBARICONSETCHOICE, 0, 0);
 end;
 
 function TNppPlugin.GetOpenFilesCnt(CntType: Integer): Integer;
@@ -1162,6 +1187,28 @@ end;
 // scnNotification->nmhdr.hwndFrom = BufferID;
 // scnNotification->nmhdr.idFrom = 0; // preserved for future use, must be zero
 procedure TNppPlugin.DoNppGlobalModified;
+begin
+  // override this
+end;
+
+// To notify plugins that the current native language is just changed to another one.
+// Use NPPM_GETNATIVELANGFILENAME to get current native language file name.
+// Use NPPM_GETMENUHANDLE(NPPPLUGINMENU, 0) to get submenu "Plugins" handle (HMENU)
+//scnNotification->nmhdr.code = NPPN_NATIVELANGCHANGED;
+//scnNotification->nmhdr.hwndFrom = hwndNpp
+//scnNotification->nmhdr.idFrom = 0; // preserved for the future use, must be zero
+procedure TNppPlugin.DoNppNativeLangChanged;
+begin
+  // override this
+end;
+
+// To notify plugins that toolbar icon set selection has changed
+//scnNotification->nmhdr.code = NPPN_TOOLBARICONSETCHANGED;
+//scnNotification->nmhdr.hwndFrom = hwndNpp;
+//scnNotification->nmhdr.idFrom = iconSetChoice;
+// where iconSetChoice could be 1 of 5 possible values:
+// 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
+procedure TNppPlugin.DoNppToolbarIconsetChanged;
 begin
   // override this
 end;

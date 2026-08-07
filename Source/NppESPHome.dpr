@@ -1,3 +1,5 @@
+// NppESPHome Notepad++ plugin library entry point.
+// Exports the standard Notepad++ plugin API and owns the lifetime of the concrete plugin instance.
 library NppESPHome;
 
 { Important note about DLL memory management: ShareMem must be the
@@ -19,7 +21,7 @@ library NppESPHome;
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
 {$ENDIF}
 
-{$R *.dres}
+
 
 uses
   System.SysUtils,
@@ -27,25 +29,29 @@ uses
   Winapi.Windows,
   Winapi.Messages,
   NppPlugin in '..\Lib\NppPlugin.pas',
-  NppPluginForms in '..\Lib\NppPluginForms.pas' {NppPluginForm},
-  NppPluginDockingForms in '..\Lib\NppPluginDockingForms.pas' {NppPluginDockingForm},
-  NppSupport in '..\Lib\NppSupport.pas',
+  NppMessages in '..\Lib\NppMessages.pas',
   NppMenuCmdID in '..\Lib\NppMenuCmdID.pas',
-  SciSupport in '..\Lib\SciSupport.pas',
+  NppScintilla in '..\Lib\NppScintilla.pas',
   FileVersionInfo in '..\Lib\FileVersionInfo.pas',
-  ESPHomePlugin in 'ESPHomePlugin.pas',
-  UnitFormSelection in 'UnitFormSelection.pas' {FormSelection},
-  UnitFormConfig in 'UnitFormConfig.pas' {FormConfiguration},
-  ESPHomeShared in 'ESPHomeShared.pas',
-  UnitFormAbout in 'UnitFormAbout.pas' {FormAbout},
-  UnitFormToolbar in 'UnitFormToolbar.pas' {FormToolbar},
-  UnitFormProjects in 'UnitFormProjects.pas' {FormProjects};
+  NppESPHome.FormSelectProject in 'NppESPHome.FormSelectProject.pas' {FormSelection},
+  NppESPHome.FormConfiguration in 'NppESPHome.FormConfiguration.pas' {FormConfiguration},
+  NppESPHome.Shared in 'NppESPHome.Shared.pas',
+  NppESPHome.FormAbout in 'NppESPHome.FormAbout.pas' {FormAbout},
+  NppESPHome.FormToolbar in 'NppESPHome.FormToolbar.pas' {FormToolbar},
+  NppESPHome.FormProjects in 'NppESPHome.FormProjects.pas' {FormProjects},
+  NppESPHome.Plugin in 'NppESPHome.Plugin.pas' {Resources: TDataModule},
+  NppPluginDockingForm in '..\Lib\NppPluginDockingForm.pas',
+  NppPluginForm in '..\Lib\NppPluginForm.pas';
 
 {$R *.res}
 
 var
   BasePlugin: TNppPlugin;
 
+// *****************************************************************************
+// Purpose: Handles DLL process and thread lifecycle notifications, creating the
+// plugin instance on attach and releasing it on detach.
+// *****************************************************************************
 procedure DLLEntryPoint(dwReason: DWord);
 begin
   case dwReason of
@@ -61,6 +67,10 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Adapts a raw Notepad++ window message to TMessage and forwards it to
+// the active plugin instance.
+// *****************************************************************************
 function messageProc(msg: Cardinal; _wParam: WPARAM; _lParam: LPARAM): LRESULT; cdecl; export;
 var
   xmsg: TMessage;
@@ -73,26 +83,44 @@ begin
   Result := xmsg.Result;
 end;
 
+// *****************************************************************************
+// Purpose: Forwards a Notepad++ or Scintilla notification to the active plugin
+// instance.
+// *****************************************************************************
 procedure beNotified(sn: PSCNotification); cdecl; export;
 begin
   BasePlugin.beNotified(sn);
 end;
 
+// *****************************************************************************
+// Purpose: Supplies the Notepad++ window and Scintilla handles to the active
+// plugin instance.
+// *****************************************************************************
 procedure setInfo(NppData: TNppData); cdecl; export;
 begin
   BasePlugin.setInfo(NppData);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the plugin command table that Notepad++ uses to build the
+// Plugins menu.
+// *****************************************************************************
 function getFuncsArray(out nFuncs: integer): Pointer; cdecl; export;
 begin
   Result := BasePlugin.GetFuncsArray(nFuncs);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the plugin name exposed to Notepad++.
+// *****************************************************************************
 function getName(): nppPchar; cdecl; export;
 begin
   Result := BasePlugin.GetName;
 end;
 
+// *****************************************************************************
+// Purpose: Reports that the plugin uses the Unicode Notepad++ plugin interface.
+// *****************************************************************************
 function isUnicode: Boolean; cdecl; export;
 begin
   Result := true;

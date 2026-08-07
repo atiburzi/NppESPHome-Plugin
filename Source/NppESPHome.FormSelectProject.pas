@@ -1,0 +1,168 @@
+// Project selection dialog for NppESPHome.
+// Lets the user choose, add, or remove a known project and propagates the selection to the plugin UI.
+unit NppESPHome.FormSelectProject;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForm;
+
+type
+  // Modal dialog that mirrors ProjectList and manages the current selection.
+  TFormSelection = class(TNppPluginForm)
+    GroupBoxCurrentProject: TGroupBox;
+    ComboBoxProject: TComboBox;
+    ButtonAddProject: TButton;
+    ButtonRemoveProject: TButton;
+    FileOpenDialogProject: TFileOpenDialog;
+    ButtonClose: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure ComboBoxProjectChange(Sender: TObject);
+    procedure ButtonAddProjectClick(Sender: TObject);
+    procedure ButtonRemoveProjectClick(Sender: TObject);
+    procedure ToggleDarkMode; override;
+  private
+    procedure RefreshComboBox;
+  public
+    { Public declarations }
+
+  end;
+
+var
+  FormSelection: TFormSelection;
+
+implementation
+
+{$R *.dfm}
+
+uses
+  NppESPHome.Shared, NppESPHome.Plugin, NppMessages, Math, TDMB;
+
+// *****************************************************************************
+// Purpose: Adds a selected ESPHome YAML file to the known-project list,
+// rejecting duplicates and invalid files before persisting and refreshing the
+// UI.
+// *****************************************************************************
+procedure TFormSelection.ButtonAddProjectClick(Sender: TObject);
+var
+  Project: TProject;
+begin
+  inherited;
+  if FileOpenDialogProject.Execute(Self.Handle) then
+  begin
+    // Prevent duplicate entries before constructing a new project object.
+    if Assigned(ProjectList.GetProjectFromFileName(FileOpenDialogProject.FileName)) then
+    begin
+      TD(Format(rsProjectAlreadyExists, [ExtractFileName(FileOpenDialogProject.FileName)])).WindowCaption(rsMessageBoxError).
+        Text(rsProjectAlreadyExists2).SetFlags([tfAllowDialogCancellation]).Error.OK.Execute(Self);
+      Exit;
+    end;
+    Project := TProject.Create(FileOpenDialogProject.FileName);
+    if Project.IsValid then
+    begin
+      // A valid project transfers ownership to the object list.
+      ProjectList.Add(Project);
+      ProjectList.Current := Project;
+      ProjectList.SaveConfig;
+      RefreshComboBox;
+      Plugin.RefreshProjectList;
+    end
+    else
+    begin
+      Project.Free;
+      TD(Format(rsInvalidProjectFile, [ExtractFileName(FileOpenDialogProject.FileName)])).Text(rsInvalidProjectFile2).WindowCaption(rsMessageBoxError).
+        Error.OK.SetFlags([tfAllowDialogCancellation]).Execute(Self);
+    end;
+  end;
+end;
+
+// *****************************************************************************
+// Purpose: Removes the current project from the known-project list after
+// confirmation and selects the nearest remaining project.
+// *****************************************************************************
+procedure TFormSelection.ButtonRemoveProjectClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  inherited;
+  if Assigned(ProjectList.Current) then
+  begin
+    if TD(Format(rsKnownProjectRemoval, [ProjectList.Current.FriendlyName])).Text(rsKnownProjectRemoval2).WindowCaption(rsMessageBoxWarning).
+      SetFlags([tfAllowDialogCancellation]).Warning.YesNo.Execute (Self) = mrYes then
+    begin
+      I := ProjectList.IndexOf(ProjectList.Current);
+      ProjectList.Delete(I);
+      if ProjectList.Count > 0 then
+        ProjectList.Current := ProjectList.Items[Max(0, I - 1)]
+      else
+        ProjectList.Current := nil;
+      ProjectList.SaveConfig;
+      RefreshComboBox;
+      Plugin.RefreshProjectList;
+    end;
+  end;
+end;
+
+// *****************************************************************************
+// Purpose: Applies the current Notepad++ palette and window icon to the project
+// selection dialog.
+// *****************************************************************************
+procedure TFormSelection.ToggleDarkMode;
+var
+  DarkModeColors: TNppDarkModeColors;
+begin
+  inherited ToggleDarkMode;
+  AssignWindowIcon(Icon);
+  if (Plugin.IsDarkModeEnabled) then
+  begin
+    DarkModeColors := Default(TNppDarkModeColors);
+    Plugin.GetDarkModeColors(@DarkModeColors);
+    Self.Color := TColor(DarkModeColors.Background);
+    Self.Font.Color := TColor(DarkModeColors.Text);
+  end
+  else
+  begin
+    Self.Color := clBtnFace;
+    Self.Font.Color := clWindowText;
+  end;
+end;
+
+// *****************************************************************************
+// Purpose: Makes the combo-box selection current and refreshes all
+// project-dependent plugin state.
+// *****************************************************************************
+procedure TFormSelection.ComboBoxProjectChange(Sender: TObject);
+begin
+  inherited;
+  if (ComboBoxProject.ItemIndex >= 0) and (ComboBoxProject.Items.Count > 0) then
+    ProjectList.Current := ProjectList.GetProjectFromUIName(ComboBoxProject.Items[ComboBoxProject.ItemIndex]);
+  Plugin.RefreshProjectList;
+end;
+
+// *****************************************************************************
+// Purpose: Initializes the project selector from the shared project list.
+// *****************************************************************************
+procedure TFormSelection.FormCreate(Sender: TObject);
+begin
+  inherited;
+  RefreshComboBox;
+end;
+
+// *****************************************************************************
+// Purpose: Rebuilds the project combo box and restores the item corresponding
+// to the current project.
+// *****************************************************************************
+procedure TFormSelection.RefreshComboBox;
+var
+  P: TProject;
+begin
+  ComboBoxProject.Clear;
+  for P in ProjectList do
+    if P.IsValid then
+      ComboBoxProject.Items.Add(P.UIName);
+  if Assigned(ProjectList.Current) then
+    ComboBoxProject.ItemIndex := ComboBoxProject.Items.IndexOf(ProjectList.Current.UIName);
+end;
+
+end.
