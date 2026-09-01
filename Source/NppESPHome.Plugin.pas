@@ -35,6 +35,7 @@ const
   fiStartExplorer = 'explorer';
 
   fiShowHidePrjWin = 'showhide';
+  fiShowHideConsole = 'console';
   fiConfigToolbar = 'toolbar';
   fiAboutWindow = 'about';
 
@@ -60,6 +61,7 @@ resourcestring
   miStartTerminal = 'Open a command shell from the current project folder';
   miStartExplorer = 'Open an Explorer window from the current project folder';
   miShowHidePrjWin = 'Hide/Show ESPHome plugin window';
+  miShowHideConsole = 'Hide/Show ESPHome console window';
   miConfigToolbar = 'Configure Plugin Toolbar...';
   miAboutWindow = 'About...';
 
@@ -129,6 +131,7 @@ type
     procedure StartTerminal;
     procedure StartExplorer;
     procedure ShowHidePrjWin;
+    procedure ShowHideConsole;
     procedure ConfigToolbar;
     procedure AboutWindow;
 
@@ -196,7 +199,6 @@ var
 
   LastConsolePID: DWORD; // PID of the last ESPHome console process started by the plugin
 
-
 var
   Resources: TResources; // Shared image resource data module
 
@@ -210,7 +212,9 @@ implementation
 
 uses
   JvCreateProcess, Winapi.ShellAPI, NppESPHome.FormSelectProject, NppESPHome.FormConfiguration, System.StrUtils,
-  NppESPHome.FormToolbar, NppESPHome.FormAbout, NppESPHome.FormProjects, IniFiles, System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs,
+  NppESPHome.FormToolbar, NppESPHome.FormAbout, NppESPHome.FormProjects,
+  NppESPHome.FormConsole, NppESPHome.ConPty, IniFiles,
+  System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs,
   System.Math,
   System.UITypes,
   System.IOUtils;
@@ -373,6 +377,15 @@ begin
 end;
 
 // *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to the docked console
+// visibility toggle.
+// *****************************************************************************
+procedure _ShowHideConsole; cdecl;
+begin
+  Plugin.ShowHideConsole;
+end;
+
+// *****************************************************************************
 // Purpose: Forwards the Notepad++ command callback to
 // TESPHomePlugin.ConfigToolbar.
 // *****************************************************************************
@@ -470,10 +483,10 @@ end;
 // *****************************************************************************
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
-  CommandStr: array [scRun .. scCleanAll] of string = ('run', 'compile', 'upload', 'logs', 'clean', 'clean-all');
+  CommandStr: array [scRun .. scCleanAll] of string = ('Run', 'Compile', 'Upload', 'Logs', 'Clean', 'Clean-All');
 var
   ConsoleHandle: HWND;
-  CommandLine, Switch, Device: string;
+  CommandLine, Switch, Device, ConsoleTitle: string;
   ESPHomeProcess: TJvCreateProcess;
 begin
   // A command can only run when both the current project and esphome.exe are available.
@@ -570,18 +583,56 @@ begin
         end;
     end;
 
-    CommandLine := Trim(Format('%s %s %s "%s"', [CommandLine, CommandStr[Command], Switch, ExpandFileName(FileName)]));
+    CommandLine := Trim(Format('%s %s %s "%s"', [CommandLine, LowerCase(CommandStr[Command]), Switch, ExpandFileName(FileName)]));
 
+    // Optional solo mode keeps only one ESPHome console alive at a time.
+    if GetOption(csKeyConsoleSoloMode, False) then
+      if IsPIDRunning(LastConsolePID) then
+        KillProcessTree(LastConsolePID);
+
+    // Prefer the embedded pseudoconsole. If Windows does not provide ConPTY,
+    // or session startup fails, the existing external console remains the
+    // compatibility fallback.
+    if Assigned(FormConsole) and FormConsole.Visible and TConPtySession.IsSupported then
+    begin
+      try
+        ConsoleTitle := Format('%s "%S"', [CommandStr[Command], ProjectList.Current.FriendlyName]);
+
+        FormConsole.StartCommand(
+          // Integrated sessions always terminate cmd.exe with ESPHome and do
+          // not need the external console's conditional "pause" behavior.
+          Format('"%s" /c "%s"',
+            [GetEnvironmentVariable('ComSpec'), CommandLine]),
+          ExtractFilePath(ProjectList.Current.FileName), ConsoleTitle);
+
+        Plugin.CheckMenuItem(
+          Plugin.GetIndexFromFuncItemName(fiShowHideConsole), True);
+        ConfigIniFile.WriteBool(csSectionGeneral, csKeyConsoleWindow, True);
+        Exit;
+      except
+        on E: Exception do
+          OutputDebugString(PChar('NppESPHome ConPTY fallback: ' + E.Message));
+      end;
+    end;
+
+    // Reaching this point means the embedded console was disabled,
+    // unsupported, or failed to start. Use the external-console fallback.
     // Wrap the command for cmd.exe, choosing whether the console closes automatically.
     if GetOption(csKeyConsoleAutoClose, True) then
       CommandLine := Format('/c "%s" || pause', [CommandLine])
     else
       CommandLine := Format('/k "%s"', [CommandLine]);
 
-    // Optional solo mode keeps only one ESPHome console alive at a time.
-    if GetOption(csKeyConsoleSoloMode, False) then
-      if IsPIDRunning(LastConsolePID) then
-        KillProcessTree(LastConsolePID);
+    case Command of
+      scRun: ConsoleTitle := rsConsoleCommandRun;
+      scCompile: ConsoleTitle := rsConsoleCommandCompile;
+      scUpload: ConsoleTitle := rsConsoleCommandUpload;
+      scLogs: ConsoleTitle := rsConsoleCommandLogs;
+      scClean: ConsoleTitle := rsConsoleCommandClean;
+      scCleanAll: ConsoleTitle := rsConsoleCommandCleanAll;
+    end;
+    ConsoleTitle := Format('%s - [%s]',
+      [ConsoleTitle, ProjectList.Current.FriendlyName]);
 
     // Configure the external console process but keep it hidden until it is positioned.
     ESPHomeProcess := TJvCreateProcess.Create(nil);
@@ -596,16 +647,7 @@ begin
       begin
         ShowWindow := swHide;
         DefaultWindowState := False;
-        // Add command-specific options such as reset, no-logs, or only-generate.
-        case Command of
-          scRun: Title := rsConsoleCommandRun;
-          scCompile: Title := rsConsoleCommandCompile;
-          scUpload: Title := rsConsoleCommandUpload;
-          scLogs: Title := rsConsoleCommandLogs;
-          scClean: Title := rsConsoleCommandClean;
-          scCleanAll: Title := rsConsoleCommandCleanAll;
-        end;
-        Title := Format('%s - [%s]', [Title, ProjectList.Current.FriendlyName]);
+        Title := ConsoleTitle;
       end;
 
       // Start the process, then locate the console window created for it.
@@ -627,7 +669,6 @@ begin
     except
       ESPHomeProcess.Free;
     end;
-
   end;
 end;
 
@@ -940,6 +981,25 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Toggles the docked ESPHome console without terminating its active
+// pseudoconsole session.
+// *****************************************************************************
+procedure TESPHomePlugin.ShowHideConsole;
+begin
+  if Assigned(FormConsole) then
+  begin
+    if FormConsole.Visible then
+      FormConsole.Hide
+    else
+      FormConsole.Show;
+    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideConsole),
+      FormConsole.Visible);
+    ConfigIniFile.WriteBool(csSectionGeneral, csKeyConsoleWindow,
+      FormConsole.Visible);
+  end;
+end;
+
 
 
 //          if (Count = 0) and (Parts[1] = '1') and (PluginDataModule.ImageCollection.GetIndexByName(FuncItemIdFromMenuItemIdx(Index)) >= 0) then
@@ -1043,6 +1103,8 @@ begin
 
   // Create the docked project window after Notepad++ is fully initialized.
   FormProjects := TFormProjects.Create(Plugin, GetIndexFromFuncItemName(fiShowHidePrjWin));
+  FormConsole := TFormConsole.Create(Plugin,
+    GetIndexFromFuncItemName(fiShowHideConsole));
 
   // Restore the last saved visibility of the project window.
   if ConfigIniFile.ReadBool(csSectionGeneral, csKeyProjectWindow, True) then
@@ -1051,6 +1113,12 @@ begin
     FormProjects.Hide;
 
   CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
+  if ConfigIniFile.ReadBool(csSectionGeneral, csKeyConsoleWindow, False) then
+    FormConsole.Show
+  else
+    FormConsole.Hide;
+  CheckMenuItem(GetIndexFromFuncItemName(fiShowHideConsole),
+    FormConsole.Visible);
   EnableMenuItem(GetIndexFromFuncItemName(fiConfigToolbar), Plugin.IsNppMinVersion(8, 0));
 
   RefreshNppTitle;
@@ -1067,6 +1135,12 @@ begin
   // Stop a still-running ESPHome console before unloading the plugin.
   if IsPIDRunning(LastConsolePID) then
     KillProcessTree(LastConsolePID);
+  // Stop worker threads and unregister docked forms before releasing the
+  // configuration and project objects they reference.
+  if Assigned(FormConsole) then
+    FreeAndNil(FormConsole);
+  if Assigned(FormProjects) then
+    FreeAndNil(FormProjects);
   // Release shared objects in reverse startup order.
   if Assigned(TemplateList) then
     TemplateList.Free;
@@ -1074,8 +1148,6 @@ begin
     ProjectList.Free;
   if Assigned(ConfigIniFile) then
     ConfigIniFile.Free;
-  if Assigned(FormProjects) then
-    FormProjects.Free;
   FreeToolbarResources;
   if Assigned(Resources) then
     Resources.Free;
@@ -1109,6 +1181,8 @@ procedure TESPHomePlugin.DoNppnDarkModeChanged;
 begin
   if Assigned(FormProjects) then
     FormProjects.ToggleDarkMode;
+  if Assigned(FormConsole) then
+    FormConsole.ToggleDarkMode;
 
   RefreshToolbarConfiguration;
   RefreshPluginMenu;
@@ -1379,6 +1453,7 @@ begin
   AddPluginFunction(fiStartExplorer, miStartExplorer, _StartExplorer, nil);
   AddPluginMenuSeparator;
   AddPluginFunction(fiShowHidePrjWin, miShowHidePrjWin, _ShowHidePrjWin, nil);
+  AddPluginFunction(fiShowHideConsole, miShowHideConsole, _ShowHideConsole, nil);
   AddPluginMenuSeparator;
   AddPluginFunction(fiConfigToolbar, miConfigToolbar, _ConfigToolbar, nil);
   AddPluginFunction(fiAboutWindow, miAboutWindow, _AboutWindow, nil);
@@ -1754,6 +1829,8 @@ begin
 
   if Assigned(FormProjects) then
     CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
+  if Assigned(FormConsole) then
+    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideConsole), FormConsole.Visible);
 end;
 
 // *****************************************************************************

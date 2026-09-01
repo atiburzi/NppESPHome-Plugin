@@ -78,7 +78,7 @@ object FormConfig: TFormConfig
       OnCustomDrawItem = TreeViewOptionsCustomDrawItem
       OnGetImageIndex = TreeViewOptionsGetImageIndex
       Items.NodeData = {
-        070400000009540054007200650065004E006F00640065002D00000000000000
+        070500000009540054007200650065004E006F00640065002D00000000000000
         0000000000000000FFFFFFFF000000000000000000000000000107500072006F
         006A0065006300740000002D000000000000000000000001000000FFFFFFFF00
         000000000000000005000000010745005300500048006F006D00650000003500
@@ -93,16 +93,18 @@ object FormConfig: TFormConfig
         00000000000006000000FFFFFFFF00000000000000000000000000010D43006C
         00650061006E00200043006F006D006D0061006E006400000033000000000000
         000000000007000000FFFFFFFF00000000000000000000000000010A4E006F00
-        740065007000610064002B002B00200000002D00000000000000000000000800
-        0000FFFFFFFF00000000000000000000000000010743006F006E0073006F006C
-        006500}
+        740065007000610064002B002B00200000003F00000000000000000000000900
+        0000FFFFFFFF00000000000000000000000000011049006E007400650072006E
+        0061006C00200043006F006E0073006F006C00650000003F0000000000000000
+        00000008000000FFFFFFFF000000000000000000000000000110450078007400
+        650072006E0061006C00200043006F006E0073006F006C006500}
     end
     object CardPanelOptions: TCardPanel
       Left = 215
       Top = 20
       Width = 387
       Height = 277
-      ActiveCard = CardCleanOptions
+      ActiveCard = CardIntConsoleOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -872,6 +874,171 @@ object FormConfig: TFormConfig
           OnClick = CheckBoxOptionSoloModeClick
         end
       end
+      object CardIntConsoleOptions: TCard
+        Left = 0
+        Top = 0
+        Width = 387
+        Height = 277
+        Caption = 'CardIntConsoleOptions'
+        CardIndex = 9
+        ParentColor = True
+        TabOrder = 9
+        object LabelIntConsoleForeground: TLabel
+          Left = 23
+          Top = 12
+          Width = 160
+          Height = 15
+          AutoSize = False
+          Caption = 'Text color:'
+        end
+        object LabelIntConsoleBackground: TLabel
+          Left = 200
+          Top = 12
+          Width = 169
+          Height = 15
+          AutoSize = False
+          Caption = 'Background color:'
+        end
+        object LabelIntConsoleFont: TLabel
+          Left = 23
+          Top = 65
+          Width = 250
+          Height = 15
+          AutoSize = False
+          Caption = 'Terminal font:'
+        end
+        object LabelIntConsoleFontSize: TLabel
+          Left = 290
+          Top = 65
+          Width = 79
+          Height = 15
+          AutoSize = False
+          Caption = 'Size:'
+        end
+        object LabelIntConsoleScrollback: TLabel
+          Left = 23
+          Top = 118
+          Width = 250
+          Height = 15
+          AutoSize = False
+          Caption = 'Scrollback buffer (lines):'
+        end
+        object LabelIntConsoleClearOnStart: TLabel
+          Left = 46
+          Top = 181
+          Width = 189
+          Height = 15
+          Caption = 'Clear output before each command'
+          FocusControl = CheckBoxIntConsoleClearOnStart
+        end
+        object PanelIntConsoleForegroundColor: TPanel
+          Left = 23
+          Top = 30
+          Width = 160
+          Height = 26
+          Cursor = crHandPoint
+          Hint = 'Choose the default console text color.'
+          BevelOuter = bvLowered
+          Color = clWhite
+          ParentBackground = False
+          TabOrder = 0
+          OnClick = IntConsoleColorClick
+        end
+        object PanelIntConsoleBackgroundColor: TPanel
+          Left = 200
+          Top = 30
+          Width = 169
+          Height = 26
+          Cursor = crHandPoint
+          Hint = 'Choose the default console background color.'
+          BevelOuter = bvLowered
+          Color = clBlack
+          ParentBackground = False
+          TabOrder = 1
+          OnClick = IntConsoleColorClick
+        end
+        object ComboBoxIntConsoleFont: TJvImageComboBox
+          Left = 23
+          Top = 83
+          Width = 250
+          Height = 25
+          Style = csOwnerDrawVariable
+          ButtonStyle = fsLighter
+          DroppedWidth = 312
+          DropDownCount = 16
+          ImageHeight = 0
+          ImageWidth = 0
+          ItemHeight = 19
+          ItemIndex = -1
+          ParentColor = True
+          TabOrder = 2
+          OnChange = ComboBoxIntConsoleFontChange
+          Items = <>
+        end
+        object EditIntConsoleFontSize: TEdit
+          Left = 290
+          Top = 83
+          Width = 58
+          Height = 23
+          NumbersOnly = True
+          ParentColor = True
+          TabOrder = 3
+          Text = '10'
+          OnChange = EditIntConsoleFontSizeChange
+        end
+        object UpDownIntConsoleFontSize: TUpDown
+          Left = 348
+          Top = 83
+          Width = 16
+          Height = 23
+          Associate = EditIntConsoleFontSize
+          Min = 6
+          Max = 32
+          Position = 10
+          TabOrder = 4
+        end
+        object EditIntConsoleScrollback: TEdit
+          Left = 23
+          Top = 136
+          Width = 92
+          Height = 23
+          NumbersOnly = True
+          ParentColor = True
+          TabOrder = 5
+          Text = '5000'
+          OnChange = EditIntConsoleScrollbackChange
+        end
+        object UpDownIntConsoleScrollback: TUpDown
+          Left = 115
+          Top = 136
+          Width = 16
+          Height = 22
+          Associate = EditIntConsoleScrollback
+          Min = 500
+          Max = 20000
+          Increment = 500
+          Position = 5000
+          TabOrder = 6
+          Thousands = False
+        end
+        object ButtonIntConsoleDefaults: TButton
+          Left = 23
+          Top = 216
+          Width = 130
+          Height = 25
+          Caption = 'Restore defaults'
+          TabOrder = 8
+          OnClick = ButtonIntConsoleDefaultsClick
+        end
+        object CheckBoxIntConsoleClearOnStart: TCheckBox
+          Left = 23
+          Top = 177
+          Width = 258
+          Height = 25
+          TabOrder = 7
+          OnClick = CheckBoxIntConsoleClearOnStartClick
+        end
+      end
     end
   end
   object VirtualImageList: TVirtualImageList
@@ -921,5 +1088,10 @@ object FormConfig: TFormConfig
     Options = [fdoForceFileSystem, fdoAllowMultiSelect, fdoFileMustExist, fdoNoDereferenceLinks, fdoForceShowHidden]
     Left = 88
     Top = 31
+  end
+  object ColorDialog: TColorDialog
+    Options = [cdFullOpen, cdAnyColor]
+    Left = 459
+    Top = 34
   end
 end

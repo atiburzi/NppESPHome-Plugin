@@ -31,7 +31,7 @@ type
   // It coordinates selection with Notepad++, exposes project commands, and lets
   // users filter or insert reusable YAML templates.
   TFormProjects = class(TNppPluginDockingForm)
-    VirtualImageList24: TVirtualImageList;
+    VirtualImageList32: TVirtualImageList;
     ToolBarCommands: TToolBar;
     ToolButtonRun: TToolButton;
     ToolButtonCompile: TToolButton;
@@ -330,7 +330,7 @@ begin
   AssignWindowIcon(Icon);
   AssignImageResources(VirtualImageList16);
   AssignImageResources(VirtualImageList20);
-  AssignImageResources(VirtualImageList24);
+  AssignImageResources(VirtualImageList32);
 
   if Plugin.IsDarkModeEnabled then
   begin

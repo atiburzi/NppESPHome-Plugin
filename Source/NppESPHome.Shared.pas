@@ -33,13 +33,26 @@ const
   ciLogLevelDebug = 4;
   ciLogLevelDefault = 5;
 
+// Integrated console preference defaults and accepted ranges
+  ciDefaultIntConsoleForegroundColor = $00FFFFFF;
+  ciDefaultIntConsoleBackgroundColor = $00000000;
+  ciDefaultIntConsoleFontSize = 10;
+  ciMinIntConsoleFontSize = 6;
+  ciMaxIntConsoleFontSize = 32;
+  ciDefaultIntConsoleScrollbackLines = 5000;
+  ciMinIntConsoleScrollbackLines = 500;
+  ciMaxIntConsoleScrollbackLines = 20000;
+  cbDefaultIntConsoleClearOnStart = True;
+
 // Keys used in the INI configuration file to store user preferences
 const
   csDefaultEmpty = '';
+  csDefaultIntConsoleFontName = 'Consolas';
   csSectionGeneral = 'General';
   csKeyCurrentProject = 'CurrentProject';
   csKeyToolbarConfig = 'ToolbarConfig';
   csKeyProjectWindow = 'ProjectWindow';
+  csKeyConsoleWindow = 'ConsoleWindow';
   csKeyProjectPanelSize = 'ProjectPanelSize';
   csKeyNppAutosave = 'NppAutosave';
   csKeyDependenciesCount = 'DependenciesCount';
@@ -48,6 +61,12 @@ const
   csKeyConsoleAlwaysOnTop = 'ConsoleAlwaysOnTop';
   csKeyConsoleStartingPosition = 'ConsoleStartingPosition';
   csKeyConsoleStartingMonitor = 'ConsoleStartingMonitor';
+  csKeyIntConsoleForegroundColor = 'IntConsoleForegroundColor';
+  csKeyIntConsoleBackgroundColor = 'IntConsoleBackgroundColor';
+  csKeyIntConsoleFontName = 'IntConsoleFontName';
+  csKeyIntConsoleFontSize = 'IntConsoleFontSize';
+  csKeyIntConsoleScrollbackLines = 'IntConsoleScrollbackLines';
+  csKeyIntConsoleClearOnStart = 'IntConsoleClearOnStart';
   csKeyESPHomeLogLevel = 'ESPHomeLogLevel';
   csKeyESPHomeTargetDevice = 'ESPHomeTargetDevice';
   csKeyESPHomeExtraParameters = 'ESPHomeExtraParameters';
@@ -239,7 +258,6 @@ function FindFileInPath(const FileName: string): string;
 procedure DownloadTemplateFileFromGitHub;
 procedure GetEnvironmentVars(List: TStrings);
 function IsValidHttpUrl(const AUrl: string): Boolean;
-
 
 // Bitwise operations
 function GetBit(const Value: Int64; BitPos: ShortInt): Boolean;

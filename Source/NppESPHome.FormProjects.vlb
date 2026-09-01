@@ -134,12 +134,12 @@ Coordinates=684,1,144,36
 [PopupMenuReloadXMLFileConfiguration]
 Coordinates=386,343,179,36
 
-[VirtualImageList24]
-Coordinates=1048,386,149,36
-
 [VirtualImageList16]
 Coordinates=138,343,149,36
 
 [PopupMenuTemplates]
 Coordinates=1029,491,143,36
+
+[VirtualImageList32]
+Coordinates=1048,386,149,36
 

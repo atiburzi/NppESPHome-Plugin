@@ -84,6 +84,23 @@ type
     VirtualImageMC: TVirtualImage;
     MemoProject: TMemo;
     SpeedButtonRefresh: TSpeedButton;
+    CardIntConsoleOptions: TCard;
+    LabelIntConsoleForeground: TLabel;
+    LabelIntConsoleBackground: TLabel;
+    LabelIntConsoleFont: TLabel;
+    LabelIntConsoleFontSize: TLabel;
+    LabelIntConsoleScrollback: TLabel;
+    PanelIntConsoleForegroundColor: TPanel;
+    PanelIntConsoleBackgroundColor: TPanel;
+    ComboBoxIntConsoleFont: TJvImageComboBox;
+    EditIntConsoleFontSize: TEdit;
+    UpDownIntConsoleFontSize: TUpDown;
+    EditIntConsoleScrollback: TEdit;
+    UpDownIntConsoleScrollback: TUpDown;
+    CheckBoxIntConsoleClearOnStart: TCheckBox;
+    ButtonIntConsoleDefaults: TButton;
+    ColorDialog: TColorDialog;
+    LabelIntConsoleClearOnStart: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
@@ -112,6 +129,12 @@ type
     procedure EditOptionCleanAdditionalParametersChange(Sender: TObject);
     procedure TreeViewOptionsGetImageIndex(Sender: TObject; Node: TTreeNode);
     procedure SpeedButtonRefreshClick(Sender: TObject);
+    procedure ComboBoxIntConsoleFontChange(Sender: TObject);
+    procedure IntConsoleColorClick(Sender: TObject);
+    procedure EditIntConsoleFontSizeChange(Sender: TObject);
+    procedure EditIntConsoleScrollbackChange(Sender: TObject);
+    procedure CheckBoxIntConsoleClearOnStartClick(Sender: TObject);
+    procedure ButtonIntConsoleDefaultsClick(Sender: TObject);
   private
     procedure PopulateComboDevice;
   public
@@ -126,7 +149,8 @@ implementation
 {$R *.dfm}
 
 uses
-  NppESPHome.Shared, NppESPHome.Plugin, NppESPHome.FormProjects, NppMessages, Registry, Math,Winapi.ShellAPI;
+  NppESPHome.Shared, NppESPHome.Plugin, NppESPHome.FormProjects,
+  NppESPHome.FormConsole, NppMessages, Registry, Math, Winapi.ShellAPI;
 
 // *****************************************************************************
 // Purpose: Measures all list-box items and sets a horizontal scroll width wide
@@ -145,6 +169,153 @@ begin
       MaxW := W;
   end;
   AListBox.ScrollWidth := MaxW + 8;
+end;
+
+// *****************************************************************************
+// Purpose: Finds an item by display text in a JVCL image combo, which exposes
+// text through GetItemText rather than a standard TStrings collection.
+// *****************************************************************************
+function FindImageComboText(Combo: TJvImageComboBox;
+  const Text: string): Integer;
+var
+  Index: Integer;
+begin
+  Result := -1;
+  for Index := 0 to Combo.GetCount - 1 do
+    if SameText(Combo.GetItemText(Index), Text) then
+      Exit(Index);
+end;
+
+// *****************************************************************************
+// Purpose: Persists a terminal font change made on the integrated-console card.
+// *****************************************************************************
+procedure TFormConfig.ComboBoxIntConsoleFontChange(Sender: TObject);
+var
+  FontName: string;
+begin
+  inherited;
+  if ComboBoxIntConsoleFont.ItemIndex < 0 then
+    Exit;
+  FontName := ComboBoxIntConsoleFont.GetItemText(
+    ComboBoxIntConsoleFont.ItemIndex);
+  if FontName = '' then
+    Exit;
+  ProjectList.Current.SetOption(csKeyIntConsoleFontName, FontName);
+  if Assigned(FormConsole) then
+    FormConsole.ApplyPreferences;
+end;
+
+// *****************************************************************************
+// Purpose: Opens the shared color dialog for a console color sample and saves
+// the selected foreground or background color.
+// *****************************************************************************
+procedure TFormConfig.IntConsoleColorClick(Sender: TObject);
+var
+  ColorPanel: TPanel;
+  OptionName: string;
+begin
+  inherited;
+  if not (Sender is TPanel) then
+    Exit;
+  ColorPanel := TPanel(Sender);
+  if ColorPanel = PanelIntConsoleForegroundColor then
+    OptionName := csKeyIntConsoleForegroundColor
+  else if ColorPanel = PanelIntConsoleBackgroundColor then
+    OptionName := csKeyIntConsoleBackgroundColor
+  else
+    Exit;
+  ColorDialog.Color := ColorPanel.Color;
+  if ColorDialog.Execute(Handle) then
+  begin
+    ColorPanel.Color := ColorDialog.Color;
+    ProjectList.Current.SetOption(OptionName, Integer(ColorPanel.Color));
+    if Assigned(FormConsole) then
+      FormConsole.ApplyPreferences;
+  end;
+end;
+
+// *****************************************************************************
+// Purpose: Validates and persists a terminal font-size change.
+// *****************************************************************************
+procedure TFormConfig.EditIntConsoleFontSizeChange(Sender: TObject);
+var
+  Value: Integer;
+begin
+  inherited;
+  if TryStrToInt(EditIntConsoleFontSize.Text, Value) and
+    InRange(Value, ciMinIntConsoleFontSize, ciMaxIntConsoleFontSize) then
+  begin
+    ProjectList.Current.SetOption(csKeyIntConsoleFontSize, Value);
+    if Assigned(FormConsole) then
+      FormConsole.ApplyPreferences;
+  end;
+end;
+
+// *****************************************************************************
+// Purpose: Validates and persists a scrollback line-count change.
+// *****************************************************************************
+procedure TFormConfig.EditIntConsoleScrollbackChange(Sender: TObject);
+var
+  Value: Integer;
+begin
+  inherited;
+  if TryStrToInt(EditIntConsoleScrollback.Text, Value) and
+    InRange(Value, ciMinIntConsoleScrollbackLines,
+    ciMaxIntConsoleScrollbackLines) then
+  begin
+    ProjectList.Current.SetOption(csKeyIntConsoleScrollbackLines, Value);
+    if Assigned(FormConsole) then
+      FormConsole.ApplyPreferences;
+  end;
+end;
+
+// *****************************************************************************
+// Purpose: Persists whether a new integrated command clears previous output.
+// *****************************************************************************
+procedure TFormConfig.CheckBoxIntConsoleClearOnStartClick(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyIntConsoleClearOnStart,
+    CheckBoxIntConsoleClearOnStart.Checked);
+  if Assigned(FormConsole) then
+    FormConsole.ApplyPreferences;
+end;
+
+// *****************************************************************************
+// Purpose: Restores the global integrated-console controls to their defaults,
+// saves them, and refreshes the open console.
+// *****************************************************************************
+procedure TFormConfig.ButtonIntConsoleDefaultsClick(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyIntConsoleForegroundColor,
+    ciDefaultIntConsoleForegroundColor);
+  ProjectList.Current.SetOption(csKeyIntConsoleBackgroundColor,
+    ciDefaultIntConsoleBackgroundColor);
+  ProjectList.Current.SetOption(csKeyIntConsoleFontName,
+    csDefaultIntConsoleFontName);
+  ProjectList.Current.SetOption(csKeyIntConsoleFontSize,
+    ciDefaultIntConsoleFontSize);
+  ProjectList.Current.SetOption(csKeyIntConsoleScrollbackLines,
+    ciDefaultIntConsoleScrollbackLines);
+  ProjectList.Current.SetOption(csKeyIntConsoleClearOnStart,
+    cbDefaultIntConsoleClearOnStart);
+  PanelIntConsoleForegroundColor.Color := TColor(
+    ciDefaultIntConsoleForegroundColor);
+  PanelIntConsoleBackgroundColor.Color := TColor(
+    ciDefaultIntConsoleBackgroundColor);
+  ComboBoxIntConsoleFont.ItemIndex := FindImageComboText(
+    ComboBoxIntConsoleFont, csDefaultIntConsoleFontName);
+  if (ComboBoxIntConsoleFont.ItemIndex < 0) and
+    (ComboBoxIntConsoleFont.Items.Count > 0) then
+    ComboBoxIntConsoleFont.ItemIndex := 0;
+  UpDownIntConsoleFontSize.Position := ciDefaultIntConsoleFontSize;
+  UpDownIntConsoleScrollback.Position :=
+    ciDefaultIntConsoleScrollbackLines;
+  CheckBoxIntConsoleClearOnStart.Checked :=
+    cbDefaultIntConsoleClearOnStart;
+  if Assigned(FormConsole) then
+    FormConsole.ApplyPreferences;
 end;
 
 // *****************************************************************************
@@ -401,10 +572,13 @@ begin
 end;
 
 // *****************************************************************************
-// Purpose: Loads every project option into the corresponding control, populates
+// Purpose: Loads project and global options into their controls, populates
 // dynamic lists, and applies the active theme.
 // *****************************************************************************
 procedure TFormConfig.FormCreate(Sender: TObject);
+var
+  FontName: string;
+  Index: Integer;
 begin
   inherited;
 
@@ -427,6 +601,37 @@ begin
   CheckBoxOptionSoloMode.Checked := ProjectList.Current.GetOption(csKeyConsoleSoloMode, False);
   ComboBoxOptionConsolePosition.ItemIndex := ProjectList.Current.GetOption(csKeyConsoleStartingPosition, ciConsolePosDecidedByWindows);
   PopulateMonitorCombo(ComboBoxOptionConsoleMonitor, ProjectList.Current.GetOption(csKeyConsoleStartingMonitor, 0));
+
+  ComboBoxIntConsoleFont.Items.Clear;
+  for Index := 0 to Screen.Fonts.Count - 1 do
+    ComboBoxIntConsoleFont.Items.AddTextItem(Screen.Fonts[Index]);
+  PanelIntConsoleForegroundColor.Color := TColor(
+    ProjectList.Current.GetOption(csKeyIntConsoleForegroundColor,
+      ciDefaultIntConsoleForegroundColor));
+  PanelIntConsoleBackgroundColor.Color := TColor(
+    ProjectList.Current.GetOption(csKeyIntConsoleBackgroundColor,
+      ciDefaultIntConsoleBackgroundColor));
+  FontName := ProjectList.Current.GetOption(csKeyIntConsoleFontName,
+    csDefaultIntConsoleFontName);
+  ComboBoxIntConsoleFont.ItemIndex := FindImageComboText(
+    ComboBoxIntConsoleFont, FontName);
+  if ComboBoxIntConsoleFont.ItemIndex < 0 then
+    ComboBoxIntConsoleFont.ItemIndex := FindImageComboText(
+      ComboBoxIntConsoleFont, csDefaultIntConsoleFontName);
+  if (ComboBoxIntConsoleFont.ItemIndex < 0) and
+    (ComboBoxIntConsoleFont.Items.Count > 0) then
+    ComboBoxIntConsoleFont.ItemIndex := 0;
+  UpDownIntConsoleFontSize.Position := EnsureRange(
+    ProjectList.Current.GetOption(csKeyIntConsoleFontSize,
+    ciDefaultIntConsoleFontSize), ciMinIntConsoleFontSize,
+    ciMaxIntConsoleFontSize);
+  UpDownIntConsoleScrollback.Position := EnsureRange(
+    ProjectList.Current.GetOption(csKeyIntConsoleScrollbackLines,
+    ciDefaultIntConsoleScrollbackLines),
+    ciMinIntConsoleScrollbackLines, ciMaxIntConsoleScrollbackLines);
+  CheckBoxIntConsoleClearOnStart.Checked := ProjectList.Current.GetOption(
+    csKeyIntConsoleClearOnStart,
+    cbDefaultIntConsoleClearOnStart);
 
   CheckBoxOptionRunNoLogs.Checked := ProjectList.Current.GetOption(csKeyRunNoLogs, False);
   CheckBoxOptionRunReset.Checked := ProjectList.Current.GetOption(csKeyRunReset, False);
@@ -496,6 +701,14 @@ begin
   EditOptionLogsAdditionalParameters.Font.Color := Self.Font.Color;
   EditOptionCleanAdditionalParameters.Font.Color := Self.Font.Color;
   EditOptionCompileAdditionalParameters.Font.Color := Self.Font.Color;
+
+  // Keep the two clickable color samples independent from the form palette.
+  PanelIntConsoleForegroundColor.Color := TColor(
+    ProjectList.Current.GetOption(csKeyIntConsoleForegroundColor,
+    ciDefaultIntConsoleForegroundColor));
+  PanelIntConsoleBackgroundColor.Color := TColor(
+    ProjectList.Current.GetOption(csKeyIntConsoleBackgroundColor,
+    ciDefaultIntConsoleBackgroundColor));
 
 end;
 
@@ -601,7 +814,8 @@ begin
     5: ImageName := 'logs';
     6: ImageName := 'clean';
     7: ImageName := 'npp';
-    8: ImageName := 'console';
+    8: ImageName := 'console2';
+    9: ImageName := 'console';
   else
     Exit;
   end;
