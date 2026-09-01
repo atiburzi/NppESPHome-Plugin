@@ -12,3 +12,4 @@ __Win32
 *.~dsk
 
 *.xlat.$*
+/Build

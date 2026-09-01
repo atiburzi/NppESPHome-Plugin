@@ -39,6 +39,8 @@ uses
   NppESPHome.FormAbout in 'NppESPHome.FormAbout.pas' {FormAbout},
   NppESPHome.FormToolbar in 'NppESPHome.FormToolbar.pas' {FormToolbar},
   NppESPHome.FormProjects in 'NppESPHome.FormProjects.pas' {FormProjects},
+  NppESPHome.ConPty in 'NppESPHome.ConPty.pas',
+  NppESPHome.FormConsole in 'NppESPHome.FormConsole.pas' {FormConsole},
   NppESPHome.Plugin in 'NppESPHome.Plugin.pas' {Resources: TDataModule},
   NppPluginDockingForm in '..\Lib\NppPluginDockingForm.pas',
   NppPluginForm in '..\Lib\NppPluginForm.pas';
