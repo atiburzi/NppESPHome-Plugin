@@ -19,7 +19,7 @@ object FormProjects: TFormProjects
   TextHeight = 15
   object Splitter: TSplitter
     Left = 0
-    Top = 532
+    Top = 529
     Width = 481
     Height = 8
     Cursor = crVSplit
@@ -33,6 +33,7 @@ object FormProjects: TFormProjects
     Left = 0
     Top = 0
     Width = 481
+    Height = 29
     Margins.Left = 4
     Margins.Top = 4
     Margins.Right = 4
@@ -58,7 +59,7 @@ object FormProjects: TFormProjects
       Action = ActionOpen
     end
     object ToolButtonSep0: TToolButton
-      Left = 34
+      Left = 33
       Top = 0
       Width = 8
       ImageIndex = 10
@@ -66,24 +67,24 @@ object FormProjects: TFormProjects
       Style = tbsSeparator
     end
     object ToolButtonAddDeps: TToolButton
-      Left = 42
+      Left = 41
       Top = 0
       Action = ActionAddDeps
     end
     object ToolButtonRemoveDep: TToolButton
-      Left = 76
+      Left = 74
       Top = 0
       Action = ActionRemoveDep
     end
     object ToolButtonSep1: TToolButton
-      Left = 110
+      Left = 106
       Top = 0
       Width = 5
       ImageName = 'remove'
       Style = tbsSeparator
     end
     object ToolButtonRun: TToolButton
-      Left = 115
+      Left = 111
       Top = 0
       HelpType = htKeyword
       Margins.Left = 4
@@ -93,7 +94,7 @@ object FormProjects: TFormProjects
       Action = ActionRun
     end
     object ToolButtonCompile: TToolButton
-      Left = 149
+      Left = 144
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -102,7 +103,7 @@ object FormProjects: TFormProjects
       Action = ActionCompile
     end
     object ToolButtonUpload: TToolButton
-      Left = 183
+      Left = 177
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -111,7 +112,7 @@ object FormProjects: TFormProjects
       Action = ActionUpload
     end
     object ToolButtonShowLogs: TToolButton
-      Left = 217
+      Left = 210
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -120,7 +121,7 @@ object FormProjects: TFormProjects
       Action = ActionShowLogs
     end
     object ToolButtonClean: TToolButton
-      Left = 251
+      Left = 242
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -129,36 +130,36 @@ object FormProjects: TFormProjects
       Action = ActionClean
     end
     object ToolButtonSep2: TToolButton
-      Left = 285
+      Left = 275
       Top = 0
       Width = 7
       Style = tbsSeparator
     end
     object ToolButtonAddPrj: TToolButton
-      Left = 292
+      Left = 282
       Top = 0
       Action = ActionAddProject
     end
     object ToolButtonRemovePrj: TToolButton
-      Left = 326
+      Left = 315
       Top = 0
       Action = ActionRemoveProject
     end
     object ToolButtonSep3: TToolButton
-      Left = 360
+      Left = 348
       Top = 0
       Width = 8
       Style = tbsSeparator
     end
     object ToolButtonSettings: TToolButton
-      Left = 368
+      Left = 356
       Top = 0
       Action = ActionSettings
     end
   end
   object PanelTop: TPanel
     Left = 0
-    Top = 32
+    Top = 29
     Width = 481
     Height = 500
     Align = alTop
@@ -182,7 +183,7 @@ object FormProjects: TFormProjects
         Left = 2
         Top = 17
         Width = 477
-        Height = 475
+        Height = 456
         Align = alClient
         BorderStyle = bsNone
         Colors.DropMarkColor = clWhite
@@ -216,13 +217,41 @@ object FormProjects: TFormProjects
         ExplicitTop = 18
         Columns = <>
       end
+      object PanelProjectPath: TPanel
+        Left = 2
+        Top = 473
+        Width = 477
+        Height = 19
+        Align = alBottom
+        BevelOuter = bvNone
+        ParentBackground = False
+        ParentColor = False
+        TabOrder = 1
+        object LabelProjectPath: TLabel
+          AlignWithMargins = True
+          Left = 6
+          Top = 0
+          Width = 465
+          Height = 19
+          Margins.Left = 6
+          Margins.Top = 0
+          Margins.Right = 6
+          Margins.Bottom = 0
+          Align = alClient
+          AutoSize = False
+          EllipsisPosition = epPathEllipsis
+          ParentFont = True
+          Transparent = True
+          Layout = tlCenter
+        end
+      end
     end
   end
   object PanelBottom: TPanel
     Left = 0
-    Top = 540
+    Top = 537
     Width = 481
-    Height = 566
+    Height = 569
     Align = alClient
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
@@ -231,7 +260,7 @@ object FormProjects: TFormProjects
     TabOrder = 2
     DesignSize = (
       481
-      566)
+      569)
     object GroupBoxTemplates: TGroupBox
       Left = 0
       Top = 6
@@ -241,6 +270,7 @@ object FormProjects: TFormProjects
       Caption = 'Templates'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
+      ExplicitHeight = 557
       DesignSize = (
         477
         556)
@@ -311,7 +341,7 @@ object FormProjects: TFormProjects
         Anchors = [akLeft, akRight, akBottom]
         ParentColor = True
         TabOrder = 2
-        ExplicitTop = 471
+        ExplicitTop = 473
         object StaticTextDescription: TJvLinkLabel
           Left = 1
           Top = 1
@@ -337,7 +367,7 @@ object FormProjects: TFormProjects
         ParentColor = True
         ShowCaption = False
         TabOrder = 3
-        ExplicitHeight = 389
+        ExplicitHeight = 391
         object VirtualStringTreeTemplates: TVirtualStringTree
           Left = 1
           Top = 1
@@ -369,7 +399,7 @@ object FormProjects: TFormProjects
           OnGetHint = VirtualStringTreeTemplatesGetHint
           Touch.InteractiveGestures = [igPan, igPressAndTap]
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-          ExplicitHeight = 387
+          ExplicitHeight = 389
           Columns = <
             item
               CheckType = ctNone
@@ -421,23 +451,23 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 5
-        CollectionName = 'clear'
-        Name = 'clear'
-      end
-      item
-        CollectionIndex = 6
         CollectionName = 'compile'
         Name = 'compile'
       end
       item
-        CollectionIndex = 7
+        CollectionIndex = 6
         CollectionName = 'configure'
         Name = 'configure'
       end
       item
-        CollectionIndex = 8
+        CollectionIndex = 7
         CollectionName = 'console'
         Name = 'console'
+      end
+      item
+        CollectionIndex = 8
+        CollectionName = 'console2'
+        Name = 'console2'
       end
       item
         CollectionIndex = 9
@@ -631,51 +661,61 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 47
+        CollectionName = 'save'
+        Name = 'save'
+      end
+      item
+        CollectionIndex = 48
+        CollectionName = 'scrolldown'
+        Name = 'scrolldown'
+      end
+      item
+        CollectionIndex = 49
         CollectionName = 'select'
         Name = 'select'
       end
       item
-        CollectionIndex = 48
+        CollectionIndex = 50
         CollectionName = 'selectall'
         Name = 'selectall'
       end
       item
-        CollectionIndex = 49
+        CollectionIndex = 51
         CollectionName = 'serial'
         Name = 'serial'
       end
       item
-        CollectionIndex = 50
+        CollectionIndex = 52
         CollectionName = 'showhide'
         Name = 'showhide'
       end
       item
-        CollectionIndex = 51
+        CollectionIndex = 53
         CollectionName = 'stop'
         Name = 'stop'
       end
       item
-        CollectionIndex = 52
+        CollectionIndex = 54
         CollectionName = 'terminal'
         Name = 'terminal'
       end
       item
-        CollectionIndex = 53
+        CollectionIndex = 55
         CollectionName = 'upgrade'
         Name = 'upgrade'
       end
       item
-        CollectionIndex = 54
+        CollectionIndex = 56
         CollectionName = 'upload'
         Name = 'upload'
       end
       item
-        CollectionIndex = 55
+        CollectionIndex = 57
         CollectionName = 'wifi'
         Name = 'wifi'
       end
       item
-        CollectionIndex = 56
+        CollectionIndex = 58
         CollectionName = 'window'
         Name = 'window'
       end>
@@ -718,23 +758,23 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 5
-        CollectionName = 'clear'
-        Name = 'clear'
-      end
-      item
-        CollectionIndex = 6
         CollectionName = 'compile'
         Name = 'compile'
       end
       item
-        CollectionIndex = 7
+        CollectionIndex = 6
         CollectionName = 'configure'
         Name = 'configure'
       end
       item
-        CollectionIndex = 8
+        CollectionIndex = 7
         CollectionName = 'console'
         Name = 'console'
+      end
+      item
+        CollectionIndex = 8
+        CollectionName = 'console2'
+        Name = 'console2'
       end
       item
         CollectionIndex = 9
@@ -928,51 +968,61 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 47
+        CollectionName = 'save'
+        Name = 'save'
+      end
+      item
+        CollectionIndex = 48
+        CollectionName = 'scrolldown'
+        Name = 'scrolldown'
+      end
+      item
+        CollectionIndex = 49
         CollectionName = 'select'
         Name = 'select'
       end
       item
-        CollectionIndex = 48
+        CollectionIndex = 50
         CollectionName = 'selectall'
         Name = 'selectall'
       end
       item
-        CollectionIndex = 49
+        CollectionIndex = 51
         CollectionName = 'serial'
         Name = 'serial'
       end
       item
-        CollectionIndex = 50
+        CollectionIndex = 52
         CollectionName = 'showhide'
         Name = 'showhide'
       end
       item
-        CollectionIndex = 51
+        CollectionIndex = 53
         CollectionName = 'stop'
         Name = 'stop'
       end
       item
-        CollectionIndex = 52
+        CollectionIndex = 54
         CollectionName = 'terminal'
         Name = 'terminal'
       end
       item
-        CollectionIndex = 53
+        CollectionIndex = 55
         CollectionName = 'upgrade'
         Name = 'upgrade'
       end
       item
-        CollectionIndex = 54
+        CollectionIndex = 56
         CollectionName = 'upload'
         Name = 'upload'
       end
       item
-        CollectionIndex = 55
+        CollectionIndex = 57
         CollectionName = 'wifi'
         Name = 'wifi'
       end
       item
-        CollectionIndex = 56
+        CollectionIndex = 58
         CollectionName = 'window'
         Name = 'window'
       end>
@@ -1066,14 +1116,14 @@ object FormProjects: TFormProjects
     object ActionCompile: TAction
       Caption = 'Compile project'
       Hint = 'Starts ESPHome console with "compile" command'
-      ImageIndex = 6
+      ImageIndex = 5
       ImageName = 'compile'
       OnExecute = ActionCompileExecute
     end
     object ActionUpload: TAction
       Caption = 'Upload last compile project'
       Hint = 'Starts ESPHome console with "upload" command'
-      ImageIndex = 54
+      ImageIndex = 56
       ImageName = 'upload'
       OnExecute = ActionUploadExecute
     end
@@ -1101,7 +1151,7 @@ object FormProjects: TFormProjects
     object ActionSettings: TAction
       Caption = 'Project options'
       Hint = 'Open the configuration settings of the current ESPHome project'
-      ImageIndex = 7
+      ImageIndex = 6
       ImageName = 'configure'
       OnExecute = ActionSettingsExecute
     end
@@ -1136,7 +1186,7 @@ object FormProjects: TFormProjects
     object ActionTerminal: TAction
       Caption = 'Open an ESPHome Console'
       Hint = 'Open an Command Console from the project folder'
-      ImageIndex = 52
+      ImageIndex = 54
       ImageName = 'terminal'
     end
     object ActionExplorer: TAction
@@ -1200,23 +1250,23 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 5
-        CollectionName = 'clear'
-        Name = 'clear'
-      end
-      item
-        CollectionIndex = 6
         CollectionName = 'compile'
         Name = 'compile'
       end
       item
-        CollectionIndex = 7
+        CollectionIndex = 6
         CollectionName = 'configure'
         Name = 'configure'
       end
       item
-        CollectionIndex = 8
+        CollectionIndex = 7
         CollectionName = 'console'
         Name = 'console'
+      end
+      item
+        CollectionIndex = 8
+        CollectionName = 'console2'
+        Name = 'console2'
       end
       item
         CollectionIndex = 9
@@ -1410,51 +1460,61 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 47
+        CollectionName = 'save'
+        Name = 'save'
+      end
+      item
+        CollectionIndex = 48
+        CollectionName = 'scrolldown'
+        Name = 'scrolldown'
+      end
+      item
+        CollectionIndex = 49
         CollectionName = 'select'
         Name = 'select'
       end
       item
-        CollectionIndex = 48
+        CollectionIndex = 50
         CollectionName = 'selectall'
         Name = 'selectall'
       end
       item
-        CollectionIndex = 49
+        CollectionIndex = 51
         CollectionName = 'serial'
         Name = 'serial'
       end
       item
-        CollectionIndex = 50
+        CollectionIndex = 52
         CollectionName = 'showhide'
         Name = 'showhide'
       end
       item
-        CollectionIndex = 51
+        CollectionIndex = 53
         CollectionName = 'stop'
         Name = 'stop'
       end
       item
-        CollectionIndex = 52
+        CollectionIndex = 54
         CollectionName = 'terminal'
         Name = 'terminal'
       end
       item
-        CollectionIndex = 53
+        CollectionIndex = 55
         CollectionName = 'upgrade'
         Name = 'upgrade'
       end
       item
-        CollectionIndex = 54
+        CollectionIndex = 56
         CollectionName = 'upload'
         Name = 'upload'
       end
       item
-        CollectionIndex = 55
+        CollectionIndex = 57
         CollectionName = 'wifi'
         Name = 'wifi'
       end
       item
-        CollectionIndex = 56
+        CollectionIndex = 58
         CollectionName = 'window'
         Name = 'window'
       end>

@@ -103,6 +103,8 @@ type
     PanelStaticText: TPanel;
     StaticTextDescription: TJvLinkLabel;
     PanelTemplates: TPanel;
+    PanelProjectPath: TPanel;
+    LabelProjectPath: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
@@ -202,6 +204,12 @@ begin
   RefreshProjectsList;
   RefreshCategoryList;
   RefreshTemplatesList;
+
+  VirtualStringTreeProjects.ParentShowHint := False;
+  VirtualStringTreeProjects.ShowHint := False;
+
+//  VirtualStringTreeTemplates.ParentShowHint := False;
+//  VirtualStringTreeTemplates.ShowHint := False;
 end;
 
 // *****************************************************************************
@@ -318,8 +326,8 @@ end;
 
 
 // *****************************************************************************
-// Purpose: Applies the Notepad++ theme, images, selection colors, toolbar
-// colors, and window icon to the docking form.
+// Purpose: Applies the Notepad++ theme, images, selection colors, toolbar and
+// project-path colors, and window icon to the docking form.
 // *****************************************************************************
 procedure TFormProjects.ToggleDarkMode;
 var
@@ -339,12 +347,16 @@ begin
     Self.Color := TColor(DarkModeColors.Background);
     Self.Font.Color := TColor(DarkModeColors.Text);
     ToolbarCommands.HotTrackColor := TColor(DarkModeColors.hotEdge);
+    PanelProjectPath.Color := TColor(DarkModeColors.SofterBackground);
+    LabelProjectPath.Font.Color := TColor(DarkModeColors.Text);
   end
   else
   begin
     Self.Color := clBtnFace;
     Self.Font.Color := clWindowText;
     ToolbarCommands.HotTrackColor := clActiveCaption;
+    PanelProjectPath.Color := clBtnFace;
+    LabelProjectPath.Font.Color := clWindowText;
   end;
   VirtualStringTreeProjects.Colors.FocusedSelectionColor := ToolbarCommands.HotTrackColor;
   VirtualStringTreeProjects.Colors.FocusedSelectionBorderColor := ToolbarCommands.HotTrackColor;
@@ -383,8 +395,8 @@ begin
 end;
 
 // *****************************************************************************
-// Purpose: Switches Notepad++ to the file represented by the newly focused
-// project-tree node.
+// Purpose: Displays the directory of the newly focused project-tree node and
+// switches Notepad++ to its file.
 // *****************************************************************************
 procedure TFormProjects.VirtualStringTreeProjectsChange(
   Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -395,9 +407,12 @@ begin
   if Assigned(Node) then
   begin
     FileName := PProjectNode(Node.GetData)^.FileName;
+    LabelProjectPath.Caption := ExtractFileDir(FileName);
     if FileName <> Plugin.GetFullCurrentPath then
       Plugin.SwitchToFile(FileName);
-  end;
+  end
+  else
+    LabelProjectPath.Caption := '';
 end;
 
 // *****************************************************************************

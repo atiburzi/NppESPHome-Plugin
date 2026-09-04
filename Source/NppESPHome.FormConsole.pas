@@ -79,6 +79,9 @@ type
     FCursorPosition: Integer;
     FSavedCursorPosition: Integer;
     FTerminalRows: Integer;
+    // Last valid ConPTY grid, used to avoid redundant destructive reflows.
+    FLastTerminalColumns: SmallInt;
+    FLastTerminalRows: SmallInt;
     FPendingCarriageReturn: Boolean;
     FSuppressNextKeyPress: Boolean;
     FStopRequested: Boolean;
@@ -612,6 +615,10 @@ begin
   Show;
   ResizeSession;
   try
+    // Each new ConPTY starts at 120x30 and must receive the current real size,
+    // even when it matches the dimensions used by the previous session.
+    FLastTerminalColumns := 0;
+    FLastTerminalRows := 0;
     FSession.Start(CommandLine, CurrentDirectory, 120, 30);
     ResizeSession;
   except
@@ -657,8 +664,8 @@ begin
 end;
 
 // *****************************************************************************
-// Purpose: Converts the terminal client area to character rows and columns and
-// applies the resulting dimensions to the ConPTY session.
+// Purpose: Converts a valid visible terminal area to rows and columns, skips
+// minimized or redundant sizes, and applies the grid to the ConPTY session.
 // *****************************************************************************
 procedure TFormConsole.ResizeSession;
 var
@@ -669,18 +676,37 @@ var
 begin
   if not RichEditConsole.HandleAllocated then
     Exit;
+  if not Assigned(FSession) or not FSession.Running then
+    Exit;
+
+  // A minimized Notepad++ window can temporarily reduce the docked client to
+  // zero. Sending a forced 1x1 grid makes ConPTY destructively reflow and
+  // redraw its buffer, which the embedded terminal cannot reliably replay.
+  if IsIconic(Plugin.NppData.NppHandle) or
+    (RichEditConsole.ClientWidth <= 0) or
+    (RichEditConsole.ClientHeight <= 0) then
+    Exit;
+
   Canvas.Font.Assign(RichEditConsole.Font);
   CharacterWidth := Max(1, Canvas.TextWidth('M'));
   CharacterHeight := Max(1, Canvas.TextHeight('Mg'));
-  Columns := Max(1, RichEditConsole.ClientWidth div CharacterWidth);
-  Rows := Max(1, RichEditConsole.ClientHeight div CharacterHeight);
+  Columns := RichEditConsole.ClientWidth div CharacterWidth;
+  Rows := RichEditConsole.ClientHeight div CharacterHeight;
+  if (Columns <= 0) or (Rows <= 0) then
+    Exit;
   if Columns > High(SmallInt) then
     Columns := High(SmallInt);
   if Rows > High(SmallInt) then
     Rows := High(SmallInt);
+
+  if (Columns = FLastTerminalColumns) and
+    (Rows = FLastTerminalRows) then
+    Exit;
+
   FTerminalRows := Rows;
-  if Assigned(FSession) then
-    FSession.Resize(Columns, Rows);
+  FSession.Resize(Columns, Rows);
+  FLastTerminalColumns := Columns;
+  FLastTerminalRows := Rows;
 end;
 
 // *****************************************************************************
