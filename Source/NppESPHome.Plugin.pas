@@ -6,12 +6,11 @@ unit NppESPHome.Plugin;
 interface
 
 uses
-  Winapi.Windows, Winapi.CommCtrl, System.SysUtils, System.Classes, Vcl.Graphics, NppMessages, NppPlugin, NppPluginForm, NppPluginDockingForm, NppESPHome.Shared,
+  Winapi.Windows, Winapi.CommCtrl, System.SysUtils, System.Classes, Vcl.Graphics, Npp.Api, Npp.Plugin, Npp.Commands, Npp.Toolbar, Npp.Vcl.Forms, Npp.Vcl.Docking, NppESPHome.Shared,
   Vcl.ImageCollection, Vcl.BaseImageCollection;
 
 const
   csPluginName = 'NppESPHome';
-  csMenuEmptyLine = '-';
 
 // Internal identifiers used to map Notepad++ function items to plugin actions,
 // toolbar images, persisted toolbar configuration, and menu refresh logic.
@@ -79,39 +78,17 @@ type
   end;
 
 type
-  PToolbarButton = ^TToolbarButton;
-  // Stores the full runtime state of a plugin toolbar button.
-  // It keeps the stable plugin function mapping together with the current
-  // native Notepad++ toolbar button data and icon handles.
-  TToolbarButton = record
-    Index: Integer;
-    CmdID: Integer;
-    FuncItemID: string;
-    Sequence: Integer;
-    Visible: Boolean;
-    Enabled: Boolean;
-    Button: TTBButton;
-    IconData: TToolbarIconsWithDarkMode;
-  end;
-
-  TToolbarButtons = TArray<TToolbarButton>;
-
-type
-  // Maps Notepad++ function item indexes back to the plugin's stable IDs.
-  TFuncItemsNames = TArray<string>;
-
-type
   // Main plugin class. Handles Notepad++ lifecycle notifications, ESPHome
   // project commands, toolbar customization, menu state, and project window
   // synchronization.
 
   TESPHomePlugin = class(TNppPlugin)
-
-    OperationsOngoing: Boolean; // True while plugin-driven file operations should not trigger UI refresh loops
-    FFuncItemsNames: TFuncItemsNames; // Stable function IDs indexed by Notepad++ function item index
-    FToolbarButtons: TToolbarButtons; // Runtime toolbar button model used to rebuild the native Notepad++ toolbar
+  private
+    FMenu: TNppCommands;
+    FToolbar: TNppToolbar;
 
   public
+    OperationsOngoing: Boolean; // True while plugin-driven file operations should not trigger UI refresh loops
 
     procedure ProjectAdd;
     procedure ProjectSelect;
@@ -138,8 +115,11 @@ type
 
   protected
 
-    function AddPluginFunction(FuncItemName: string; FuncItemDescription: nppString; FuncCmdProc: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; MenuChecked: Boolean = False): Integer;
-    function AddPluginMenuSeparator: Integer;
+    function CreateToolbarIcons(const Entry: TNppMenuEntry; out IconData: TToolbarIconsWithDarkMode): Boolean;
+    function CreateDisabledToolbarIcon(SourceIcon: HICON;
+      Width, Height: Integer): HICON;
+    function ReadToolbarConfiguration(const DefaultValue: string): string;
+    procedure WriteToolbarConfiguration(const Value: string);
 
     procedure DoNppnReady; override;
     procedure DoNppnShutdown; override;
@@ -154,31 +134,13 @@ type
     procedure SaveProject;
     procedure SaveProjectAndDependencies;
 
-    function GetToolbarButton(Index: Integer): PToolbarButton;
-    function GetToolbarButtonCount: Integer;
-
   public
     constructor Create; override;
+    destructor Destroy; override;
     procedure SetInfo(NppData: TNppData); override;
-
-    function GetFuncItemIdFromIndex(const Index: Integer): string;
-    function GetIndexFromFuncItemName(const FuncItemName: string): Integer;
-    function GetCmdIdFromFuncItemName(const FuncItemName: string): Integer;
-
-    function GetToolbarConfiguration(const ADefault: Boolean = False): string;
 
     procedure DependencyAdd;
     procedure DependencyRemove(const DepFile: string);
-
-    procedure InitializeToolbarConfiguration;
-    procedure RegisterToolbarConfiguration;
-    procedure RefreshToolbarConfiguration;
-    procedure FreeToolbarResources;
-
-    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean); override;
-
-    property ToolbarButton[Index: Integer]: PToolbarButton read GetToolbarButton;
-    property ToolbarButtonCount: Integer read GetToolbarButtonCount;
 
     procedure RefreshCurrentProject;
     procedure RefreshProjectList;
@@ -188,6 +150,9 @@ type
 
     function CheckESPHome: Boolean;
     function CheckCurrentProject: Boolean;
+
+    property Commands: TNppCommands read FMenu;
+    property Toolbar: TNppToolbar read FToolbar;
 
   end;
 
@@ -214,7 +179,7 @@ uses
   JvCreateProcess, Winapi.ShellAPI, NppESPHome.FormSelectProject, NppESPHome.FormConfiguration, System.StrUtils,
   NppESPHome.FormToolbar, NppESPHome.FormAbout, NppESPHome.FormProjects,
   NppESPHome.FormConsole, NppESPHome.ConPty, IniFiles,
-  System.RegularExpressions, TDMB, Vcl.Forms, Vcl.Dialogs,
+  TDMB, Vcl.Forms, Vcl.Dialogs,
   System.Math,
   System.UITypes,
   System.IOUtils;
@@ -605,8 +570,7 @@ begin
             [GetEnvironmentVariable('ComSpec'), CommandLine]),
           ExtractFilePath(ProjectList.Current.FileName), ConsoleTitle);
 
-        Plugin.CheckMenuItem(
-          Plugin.GetIndexFromFuncItemName(fiShowHideConsole), True);
+        Plugin.Commands.SetChecked(fiShowHideConsole, True);
         ConfigIniFile.WriteBool(csSectionGeneral, csKeyConsoleWindow, True);
         Exit;
       except
@@ -976,7 +940,7 @@ begin
       FormProjects.Hide
     else
       FormProjects.Show;
-    CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
+    FMenu.SetChecked(fiShowHidePrjWin, FormProjects.Visible);
     ConfigIniFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
   end;
 end;
@@ -993,36 +957,18 @@ begin
       FormConsole.Hide
     else
       FormConsole.Show;
-    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideConsole),
-      FormConsole.Visible);
+    FMenu.SetChecked(fiShowHideConsole, FormConsole.Visible);
     ConfigIniFile.WriteBool(csSectionGeneral, csKeyConsoleWindow,
       FormConsole.Visible);
   end;
 end;
-
-
-
-//          if (Count = 0) and (Parts[1] = '1') and (PluginDataModule.ImageCollection.GetIndexByName(FuncItemIdFromMenuItemIdx(Index)) >= 0) then
-//          begin
-//            Bitmap := PluginDataModule.ImageCollection.GetBitmap(FuncItemIdFromMenuItemIdx(Index), 20, 20);
-//            if not IsDarkModeEnabled then
-//              ConvertBitmapToBlack(Bitmap);
-//            FToolbarButtonArray[Index].IconData.ToolbarBmp := HBITMAP(CopyImage(Bitmap.Handle, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
-//            Bitmap.Free;
-//            Bitmap := PluginDataModule.ImageCollection.GetBitmap(FuncItemIdFromMenuItemIdx(Index), 64, 64);
-//            //ReplaceBitmapHue(Bitmap, TAlphaColor($FF4CC2FF), TAlphaColor($FFFF0000), 25 / 360, 0.12);
-//            FToolbarButtonArray[Index].IconData.ToolbarIconDarkMode := CreateIconFromBitmap(Bitmap);
-//            ConvertBitmapToBlack(Bitmap);
-//            FToolbarButtonArray[Index].IconData.ToolbarIcon := CreateIconFromBitmap(Bitmap);
-//            Bitmap.Free;
-//          end;
-
 // *****************************************************************************
 // Purpose: Opens the toolbar customization dialog.
 // *****************************************************************************
 procedure TESPHomePlugin.ConfigToolbar;
 begin
-  // The toolbar dialog edits the persisted order and visibility configuration.
+  if Assigned(FormToolbar) then
+    Exit;
   FormToolbar := TFormToolbar.Create(Self);
   try
     FormToolbar.ShowModal;
@@ -1050,30 +996,6 @@ end;
 // ============================================================================
 
 // *****************************************************************************
-// Purpose: Registers one Notepad++ function item and stores the plugin's stable
-// action identifier at the returned function item index.
-// *****************************************************************************
-function TESPHomePlugin.AddPluginFunction(FuncItemName: string; FuncItemDescription: nppString; FuncCmdProc: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; MenuChecked: Boolean = False): Integer;
-begin
-  // Let the base plugin register the command, then store our stable ID beside it.
-  Result := AddFuncItem(FuncItemDescription, FuncCmdProc, ShortcutKey, MenuChecked);
-  SetLength(FFuncItemsNames, Result + 1);
-  FFuncItemsNames[Result] := FuncItemName;
-end;
-
-// *****************************************************************************
-// Purpose: Registers a separator line in the Notepad++ plugin menu and stores a
-// generated placeholder ID for index alignment.
-// *****************************************************************************
-function TESPHomePlugin.AddPluginMenuSeparator: Integer;
-begin
-  // Separators still occupy function indexes, so they need placeholder IDs.
-  Result := AddFuncItem(csMenuEmptyLine, nil, nil);
-  SetLength(FFuncItemsNames, Result + 1);
-  FFuncItemsNames[Result] := Format('Sep$%2d', [Result]);
-end;
-
-// *****************************************************************************
 // Purpose: Handles the Notepad++ ready notification. Initializes toolbar state,
 // creates the project docking form, restores its visibility, and refreshes
 // menu/title state.
@@ -1086,9 +1008,8 @@ begin
   OperationsOngoing := False;
 
   // Capture Notepad++ toolbar button templates before rebuilding the toolbar.
-  RegisterToolbarConfiguration;
-
-  RefreshToolbarConfiguration;
+  FToolbar.CaptureNativeButtons;
+  FToolbar.Refresh;
 
 
 //  The initial dock position is saved in %AppData%\Notepad++\config.xml as a GUIConfig element with the DockingManager attribute; e.g.,
@@ -1102,9 +1023,9 @@ begin
 //  You should delete this between launches when testing different dlgID.
 
   // Create the docked project window after Notepad++ is fully initialized.
-  FormProjects := TFormProjects.Create(Plugin, GetIndexFromFuncItemName(fiShowHidePrjWin));
+  FormProjects := TFormProjects.Create(Plugin, FMenu.IndexOf(fiShowHidePrjWin));
   FormConsole := TFormConsole.Create(Plugin,
-    GetIndexFromFuncItemName(fiShowHideConsole));
+    FMenu.IndexOf(fiShowHideConsole));
 
   // Restore the last saved visibility of the project window.
   if ConfigIniFile.ReadBool(csSectionGeneral, csKeyProjectWindow, True) then
@@ -1112,14 +1033,13 @@ begin
   else
     FormProjects.Hide;
 
-  CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
+  FMenu.SetChecked(fiShowHidePrjWin, FormProjects.Visible);
   if ConfigIniFile.ReadBool(csSectionGeneral, csKeyConsoleWindow, False) then
     FormConsole.Show
   else
     FormConsole.Hide;
-  CheckMenuItem(GetIndexFromFuncItemName(fiShowHideConsole),
-    FormConsole.Visible);
-  EnableMenuItem(GetIndexFromFuncItemName(fiConfigToolbar), Plugin.IsNppMinVersion(8, 0));
+  FMenu.SetChecked(fiShowHideConsole, FormConsole.Visible);
+  FMenu.SetEnabled(fiConfigToolbar, Plugin.IsNppMinVersion(8, 0));
 
   RefreshNppTitle;
   RefreshPluginMenu;
@@ -1137,20 +1057,17 @@ begin
     KillProcessTree(LastConsolePID);
   // Stop worker threads and unregister docked forms before releasing the
   // configuration and project objects they reference.
-  if Assigned(FormConsole) then
-    FreeAndNil(FormConsole);
-  if Assigned(FormProjects) then
-    FreeAndNil(FormProjects);
+  FreeAndNil(FormToolbar);
+  FreeAndNil(FormConsole);
+  FreeAndNil(FormProjects);
   // Release shared objects in reverse startup order.
-  if Assigned(TemplateList) then
-    TemplateList.Free;
-  if Assigned(ProjectList) then
-    ProjectList.Free;
-  if Assigned(ConfigIniFile) then
-    ConfigIniFile.Free;
-  FreeToolbarResources;
-  if Assigned(Resources) then
-    Resources.Free;
+  FreeAndNil(TemplateList);
+  FreeAndNil(ProjectList);
+  FreeAndNil(ConfigIniFile);
+  FreeAndNil(FToolbar);
+  FreeAndNil(FMenu);
+  FreeAndNil(Resources);
+  Plugin := nil;
   inherited;
 end;
 
@@ -1170,7 +1087,7 @@ end;
 procedure TESPHomePlugin.DoNppnToolbarModification;
 begin
   inherited;
-  InitializeToolbarConfiguration;
+  FToolbar.Initialize;
 end;
 
 // *****************************************************************************
@@ -1179,12 +1096,15 @@ end;
 // *****************************************************************************
 procedure TESPHomePlugin.DoNppnDarkModeChanged;
 begin
+  inherited;
   if Assigned(FormProjects) then
     FormProjects.ToggleDarkMode;
   if Assigned(FormConsole) then
     FormConsole.ToggleDarkMode;
+  if Assigned(FormToolbar) then
+    FormToolbar.ToggleDarkMode;
 
-  RefreshToolbarConfiguration;
+  FToolbar.Refresh;
   RefreshPluginMenu;
 end;
 
@@ -1242,8 +1162,18 @@ end;
 // *****************************************************************************
 procedure TESPHomePlugin.DoNppToolbarIconsetChanged;
 begin
-  // Rebuild shortly after Notepad++ swaps its internal image lists.
-  TThread.CreateAnonymousThread(RefreshToolbarConfiguration).Start;
+  // Let Notepad++ complete its image-list update, then rebuild from the main
+  // VCL thread. The global guard prevents a queued refresh after shutdown.
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      if Assigned(Plugin) and not Plugin.IsShuttingDown then
+      begin
+        Plugin.FToolbar.Refresh;
+        if Assigned(FormToolbar) then
+          FormToolbar.ToggleDarkMode;
+      end;
+    end);
 end;
 
 resourcestring
@@ -1394,70 +1324,70 @@ end;
 // ============================================================================
 
 // *****************************************************************************
-// Purpose: Returns a pointer to a toolbar button record by array index, or nil
-// when the requested index is outside the current toolbar model.
-// *****************************************************************************
-function TESPHomePlugin.GetToolbarButton(Index: Integer): PToolbarButton;
-begin
-  Result := nil;
-  if (Index >= 0) and (Index < Length(FToolbarButtons)) then
-    Result := @FToolbarButtons[Index];
-end;
-
-// *****************************************************************************
-// Purpose: Returns the number of toolbar buttons managed by the plugin.
-// *****************************************************************************
-function TESPHomePlugin.GetToolbarButtonCount: Integer;
-begin
-  Result := Length(FToolbarButtons);
-end;
-
-// *****************************************************************************
-// Purpose: Creates the plugin instance, prepares image resources, sets the
-// plugin name, and registers all Notepad++ menu commands and shortcuts.
+// Purpose: Creates the plugin instance, sets its name, and registers all
+// Notepad++ menu commands and shortcuts without requiring host services.
 // *****************************************************************************
 constructor TESPHomePlugin.Create;
 begin
   inherited Create;
+  try
+    FMenu := TNppCommands.Create(Self);
+    FToolbar := TNppToolbar.Create(Self, FMenu, CreateToolbarIcons,
+      CreateDisabledToolbarIcon, ReadToolbarConfiguration,
+      WriteToolbarConfiguration);
 
-  // Load the design-time image collections used by toolbar and window icons.
-  Resources := TResources.Create(nil);
-  // Generate the alternate icon collection used by the current theme logic.
-  PopulateBlackImageCollection(Resources.StandardImages, Resources.LightModeImages);
+    // Suppress document-change refresh handlers while opening a batch of files.
+    OperationsOngoing := True;
+    PluginName := csPluginName;
 
-  // Suppress document-change refresh handlers while opening a batch of files.
-  OperationsOngoing := True;
-  Plugin := Self;
-  PluginName := csPluginName;
+    // Register menu entries in the exact order they should appear in Notepad++.
+    FMenu.AddCommand(fiProjectAdd, miProjectAdd, _ProjectAdd);
+    FMenu.AddCommand(fiProjectRemove, miProjectRemove, _ProjectRemove);
+    FMenu.AddCommand(fiProjectSelect, miProjectSelect, _ProjectSelect,
+      MakeShortcutKey(True, True, False, $79));
+    FMenu.AddSeparator('sep.project.select');
+    FMenu.AddCommand(fiProjectConfigure, miProjectConfigure,
+      _ProjectConfigure, MakeShortcutKey(True, False, False, $79));
+    FMenu.AddSeparator('sep.project.configure');
+    FMenu.AddCommand(fiProjectOpenFiles, miProjectOpenFiles,
+      _ProjectOpenFiles);
+    FMenu.AddSeparator('sep.project.commands');
+    FMenu.AddCommand(fiCommandRun, miCommandRun, _CommandRun,
+      MakeShortcutKey(False, False, False, $78));
+    FMenu.AddCommand(fiCommandCompile, miCommandCompile, _CommandCompile,
+      MakeShortcutKey(True, False, False, $78));
+    FMenu.AddCommand(fiCommandUpload, miCommandUpload, _CommandUpload,
+      MakeShortcutKey(False, False, True, $78));
+    FMenu.AddCommand(fiCommandLogs, miCommandLogs, _CommandLogs);
+    FMenu.AddCommand(fiCommandClean, miCommandClean, _CommandClean);
+    FMenu.AddCommand(fiCommandCleanAll, miCommandCleanAll, _CommandCleanAll);
+    FMenu.AddSeparator('sep.commands.start');
+    FMenu.AddCommand(fiStartHelp, miStartHelp, _StartHelp,
+      MakeShortcutKey(True, False, False, $70));
+    FMenu.AddCommand(fiStartUpgrade, miStartUpgrade, _StartUpgrade);
+    FMenu.AddSeparator('sep.start.shell');
+    FMenu.AddCommand(fiStartTerminal, miStartTerminal, _StartTerminal);
+    FMenu.AddCommand(fiStartExplorer, miStartExplorer, _StartExplorer);
+    FMenu.AddSeparator('sep.start.windows');
+    FMenu.AddCommand(fiShowHidePrjWin, miShowHidePrjWin, _ShowHidePrjWin);
+    FMenu.AddCommand(fiShowHideConsole, miShowHideConsole, _ShowHideConsole);
+    FMenu.AddSeparator('sep.windows.toolbar');
+    FMenu.AddCommand(fiConfigToolbar, miConfigToolbar, _ConfigToolbar);
+    FMenu.AddCommand(fiAboutWindow, miAboutWindow, _AboutWindow);
 
-  // Register menu entries in the exact order they should appear in Notepad++.
-  AddPluginFunction(fiProjectAdd, miProjectAdd, _ProjectAdd);
-  AddPluginFunction(fiProjectRemove, miProjectRemove, _ProjectRemove);
-  AddPluginFunction(fiProjectSelect, miProjectSelect, _ProjectSelect, MakeShortcutKey(True, True, False, $79));
-  AddPluginMenuSeparator;
-  AddPluginFunction(fiProjectConfigure, miProjectConfigure, _ProjectConfigure, MakeShortcutKey(True, False, False, $79));
-  AddPluginMenuSeparator;
-  AddPluginFunction(fiProjectOpenFiles, miProjectOpenFiles, _ProjectOpenFiles, nil);
-  AddPluginMenuSeparator;
-  AddPluginFunction(fiCommandRun, miCommandRun, _CommandRun, MakeShortcutKey(False, False, False, $78));
-  AddPluginFunction(fiCommandCompile, miCommandCompile, _CommandCompile, MakeShortcutKey(True, False, False, $78));
-  AddPluginFunction(fiCommandUpload, miCommandUpload, _CommandUpload, MakeShortcutKey(False, False, True, $78));
-  AddPluginFunction(fiCommandLogs, miCommandLogs, _CommandLogs, nil);
-  AddPluginFunction(fiCommandClean, miCommandClean, _CommandClean, nil);
-  AddPluginFunction(fiCommandCleanAll, miCommandCleanAll, _CommandCleanAll, nil);
-  AddPluginMenuSeparator;
-  AddPluginFunction(fiStartHelp, miStartHelp, _StartHelp, MakeShortcutKey(True, False, False, $70));
-  AddPluginFunction(fiStartUpgrade, miStartUpgrade, _StartUpgrade, nil);
-  AddPluginMenuSeparator;
-  AddPluginFunction(fiStartTerminal, miStartTerminal, _StartTerminal, nil);
-  AddPluginFunction(fiStartExplorer, miStartExplorer, _StartExplorer, nil);
-  AddPluginMenuSeparator;
-  AddPluginFunction(fiShowHidePrjWin, miShowHidePrjWin, _ShowHidePrjWin, nil);
-  AddPluginFunction(fiShowHideConsole, miShowHideConsole, _ShowHideConsole, nil);
-  AddPluginMenuSeparator;
-  AddPluginFunction(fiConfigToolbar, miConfigToolbar, _ConfigToolbar, nil);
-  AddPluginFunction(fiAboutWindow, miAboutWindow, _AboutWindow, nil);
+    // Publish the singleton only after construction has completed successfully.
+    Plugin := Self;
+  except
+    Plugin := nil;
+    raise;
+  end;
+end;
 
+destructor TESPHomePlugin.Destroy;
+begin
+  FreeAndNil(FToolbar);
+  FreeAndNil(FMenu);
+  inherited;
 end;
 
 // *****************************************************************************
@@ -1467,456 +1397,119 @@ end;
 procedure TESPHomePlugin.SetInfo(NppData: TNppData);
 begin
   inherited SetInfo(NppData);
-  // Resolve ESPHome once during startup; validation happens when commands run.
-  ESPHomeFile := ExpandFileName(FindFileInPath('esphome.exe'));
-  // Keep plugin settings beside the Notepad++ plugin configuration directory.
-  ConfigIniFile := TIniFile.Create(TPath.Combine(Plugin.GetPluginConfigDir, ChangeFileExt(Plugin.GetName, '.ini')));
-  TemplateFile := TPath.Combine(Plugin.GetPluginConfigDir, ChangeFileExt(Plugin.GetName, '.xml'));
-  // Shared project/template lists are initialized after host paths are known.
-  ProjectList := TProjectList.Create;
-  TemplateList := TTemplateList.Create(TemplateFile);
-end;
-
-// *****************************************************************************
-// Purpose: Resolves the plugin's stable function ID from a Notepad++ function
-// item index.
-// *****************************************************************************
-function TESPHomePlugin.GetFuncItemIdFromIndex(const Index: Integer): string;
-begin
-  Result := '';
-  // Guard against stale or invalid Notepad++ indexes.
-  if (Length(FFuncItemsNames) > Index) and (Index >= 0) then
-    Result := FFuncItemsNames[Index];
-end;
-
-// *****************************************************************************
-// Purpose: Finds the Notepad++ function item index associated with a stable
-// plugin function ID.
-// *****************************************************************************
-function TESPHomePlugin.GetIndexFromFuncItemName(const FuncItemName: string): Integer;
-var
-  Index: Integer;
-begin
-  Result := -1;
-  // Stable IDs are compared case-insensitively because they are internal tokens.
-  for Index := 0 to High(FFuncItemsNames) do
-    if CompareText(FFuncItemsNames[Index], FuncItemName) = 0 then
-    begin
-      Result := Index;
-      Exit;
-    end;
-end;
-
-// *****************************************************************************
-// Purpose: Resolves the Notepad++ command ID for a stable plugin function ID.
-// *****************************************************************************
-function TESPHomePlugin.GetCmdIdFromFuncItemName(const FuncItemName: string): Integer;
-begin
-  Result := CmdIdFromMenuItemIdx(GetIndexFromFuncItemName(FuncItemName));
-end;
-
-// *****************************************************************************
-// Purpose: Builds the default toolbar configuration and, unless requested
-// otherwise, reads and validates the persisted user toolbar configuration.
-// *****************************************************************************
-function TESPHomePlugin.GetToolbarConfiguration(const ADefault: Boolean = False): string;
-var
-  Regex: TRegEx;
-  I, Index, Count: Integer;
-  DefaultConfig: string;
-begin
-  Index := 0;
-  DefaultConfig := '';
-  // Only functions with matching image names participate in toolbar configuration.
-  GetFuncsArray(Count);
-  for I := 0 to Count - 1 do
-    if Resources.StandardImages.GetIndexByName(GetFuncItemIdFromIndex(I)) >= 0 then
-    begin
-      DefaultConfig := Concat(DefaultConfig, IntToStr(Index), ':1;');
-      Inc(Index);
-    end;
-  Result := DefaultConfig;
-
-  if not ADefault then
-  begin
-    // Reject malformed saved strings and fall back to a complete default toolbar.
-    Result := ConfigIniFile.ReadString(csSectionGeneral, csKeyToolbarConfig, DefaultConfig);
-    Regex := TRegEx.Create(Format('^(?:\d+:[01];){%d}$', [DefaultConfig.CountChar(':')]));
-    if not Regex.IsMatch(Result) then
-      Result := DefaultConfig;
+  try
+    // Image collections use WIC and therefore belong to host initialization,
+    // not to the lightweight construction performed by getName/getFuncsArray.
+    Resources := TResources.Create(nil);
+    PopulateBlackImageCollection(Resources.StandardImages,
+      Resources.LightModeImages);
+    // Resolve ESPHome once during startup; validation happens when commands run.
+    ESPHomeFile := ExpandFileName(FindFileInPath('esphome.exe'));
+    // Keep plugin settings beside the Notepad++ plugin configuration directory.
+    ConfigIniFile := TIniFile.Create(TPath.Combine(GetPluginConfigDir,
+      ChangeFileExt(GetName, '.ini')));
+    TemplateFile := TPath.Combine(GetPluginConfigDir,
+      ChangeFileExt(GetName, '.xml'));
+    // Shared project/template lists are initialized after host paths are known.
+    ProjectList := TProjectList.Create;
+    TemplateList := TTemplateList.Create(TemplateFile);
+  except
+    FreeAndNil(TemplateList);
+    FreeAndNil(ProjectList);
+    FreeAndNil(ConfigIniFile);
+    FreeAndNil(Resources);
+    raise;
   end;
 end;
 
-// *****************************************************************************
-// Purpose: Creates the in-memory toolbar button model and registers the light,
-// dark, and low-resolution toolbar icons with Notepad++.
-// *****************************************************************************
-procedure TESPHomePlugin.InitializeToolbarConfiguration;
+function TESPHomePlugin.CreateToolbarIcons(const Entry: TNppMenuEntry;
+  out IconData: TToolbarIconsWithDarkMode): Boolean;
 var
   Bitmap: TBitmap;
-  FuncItemID: string;
-  Index, Count, Sequence: Integer;
 begin
-  // Custom toolbar APIs are only available in Notepad++ 8 and newer.
-  if not IsNppMinVersion(8, 0) then
+  FillChar(IconData, SizeOf(IconData), 0);
+  Result := False;
+  if not Assigned(Resources) or
+     (Resources.StandardImages.GetIndexByName(Entry.Id) < 0) then
     Exit;
 
-  // Sequence is compacted to toolbar-capable functions only.
-  Sequence := 0;
-  // Only functions with matching image names participate in toolbar configuration.
-  GetFuncsArray(Count);
-  for Index := 0 to Count - 1 do
-  begin
-    FuncItemId := GetFuncItemIdFromIndex(Index);
-    if Resources.StandardImages.GetIndexByName(FuncItemID) >= 0 then
-    begin
-      // Create one toolbar model entry for each command that has an image resource.
-      SetLength(FToolbarButtons, Sequence + 1);
-      FillChar(FToolbarButtons[Sequence], SizeOf(FToolbarButtons[Sequence]), 0);
-      FToolbarButtons[Sequence].Sequence := Sequence;
-      FToolbarButtons[Sequence].CmdID := CmdIdFromMenuItemIdx(Index);
-      FToolbarButtons[Sequence].Visible := False;
-      FToolbarButtons[Sequence].Enabled := True;
-      FToolbarButtons[Sequence].FuncItemID := FuncItemID;
-      FToolbarButtons[Sequence].Index := Index;
-      // Legacy toolbar bitmap used by older Notepad++ toolbar paths.
-      Bitmap := Resources.LowResImages.GetBitmap(FuncItemID, 20, 20);
-      FToolbarButtons[Sequence].IconData.ToolbarBmp := HBITMAP(CopyImage(Bitmap.Handle, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
+  try
+    Bitmap := Resources.LowResImages.GetBitmap(Entry.Id, 20, 20);
+    try
+      IconData.ToolbarBmp := HBITMAP(CopyImage(Bitmap.Handle, IMAGE_BITMAP,
+        0, 0, LR_CREATEDIBSECTION));
+    finally
       Bitmap.Free;
-      // High-resolution icons are registered for normal and dark-mode toolbar use.
-      Bitmap := Resources.StandardImages.GetBitmap(FuncItemID, 40, 40);
-      FToolbarButtons[Sequence].IconData.ToolbarIconDarkMode := CreateIconFromBitmap(Bitmap);
+    end;
+
+    Bitmap := Resources.StandardImages.GetBitmap(Entry.Id, 40, 40);
+    try
+      IconData.ToolbarIconDarkMode := CreateIconFromBitmap(Bitmap);
       ConvertBitmapToBlack(Bitmap);
-      FToolbarButtons[Sequence].IconData.ToolbarIcon := CreateIconFromBitmap(Bitmap);
+      IconData.ToolbarIcon := CreateIconFromBitmap(Bitmap);
+    finally
       Bitmap.Free;
-      // Hand the icon handles to Notepad++ for the command ID just registered.
-      AddToolbarIcon(FToolbarButtons[Sequence].CmdID, FToolbarButtons[Sequence].IconData);
-      Inc(Sequence);
     end;
+    Result := (IconData.ToolbarBmp <> 0) and
+      (IconData.ToolbarIcon <> 0) and
+      (IconData.ToolbarIconDarkMode <> 0);
+  except
+    if IconData.ToolbarBmp <> 0 then
+      DeleteObject(IconData.ToolbarBmp);
+    if IconData.ToolbarIcon <> 0 then
+      DestroyIcon(IconData.ToolbarIcon);
+    if IconData.ToolbarIconDarkMode <> 0 then
+      DestroyIcon(IconData.ToolbarIconDarkMode);
+    FillChar(IconData, SizeOf(IconData), 0);
+    Result := False;
   end;
 end;
 
-// *****************************************************************************
-// Purpose: Reads the native Notepad++ TBBUTTON records for plugin commands so
-// they can later be deleted, reinserted, reordered, or restyled safely.
-// *****************************************************************************
-procedure TESPHomePlugin.RegisterToolbarConfiguration;
+function TESPHomePlugin.CreateDisabledToolbarIcon(SourceIcon: HICON;
+  Width, Height: Integer): HICON;
 var
-  Index: Integer;
-  ToolbarHandle: HWND;
-  ButtonIndex: LRESULT;
+  Bitmap: TBitmap;
+  Icon: TIcon;
 begin
-  // Custom toolbar APIs are only available in Notepad++ 8 and newer.
-  if not IsNppMinVersion(8, 0) then
+  Result := 0;
+  if (SourceIcon = 0) or (Width <= 0) or (Height <= 0) then
     Exit;
-
-  // Work directly with the native Notepad++ toolbar when it is available.
-  ToolbarHandle := GetToolbarHandle;
-
-  if ToolbarHandle = 0 then
-    Exit;
-
-  // Release each GDI handle exactly once before clearing the stored values.
-  for Index := 0 to High(FToolbarButtons) do
-  begin
-    // Cache the current native button as a template for later reconstruction.
-    FillChar(FToolbarButtons[Index].Button, SizeOf(TTBButton), 0);
-    ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, FToolbarButtons[Index].CmdID, 0);
-    if ButtonIndex >= 0 then
-      SendMessage(ToolbarHandle, TB_GETBUTTON, ButtonIndex, LPARAM(@FToolbarButtons[Index].Button));
-   end;
-
-end;
-
-
-// Rebuilds the plugin toolbar according to the saved user configuration.
-//
-// Notepad++ toolbar buttons are bound to plugin function command IDs, but their
-// physical toolbar indexes and image indexes can change whenever buttons are
-// hidden, reordered, deleted/reinserted, or when Notepad++ refreshes the toolbar
-// during a dark/light mode switch.
-//
-// This routine therefore does all toolbar work in one pass:
-//   1. removes the current plugin buttons from the native Notepad++ toolbar;
-//   2. reloads the saved logical order and visibility;
-//   3. reinserts only the visible buttons, preserving their command IDs;
-//   4. applies the cached enabled/disabled state directly to each TBBUTTON;
-//   5. rebuilds the disabled image list using the current physical iBitmap
-//      values read back from the toolbar.
-//
-// The important rule is that cached TBBUTTON data is used only as a template.
-// Runtime-sensitive values such as the physical toolbar index and iBitmap are
-// always resolved again from the current toolbar instance.
-// *****************************************************************************
-// Purpose: Rebuilds the native Notepad++ toolbar from the saved logical order,
-// visibility, enabled state, and current image lists.
-// *****************************************************************************
-procedure TESPHomePlugin.RefreshToolbarConfiguration;
-var
-  Items: TArray<string>;
-  Parts: TArray<string>;
-  ToolbarHandle: HWND;
-  ButtonIndex: LRESULT;
-  FuncIndex, ConfigIndex: Integer;
-  ToolbarConfig: string;
-  Visible: Boolean;
-
-  TempBmp: TBitmap;
-  TempIcon: TIcon;
-  IconSize: TPoint;
-  NormalListHandle: HIMAGELIST;
-  DisabledListHandle: HIMAGELIST;
-  NewIcon: HICON;
-  Button: TTBButton;
-  ImgIdx: Integer;
-
-  procedure PrepareButton(var AToolbarButton: TToolbarButton);
-  begin
-    // Keep the button bound to the original Notepad++ function command.
-    // This is important after deleting/re-adding buttons, because toolbar
-    // position and function item index are not the same thing.
-    AToolbarButton.Button.idCommand := AToolbarButton.CmdID;
-
-    // Apply the cached logical enabled state directly to the TBBUTTON.
-    // This makes the button enter the toolbar already enabled/disabled,
-    // instead of relying only on a later TB_ENABLEBUTTON call.
-    if AToolbarButton.Enabled then
-      AToolbarButton.Button.fsState := AToolbarButton.Button.fsState or TBSTATE_ENABLED
-    else
-      AToolbarButton.Button.fsState := AToolbarButton.Button.fsState and not TBSTATE_ENABLED;
-  end;
-
-  procedure RefreshDisabledImage(const ACmdID: Integer);
-  begin
-    // Resolve the current physical toolbar button from its command id.
-    // This avoids using stale iBitmap values cached before buttons were
-    // hidden, reordered, or recreated by Notepad++.
-    ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, WPARAM(ACmdID), 0);
-    if ButtonIndex < 0 then
-      Exit;
-
-    FillChar(Button, SizeOf(Button), 0);
-    if SendMessage(ToolbarHandle, TB_GETBUTTON, ButtonIndex, LPARAM(@Button)) = 0 then
-      Exit;
-
-    ImgIdx := Button.iBitmap;
-    if ImgIdx < 0 then
-      Exit;
-
-    // Extract the current normal image for this button from Notepad++'s
-    // toolbar image list, then render it to a bitmap so it can be converted
-    // to the plugin's custom disabled appearance.
-    TempIcon.Handle := ImageList_GetIcon(NormalListHandle, ImgIdx, ILD_NORMAL);
-    if TempIcon.Handle = 0 then
-      Exit;
-
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.PixelFormat := pf32bit;
+    Bitmap.SetSize(Width, Height);
+    Bitmap.Canvas.Brush.Color := clBtnFace;
+    Bitmap.Canvas.FillRect(Rect(0, 0, Width, Height));
+    Icon := TIcon.Create;
     try
-      TempBmp.Canvas.Brush.Color := clBtnFace;
-      TempBmp.Canvas.FillRect(Rect(0, 0, IconSize.X, IconSize.Y));
-      TempBmp.Canvas.Draw(0, 0, TempIcon);
+      Icon.Handle := CopyIcon(SourceIcon);
+      if Icon.Handle = 0 then
+        Exit;
+      Bitmap.Canvas.Draw(0, 0, Icon);
     finally
-      DestroyIcon(TempIcon.Handle);
-      TempIcon.Handle := 0;
+      Icon.Free;
     end;
-
-    // Replace only the disabled image for the current physical image index.
-    // The normal/dark icon remains managed by Notepad++.
-    ConvertBitmapToDisabled(TempBmp);
-
-    NewIcon := CreateIconFromBitmap(TempBmp);
-    if NewIcon <> 0 then
-    try
-      ImageList_ReplaceIcon(DisabledListHandle, ImgIdx, NewIcon);
-    finally
-      DestroyIcon(NewIcon);
-    end;
-  end;
-
-begin
-  // Custom toolbar APIs are only available in Notepad++ 8 and newer.
-  if not IsNppMinVersion(8, 0) then
-    Exit;
-
-  // Work directly with the native Notepad++ toolbar when it is available.
-  ToolbarHandle := GetToolbarHandle;
-  if ToolbarHandle = 0 then
-    Exit;
-
-  // Remove every plugin toolbar button currently present.
-  // Buttons may have been reordered or partially hidden, so each command is
-  // looked up repeatedly until no toolbar button with that command remains.
-  for FuncIndex := 0 to High(FToolbarButtons) do
-  begin
-    repeat
-      ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, WPARAM(FToolbarButtons[FuncIndex].CmdID), 0);
-      if ButtonIndex >= 0 then
-        SendMessage(ToolbarHandle, TB_DELETEBUTTON, ButtonIndex, 0);
-    until ButtonIndex < 0;
-
-    FToolbarButtons[FuncIndex].Visible := False;
-  end;
-
-  // Reload the persisted logical toolbar configuration.
-  // Each item is stored as "toolbarButtonIndex:visible", and the item order
-  // in the string is the desired toolbar order.
-  ToolbarConfig := GetToolbarConfiguration;
-  Items := ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty);
-
-  for ConfigIndex := 0 to High(Items) do
-  begin
-    Parts := Items[ConfigIndex].Split([':']);
-    if Length(Parts) <> 2 then
-      Continue;
-
-    if not TryStrToInt(Parts[0], FuncIndex) then
-      Continue;
-
-    if (FuncIndex < 0) or (FuncIndex > High(FToolbarButtons)) then
-      Continue;
-
-    Visible := Parts[1] = '1';
-
-    // Store the logical order and visibility back into the in-memory model.
-    FToolbarButtons[FuncIndex].Sequence := ConfigIndex;
-    FToolbarButtons[FuncIndex].Visible := Visible;
-
-    if not Visible then
-      Continue;
-
-    // Insert only visible buttons, already carrying the correct command id
-    // and enabled/disabled state.
-    PrepareButton(FToolbarButtons[FuncIndex]);
-
-    SendMessage(ToolbarHandle, TB_ADDBUTTONS, 1, LPARAM(@FToolbarButtons[FuncIndex].Button));
-
-    // Force the state once more after insertion. This helps after dark/light
-    // mode changes, where the toolbar can refresh its internal state.
-    SendMessage(ToolbarHandle, TB_SETSTATE, WPARAM(FToolbarButtons[FuncIndex].CmdID), LPARAM(FToolbarButtons[FuncIndex].Button.fsState));
-  end;
-
-  SendMessage(ToolbarHandle, TB_AUTOSIZE, 0, 0);
-  SendMessage(ToolbarHandle, TB_SETMAXTEXTROWS, 0, 0);
-
-  // Rebuild the disabled image list after the toolbar has been recreated.
-  // At this point the physical iBitmap values are the current valid ones.
-  NormalListHandle := SendMessage(ToolbarHandle, TB_GETIMAGELIST, 0, 0);
-  DisabledListHandle := SendMessage(ToolbarHandle, TB_GETDISABLEDIMAGELIST, 0, 0);
-
-  if (NormalListHandle <> 0) and (DisabledListHandle <> 0) then
-  begin
-    ImageList_GetIconSize(NormalListHandle, IconSize.X, IconSize.Y);
-
-    TempBmp := TBitmap.Create;
-    TempIcon := TIcon.Create;
-    try
-      TempBmp.PixelFormat := pf32bit;
-      TempBmp.SetSize(IconSize.X, IconSize.Y);
-
-      for FuncIndex := 0 to High(FToolbarButtons) do
-        if FToolbarButtons[FuncIndex].Visible then
-          RefreshDisabledImage(FToolbarButtons[FuncIndex].CmdID);
-    finally
-      TempIcon.Free;
-      TempBmp.Free;
-    end;
-  end;
-
-  // Ask the native toolbar to repaint with the new order, visibility,
-  // enabled state, and disabled images.
-  InvalidateRect(ToolbarHandle, nil, True);
-  ShowWindow(ToolbarHandle, SW_SHOW);
-  UpdateWindow(ToolbarHandle);
-
-  if Assigned(FormProjects) then
-    CheckMenuItem(GetIndexFromFuncItemName(fiShowHidePrjWin), FormProjects.Visible);
-  if Assigned(FormConsole) then
-    CheckMenuItem(GetIndexFromFuncItemName(fiShowHideConsole), FormConsole.Visible);
-end;
-
-// *****************************************************************************
-// Purpose: Releases all GDI bitmap and icon handles owned by the plugin toolbar
-// button model, then clears the stored handle fields.
-// *****************************************************************************
-procedure TESPHomePlugin.FreeToolbarResources;
-var
-  Index: Integer;
-begin
-  // Custom toolbar APIs are only available in Notepad++ 8 and newer.
-  if not IsNppMinVersion(8, 0) then
-    Exit;
-  // Release each GDI handle exactly once before clearing the stored values.
-  for Index := 0 to High(FToolbarButtons) do
-  begin
-    with FToolbarButtons[Index].IconData do
-    begin
-      if ToolbarBmp <> 0 then
-        DeleteObject(ToolbarBmp);
-      if ToolbarIcon <> 0 then
-        DestroyIcon(ToolbarIcon);
-      if ToolbarIconDarkMode <> 0 then
-        DestroyIcon(ToolbarIconDarkMode);
-    end;
-    with FToolbarButtons[Index] do
-      FillChar(IconData, SizeOf(IconData), 0);
+    ConvertBitmapToDisabled(Bitmap);
+    Result := CreateIconFromBitmap(Bitmap);
+  finally
+    Bitmap.Free;
   end;
 end;
 
-// *****************************************************************************
-// Purpose: Enables or disables a plugin toolbar button by Notepad++ menu item
-// index and mirrors the state into the toolbar button model.
-// *****************************************************************************
-procedure TESPHomePlugin.EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
-var
-  CmdID: Integer;
-  ButtonIndex: LRESULT;
-  ButtonState: LRESULT;
-  ToolbarHandle: HWND;
-
-// *****************************************************************************
-// Purpose: Finds the toolbar model entry whose command ID matches the command
-// currently being enabled or disabled.
-// *****************************************************************************
-function GetIndex: Integer;
-var
-  I: Integer;
+function TESPHomePlugin.ReadToolbarConfiguration(
+  const DefaultValue: string): string;
 begin
-  Result := -1;
-  for I := 0 to High(Plugin.FToolbarButtons) do
-    if Plugin.FToolbarButtons[I].CmdID = CmdID then
-    begin
-      Result := I;
-      Exit
-    end;
-end;
-
-begin
-  // Toolbar state changes are applied to the native control and mirrored locally.
-  ToolbarHandle := Plugin.GetToolbarHandle;
-  CmdID := CmdIdFromMenuItemIdx(MenuItemIdx);
-
-  if (ToolbarHandle = 0) or (CmdID < 0) then
-    Exit;
-
-  ButtonIndex := SendMessage(ToolbarHandle, TB_COMMANDTOINDEX, WPARAM(CmdID), 0);
-  if ButtonIndex < 0 then
-    Exit;
-
-  // Preserve unrelated toolbar state bits while toggling only the enabled flag.
-  ButtonState := SendMessage(ToolbarHandle, TB_GETSTATE, WPARAM(CmdID), 0);
-  if ButtonState < 0 then
-    Exit;
-
-  if State then
-    ButtonState := ButtonState or TBSTATE_ENABLED
+  if Assigned(ConfigIniFile) then
+    Result := ConfigIniFile.ReadString(csSectionGeneral, csKeyToolbarConfig,
+      DefaultValue)
   else
-    ButtonState := ButtonState and not TBSTATE_ENABLED;
+    Result := DefaultValue;
+end;
 
-  if SendMessage(ToolbarHandle, TB_SETSTATE, WPARAM(CmdID), LPARAM(ButtonState)) >= 0 then
-  begin
-    ButtonIndex := GetIndex;
-    if ButtonIndex >= 0 then
-      Plugin.FToolbarButtons[ButtonIndex].Enabled := State;
-  end;
+procedure TESPHomePlugin.WriteToolbarConfiguration(const Value: string);
+begin
+  if Assigned(ConfigIniFile) then
+    ConfigIniFile.WriteString(csSectionGeneral, csKeyToolbarConfig, Value);
 end;
 
 // ============================================================================
@@ -1972,64 +1565,28 @@ end;
 procedure TESPHomePlugin.RefreshPluginMenu;
 var
   Text: string;
-  PluginMenu: HMENU;
-  ShortcutKey: TShortcutKey;
-  PFunc: PFuncItem;
   ProjectAssigned: Boolean;
-
-// *****************************************************************************
-// Purpose: Resolves a stable function identifier and updates the matching menu
-// and toolbar enabled state.
-// *****************************************************************************
-procedure EnableItem(FuncItemID: string; Status: Boolean);
-var
-  Index: Integer;
 begin
-  Index := GetIndexFromFuncItemName(FuncItemID);
-  if Index >= 0 then
-  begin
-    EnableMenuItem(Index, Status);
-    EnableToolbarItem(Index, Status);
-    //SetToolbarItemEnabled(CmdIdFromMenuItemIdx(Index), Status);
-  end;
-end;
-
-begin
-  // Most actions are disabled until a project is selected.
   ProjectAssigned := Assigned(ProjectList.Current);
+  if ProjectAssigned then
+    Text := Format(miProjectConfigureEx, [ProjectList.Current.FriendlyName])
+  else
+    Text := miProjectConfigure;
+  FMenu.SetCaption(fiProjectConfigure, Text);
 
-  PluginMenu := HMENU(SendMessage(NppData.NppHandle, NPPM_GETMENUHANDLE, NPPPLUGINMENU, 0));
-  if PluginMenu <> 0 then
-  begin
-    // The configure command caption includes the active project when available.
-    if ProjectAssigned then
-      Text := Format(miProjectConfigureEx, [ProjectList.Current.FriendlyName])
-    else
-      Text := miProjectConfigure;
-    PFunc := GetFuncByIndex(GetIndexFromFuncItemName(fiProjectConfigure));
-    if Assigned(PFunc) then
-    begin
-      // Preserve Notepad++'s current shortcut text even after user remapping.
-      if SendMessage(NppData.NppHandle, NPPM_GETSHORTCUTBYCMDID, PFunc^.CmdID, LPARAM(@ShortcutKey)) <> 0 then
-        Text := Text + #09 + ShortcutToString(@ShortcutKey);
-      if ModifyMenu(PluginMenu, PFunc^.CmdID, MF_BYCOMMAND or MF_STRING, PFunc^.CmdID, PChar(Text)) then
-        DrawMenuBar(NppData.NppHandle);
-    end;
-  end;
-
-  // Project-specific commands are enabled or disabled as a group.
-  EnableItem(fiProjectConfigure, ProjectAssigned);
-  EnableItem(fiProjectOpenFiles, ProjectAssigned);
-  EnableItem(fiProjectRemove, ProjectAssigned);
-  EnableItem(fiCommandRun, ProjectAssigned);
-  EnableItem(fiCommandCompile, ProjectAssigned);
-  EnableItem(fiCommandUpload, ProjectAssigned);
-  EnableItem(fiCommandLogs, ProjectAssigned);
-  EnableItem(fiCommandClean, ProjectAssigned);
-  EnableItem(fiCommandCleanAll, ProjectAssigned);
-  EnableItem(fiStartTerminal, ProjectAssigned);
-  EnableItem(fiStartExplorer, ProjectAssigned);
-
+  // SetEnabled updates the native menu and the toolbar model through the
+  // framework event, so application code has one source of truth.
+  FMenu.SetEnabled(fiProjectConfigure, ProjectAssigned);
+  FMenu.SetEnabled(fiProjectOpenFiles, ProjectAssigned);
+  FMenu.SetEnabled(fiProjectRemove, ProjectAssigned);
+  FMenu.SetEnabled(fiCommandRun, ProjectAssigned);
+  FMenu.SetEnabled(fiCommandCompile, ProjectAssigned);
+  FMenu.SetEnabled(fiCommandUpload, ProjectAssigned);
+  FMenu.SetEnabled(fiCommandLogs, ProjectAssigned);
+  FMenu.SetEnabled(fiCommandClean, ProjectAssigned);
+  FMenu.SetEnabled(fiCommandCleanAll, ProjectAssigned);
+  FMenu.SetEnabled(fiStartTerminal, ProjectAssigned);
+  FMenu.SetEnabled(fiStartExplorer, ProjectAssigned);
 end;
 
 // *****************************************************************************

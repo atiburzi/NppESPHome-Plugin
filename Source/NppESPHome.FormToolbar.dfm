@@ -1,28 +1,34 @@
 object FormToolbar: TFormToolbar
   Left = 0
   Top = 0
+  Margins.Left = 4
+  Margins.Top = 4
+  Margins.Right = 4
+  Margins.Bottom = 4
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Toolbar configuration'
-  ClientHeight = 647
-  ClientWidth = 418
+  ClientHeight = 802
+  ClientWidth = 520
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -15
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Position = poOwnerFormCenter
   OnCreate = FormCreate
-  TextHeight = 15
+  PixelsPerInch = 120
+  TextHeight = 20
   object LabelInfo: TLabel
-    Left = 9
-    Top = 561
-    Width = 402
-    Height = 33
-    Margins.Left = 4
-    Margins.Top = 4
-    Margins.Right = 4
-    Margins.Bottom = 4
+    Left = 11
+    Top = 701
+    Width = 503
+    Height = 42
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     AutoSize = False
     Caption = 
       'Use checkbox to enable/disable the button.'#13#10'Use mouse Drag&&Drop' +
@@ -30,18 +36,18 @@ object FormToolbar: TFormToolbar
     WordWrap = True
   end
   object TreeViewToolbar: TTreeView
-    Left = 9
-    Top = 9
-    Width = 403
-    Height = 544
-    Margins.Left = 4
-    Margins.Top = 4
-    Margins.Right = 4
-    Margins.Bottom = 4
+    Left = 11
+    Top = 11
+    Width = 504
+    Height = 680
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     CheckBoxes = True
     DragMode = dmAutomatic
     Images = VirtualImageList
-    Indent = 24
+    Indent = 30
     ParentColor = True
     RowSelect = True
     ShowButtons = False
@@ -56,129 +62,65 @@ object FormToolbar: TFormToolbar
     OnStartDrag = TreeViewToolbarStartDrag
   end
   object ButtonOk: TButton
-    Left = 160
-    Top = 618
-    Width = 75
-    Height = 25
+    Left = 200
+    Top = 773
+    Width = 94
+    Height = 31
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Caption = 'Ok'
     Default = True
     ModalResult = 1
     TabOrder = 2
-    OnClick = ButtonOkClick
+    OnClick = ButtonSaveClick
   end
   object ButtonCancel: TButton
-    Left = 337
-    Top = 618
-    Width = 75
-    Height = 25
+    Left = 421
+    Top = 773
+    Width = 94
+    Height = 31
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 4
   end
   object ButtonApply: TButton
-    Left = 241
-    Top = 618
-    Width = 75
-    Height = 25
+    Left = 301
+    Top = 773
+    Width = 94
+    Height = 31
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Caption = '&Apply'
     TabOrder = 3
-    OnClick = ButtonOkClick
+    OnClick = ButtonSaveClick
   end
   object ButtonReset: TButton
-    Left = 9
-    Top = 618
-    Width = 96
-    Height = 25
+    Left = 11
+    Top = 773
+    Width = 120
+    Height = 31
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     Caption = '&Reset toolbar'
     TabOrder = 1
     OnClick = ButtonResetClick
   end
   object VirtualImageList: TVirtualImageList
     AutoFill = True
-    Images = <
-      item
-        CollectionIndex = 0
-        CollectionName = 'add'
-        Name = 'add'
-      end
-      item
-        CollectionIndex = 1
-        CollectionName = 'clean'
-        Name = 'clean'
-      end
-      item
-        CollectionIndex = 2
-        CollectionName = 'cleanall'
-        Name = 'cleanall'
-      end
-      item
-        CollectionIndex = 3
-        CollectionName = 'compile'
-        Name = 'compile'
-      end
-      item
-        CollectionIndex = 4
-        CollectionName = 'configure'
-        Name = 'configure'
-      end
-      item
-        CollectionIndex = 5
-        CollectionName = 'explorer'
-        Name = 'explorer'
-      end
-      item
-        CollectionIndex = 6
-        CollectionName = 'help'
-        Name = 'help'
-      end
-      item
-        CollectionIndex = 7
-        CollectionName = 'open'
-        Name = 'open'
-      end
-      item
-        CollectionIndex = 8
-        CollectionName = 'remove'
-        Name = 'remove'
-      end
-      item
-        CollectionIndex = 9
-        CollectionName = 'run'
-        Name = 'run'
-      end
-      item
-        CollectionIndex = 10
-        CollectionName = 'select'
-        Name = 'select'
-      end
-      item
-        CollectionIndex = 11
-        CollectionName = 'showhide'
-        Name = 'showhide'
-      end
-      item
-        CollectionIndex = 12
-        CollectionName = 'logs'
-        Name = 'logs'
-      end
-      item
-        CollectionIndex = 13
-        CollectionName = 'terminal'
-        Name = 'terminal'
-      end
-      item
-        CollectionIndex = 14
-        CollectionName = 'upgrade'
-        Name = 'upgrade'
-      end
-      item
-        CollectionIndex = 15
-        CollectionName = 'upload'
-        Name = 'upload'
-      end>
-    Width = 32
-    Height = 32
+    Images = <>
+    Width = 40
+    Height = 40
     Left = 68
     Top = 40
   end

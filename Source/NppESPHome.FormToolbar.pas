@@ -1,17 +1,28 @@
-// Toolbar customization dialog for NppESPHome.
-// Edits plugin-command order and visibility, then persists and applies the resulting native toolbar layout.
+// Toolbar customization dialog owned by NppESPHome.
+// The reusable toolbar model, parsing, persistence and native synchronization
+// remain in Npp.Toolbar; this unit only presents and edits that model.
 unit NppESPHome.FormToolbar;
 
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes, System.UITypes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, NppPlugin, NppPluginForm,
-  Vcl.ComCtrls, Vcl.VirtualImageList, Vcl.ImgList, System.ImageList;
+  Winapi.Windows,
+  System.Classes,
+  System.SysUtils,
+  Vcl.ComCtrls,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Graphics,
+  Vcl.ImgList,
+  Vcl.StdCtrls,
+  Vcl.VirtualImageList,
+  Npp.Plugin,
+  Npp.Toolbar,
+  Npp.Vcl.Forms, System.ImageList;
 
 type
-  // Modal editor whose root nodes represent configurable toolbar commands.
-  // Node order defines toolbar order and checked state defines visibility.
+  // Node order defines toolbar order; checked state defines visibility.
+  // Icon resources and visual behavior deliberately remain application-owned.
   TFormToolbar = class(TNppPluginForm)
     VirtualImageList: TVirtualImageList;
     TreeViewToolbar: TTreeView;
@@ -20,22 +31,34 @@ type
     ButtonCancel: TButton;
     ButtonApply: TButton;
     ButtonReset: TButton;
-    procedure ToggleDarkMode; override;
     procedure FormCreate(Sender: TObject);
-    procedure TreeViewToolbarDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure TreeViewToolbarDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
     procedure TreeViewToolbarDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure TreeViewToolbarStartDrag(Sender: TObject; var DragObject: TDragObject);
-    procedure SaveConfiguration;
-    procedure LoadConfiguration(const ADefault: Boolean = False);
-    procedure ButtonOkClick(Sender: TObject);
+    procedure TreeViewToolbarStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
     procedure TreeViewToolbarEndDrag(Sender, Target: TObject; X, Y: Integer);
     procedure TreeViewToolbarMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure TreeViewToolbarKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonResetClick(Sender: TObject);
+  private
+    FDragNode: TTreeNode;
+    procedure ApplyConfiguration;
+    procedure ClearNodes;
+    function FindToolbarButton(const ItemId: string;
+      out Button: TNppToolbarButton): Boolean;
+    function GetToolbar: TNppToolbar;
+    procedure LoadConfiguration(const ADefault: Boolean = False);
+    procedure MoveNodeAfter(Node, Target: TTreeNode);
+    procedure RefreshNodeImages;
+    function TryGetNodeButton(Node: TTreeNode;
+      out Button: TNppToolbarButton): Boolean;
   public
-    { Public declarations }
+    destructor Destroy; override;
+    procedure ToggleDarkMode; override;
   end;
 
 var
@@ -46,119 +69,275 @@ implementation
 {$R *.dfm}
 
 uses
-  NppESPHome.Plugin, NppESPHome.Shared, NppMessages, System.StrUtils;
+  Npp.Api,
+  NppESPHome.Plugin,
+  NppESPHome.Shared;
 
-// *****************************************************************************
-// Purpose: Persists the edited toolbar layout, rebuilds the native toolbar, and
-// refreshes plugin command state.
-// *****************************************************************************
-procedure TFormToolbar.ButtonOkClick(Sender: TObject);
+type
+  PToolbarItemId = ^string;
+
+function TFormToolbar.GetToolbar: TNppToolbar;
 begin
-  inherited;
-  SaveConfiguration;
-  TESPHomePlugin(Plugin).RefreshToolbarConfiguration;
-  TESPHomePlugin(Plugin).RefreshPluginMenu;
+  Result := (ParentPlugin as TESPHomePlugin).Toolbar;
 end;
 
-// *****************************************************************************
-// Purpose: Reloads the default toolbar order and visibility into the editor
-// without immediately persisting it.
-// *****************************************************************************
-procedure TFormToolbar.ButtonResetClick(Sender: TObject);
+function TFormToolbar.FindToolbarButton(const ItemId: string;
+  out Button: TNppToolbarButton): Boolean;
+var
+  I: Integer;
 begin
-  inherited;
-  LoadConfiguration(True);
+  Result := False;
+  FillChar(Button, SizeOf(Button), 0);
+  for I := 0 to GetToolbar.ButtonCount - 1 do
+    if GetToolbar.GetButtonInfo(I, Button) and
+       SameText(Button.ItemId, ItemId) then
+      Exit(True);
 end;
 
-// *****************************************************************************
-// Purpose: Initializes the dialog theme and loads the saved toolbar
-// configuration.
-// *****************************************************************************
+function TFormToolbar.TryGetNodeButton(Node: TTreeNode;
+  out Button: TNppToolbarButton): Boolean;
+var
+  ItemId: PToolbarItemId;
+begin
+  Result := False;
+  FillChar(Button, SizeOf(Button), 0);
+  if not Assigned(Node) or not Assigned(Node.Data) then
+    Exit;
+  ItemId := PToolbarItemId(Node.Data);
+  Result := FindToolbarButton(ItemId^, Button);
+end;
+
+procedure TFormToolbar.ClearNodes;
+var
+  ItemId: PToolbarItemId;
+  Node: TTreeNode;
+begin
+  if not Assigned(TreeViewToolbar) then
+    Exit;
+  Node := TreeViewToolbar.Items.GetFirstNode;
+  while Assigned(Node) do
+  begin
+    ItemId := PToolbarItemId(Node.Data);
+    if Assigned(ItemId) then
+    begin
+      Dispose(ItemId);
+      Node.Data := nil;
+    end;
+    Node := Node.GetNext;
+  end;
+  TreeViewToolbar.Items.Clear;
+end;
+
+destructor TFormToolbar.Destroy;
+begin
+  ClearNodes;
+  inherited;
+end;
+
 procedure TFormToolbar.FormCreate(Sender: TObject);
 begin
+  FDragNode := nil;
   ToggleDarkMode;
   LoadConfiguration;
 end;
 
-// *****************************************************************************
-// Purpose: Synchronizes the dialog palette and image collection with the active
-// Notepad++ theme and icon-size choice.
-// *****************************************************************************
 procedure TFormToolbar.ToggleDarkMode;
 var
   DarkModeColors: TNppDarkModeColors;
+  IsDark: Boolean;
 begin
-  inherited ToggleDarkMode;
-  AssignWindowIcon(Icon);
+  inherited;
+  if not Assigned(ParentPlugin) or not Assigned(Resources) then
+    Exit;
 
-  // Small-icon mode has a dedicated collection; other modes follow the theme.
-  if Plugin.GetToolbarIconSetChoice = nppToolbarStandardSmall then
+  AssignWindowIcon(Icon);
+  IsDark := ParentPlugin.IsDarkModeEnabled;
+  if ParentPlugin.GetToolbarIconSetChoice = nppToolbarStandardSmall then
     VirtualImageList.ImageCollection := Resources.LowResImages
-  else if Plugin.IsDarkModeEnabled then
+  else if IsDark then
     VirtualImageList.ImageCollection := Resources.StandardImages
   else
     VirtualImageList.ImageCollection := Resources.LightModeImages;
+  RefreshNodeImages;
 
-  if Plugin.IsDarkModeEnabled then
+  if IsDark then
   begin
     DarkModeColors := Default(TNppDarkModeColors);
-    Plugin.GetDarkModeColors(@DarkModeColors);
-    Self.Color := TColor(DarkModeColors.Background);
-    Self.Font.Color := TColor(DarkModeColors.Text);
-  end
-  else
-  begin
-    Self.Color := clBtnFace;
-    Self.Font.Color := clWindowText;
-  end;
-end;
-
-var
-  DragNode: TTreeNode;
-
-// *****************************************************************************
-// Purpose: Moves the dragged command before or after the target node according
-// to the vertical drop position.
-// *****************************************************************************
-procedure TFormToolbar.TreeViewToolbarDragDrop(Sender, Source: TObject; X, Y: Integer);
-var
-  DropNode: TTreeNode;
-  R: TRect;
-begin
-  inherited;
-  if (Source <> TreeViewToolbar) or not Assigned(DragNode) then
-    Exit;
-  DropNode := TreeViewToolbar.GetNodeAt(X, Y);
-  if Assigned(DropNode) and (DropNode <> DragNode) then
-  begin
-    R := DropNode.DisplayRect(False);
-    TreeViewToolbar.Items.BeginUpdate;
-    try
-      // The upper and lower halves of a row mean insert-before and insert-after.
-      if Y < R.Top + (R.Height div 2) then
-        DragNode.MoveTo(DropNode, naInsert)
-      else
-        DragNode.MoveTo(DropNode, naAdd);
-      TreeViewToolbar.Selected := DragNode;
-    finally
-      TreeViewToolbar.Items.EndUpdate;
-      DragNode := nil;
+    if ParentPlugin.GetDarkModeColors(@DarkModeColors) then
+    begin
+      Color := TColor(DarkModeColors.Background);
+      Font.Color := TColor(DarkModeColors.Text);
+    end
+    else
+    begin
+      Color := TColor($202020);
+      Font.Color := clWhite;
     end;
   end
   else
-    DragNode := nil;
+  begin
+    Color := clBtnFace;
+    Font.Color := clWindowText;
+  end;
+  TreeViewToolbar.Color := Color;
+  TreeViewToolbar.Font.Color := Font.Color;
+  TreeViewToolbar.Invalidate;
 end;
 
-// *****************************************************************************
-// Purpose: Accepts valid toolbar-tree drags and highlights the prospective
-// target node.
-// *****************************************************************************
-procedure TFormToolbar.TreeViewToolbarDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+procedure TFormToolbar.RefreshNodeImages;
+var
+  Button: TNppToolbarButton;
+  ImageIndex: Integer;
+  Node: TTreeNode;
+begin
+  if not Assigned(TreeViewToolbar) or not Assigned(VirtualImageList) then
+    Exit;
+  Node := TreeViewToolbar.Items.GetFirstNode;
+  while Assigned(Node) do
+  begin
+    if TryGetNodeButton(Node, Button) then
+    begin
+      ImageIndex := VirtualImageList.GetIndexByName(Button.ItemId);
+      Node.ImageIndex := ImageIndex;
+      Node.SelectedIndex := ImageIndex;
+    end;
+    Node := Node.GetNextSibling;
+  end;
+end;
+
+procedure TFormToolbar.LoadConfiguration(const ADefault: Boolean);
+var
+  Button: TNppToolbarButton;
+  CaptionText: string;
+  I, ImageIndex: Integer;
+  ItemId: PToolbarItemId;
+  Layout: TNppToolbarLayout;
+  Node: TTreeNode;
+begin
+  if not ParentPlugin.IsNppMinVersion(8, 0) then
+    Exit;
+
+  Layout := GetToolbar.LoadLayout(ADefault);
+  try
+    TreeViewToolbar.Items.BeginUpdate;
+    try
+      ClearNodes;
+      for I := 0 to Layout.Count - 1 do
+      begin
+        if not FindToolbarButton(Layout[I].ItemId, Button) then
+          Continue;
+        CaptionText := GetToolbar.CaptionForItem(Button.ItemId);
+        if CaptionText = '' then
+          CaptionText := Button.ItemId;
+        New(ItemId);
+        try
+          ItemId^ := Button.ItemId;
+          Node := TreeViewToolbar.Items.Add(nil, CaptionText);
+          Node.Data := ItemId;
+        except
+          Dispose(ItemId);
+          raise;
+        end;
+        // StateIndex is reserved by TTreeView for checkbox state images. The
+        // node carries a separately allocated copy of the stable command ID.
+        ImageIndex := VirtualImageList.GetIndexByName(Button.ItemId);
+        Node.ImageIndex := ImageIndex;
+        Node.SelectedIndex := ImageIndex;
+        Node.Checked := Layout[I].Visible;
+      end;
+      if TreeViewToolbar.Items.Count > 0 then
+      begin
+        TreeViewToolbar.Selected := TreeViewToolbar.Items[0];
+        TreeViewToolbar.Selected.MakeVisible;
+      end;
+    finally
+      TreeViewToolbar.Items.EndUpdate;
+    end;
+  finally
+    Layout.Free;
+  end;
+end;
+
+procedure TFormToolbar.ApplyConfiguration;
+var
+  Button: TNppToolbarButton;
+  Layout: TNppToolbarLayout;
+  Node: TTreeNode;
+begin
+  Layout := TNppToolbarLayout.Create;
+  try
+    Node := TreeViewToolbar.Items.GetFirstNode;
+    while Assigned(Node) do
+    begin
+      if TryGetNodeButton(Node, Button) then
+        Layout.Add(Button.ItemId, Node.Checked);
+      Node := Node.GetNextSibling;
+    end;
+    GetToolbar.SaveLayout(Layout);
+  finally
+    Layout.Free;
+  end;
+
+  GetToolbar.Refresh;
+  (ParentPlugin as TESPHomePlugin).RefreshPluginMenu;
+end;
+
+procedure TFormToolbar.ButtonSaveClick(Sender: TObject);
+begin
+  ApplyConfiguration;
+end;
+
+procedure TFormToolbar.ButtonResetClick(Sender: TObject);
+begin
+  LoadConfiguration(True);
+end;
+
+procedure TFormToolbar.MoveNodeAfter(Node, Target: TTreeNode);
+var
+  NextNode: TTreeNode;
+begin
+  NextNode := Target.GetNextSibling;
+  if NextNode = Node then
+    Exit;
+  if Assigned(NextNode) then
+    Node.MoveTo(NextNode, naInsert)
+  else
+    Node.MoveTo(nil, naAdd);
+end;
+
+procedure TFormToolbar.TreeViewToolbarDragDrop(Sender, Source: TObject;
+  X, Y: Integer);
+var
+  DropNode: TTreeNode;
+  RowRect: TRect;
+begin
+  if (Source <> TreeViewToolbar) or not Assigned(FDragNode) then
+    Exit;
+  DropNode := TreeViewToolbar.GetNodeAt(X, Y);
+  if Assigned(DropNode) and (DropNode <> FDragNode) then
+  begin
+    RowRect := DropNode.DisplayRect(False);
+    TreeViewToolbar.Items.BeginUpdate;
+    try
+      if Y < RowRect.Top + (RowRect.Height div 2) then
+        FDragNode.MoveTo(DropNode, naInsert)
+      else
+        MoveNodeAfter(FDragNode, DropNode);
+      TreeViewToolbar.Selected := FDragNode;
+      FDragNode.MakeVisible;
+    finally
+      TreeViewToolbar.Items.EndUpdate;
+    end;
+  end;
+  FDragNode := nil;
+end;
+
+procedure TFormToolbar.TreeViewToolbarDragOver(Sender, Source: TObject;
+  X, Y: Integer; State: TDragState; var Accept: Boolean);
 var
   DropNode: TTreeNode;
 begin
-  inherited;
-  Accept := (Source = TreeViewToolbar) and Assigned(DragNode);
+  Accept := (Source = TreeViewToolbar) and Assigned(FDragNode);
   if Accept then
   begin
     DropNode := TreeViewToolbar.GetNodeAt(X, Y);
@@ -167,31 +346,23 @@ begin
   end;
 end;
 
-// *****************************************************************************
-// Purpose: Clears the transient node reference when a drag operation ends.
-// *****************************************************************************
-procedure TFormToolbar.TreeViewToolbarEndDrag(Sender, Target: TObject; X,
-  Y: Integer);
+procedure TFormToolbar.TreeViewToolbarEndDrag(Sender, Target: TObject;
+  X, Y: Integer);
 begin
-  inherited;
-  DragNode := nil;
+  FDragNode := nil;
 end;
 
-// *****************************************************************************
-// Purpose: Supports command reordering with Ctrl+Up and Ctrl+Down while
-// preserving selection and visibility.
-// *****************************************************************************
-procedure TFormToolbar.TreeViewToolbarKeyDown(
-  Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TFormToolbar.TreeViewToolbarKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 var
-  Node, NextNode, TargetNode: TTreeNode;
+  Node, TargetNode: TTreeNode;
 begin
-  inherited;
   if not (ssCtrl in Shift) then
     Exit;
   Node := TreeViewToolbar.Selected;
   if not Assigned(Node) then
     Exit;
+
   TreeViewToolbar.Items.BeginUpdate;
   try
     case Key of
@@ -199,114 +370,39 @@ begin
         begin
           TargetNode := Node.GetPrevSibling;
           if Assigned(TargetNode) then
-          begin
             Node.MoveTo(TargetNode, naInsert);
-            TreeViewToolbar.Selected := Node;
-            Node.MakeVisible;
-          end;
           Key := 0;
         end;
       VK_DOWN:
         begin
-          NextNode := Node.GetNextSibling;
-          if Assigned(NextNode) then
-          begin
-            TargetNode := NextNode.GetNextSibling;
-            if Assigned(TargetNode) then
-              Node.MoveTo(TargetNode, naInsert)
-            else
-              Node.MoveTo(nil, naAdd);
-            TreeViewToolbar.Selected := Node;
-            Node.MakeVisible;
-          end;
+          TargetNode := Node.GetNextSibling;
+          if Assigned(TargetNode) then
+            MoveNodeAfter(Node, TargetNode);
           Key := 0;
         end;
     end;
+    TreeViewToolbar.Selected := Node;
+    Node.MakeVisible;
   finally
     TreeViewToolbar.Items.EndUpdate;
   end;
 end;
 
-// *****************************************************************************
-// Purpose: Selects the node whose state icon was clicked so later operations
-// act on the same command.
-// *****************************************************************************
 procedure TFormToolbar.TreeViewToolbarMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   Node: TTreeNode;
 begin
-  inherited;
   Node := TreeViewToolbar.GetNodeAt(X, Y);
-  if Assigned(Node) and (htOnStateIcon in TreeViewToolbar.GetHitTestInfoAt(X, Y)) then
+  if Assigned(Node) and
+     (htOnStateIcon in TreeViewToolbar.GetHitTestInfoAt(X, Y)) then
     TreeViewToolbar.Selected := Node;
 end;
 
-// *****************************************************************************
-// Purpose: Captures the selected node as the source of a toolbar reorder
-// operation.
-// *****************************************************************************
-procedure TFormToolbar.TreeViewToolbarStartDrag(Sender: TObject; var DragObject: TDragObject);
+procedure TFormToolbar.TreeViewToolbarStartDrag(Sender: TObject;
+  var DragObject: TDragObject);
 begin
-  inherited;
-  DragNode := TreeViewToolbar.Selected;
-end;
-
-// *****************************************************************************
-// Purpose: Populates the tree from the saved or default toolbar configuration,
-// resolving command captions and images.
-// *****************************************************************************
-procedure TFormToolbar.LoadConfiguration(const ADefault: Boolean = False);
-var
-  Button: PToolbarButton;
-  Image: System.UITypes.TImageIndex;
-  Index: Integer;
-  Node: TTreeNode;
-  ToolbarConfig, Item: string;
-  Parts: TArray<string>;
-begin
-  inherited;
-  if not Plugin.IsNppMinVersion(8, 0) then
-    Exit;
-  TreeViewToolbar.Items.Clear;
-  ToolbarConfig := TESPHomePlugin(Plugin).GetToolbarConfiguration(ADefault);
-  for Item in ToolbarConfig.Split([';'], TStringSplitOptions.ExcludeEmpty) do
-  begin
-    Parts := Item.Split([':']);
-    if Length(Parts) <> 2 then
-      Continue;
-    if not TryStrToInt(Parts[0], Index) then
-      Continue;
-    if (Index < 0) or (Index >= TESPHomePlugin(Plugin).ToolbarButtonCount) then
-      Continue;
-    Button := TESPHomePlugin(Plugin).ToolbarButton[Index];
-    if not Assigned(Button) then
-      Continue;
-    Image := TreeViewToolbar.Images.GetIndexByName(Button^.FuncItemID);
-    if Image < 0 then
-      Continue;
-    Node := TreeViewToolbar.Items.Add(nil, Plugin.GetFuncByCmdID(Button^.CmdID).ItemName);
-    Node.ImageIndex := Image;
-    // Preserve the model index independently of the node''s visual position.
-    Node.StateIndex := Index;
-    Node.SelectedIndex := Image;
-    Node.Checked := Parts[1] = '1';
-  end;
-end;
-
-// *****************************************************************************
-// Purpose: Serializes the current command order and checked state to the plugin
-// INI file.
-// *****************************************************************************
-procedure TFormToolbar.SaveConfiguration;
-var
-  Node: TTreeNode;
-  ToolbarConfig: string;
-begin
-  ToolbarConfig := '';
-  for Node in TreeViewToolbar.Items do
-    ToolbarConfig := Concat(ToolbarConfig, IntToStr(Node.StateIndex), ':', IfThen(Node.Checked, '1', '0'), ';');
-  ConfigIniFile.WriteString(csSectionGeneral, csKeyToolbarConfig, ToolbarConfig);
+  FDragNode := TreeViewToolbar.Selected;
 end;
 
 end.

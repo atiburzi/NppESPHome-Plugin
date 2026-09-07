@@ -19,12 +19,12 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppPlugin;
+unit Npp.Plugin;
 
 interface
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Vcl.Forms, NppScintilla, NppMessages,
-  NppMenuCmdID;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Npp.Scintilla.Api, Npp.Api,
+  Npp.MenuCmdID, Npp.Host;
 
 
 type
@@ -44,6 +44,9 @@ type
     FPluginCopyright: string;
     FSCNotification: PSCNotification;
     FFuncItemArray: array of TFuncItem;
+    FShutdownStarted: Boolean;
+    FShutdownComplete: Boolean;
+    FHost: TNppHost;
 
     function GetVarSizeStringValue(DirType: cardinal; MaxSize: cardinal = $0000FFFF): string;
 
@@ -97,16 +100,21 @@ type
 
     // Basic plugin properties
     property NppData: TNppData read FNppData;
+    // Typed SendMessage facade. Replace Transport in hostless tests.
+    property Host: TNppHost read FHost;
     property PluginName: nppString read FPluginName write FPluginName;
     property PluginMajorVersion: Integer read FPluginMajorVersion write FPluginMajorVersion;
     property PluginMinorVersion: Integer read FPluginMinorVersion write FPluginMinorVersion;
     property SCNotification: PSCNotification read FSCNotification;
+    property IsShuttingDown: Boolean read FShutdownStarted;
+    property IsShutdownComplete: Boolean read FShutdownComplete;
 
     // Plugin interface methods
     procedure MessageProc(var Msg: TMessage); virtual;
     procedure BeNotified(SN: PSCNotification);
+    procedure Shutdown;
     procedure SetInfo(NppData: TNppData); virtual;
-    function GetFuncsArray(out FuncsCount: Integer): Pointer;
+    function GetFuncsArray(out FuncsCount: Integer): PFuncItem;
     function GetFuncByIndex(const Index: Integer): PFuncItem;
     function GetFuncByCmdID(const CmdID: Integer): PFuncItem;
     function GetName: nppPChar;
@@ -118,6 +126,10 @@ type
     procedure CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
     procedure EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
     procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean); virtual;
+    procedure RegisterToolbarIcon(CmdID: Cardinal; var ToolbarIcon: TToolbarIcons); overload;
+    procedure RegisterToolbarIcon(CmdID: Cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode); overload;
+    function RegisterFuncItem(ItemName: nppString; Func: FuncItemCmdProc;
+      ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
 
     procedure PerformMenuCommand(MenuCmdId: Integer; Param: Integer = 0; Delayed: Boolean = true);
 
@@ -145,7 +157,7 @@ type
     function GetFileNameWithoutExt: string;
     function GetFileNameExt: string;
 
-    function GetToolbarHandle: HWND;
+    function GetToolbarHandle: HWND; virtual;
     function GetEncoding: Integer;
     function GetEOLFormat: Integer;
     function GetLanguageType: Integer;
@@ -192,7 +204,7 @@ type
 
 implementation
 uses
-  FileVersionInfo, Math, Winapi.CommCtrl;
+  FileVersionInfo, System.Math, Winapi.CommCtrl;
 
 // =============================================================================
 // Class TNppPlugin
@@ -203,8 +215,14 @@ uses
 // -----------------------------------------------------------------------------
 
 constructor TNppPlugin.Create;
+var
+  EmptyData: TNppData;
 begin
   inherited;
+  FillChar(EmptyData, SizeOf(EmptyData), 0);
+  FHost := TNppHost.Create(EmptyData);
+  FShutdownStarted := False;
+  FShutdownComplete := False;
 end;
 
 destructor TNppPlugin.Destroy;
@@ -216,19 +234,12 @@ begin
     if Assigned(FFuncItemArray[Index].ShortcutKey) then
       Dispose(FFuncItemArray[Index].ShortcutKey);
   end;
+  FHost.Free;
   inherited;
 end;
 
-// This is hacking for troubble...
-// We need to unset the Application handler so that the forms
-// don't get berserk and start throwing OS error 1004.
-// This happens because the main NPP HWND is already lost when the
-// DLL_PROCESS_DETACH gets called, and the form tries to allocate a new
-// handler for sending the "close" windows message...
 procedure TNppPlugin.BeforeDestruction;
 begin
-  Application.Handle := 0;
-  Application.Terminate;
   inherited;
 end;
 
@@ -253,53 +264,78 @@ end;
 
 procedure TNppPlugin.BeNotified(SN: PSCNotification);
 begin
+  if not Assigned(SN) then
+    Exit;
+
   FSCNotification := SN;
-  case SN.nmhdr.code of
-    NPPN_READY: DoNppnReady;
-    NPPN_FILEBEFORELOAD: DoNppnFileBeforeLoad;
-    NPPN_FILELOADFAILED: DoNppnFileLoadFailed;
-    NPPN_SNAPSHOTDIRTYFILELOADED: DoNppnSnapshotDirtyFileLoaded;
-    NPPN_FILEBEFOREOPEN: DoNppnFileBeforeOpen;
-    NPPN_FILEOPENED: DoNppnFileOpened;
-    NPPN_FILEBEFORECLOSE: DoNppnFileBeforeClose;
-    NPPN_FILECLOSED: DoNppnFileClosed;
-    NPPN_FILEBEFORESAVE: DoNppnFileBeforeSave;
-    NPPN_FILESAVED: DoNppnFileSaved;
-    NPPN_FILEBEFORERENAME: DoNppnFileBeforeRename;
-    NPPN_FILERENAMECANCEL: DoNppnFileRenameCancel;
-    NPPN_FILERENAMED: DoNppnFileRenamed;
-    NPPN_FILEBEFOREDELETE: DoNppnFileBeforeDelete;
-    NPPN_FILEDELETEFAILED: DoNppnFileDeleteFailed;
-    NPPN_FILEDELETED: DoNppnFileDeleted;
-    NPPN_BEFORESHUTDOWN: DoNppnBeforeShutDown;
-    NPPN_CANCELSHUTDOWN: DoNppnCancelShutDown;
-    NPPN_SHUTDOWN: DoNppnShutdown;
-    NPPN_BUFFERACTIVATED: DoNppnBufferActivated;
-    NPPN_LANGCHANGED: DoNppnLangChanged;
-    NPPN_READONLYCHANGED: DoNppnReadOnlyChanged;
-    NPPN_DOCORDERCHANGED: DoNppnDocOrderChanged;
-    NPPN_SHORTCUTREMAPPED: DoNppnShortcutRemapped;
-    NPPN_WORDSTYLESUPDATED: DoNppnWordStylesUpdated;
-    NPPN_TBMODIFICATION: DoNppnToolbarModification;
-    NPPN_DARKMODECHANGED: DoNppnDarkModeChanged;
-    NPPN_CMDLINEPLUGINMSG: DoNppnCmdLinePluginMsg;
-    NPPN_EXTERNALLEXERBUFFER: DoNppExternalLexerBuffer;
-    NPPN_GLOBALMODIFIED: DoNppGlobalModified;
-    NPPN_NATIVELANGCHANGED: DoNppNativeLangChanged;
-    NPPN_TOOLBARICONSETCHANGED: DoNppToolbarIconsetChanged;
+  try
+    case SN.nmhdr.code of
+      NPPN_READY: DoNppnReady;
+      NPPN_FILEBEFORELOAD: DoNppnFileBeforeLoad;
+      NPPN_FILELOADFAILED: DoNppnFileLoadFailed;
+      NPPN_SNAPSHOTDIRTYFILELOADED: DoNppnSnapshotDirtyFileLoaded;
+      NPPN_FILEBEFOREOPEN: DoNppnFileBeforeOpen;
+      NPPN_FILEOPENED: DoNppnFileOpened;
+      NPPN_FILEBEFORECLOSE: DoNppnFileBeforeClose;
+      NPPN_FILECLOSED: DoNppnFileClosed;
+      NPPN_FILEBEFORESAVE: DoNppnFileBeforeSave;
+      NPPN_FILESAVED: DoNppnFileSaved;
+      NPPN_FILEBEFORERENAME: DoNppnFileBeforeRename;
+      NPPN_FILERENAMECANCEL: DoNppnFileRenameCancel;
+      NPPN_FILERENAMED: DoNppnFileRenamed;
+      NPPN_FILEBEFOREDELETE: DoNppnFileBeforeDelete;
+      NPPN_FILEDELETEFAILED: DoNppnFileDeleteFailed;
+      NPPN_FILEDELETED: DoNppnFileDeleted;
+      NPPN_BEFORESHUTDOWN: DoNppnBeforeShutDown;
+      NPPN_CANCELSHUTDOWN: DoNppnCancelShutDown;
+      NPPN_SHUTDOWN: Shutdown;
+      NPPN_BUFFERACTIVATED: DoNppnBufferActivated;
+      NPPN_LANGCHANGED: DoNppnLangChanged;
+      NPPN_READONLYCHANGED: DoNppnReadOnlyChanged;
+      NPPN_DOCORDERCHANGED: DoNppnDocOrderChanged;
+      NPPN_SHORTCUTREMAPPED: DoNppnShortcutRemapped;
+      NPPN_WORDSTYLESUPDATED: DoNppnWordStylesUpdated;
+      NPPN_TBMODIFICATION: DoNppnToolbarModification;
+      NPPN_DARKMODECHANGED: DoNppnDarkModeChanged;
+      NPPN_CMDLINEPLUGINMSG: DoNppnCmdLinePluginMsg;
+      NPPN_EXTERNALLEXERBUFFER: DoNppExternalLexerBuffer;
+      NPPN_GLOBALMODIFIED: DoNppGlobalModified;
+      NPPN_NATIVELANGCHANGED: DoNppNativeLangChanged;
+      NPPN_TOOLBARICONSETCHANGED: DoNppToolbarIconsetChanged;
+    end;
+  finally
+    // The notification storage belongs to Notepad++. Never expose it after the
+    // callback has returned.
+    FSCNotification := nil;
+  end;
+end;
+
+procedure TNppPlugin.Shutdown;
+begin
+  if FShutdownStarted then
+    Exit;
+
+  FShutdownStarted := True;
+  try
+    DoNppnShutdown;
+  finally
+    FShutdownComplete := True;
   end;
 end;
 
 procedure TNppPlugin.SetInfo(NppData: TNppData);
 begin
   Self.FNppData := NppData;
-  Application.Handle := NppData.NppHandle;
+  FHost.Data := NppData;
 end;
 
-function TNppPlugin.GetFuncsArray(out FuncsCount: Integer): Pointer;
+function TNppPlugin.GetFuncsArray(out FuncsCount: Integer): PFuncItem;
 begin
   FuncsCount := Length(FFuncItemArray);
-  Result := FFuncItemArray;
+  if FuncsCount = 0 then
+    Result := nil
+  else
+    Result := @FFuncItemArray[0];
 end;
 
 function TNppPlugin.GetFuncByIndex(const Index: Integer): PFuncItem;
@@ -331,8 +367,9 @@ function TNppPlugin.GetCurrentScintilla: HWND;
 var
   Idx: Integer;
 begin
+  Idx := 0;
   Result := NppData.ScintillaMainHandle;
-  SendMessage(NppData.NppHandle, NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@Idx));
+  Host.SendNpp(NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@Idx));
   if Idx <> 0 then
     Result := Self.NppData.ScintillaSecondHandle;
 end;
@@ -368,8 +405,13 @@ end;
 
 function TNppPlugin.AddFuncItem(ItemIndex: Integer; ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
 begin
+  if ItemIndex < 0 then
+    raise EArgumentOutOfRangeException.Create('ItemIndex must not be negative');
   if Length(FFuncItemArray) <= ItemIndex then
     SetLength(FFuncItemArray, ItemIndex + 1);
+  if Assigned(FFuncItemArray[ItemIndex].ShortcutKey) and
+     (FFuncItemArray[ItemIndex].ShortcutKey <> ShortcutKey) then
+    Dispose(FFuncItemArray[ItemIndex].ShortcutKey);
   StringToWideChar(ItemName, FFuncItemArray[ItemIndex].ItemName, Length(FFuncItemArray[ItemIndex].ItemName));
   FFuncItemArray[ItemIndex].Func := Func;
   FFuncItemArray[ItemIndex].ShortcutKey := ShortcutKey;
@@ -379,12 +421,30 @@ end;
 
 procedure TNppPlugin.AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIcons);
 begin
-  SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON_DEPRECATED, WPARAM(CmdID), LPARAM(@ToolbarIcon));
+  Host.SendNpp(NPPM_ADDTOOLBARICON_DEPRECATED, WPARAM(CmdID), LPARAM(@ToolbarIcon));
 end;
 
 procedure TNppPlugin.AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode);
 begin
-  SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON_FORDARKMODE, WPARAM(CmdID), LPARAM(@ToolbarIcon));
+  Host.SendNpp(NPPM_ADDTOOLBARICON_FORDARKMODE, WPARAM(CmdID), LPARAM(@ToolbarIcon));
+end;
+
+procedure TNppPlugin.RegisterToolbarIcon(CmdID: Cardinal;
+  var ToolbarIcon: TToolbarIcons);
+begin
+  AddToolbarIcon(CmdID, ToolbarIcon);
+end;
+
+procedure TNppPlugin.RegisterToolbarIcon(CmdID: Cardinal;
+  var ToolbarIcon: TToolbarIconsWithDarkMode);
+begin
+  AddToolbarIcon(CmdID, ToolbarIcon);
+end;
+
+function TNppPlugin.RegisterFuncItem(ItemName: nppString;
+  Func: FuncItemCmdProc; ShortcutKey: PShortcutKey; Checked: Boolean): Integer;
+begin
+  Result := AddFuncItem(ItemName, Func, ShortcutKey, Checked);
 end;
 
 // -----------------------------------------------------------------------------
@@ -401,11 +461,16 @@ end;
 function EnumChildProc(Wnd: HWND; LParam: LPARAM): BOOL; stdcall;
 var
   ClassName: array[0..255] of Char;
+  ToolbarHandle: ^HWND;
 begin
-  GetClassName(Wnd, ClassName, SizeOf(ClassName));
+  // The Win32 API expects a character count, not a byte size. Passing
+  // SizeOf(ClassName) doubled the limit for Unicode builds and could overrun
+  // the fixed buffer for unusually long class names.
+  GetClassName(Wnd, ClassName, Length(ClassName));
   if StrComp(ClassName, TOOLBARCLASSNAME) = 0 then
   begin
-    PCardinal(LParam)^ := Wnd;
+    ToolbarHandle := Pointer(LParam);
+    ToolbarHandle^ := Wnd;
     Result := False;
   end
   else
@@ -422,7 +487,7 @@ procedure TNppPlugin.EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
 var
   PluginMenu: HMENU;
 begin
-  PluginMenu := HMENU(SendMessage(NppData.NppHandle, NPPM_GETMENUHANDLE, NPPPLUGINMENU, 0));
+  PluginMenu := HMENU(Host.SendNpp(NPPM_GETMENUHANDLE, NPPPLUGINMENU, 0));
   if PluginMenu <> 0 then
   begin
     Winapi.Windows.EnableMenuItem(PluginMenu, CmdIdFromMenuItemIdx(MenuItemIdx), MF_BYCOMMAND or IfThen(State, MF_ENABLED, MF_GRAYED));
@@ -432,27 +497,27 @@ end;
 
 procedure TNppPlugin.EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
 var
-  Toolbar: HMENU;
+  Toolbar: HWND;
 begin
   Toolbar := GetToolbarHandle;
   if Toolbar <> 0 then
-    SendMessage(Toolbar, TB_ENABLEBUTTON, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
+    Host.Send(Toolbar, TB_ENABLEBUTTON, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
 end;
 
 procedure TNppPlugin.CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
 begin
   if Delayed then
-    PostMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State))
+    Host.PostNpp(NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State))
   else
-    SendMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
+    Host.SendNpp(NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
 end;
 
 procedure TNppPlugin.PerformMenuCommand(MenuCmdId: Integer; Param: Integer = 0; Delayed: Boolean = true);
 begin
   if Delayed then
-    PostMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
+    Host.PostNpp(NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
   else
-    SendMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
+    Host.SendNpp(NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
 end;
 
 function TNppPlugin.GetMajorVersion: Integer;
@@ -487,15 +552,21 @@ var
   RetVal: LRESULT;
 begin
   Result := '';
-  BufLen := 256; // The start value for this algorithm has to be a power of 2
+  if MaxSize = 0 then
+    Exit;
+  BufLen := Min(Cardinal(256), MaxSize);
   repeat
     SetLength(Buf, BufLen);
-    RetVal := SendMessage(NppData.NppHandle, DirType, WPARAM(BufLen), LParam(nppPChar(Buf)));
+    Buf[BufLen] := #0;
+    RetVal := Host.SendNpp(DirType, WPARAM(BufLen), LParam(nppPChar(Buf)));
     if RetVal <> 0 then
       break;
     if BufLen >= MaxSize then
       exit;
-    BufLen := BufLen * 2;
+    if BufLen > MaxSize div 2 then
+      BufLen := MaxSize
+    else
+      BufLen := BufLen * 2;
   until false;
   SetString(Result, nppPChar(Buf), StrLen(nppPChar(Buf)));
 end;
@@ -504,7 +575,7 @@ function TNppPlugin.GetNppVersion(var MajorVersion, MinorVersion: Integer): Inte
 var
   Version: LRESULT;
 begin
-  Version := SendMessage(NppData.NppHandle, NPPM_GETNPPVERSION, WPARAM(0), LPARAM(0));
+  Version := Host.SendNpp(NPPM_GETNPPVERSION, WPARAM(0), LPARAM(0));
   MajorVersion := HiWord(Version);
   MinorVersion := LoWord(Version);
   if MinorVersion < 10 then
@@ -532,7 +603,7 @@ function TNppPlugin.IsDarkModeEnabled: Boolean;
 begin
   Result := false;
   if IsNppMinVersion(8, 410) then
-    Result := SendMessage(NppData.NppHandle, NPPM_ISDARKMODEENABLED, 0, LPARAM(0)) > 0;
+    Result := Host.SendNpp(NPPM_ISDARKMODEENABLED, 0, LPARAM(0)) > 0;
 end;
 
 function TNppPlugin.GetNppDir: string;
@@ -579,8 +650,23 @@ begin
 end;
 
 function TNppPlugin.GetPluginDllPath: string;
+var
+  Buffer: string;
+  BufferLength: DWORD;
+  CharsWritten: DWORD;
 begin
-  Result := TPath.Combine(GetPluginDir(), ReplaceStr(GetName(), ' ', '') + '.dll')
+  Result := '';
+  BufferLength := MAX_PATH;
+  repeat
+    SetLength(Buffer, BufferLength);
+    CharsWritten := GetModuleFileName(HInstance, PChar(Buffer), BufferLength);
+    if CharsWritten = 0 then
+      Exit;
+    if CharsWritten < BufferLength then
+      Break;
+    BufferLength := BufferLength * 2;
+  until False;
+  SetString(Result, PChar(Buffer), CharsWritten);
 end;
 
 function TNppPlugin.GetNppWindowTitle: string;
@@ -619,17 +705,17 @@ end;
 
 function TNppPlugin.GetEncoding: Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERENCODING, WPARAM(GetCurrentBufferId), LPARAM(0));
+  Result := Host.SendNpp(NPPM_GETBUFFERENCODING, WPARAM(GetCurrentBufferId), LPARAM(0));
 end;
 
 function TNppPlugin.GetEOLFormat: Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERFORMAT, WPARAM(GetCurrentBufferId), LPARAM(0));
+  Result := Host.SendNpp(NPPM_GETBUFFERFORMAT, WPARAM(GetCurrentBufferId), LPARAM(0));
 end;
 
 function TNppPlugin.GetLanguageType: Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERLANGTYPE, WPARAM(GetCurrentBufferId), LPARAM(0));
+  Result := Host.SendNpp(NPPM_GETBUFFERLANGTYPE, WPARAM(GetCurrentBufferId), LPARAM(0));
   if Result = -1 then
     Result := C_NO_LANGUAGE;
 end;
@@ -639,10 +725,10 @@ var
   BufLen: LRESULT;
 
 begin
-  BufLen := SendMessage(NppData.NppHandle, NPPM_GETLANGUAGENAME, WPARAM(ALangType), LPARAM(0));
+  BufLen := Host.SendNpp(NPPM_GETLANGUAGENAME, WPARAM(ALangType), LPARAM(0));
   SetLength(Result, BufLen);
 
-  BufLen := SendMessage(NppData.NppHandle, NPPM_GETLANGUAGENAME, WPARAM(ALangType), LPARAM(nppPChar(Result)));
+  BufLen := Host.SendNpp(NPPM_GETLANGUAGENAME, WPARAM(ALangType), LPARAM(nppPChar(Result)));
   SetLength(Result, BufLen);
 end;
 
@@ -651,16 +737,16 @@ var
   BufLen: LRESULT;
 
 begin
-  BufLen := SendMessage(NppData.NppHandle, NPPM_GETLANGUAGEDESC, WPARAM(ALangType), LPARAM(0));
+  BufLen := Host.SendNpp(NPPM_GETLANGUAGEDESC, WPARAM(ALangType), LPARAM(0));
   SetLength(Result, BufLen);
 
-  BufLen := SendMessage(NppData.NppHandle, NPPM_GETLANGUAGEDESC, WPARAM(ALangType), LPARAM(nppPChar(Result)));
+  BufLen := Host.SendNpp(NPPM_GETLANGUAGEDESC, WPARAM(ALangType), LPARAM(nppPChar(Result)));
   SetLength(Result, BufLen);
 end;
 
 function TNppPlugin.GetCurrentViewIdx: Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTVIEW, WPARAM(0), LPARAM(0));
+  Result := Host.SendNpp(NPPM_GETCURRENTVIEW, WPARAM(0), LPARAM(0));
 end;
 
 function TNppPlugin.GetCurrentViewIdx(ScHandle: HWND): Integer;
@@ -677,27 +763,27 @@ end;
 
 function TNppPlugin.GetCurrentDocIndex(AViewIdx: Integer): Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTDOCINDEX, WPARAM(0), LPARAM(AViewIdx));
+  Result := Host.SendNpp(NPPM_GETCURRENTDOCINDEX, WPARAM(0), LPARAM(AViewIdx));
 end;
 
 function TNppPlugin.GetCurrentLine: NativeInt;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTLINE, WPARAM(0), LPARAM(0));
+  Result := Host.SendNpp(NPPM_GETCURRENTLINE, WPARAM(0), LPARAM(0));
 end;
 
 function TNppPlugin.GetCurrentColumn: LongInt;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTCOLUMN, WPARAM(0), LPARAM(0));
+  Result := Host.SendNpp(NPPM_GETCURRENTCOLUMN, WPARAM(0), LPARAM(0));
 end;
 
 function TNppPlugin.GetCurrentBufferId: NativeInt;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTBUFFERID, WPARAM(0), LPARAM(0));
+  Result := Host.SendNpp(NPPM_GETCURRENTBUFFERID, WPARAM(0), LPARAM(0));
 end;
 
 function TNppPlugin.GetBufferIdFromPos(AViewIdx, ADocIdx: Integer): NativeInt;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERIDFROMPOS, WPARAM(ADocIdx), LPARAM(AViewIdx));
+  Result := Host.SendNpp(NPPM_GETBUFFERIDFROMPOS, WPARAM(ADocIdx), LPARAM(AViewIdx));
 end;
 
 function TNppPlugin.GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: Integer): Integer;
@@ -706,7 +792,7 @@ var
 begin
   Result := -1;
   ADocIdx := -1;
-  Pos := SendMessage(NppData.NppHandle, NPPM_GETPOSFROMBUFFERID, WPARAM(ABufferId), LParam(MAIN_VIEW));
+  Pos := Host.SendNpp(NPPM_GETPOSFROMBUFFERID, WPARAM(ABufferId), LParam(MAIN_VIEW));
   if Pos <> -1 then
   begin
     Result := Pos shr 30;
@@ -718,21 +804,26 @@ function TNppPlugin.GetFullPathFromBufferId(ABufferId: NativeInt): string;
 var
   BufLen: LRESULT;
 begin
-  BufLen := SendMessage(NppData.NppHandle, NPPM_GETFULLPATHFROMBUFFERID, WPARAM(ABufferId), LPARAM(0));
+  BufLen := Host.SendNpp(NPPM_GETFULLPATHFROMBUFFERID, WPARAM(ABufferId), LPARAM(0));
+  if BufLen < 0 then
+    Exit('');
   SetLength(Result, BufLen);
-  if BufLen = -1 then
-    exit;
-  BufLen := SendMessage(NppData.NppHandle, NPPM_GETFULLPATHFROMBUFFERID, WPARAM(ABufferId), LPARAM(nppPChar(Result)));
-  SetLength(Result, BufLen);
+  if BufLen = 0 then
+    Exit;
+  BufLen := Host.SendNpp(NPPM_GETFULLPATHFROMBUFFERID, WPARAM(ABufferId), LPARAM(nppPChar(Result)));
+  if BufLen < 0 then
+    Result := ''
+  else
+    SetLength(Result, BufLen);
 end;
 
 function TNppPlugin.GetCurrentBufferDirty(AViewIdx: Integer): Boolean;
 begin
   case AViewIdx of
     MAIN_VIEW:
-      Result := (SendMessage(NppData.ScintillaMainHandle, SCI_GETMODIFY, WPARAM(0), LParam(0)) <> 0);
+      Result := (Host.SendMainScintilla(SCI_GETMODIFY, WPARAM(0), LParam(0)) <> 0);
     SUB_VIEW:
-      Result := (SendMessage(NppData.ScintillaSecondHandle, SCI_GETMODIFY, WPARAM(0), LParam(0)) <> 0);
+      Result := (Host.SendSecondScintilla(SCI_GETMODIFY, WPARAM(0), LParam(0)) <> 0);
   else
     Result := false;
   end;
@@ -742,44 +833,50 @@ function TNppPlugin.GetDarkModeColors(PColors: PNppDarkModeColors): Boolean;
 begin
   Result := false;
   if IsDarkModeEnabled then
-    Result := SendMessage(NppData.NppHandle, NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LParam(PColors)) > 0;
+    Result := Host.SendNpp(NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LParam(PColors)) > 0;
 end;
 
 function TNppPlugin.GetToolbarIconSetChoice: Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETTOOLBARICONSETCHOICE, 0, 0);
+  Result := Host.SendNpp(NPPM_GETTOOLBARICONSETCHOICE, 0, 0);
 end;
 
 function TNppPlugin.GetOpenFilesCnt(CntType: Integer): Integer;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_GETNBOPENFILES, WPARAM(0), LParam(CntType));
+  Result := Host.SendNpp(NPPM_GETNBOPENFILES, WPARAM(0), LParam(CntType));
 end;
 
 function TNppPlugin.GetOpenFiles(CntType: Integer): TStringDynArray;
-var
-  Cnt: Integer;
-  Idx: Integer;
-  Buffer: array of nppPChar;
+  procedure AppendView(const ViewType: Integer);
+  var
+    FileCount: Integer;
+    ViewIndex: Integer;
+    BufferId: NativeInt;
+    FileName: string;
+  begin
+    FileCount := GetOpenFilesCnt(ViewType);
+    for ViewIndex := 0 to FileCount - 1 do
+    begin
+      BufferId := GetBufferIdFromPos(ViewType, ViewIndex);
+      if BufferId = 0 then
+        Continue;
+      FileName := GetFullPathFromBufferId(BufferId);
+      if FileName = '' then
+        Continue;
+      SetLength(Result, Length(Result) + 1);
+      Result[High(Result)] := FileName;
+    end;
+  end;
+
 begin
-  Cnt := GetOpenFilesCnt(CntType);
-  SetLength(Buffer, Cnt);
-  for Idx := 0 to Pred(Cnt) do
-    Buffer[Idx] := StrAlloc(MAX_PATH);
   case CntType of
     ALL_OPEN_FILES:
-      Cnt := SendMessage(NppData.NppHandle, NPPM_GETOPENFILENAMES, WPARAM(Buffer), LPARAM(Cnt));
-    PRIMARY_VIEW:
-      Cnt := SendMessage(NppData.NppHandle, NPPM_GETOPENFILENAMESPRIMARY, WPARAM(Buffer), LPARAM(Cnt));
-    SECOND_VIEW:
-      Cnt := SendMessage(NppData.NppHandle, NPPM_GETOPENFILENAMESSECOND, WPARAM(Buffer), LPARAM(Cnt));
-  else
-    Cnt := 0;
-  end;
-  SetLength(Result, Cnt);
-  for Idx := 0 to Pred(Cnt) do
-  begin
-    SetString(Result[Idx], Buffer[Idx], StrLen(Buffer[Idx]));
-    StrDispose(Buffer[Idx]);
+      begin
+        AppendView(PRIMARY_VIEW);
+        AppendView(SECOND_VIEW);
+      end;
+    PRIMARY_VIEW, SECOND_VIEW:
+      AppendView(CntType);
   end;
 end;
 
@@ -787,9 +884,9 @@ function TNppPlugin.GetLineCount(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
-      Result := SendMessage(NppData.ScintillaMainHandle, SCI_GETLINECOUNT, WPARAM(0), LPARAM(0));
+      Result := Host.SendMainScintilla(SCI_GETLINECOUNT, WPARAM(0), LPARAM(0));
     SUB_VIEW:
-      Result := SendMessage(NppData.ScintillaSecondHandle, SCI_GETLINECOUNT, WPARAM(0), LPARAM(0));
+      Result := Host.SendSecondScintilla(SCI_GETLINECOUNT, WPARAM(0), LPARAM(0));
   else
     Result := 0;
   end;
@@ -799,9 +896,9 @@ function TNppPlugin.GetCurrentPos(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
-      Result := SendMessage(NppData.ScintillaMainHandle, SCI_GETCURRENTPOS, WPARAM(0), LPARAM(0));
+      Result := Host.SendMainScintilla(SCI_GETCURRENTPOS, WPARAM(0), LPARAM(0));
     SUB_VIEW:
-      Result := SendMessage(NppData.ScintillaSecondHandle, SCI_GETCURRENTPOS, WPARAM(0), LPARAM(0));
+      Result := Host.SendSecondScintilla(SCI_GETCURRENTPOS, WPARAM(0), LPARAM(0));
   else
     Result := -1;
   end;
@@ -811,9 +908,9 @@ function TNppPlugin.GetLineFromPosition(AViewIdx: Integer; APosition: NativeInt)
 begin
   case AViewIdx of
     MAIN_VIEW:
-      Result := SendMessage(NppData.ScintillaMainHandle, SCI_LINEFROMPOSITION, WPARAM(APosition), LPARAM(0));
+      Result := Host.SendMainScintilla(SCI_LINEFROMPOSITION, WPARAM(APosition), LPARAM(0));
     SUB_VIEW:
-      Result := SendMessage(NppData.ScintillaSecondHandle, SCI_LINEFROMPOSITION, WPARAM(APosition), LPARAM(0));
+      Result := Host.SendSecondScintilla(SCI_LINEFROMPOSITION, WPARAM(APosition), LPARAM(0));
   else
     Result := -1;
   end;
@@ -823,9 +920,9 @@ function TNppPlugin.GetFirstVisibleLine(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
-      Result := SendMessage(NppData.ScintillaMainHandle, SCI_GETFIRSTVISIBLELINE, WPARAM(0), LPARAM(0));
+      Result := Host.SendMainScintilla(SCI_GETFIRSTVISIBLELINE, WPARAM(0), LPARAM(0));
     SUB_VIEW:
-      Result := SendMessage(NppData.ScintillaSecondHandle, SCI_GETFIRSTVISIBLELINE, WPARAM(0), LPARAM(0));
+      Result := Host.SendSecondScintilla(SCI_GETFIRSTVISIBLELINE, WPARAM(0), LPARAM(0));
   else
     Result := -1;
   end;
@@ -835,9 +932,9 @@ function TNppPlugin.GetLinesOnScreen(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW:
-      Result := SendMessage(NppData.ScintillaMainHandle, SCI_LINESONSCREEN, WPARAM(0), LPARAM(0));
+      Result := Host.SendMainScintilla(SCI_LINESONSCREEN, WPARAM(0), LPARAM(0));
     SUB_VIEW:
-      Result := SendMessage(NppData.ScintillaSecondHandle, SCI_LINESONSCREEN, WPARAM(0), LPARAM(0));
+      Result := Host.SendSecondScintilla(SCI_LINESONSCREEN, WPARAM(0), LPARAM(0));
   else
     Result := 0;
   end;
@@ -852,7 +949,10 @@ end;
 
 function TNppPlugin.GetCurrentWord: string;
 begin
-  Result := GetVarSizeStringValue(NPPM_GETCURRENTWORD, $7FFFFFFF);
+  // A corrupt/non-host transport must not make a word query grow toward a
+  // multi-gigabyte allocation. One million UTF-16 code units is already well
+  // beyond practical editor-token sizes.
+  Result := GetVarSizeStringValue(NPPM_GETCURRENTWORD, $00100000);
 end;
 
 function TNppPlugin.OpenFile(FileName: string; ReadOnly: Boolean = false): Boolean;
@@ -876,7 +976,7 @@ begin
   end;
 
   // Open the file
-  Ret := SendMessage(NppData.NppHandle, NPPM_DOOPEN, WPARAM(0), LPARAM(nppPChar(FileName)));
+  Ret := Host.SendNpp(NPPM_DOOPEN, WPARAM(0), LPARAM(nppPChar(FileName)));
   Result := (Ret <> 0);
 
   // If requested set read-only state
@@ -894,9 +994,9 @@ begin
   if Ret then
     case GetCurrentViewIdx() of
       MAIN_VIEW:
-        SendMessage(NppData.ScintillaMainHandle, SCI_GOTOLINE, WPARAM(Line), LPARAM(0));
+        Host.SendMainScintilla(SCI_GOTOLINE, WPARAM(Line), LPARAM(0));
       SUB_VIEW:
-        SendMessage(NppData.ScintillaSecondHandle, SCI_GOTOLINE, WPARAM(Line), LPARAM(0));
+        Host.SendSecondScintilla(SCI_GOTOLINE, WPARAM(Line), LPARAM(0));
     end;
 
   Result := Ret;
@@ -904,32 +1004,32 @@ end;
 
 function TNppPlugin.SaveFile(FileName: string): Boolean;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_SAVEFILE, WPARAM(0), LPARAM(nppPChar(FileName))) <> 0;
+  Result := Host.SendNpp(NPPM_SAVEFILE, WPARAM(0), LPARAM(nppPChar(FileName))) <> 0;
 end;
 
 function TNppPlugin.SaveCurrentFile: Boolean;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_SAVECURRENTFILE, WPARAM(0), LPARAM(0)) <> 0;
+  Result := Host.SendNpp(NPPM_SAVECURRENTFILE, WPARAM(0), LPARAM(0)) <> 0;
 end;
 
 function TNppPlugin.SaveAllFiles: Boolean;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_SAVEALLFILES, WPARAM(0), LPARAM(0)) <> 0;
+  Result := Host.SendNpp(NPPM_SAVEALLFILES, WPARAM(0), LPARAM(0)) <> 0;
 end;
 
 function TNppPlugin.SwitchToFile(FileName: string): Boolean;
 begin
-  Result := SendMessage(NppData.NppHandle, NPPM_SWITCHTOFILE, 0, LPARAM(nppPChar(FileName))) <> 0;
+  Result := Host.SendNpp(NPPM_SWITCHTOFILE, 0, LPARAM(nppPChar(FileName))) <> 0;
 end;
 
 procedure TNppPlugin.ReloadFile(FileName: string; Alert: Boolean);
 begin
-  SendMessage(NppData.NppHandle, NPPM_RELOADFILE, WPARAM(Alert), LPARAM(nppPChar(FileName)));
+  Host.SendNpp(NPPM_RELOADFILE, WPARAM(Alert), LPARAM(nppPChar(FileName)));
 end;
 
 procedure TNppPlugin.ReloadCurrentFile(Alert: Boolean);
 begin
-  SendMessage(NppData.NppHandle, NPPM_RELOADBUFFERID, WPARAM(GetCurrentBufferId()), LPARAM(Alert));
+  Host.SendNpp(NPPM_RELOADBUFFERID, WPARAM(GetCurrentBufferId()), LPARAM(Alert));
 end;
 
 

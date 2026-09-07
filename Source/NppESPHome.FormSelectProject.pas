@@ -6,7 +6,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, NppPlugin, NppPluginForm;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Npp.Plugin, Npp.Vcl.Forms;
 
 type
   // Modal dialog that mirrors ProjectList and manages the current selection.
@@ -37,7 +37,7 @@ implementation
 {$R *.dfm}
 
 uses
-  NppESPHome.Shared, NppESPHome.Plugin, NppMessages, Math, TDMB;
+  NppESPHome.Shared, NppESPHome.Plugin, Npp.Api, Math, TDMB;
 
 // *****************************************************************************
 // Purpose: Adds a selected ESPHome YAML file to the known-project list,

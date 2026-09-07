@@ -6,7 +6,7 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, NppESPHome.Plugin, NppESPHome.Shared, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,  NppPluginDockingForm,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,  Npp.Vcl.Docking,
   Vcl.StdCtrls, Vcl.VirtualImageList,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Menus, VirtualTrees.BaseTree, VirtualTrees,
   VirtualTrees.Types, Vcl.ActnList,
@@ -30,7 +30,7 @@ type
   // Main dockable plugin window containing the project and template browsers.
   // It coordinates selection with Notepad++, exposes project commands, and lets
   // users filter or insert reusable YAML templates.
-  TFormProjects = class(TNppPluginDockingForm)
+  TFormProjects = class(TNppPluginDocking)
     VirtualImageList32: TVirtualImageList;
     ToolBarCommands: TToolBar;
     ToolButtonRun: TToolButton;
@@ -178,7 +178,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Types, System.StrUtils, NppMessages, NppScintilla, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
+  System.Types, System.StrUtils, Npp.Api, Npp.Scintilla.Api, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
 
 // *****************************************************************************
 // Purpose: Persists that the docked project window was hidden when Notepad++
@@ -609,13 +609,13 @@ begin
     if Assigned(Data) then
     begin
       // Resolve the active Scintilla view before inserting UTF-8 YAML text.
-      SendMessage(Plugin.NppData.NppHandle, NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@currentScintilla));
+      Plugin.Host.Send(Plugin.NppData.NppHandle, NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@currentScintilla));
       if currentScintilla = 0 then
         hSci := Plugin.NppData.ScintillaMainHandle
       else
         hSci := Plugin.NppData.ScintillaSecondHandle;
       Utf8 := UTF8String(Data^.YAML);
-      SendMessage(hSci, SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Utf8)));
+      Plugin.Host.Send(hSci, SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Utf8)));
     end;
   end;
 end;

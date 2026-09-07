@@ -19,19 +19,37 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
+var
+  PluginLoadErrorName: nppString = 'Plugin load error';
+
+procedure ReportPluginException(const EntryPoint: string; E: Exception);
+begin
+  OutputDebugString(PChar(Format('%s.%s failed: %s: %s',
+    [PluginLoadErrorName, EntryPoint, E.ClassName, E.Message])));
+end;
+
+function EnsurePlugin: TNppPlugin;
+begin
+  if not Assigned(BasePlugin) then
+  begin
+    if not Assigned(PluginClass) then
+      raise Exception.Create('No Notepad++ plugin class has been registered');
+    BasePlugin := PluginClass.Create;
+  end;
+  Result := BasePlugin;
+end;
+
 procedure DLLEntryPoint(dwReason: DWord);
 begin
   case dwReason of
     DLL_PROCESS_ATTACH:
-    begin
-      if not Assigned(BasePlugin) then
-        BasePlugin := PluginClass.Create;
-    end;
+      ;
 
     DLL_PROCESS_DETACH:
-    begin
-      FreeAndNil(BasePlugin);
-    end;
+      // Never run plugin/VCL destructors while the Windows loader lock is held.
+      // Notepad++ releases the instance through NPPN_SHUTDOWN; on an abnormal
+      // unload the operating system will reclaim the module's remaining state.
+      BasePlugin := nil;
 
     DLL_THREAD_ATTACH:
     begin
@@ -56,39 +74,81 @@ begin
   xmsg.LParam := _lParam;
   xmsg.Result := 0;
 
-  BasePlugin.MessageProc(xmsg);
-
-  Result := xmsg.Result;
+  try
+    EnsurePlugin.MessageProc(xmsg);
+    Result := xmsg.Result;
+  except
+    on E: Exception do
+    begin
+      ReportPluginException('messageProc', E);
+      Result := 0;
+    end;
+  end;
 end;
 
 
 procedure beNotified(sn: PSCNotification); cdecl; export;
+var
+  IsShutdownNotification: Boolean;
 begin
-  BasePlugin.BeNotified(sn);
+  if not Assigned(sn) then
+    Exit;
+  IsShutdownNotification := sn^.nmhdr.code = NPPN_SHUTDOWN;
+  try
+    try
+      EnsurePlugin.BeNotified(sn);
+    finally
+      // The callback has returned (also when cleanup raised), so destruction is
+      // safe here and happens before DLL_PROCESS_DETACH enters the loader lock.
+      if IsShutdownNotification then
+        FreeAndNil(BasePlugin);
+    end;
+  except
+    on E: Exception do
+      ReportPluginException('beNotified', E);
+  end;
 end;
 
 
 procedure setInfo(NppData: TNppData); cdecl; export;
 begin
-  BasePlugin.SetInfo(NppData);
+  try
+    EnsurePlugin.SetInfo(NppData);
+  except
+    on E: Exception do
+      ReportPluginException('setInfo', E);
+  end;
 end;
 
 
-function getFuncsArray(out nFuncs: integer): Pointer; cdecl; export;
+function getFuncsArray(out nFuncs: Integer): PFuncItem; cdecl; export;
 begin
-  Result := BasePlugin.GetFuncsArray(nFuncs);
+  nFuncs := 0;
+  Result := nil;
+  try
+    Result := EnsurePlugin.GetFuncsArray(nFuncs);
+  except
+    on E: Exception do
+      ReportPluginException('getFuncsArray', E);
+  end;
 end;
 
 
 function getName(): nppPchar; cdecl; export;
 begin
-  Result := BasePlugin.GetName;
+  Result := nppPChar(PluginLoadErrorName);
+  try
+    Result := EnsurePlugin.GetName;
+  except
+    on E: Exception do
+      ReportPluginException('getName', E);
+  end;
 end;
 
 
-function isUnicode : Boolean; cdecl; export;
+function isUnicode: LongBool; cdecl; export;
 begin
-  Result := true;
+  Result := True;
 end;
 
 

@@ -6,7 +6,7 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForm, Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Npp.Plugin, Npp.Vcl.Forms, Vcl.StdCtrls, Vcl.ComCtrls,
   Vcl.VirtualImageList, JvListComb,
   Vcl.WinXPanels, Vcl.ExtCtrls,
   JvEdit,
@@ -150,7 +150,7 @@ implementation
 
 uses
   NppESPHome.Shared, NppESPHome.Plugin, NppESPHome.FormProjects,
-  NppESPHome.FormConsole, NppMessages, Registry, Math, Winapi.ShellAPI;
+  NppESPHome.FormConsole, Npp.Api, Registry, Math, Winapi.ShellAPI;
 
 // *****************************************************************************
 // Purpose: Measures all list-box items and sets a horizontal scroll width wide

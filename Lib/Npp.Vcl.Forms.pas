@@ -19,7 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppPluginForm;
+unit Npp.Vcl.Forms;
 
 
 interface
@@ -27,14 +27,17 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Math, System.Types,
   System.Classes, Vcl.Controls, Vcl.Forms,
-  NppMessages, NppPlugin;
+  Npp.Api, Npp.Plugin;
 
 type
   TNppPluginForm = class(TForm)
   private
     FRegistered: Boolean;
     FThemeInitialized: Boolean;
+    FApplicationAttached: Boolean;
     function CanRegister: Boolean;
+    procedure AttachApplication;
+    procedure DetachApplication;
 
   protected
     procedure CreateParams(var Params: TCreateParams); override;
@@ -51,6 +54,8 @@ type
 
     constructor Create(ParentPlugin: TNppPlugin); reintroduce; overload; virtual;
     constructor Create(AOwner: TNppPluginForm); reintroduce; overload; virtual;
+    constructor CreateRuntime(ParentPlugin: TNppPlugin;
+      Dummy: Integer); virtual;
     destructor Destroy; override;
 
     procedure InitLanguage; virtual;
@@ -61,16 +66,63 @@ type
 
   end;
 
+  // Generic name for plugins that do not want the historical prefix.
+  TNppForm = TNppPluginForm;
+
 implementation
+
+var
+  VclAttachmentCount: Integer;
+  PreviousApplicationHandle: HWND;
+
+procedure TNppPluginForm.AttachApplication;
+begin
+  if FApplicationAttached then
+    Exit;
+  if not Assigned(ParentPlugin) then
+    Exit;
+  if VclAttachmentCount = 0 then
+  begin
+    PreviousApplicationHandle := Application.Handle;
+    Application.Handle := ParentPlugin.NppData.NppHandle;
+  end;
+  Inc(VclAttachmentCount);
+  FApplicationAttached := True;
+end;
+
+procedure TNppPluginForm.DetachApplication;
+begin
+  if not FApplicationAttached then
+    Exit;
+  FApplicationAttached := False;
+  if VclAttachmentCount > 0 then
+    Dec(VclAttachmentCount);
+  if VclAttachmentCount = 0 then
+  begin
+    if Assigned(ParentPlugin) and
+      (Application.Handle = ParentPlugin.NppData.NppHandle) then
+      Application.Handle := PreviousApplicationHandle;
+    PreviousApplicationHandle := 0;
+  end;
+end;
 
 // Constructor for main dialogs
 constructor TNppPluginForm.Create(ParentPlugin: TNppPlugin);
 begin
+  if not Assigned(ParentPlugin) then
+    raise EArgumentNilException.Create('ParentPlugin');
   Self.ParentPlugin := ParentPlugin;
   DefaultCloseAction := caNone;
   FThemeInitialized := False;
   FRegistered := False;
-  inherited Create(nil);
+  FApplicationAttached := False;
+  AttachApplication;
+  try
+    inherited Create(nil);
+  except
+    DetachApplication;
+    raise;
+  end;
   ParentWindow := ParentPlugin.NppData.NppHandle;
   RegisterForm();
   if ParentPlugin.IsNppMinVersion(8, 410) then
@@ -80,20 +132,55 @@ end;
 // Constructor for sub dialogs
 constructor TNppPluginForm.Create(AOwner: TNppPluginForm);
 begin
+  if not Assigned(AOwner) then
+    raise EArgumentNilException.Create('AOwner');
   ParentPlugin := AOwner.ParentPlugin;
   DefaultCloseAction := caNone;
   FThemeInitialized := False;
   FRegistered := False;
-  inherited Create(AOwner);
+  FApplicationAttached := False;
+  AttachApplication;
+  try
+    inherited Create(AOwner);
+  except
+    DetachApplication;
+    raise;
+  end;
+  if ParentPlugin.IsNppMinVersion(8, 410) then
+    ToggleDarkMode;
+end;
+
+constructor TNppPluginForm.CreateRuntime(ParentPlugin: TNppPlugin;
+  Dummy: Integer);
+begin
+  if not Assigned(ParentPlugin) then
+    raise EArgumentNilException.Create('ParentPlugin');
+  Self.ParentPlugin := ParentPlugin;
+  DefaultCloseAction := caNone;
+  FThemeInitialized := False;
+  FRegistered := False;
+  FApplicationAttached := False;
+  AttachApplication;
+  try
+    inherited CreateNew(nil);
+  except
+    DetachApplication;
+    raise;
+  end;
+  ParentWindow := ParentPlugin.NppData.NppHandle;
+  RegisterForm;
   if ParentPlugin.IsNppMinVersion(8, 410) then
     ToggleDarkMode;
 end;
 
 destructor TNppPluginForm.Destroy;
 begin
-  if HandleAllocated then
+  try
     UnregisterForm();
-  inherited;
+    inherited;
+  finally
+    DetachApplication;
+  end;
 end;
 
 
@@ -102,7 +189,8 @@ procedure TNppPluginForm.RegisterForm();
 begin
   if not CanRegister then
     Exit;
-  FRegistered := SendMessage(ParentPlugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, Handle) <> 0;
+  FRegistered := ParentPlugin.Host.SendNpp(NPPM_MODELESSDIALOG,
+    MODELESSDIALOGADD, Handle) <> 0;
 end;
 
 
@@ -110,9 +198,12 @@ end;
 // Unregister plugin's dialog in Notepad++
 procedure TNppPluginForm.UnregisterForm();
 begin
-  if (not FRegistered) or (not CanRegister) or (not HandleAllocated) then
+  if not FRegistered then
     Exit;
-  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, Handle);
+  if CanRegister then
+    ParentPlugin.Host.SendNpp(NPPM_MODELESSDIALOG,
+      MODELESSDIALOGREMOVE, Handle);
+  FRegistered := False;
 end;
 
 function TNppPluginForm.CanRegister: Boolean;
@@ -137,13 +228,18 @@ end;
 // Ensure correct placement of plugin dialogs
 procedure TNppPluginForm.DoCreate;
 var
+  ParentHandle: HWND;
   ParentRect: TRect;
   TargetRect: TRect;
   MonitorRect: TRect;
   WorkareaRect: TRect;
   CurMonitor: TMonitor;
 begin
-  if (ParentWindow <> 0) and GetWindowRect(ParentWindow, ParentRect) then
+  ParentHandle := ParentWindow;
+  if (ParentHandle = 0) and Assigned(ParentPlugin) then
+    ParentHandle := ParentPlugin.NppData.NppHandle;
+
+  if (ParentHandle <> 0) and GetWindowRect(ParentHandle, ParentRect) then
   begin
     TargetRect := Bounds(Max(ParentRect.Left, (ParentRect.Left + ParentRect.Right - Width) div 2), Max(ParentRect.Top, (ParentRect.Top + ParentRect.Bottom -
       Height) div 2), Width, Height);
@@ -159,8 +255,6 @@ begin
   end;
   inherited;
 end;
-
-// Perform close action according to plugin's needs
 
 // Perform close action according to plugin's needs
 procedure TNppPluginForm.DoClose(var Action: TCloseAction);
@@ -187,13 +281,16 @@ end;
 
 procedure TNppPluginForm.SubclassAndTheme(DmFlag: TNppDarkMode);
 begin
-  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DARKMODESUBCLASSANDTHEME, WPARAM(DmFlag), LPARAM(Self.Handle));
+  if Assigned(ParentPlugin) and HandleAllocated then
+    ParentPlugin.Host.SendNpp(NPPM_DARKMODESUBCLASSANDTHEME,
+      WPARAM(DmFlag), LPARAM(Self.Handle));
 end;
 
 // This is going to help us solve the problems we are having because of N++ handling our messages
 function TNppPluginForm.WantChildKey(Child: TControl; var Message: TMessage): Boolean;
 begin
-  Result := (Child.Perform(CN_BASE + Message.Msg, Message.WParam, Message.LParam) <> 0);
+  Result := Assigned(Child) and
+    (Child.Perform(CN_BASE + Message.Msg, Message.WParam, Message.LParam) <> 0);
 end;
 
 

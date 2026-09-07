@@ -19,7 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppMenuCmdID;
+unit Npp.MenuCmdID;
 
 
 interface
@@ -45,6 +45,8 @@ const
 
   IDM_FILE_OPEN_DEFAULT_VIEWER                     = (IDM_FILE + 23);
   IDM_FILE_OPENFOLDERASWORSPACE                    = (IDM_FILE + 22);
+  IDM_FILE_OPENFOLDERASWORKSPACE                   = (IDM_FILE + 22);
+  IDM_FILE_OPEN_POWERSHELL                         = (IDM_FILE + 27);
 
   IDM_FILE_RELOAD                                  = (IDM_FILE + 14);
 
@@ -62,6 +64,7 @@ const
   IDM_FILE_CLOSEALL_TOLEFT                         = (IDM_FILE + 9);
   IDM_FILE_CLOSEALL_TORIGHT                        = (IDM_FILE + 18);
   IDM_FILE_CLOSEALL_UNCHANGED                      = (IDM_FILE + 24);
+  IDM_FILE_CLOSEALL_BUT_PINNED                     = (IDM_FILE + 26);
 
   IDM_FILE_DELETE                                  = (IDM_FILE + 16);
 
@@ -74,6 +77,8 @@ const
   IDM_FILE_RESTORELASTCLOSEDFILE                   = (IDM_FILE + 21);
 
   IDM_FILE_EXIT                                    = (IDM_FILE + 11);
+  IDM_FILEMENU_EXISTCMDPOSITION                    = 22;
+  IDM_FILEMENU_LASTONE                             = IDM_FILE_OPEN_POWERSHELL;
 
 
   // ---------------------------------------------------------------------------
@@ -134,12 +139,16 @@ const
   IDM_EDIT_SORTLINES_INTEGER_ASCENDING             = (IDM_EDIT + 61);
   IDM_EDIT_SORTLINES_DECIMALCOMMA_ASCENDING        = (IDM_EDIT + 63);
   IDM_EDIT_SORTLINES_DECIMALDOT_ASCENDING          = (IDM_EDIT + 65);
+  IDM_EDIT_SORTLINES_LOCALE_ASCENDING              = (IDM_EDIT + 100);
+  IDM_EDIT_SORTLINES_LENGTH_ASCENDING              = (IDM_EDIT + 104);
 
   IDM_EDIT_SORTLINES_LEXICOGRAPHIC_DESCENDING      = (IDM_EDIT + 60);
   IDM_EDIT_SORTLINES_LEXICO_CASE_INSENS_DESCENDING = (IDM_EDIT + 81);
   IDM_EDIT_SORTLINES_INTEGER_DESCENDING            = (IDM_EDIT + 62);
   IDM_EDIT_SORTLINES_DECIMALCOMMA_DESCENDING       = (IDM_EDIT + 64);
   IDM_EDIT_SORTLINES_DECIMALDOT_DESCENDING         = (IDM_EDIT + 66);
+  IDM_EDIT_SORTLINES_LOCALE_DESCENDING             = (IDM_EDIT + 101);
+  IDM_EDIT_SORTLINES_LENGTH_DESCENDING             = (IDM_EDIT + 105);
 
   IDM_EDIT_BLOCK_COMMENT                           = (IDM_EDIT + 22);
   IDM_EDIT_BLOCK_COMMENT_SET                       = (IDM_EDIT + 35);
@@ -173,6 +182,8 @@ const
 
   IDM_EDIT_OPENASFILE                              = (IDM_EDIT + 73);
   IDM_EDIT_OPENINFOLDER                            = (IDM_EDIT + 74);
+  IDM_EDIT_OPENSELECTEDFILETOEDIT                  = (IDM_EDIT + 73);
+  IDM_EDIT_OPENSELECTEDFILEFOLDERINEXPLORER        = (IDM_EDIT + 74);
   IDM_EDIT_SEARCHONINTERNET                        = (IDM_EDIT + 75);
   IDM_EDIT_CHANGESEARCHENGINE                      = (IDM_EDIT + 76);
 
@@ -193,6 +204,11 @@ const
   IDM_EDIT_CLIPBOARDHISTORY_PANEL                  = (IDM_EDIT + 52);
   IDM_EDIT_SETREADONLY                             = (IDM_EDIT + 28);
   IDM_EDIT_CLEARREADONLY                           = (IDM_EDIT + 33);
+  IDM_EDIT_TOGGLEREADONLY                          = (IDM_EDIT + 28);
+  IDM_EDIT_TOGGLESYSTEMREADONLY                    = (IDM_EDIT + 33);
+  IDM_EDIT_SETREADONLYFORALLDOCS                   = (IDM_EDIT + 102);
+  IDM_EDIT_CLEARREADONLYFORALLDOCS                 = (IDM_EDIT + 103);
+  IDM_EDIT_REDACT_SELECTION                        = (IDM_EDIT + 106);
 
   // Located in menu File
   IDM_OPEN_ALL_RECENT_FILE                         = (IDM_EDIT + 40);
@@ -332,7 +348,9 @@ const
 
   IDM_VIEW_ZOOMIN                                  = (IDM_VIEW + 23);
   IDM_VIEW_ZOOMOUT                                 = (IDM_VIEW + 24);
+  IDM_VIEW_ZOOM_SYNC                               = (IDM_VIEW + 27);
   IDM_VIEW_ZOOMRESTORE                             = (IDM_VIEW + 33);
+  IDM_PINTAB                                       = (IDM_VIEW + 48);
 
   IDM_VIEW_GOTO_ANOTHER_VIEW                       = 10001;
   IDM_VIEW_CLONE_TO_ANOTHER_VIEW                   = 10002;
@@ -528,6 +546,7 @@ const
   IDM_FORMAT_MAC_CYRILLIC                          = (IDM_FORMAT_ENCODE + 46);
   IDM_FORMAT_KOI8U_CYRILLIC                        = (IDM_FORMAT_ENCODE + 47);
   IDM_FORMAT_KOI8R_CYRILLIC                        = (IDM_FORMAT_ENCODE + 48);
+  IDM_FORMAT_ENCODE_END                            = IDM_FORMAT_KOI8R_CYRILLIC;
 
   // Located in menu Edit
   IDM_FORMAT_TODOS                                 = (IDM_FORMAT + 1);
@@ -629,6 +648,12 @@ const
   IDM_LANG_MSSQL                                   = (IDM_LANG + 86);
   IDM_LANG_GDSCRIPT                                = (IDM_LANG + 87);
   IDM_LANG_HOLLYWOOD                               = (IDM_LANG + 88);
+  IDM_LANG_GOLANG                                  = (IDM_LANG + 89);
+  IDM_LANG_RAKU                                    = (IDM_LANG + 90);
+  IDM_LANG_TOML                                    = (IDM_LANG + 91);
+  IDM_LANG_SAS                                     = (IDM_LANG + 92);
+  IDM_LANG_ERRORLIST                               = (IDM_LANG + 93);
+  IDM_LANG_ESCSEQ                                  = (IDM_LANG + 94);
 
   IDM_LANG_EXTERNAL                                = (IDM_LANG + 165);
   IDM_LANG_EXTERNAL_LIMIT                          = (IDM_LANG + 179);
@@ -708,6 +733,7 @@ const
   // except the entries "Run" and "Modify Shortcut/Delete Command". The
   // latter one's ID derives from "Settings" menu.
   IDM_EXECUTE                                      = (IDM + 9000);
+  IDM_EXECUTE_VALIDATE_SHORTCUTSXML                = (IDM_EXECUTE + 1);
 
 
   // ---------------------------------------------------------------------------
@@ -732,6 +758,8 @@ const
   IDM_WINDOW_SORT_FT_DSC	                         = (IDR_WINDOWS_MENU + 7);
   IDM_WINDOW_SORT_FS_ASC	                         = (IDR_WINDOWS_MENU + 8);
   IDM_WINDOW_SORT_FS_DSC	                         = (IDR_WINDOWS_MENU + 9);
+  IDM_WINDOW_SORT_FD_ASC                           = (IDR_WINDOWS_MENU + 10);
+  IDM_WINDOW_SORT_FD_DSC                           = (IDR_WINDOWS_MENU + 11);
 
   // The following items are not part of a menu but of the Windows dialog
   IDM_WINDOW_MRU_FIRST 	                           = (IDR_WINDOWS_MENU + 20);

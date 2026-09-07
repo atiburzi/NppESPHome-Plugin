@@ -6,7 +6,7 @@ interface
 
 uses
   System.Classes, System.Generics.Collections, Winapi.Windows, Vcl.ComCtrls, Vcl.Graphics, Vcl.VirtualImage, Vcl.ImageCollection, Vcl.VirtualImageList, XMLIntf, IniFiles,
-  System.UITypes, NppMessages;
+  System.UITypes, Npp.Api;
 
 const
   PingTimeout = 3 * 1000; // Timeout for pinging devices, in milliseconds

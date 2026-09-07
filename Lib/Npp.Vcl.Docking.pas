@@ -19,7 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppPluginDockingForm;
+unit Npp.Vcl.Docking;
 
 
 interface
@@ -28,17 +28,23 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms,
 
-  NppMessages, NppPlugin, NppPluginForm;
+  Npp.Api, Npp.Plugin, Npp.Vcl.Forms;
 
 
 type
-  TNppPluginDockingForm = class(TNppPluginForm)
+  TNppPluginDocking = class(TNppPluginForm)
   private
     FDlgId: Integer;
     FOnDock: TNotifyEvent;
     FOnFloat: TNotifyEvent;
-    FOnClose: TNotifyEvent;
+    FRegisteredDocking: Boolean;
+    FName: string;
+    FAdditionalInfo: string;
+    FModuleName: string;
 
+    function GetHostHandle: HWND;
+    function HostAvailable: Boolean;
+    procedure SyncDockingData;
     procedure RemoveControlParent(AControl: TControl);
 
   protected
@@ -48,10 +54,6 @@ type
     // @todo: change caption and stuff....
     procedure OnWM_NOTIFY(var Msg: TWMNotify); message WM_NOTIFY;
 
-    property OnClose: TNotifyEvent read FOnClose write FOnClose;
-    property OnDock: TNotifyEvent read FOnDock write FOnDock;
-    property OnFloat: TNotifyEvent read FOnFloat write FOnFloat;
-
   public
     CmdId: Integer;
 
@@ -59,18 +61,28 @@ type
     constructor Create(AOwner: TNppPluginForm); reintroduce; overload; virtual;
     constructor Create(NppParent: TNppPlugin; DlgId: Integer); overload; virtual;
     constructor Create(AOwner: TNppPluginForm; DlgId: Integer); overload; virtual;
+    destructor Destroy; override;
 
     procedure Show;
     procedure Hide;
 
     procedure RegisterDockingForm(MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
+    procedure RefreshDockingInfo;
 
     procedure UpdateDisplayInfo; overload;
     procedure UpdateDisplayInfo(Info: string); overload;
+    procedure SubclassAndTheme(DmFlag: TNppDarkMode); override;
 
     property DlgID: Integer read FDlgid;
+    property IsDockingRegistered: Boolean read FRegisteredDocking;
+    property DockingData: TTbData read FTbData;
+    property OnDock: TNotifyEvent read FOnDock write FOnDock;
+    property OnFloat: TNotifyEvent read FOnFloat write FOnFloat;
 
   end;
+
+  // Generic name for the optional docking integration.
+  TNppDocking = TNppPluginDocking;
 
 
 
@@ -82,7 +94,7 @@ resourcestring
 
 
 // =============================================================================
-// Class TNppDockingForm
+// Class TNppPluginDocking
 // =============================================================================
 
 // -----------------------------------------------------------------------------
@@ -90,33 +102,45 @@ resourcestring
 // -----------------------------------------------------------------------------
 
 // Hide constructors
-constructor TNppPluginDockingForm.Create(NppParent: TNppPlugin);
+constructor TNppPluginDocking.Create(NppParent: TNppPlugin);
 begin
-  MessageBox(0, PWideChar(rsMessageDoNotUseThisConstructor), PWideChar(rsMessagePluginFrameworkError), MB_OK);
-  Halt(1);
+  raise Exception.Create(rsMessageDoNotUseThisConstructor);
 end;
 
-constructor TNppPluginDockingForm.Create(AOwner: TNppPluginForm);
+constructor TNppPluginDocking.Create(AOwner: TNppPluginForm);
 begin
-  MessageBox(0, PWideChar(rsMessageDoNotUseThisConstructor), PWideChar(rsMessagePluginFrameworkError), MB_OK);
-  Halt(1);
+  raise Exception.Create(rsMessageDoNotUseThisConstructor);
 end;
 
 // Constructor for main dialogs
-constructor TNppPluginDockingForm.Create(NppParent: TNppPlugin; DlgId: Integer);
+constructor TNppPluginDocking.Create(NppParent: TNppPlugin; DlgId: Integer);
 begin
   inherited Create(NppParent);
+  DefaultCloseAction := caHide;
   FDlgId := DlgId;
   CmdId := ParentPlugin.CmdIdFromMenuItemIdx(DlgId);
   RegisterDockingForm(FNppDefaultDockingMask);
   RemoveControlParent(Self);
 end;
 
+destructor TNppPluginDocking.Destroy;
+begin
+  // Hide the native docking window while the host is still available. There
+  // is no public Notepad++ message to unregister a docking panel; clearing the
+  // local state prevents any later notification from being treated as ours.
+  if FRegisteredDocking then
+    Hide;
+  FRegisteredDocking := False;
+  inherited;
+end;
+
 // Constructor for sub dialogs
-constructor TNppPluginDockingForm.Create(AOwner: TNppPluginForm; DlgId: Integer);
+constructor TNppPluginDocking.Create(AOwner: TNppPluginForm; DlgId: Integer);
 begin
   inherited Create(AOwner);
+  DefaultCloseAction := caHide;
   FDlgId := DlgId;
+  CmdId := ParentPlugin.CmdIdFromMenuItemIdx(DlgId);
   RegisterDockingForm(FNppDefaultDockingMask);
   RemoveControlParent(Self);
 end;
@@ -126,11 +150,21 @@ end;
 // -----------------------------------------------------------------------------
 
 // Register docking dialog in Notepad++
-procedure TNppPluginDockingForm.RegisterDockingForm(MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
+procedure TNppPluginDocking.RegisterDockingForm(MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
 begin
+  if FRegisteredDocking then
+    Exit;
+  if not HostAvailable then
+    raise EInvalidOpException.Create(
+      'A docking form cannot be registered before the Notepad++ host is available');
+
   HandleNeeded;
 
   FillChar(FTbData, SizeOf(TTbData), 0);
+
+  FAdditionalInfo := '';
+  FTbData.Mask := MaskStyle or DWS_ADDINFO;
+  SyncDockingData;
 
   if not Self.Icon.Empty then
   begin
@@ -138,22 +172,12 @@ begin
     FTbData.Mask := FTbData.Mask or DWS_ICONTAB;
   end;
 
-  FTbData.ClientHandle := Handle;
-  FTbData.DlgId := FDlgId;
-  FTbData.Mask := MaskStyle;
-  FTbData.Mask := FTbData.Mask or DWS_ADDINFO;
-
-  GetMem(FTbData.Name, 500 * SizeOf(nppPChar));
-  GetMem(FTbData.ModuleName, 1000 * SizeOf(nppPChar));
-  GetMem(FTbData.AdditionalInfo, 1000 * SizeOf(nppPChar));
-
-  StringToWideChar(Caption, FTbData.Name, 500);
-  GetModuleFileName(HInstance, FTbData.ModuleName, 1000);
-  StringToWideChar(ExtractFileName(FTbData.ModuleName), FTbData.ModuleName, 1000);
-  StringToWideChar('', FTbData.AdditionalInfo, 1);
-
-  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMREGASDCKDLG, 0, LPARAM(@FTbData));
-  Visible := true;
+  ParentPlugin.Host.SendNpp(NPPM_DMMREGASDCKDLG, 0, LPARAM(@FTbData));
+  FRegisteredDocking := True;
+  // Keep the original framework behavior: registering a docking panel also
+  // creates its initial visible tab. The plugin may hide it immediately after
+  // restoring its persisted visibility preference.
+  Visible := True;
 end;
 
 
@@ -161,19 +185,21 @@ end;
 // Show / Hide
 // -----------------------------------------------------------------------------
 
-procedure TNppPluginDockingForm.Show;
+procedure TNppPluginDocking.Show;
 begin
-  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMSHOW, 0, LPARAM(Self.Handle));
+  if not FRegisteredDocking and HostAvailable then
+    RegisterDockingForm(FNppDefaultDockingMask);
+  if FRegisteredDocking then
+    ParentPlugin.Host.SendNpp(NPPM_DMMSHOW, 0, LPARAM(Self.Handle));
   inherited Show;
-  DoShow;
 end;
 
 
-procedure TNppPluginDockingForm.Hide;
+procedure TNppPluginDocking.Hide;
 begin
-  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMHIDE, 0, LPARAM(Self.Handle));
+  if FRegisteredDocking and HostAvailable then
+    ParentPlugin.Host.SendNpp(NPPM_DMMHIDE, 0, LPARAM(Self.Handle));
   inherited Hide;
-  DoHide;
 end;
 
 
@@ -181,17 +207,13 @@ end;
 // Overridden event handlers
 // -----------------------------------------------------------------------------
 
-procedure TNppPluginDockingForm.OnWM_NOTIFY(var Msg: TWMNotify);
+procedure TNppPluginDocking.OnWM_NOTIFY(var Msg: TWMNotify);
 begin
-  if (ParentPlugin.NppData.NppHandle = Msg.NMHdr.hwndFrom) then
+  if HostAvailable and (GetHostHandle = Msg.NMHdr.hwndFrom) then
   begin
     Msg.Result := 0;
     if (Msg.NMHdr.code = DMN_CLOSE) then
-    begin
-      DoHide;
-      if Assigned(FOnClose) then
-        FOnClose(Self);
-    end
+      Close
     else if ((Msg.NMHdr.code and $FFFF) = DMN_FLOAT) then
     begin
       if Assigned(FOnFloat) then
@@ -210,15 +232,29 @@ end;
 // Worker methods
 // -----------------------------------------------------------------------------
 
-procedure TNppPluginDockingForm.UpdateDisplayInfo;
+procedure TNppPluginDocking.UpdateDisplayInfo;
 begin
   UpdateDisplayInfo('');
 end;
 
-procedure TNppPluginDockingForm.UpdateDisplayInfo(Info: String);
+procedure TNppPluginDocking.UpdateDisplayInfo(Info: String);
 begin
-  StringToWideChar(Info, FTbData.AdditionalInfo, 1000);
-  SendMessage(ParentPlugin.NppData.NppHandle, NPPM_DMMUPDATEDISPINFO, 0, LPARAM(Self.Handle));
+  FAdditionalInfo := Info;
+  RefreshDockingInfo;
+end;
+
+procedure TNppPluginDocking.RefreshDockingInfo;
+begin
+  if not FRegisteredDocking or not HostAvailable then
+    Exit;
+  SyncDockingData;
+  ParentPlugin.Host.SendNpp(NPPM_DMMUPDATEDISPINFO, 0, LPARAM(Self.Handle));
+end;
+
+procedure TNppPluginDocking.SubclassAndTheme(DmFlag: TNppDarkMode);
+begin
+  // Notepad++ themes docking panels itself. Calling
+  // NPPM_DARKMODESUBCLASSANDTHEME for them is explicitly unsupported.
 end;
 
 
@@ -231,25 +267,52 @@ end;
 // I still don't know why the pointer climbs up to the docking dialog that holds
 // this one but this works for now.
 
-procedure TNppPluginDockingForm.RemoveControlParent(AControl: TControl);
+procedure TNppPluginDocking.RemoveControlParent(AControl: TControl);
 var
   WinCtrl: TWinControl;
   Index: Integer;
-  Result: NativeInt;
+  ExStyle: NativeInt;
 begin
   if (AControl is TWinControl) then
   begin
     WinCtrl := AControl as TWinControl;
     WinCtrl.HandleNeeded;
-    Result := GetWindowLong(WinCtrl.Handle, GWL_EXSTYLE);
-    if (Result and WS_EX_CONTROLPARENT = WS_EX_CONTROLPARENT) then
-      SetWindowLong(WinCtrl.Handle, GWL_EXSTYLE, Result and not WS_EX_CONTROLPARENT);
+    ExStyle := GetWindowLongPtr(WinCtrl.Handle, GWL_EXSTYLE);
+    if (ExStyle and WS_EX_CONTROLPARENT) = WS_EX_CONTROLPARENT then
+      SetWindowLongPtr(WinCtrl.Handle, GWL_EXSTYLE,
+        ExStyle and not NativeInt(WS_EX_CONTROLPARENT));
   end;
   for Index := AControl.ComponentCount - 1 downto 0 do
   begin
     if (AControl.Components[Index] is TControl) then
       RemoveControlParent(AControl.Components[Index] as TControl);
   end;
+end;
+
+function TNppPluginDocking.GetHostHandle: HWND;
+begin
+  Result := 0;
+  if Assigned(ParentPlugin) then
+    Result := ParentPlugin.NppData.NppHandle;
+end;
+
+function TNppPluginDocking.HostAvailable: Boolean;
+begin
+  // NppData.NppHandle is supplied by Notepad++ before NPPN_READY. Do not use
+  // IsWindow here: during startup/recreation the handle can be valid for the
+  // plugin protocol before the Win32 window manager reports it as a window.
+  Result := GetHostHandle <> 0;
+end;
+
+procedure TNppPluginDocking.SyncDockingData;
+begin
+  FName := Caption;
+  FModuleName := ExtractFileName(GetModuleName(HInstance));
+  FTbData.ClientHandle := Handle;
+  FTbData.Name := PWideChar(FName);
+  FTbData.DlgId := FDlgId;
+  FTbData.AdditionalInfo := PWideChar(FAdditionalInfo);
+  FTbData.ModuleName := PWideChar(FModuleName);
 end;
 
 

@@ -338,6 +338,10 @@ the default template collection.
 Toolbar customization is available with Notepad++ 8.0 or newer from
 **Plugins → NppESPHome → Configure Toolbar**.
 
+The dialog and its image resources belong to NppESPHome, while the reusable
+`Npp.Toolbar` framework unit owns layout parsing, stable command IDs,
+configuration-string persistence, and native toolbar synchronization.
+
 For every supported plugin command, the dialog can:
 
 - show or hide its toolbar button using a checkbox;
@@ -426,6 +430,12 @@ The Delphi project is in [`Source`](Source), with shared Notepad++ plugin base
 classes in [`Lib`](Lib), bundled third-party source and object files in
 [`External`](External), default snippets in [`Templates`](Templates), and
 prebuilt DLLs in [`Bin`](Bin).
+
+The reusable framework has a dedicated
+[`Lib` API and usage guide](Lib/README.md), including a complete plugin
+example, command and toolbar lifecycle, method reference, ownership rules,
+normal/docking VCL forms, and integration of an application-owned toolbar
+configuration UI.
 
 The current development baseline is:
 

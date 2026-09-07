@@ -8,7 +8,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.ComCtrls, NppPlugin, NppPluginDockingForm, NppESPHome.ConPty,
+  Vcl.ComCtrls, Npp.Plugin, Npp.Vcl.Docking, NppESPHome.ConPty,
   Vcl.ToolWin, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
   Vcl.VirtualImage, Vcl.Buttons, Vcl.Dialogs;
 
@@ -36,7 +36,7 @@ type
 
   // Hosts one ConPTY session and translates its terminal stream into a styled
   // RichEdit view while preserving interactive keyboard behavior.
-  TFormConsole = class(TNppPluginDockingForm)
+  TFormConsole = class(TNppPluginDocking)
     RichEditConsole: TRichEdit;
     VirtualImageList: TVirtualImageList;
     PanelCommands: TPanel;
@@ -164,7 +164,7 @@ var
 implementation
 
 uses
-  Winapi.RichEdit, Vcl.Clipbrd, System.Math, System.IOUtils, NppMessages,
+  Winapi.RichEdit, Vcl.Clipbrd, System.Math, System.IOUtils, Npp.Api,
   NppESPHome.Plugin, NppESPHome.Shared;
 
 {$R *.dfm}
@@ -321,6 +321,9 @@ begin
   RichEditConsole.WindowProc := RichEditConsoleWindowProc;
   ResetParser;
   Caption := rsConsoleWindowCaption;
+  // The base docking constructor registers before plugin-specific localization
+  // is applied; publish the localized caption to Notepad++ now.
+  RefreshDockingInfo;
   FSessionTitle := rsConsoleDefaultTitle;
   LabelTitle.Caption := FSessionTitle;
   SpeedButtonSelectAll.Caption := rsConsoleSelectAll;
@@ -650,8 +653,7 @@ begin
   if Action = caHide then
   begin
     ConfigIniFile.WriteBool(csSectionGeneral, csKeyConsoleWindow, False);
-    Plugin.CheckMenuItem(Plugin.GetIndexFromFuncItemName(fiShowHideConsole),
-      False);
+    Plugin.Commands.SetChecked(fiShowHideConsole, False);
   end;
 end;
 
