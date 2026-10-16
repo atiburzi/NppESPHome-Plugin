@@ -23,6 +23,17 @@ import yaml
 
 
 CANONICAL_BASE = "https://esphome.io"
+MAX_NAME_LENGTH = 35
+
+# Prefer concise, domain-specific names when an official title changed or is
+# too verbose. Existing names are otherwise preserved by URL across updates.
+NAME_OVERRIDES_BY_SOURCE = {
+    "binary_sensor/ble_presence.mdx": "BLE Presence Binary Sensor",
+    "bk72xx_ble_tracker.mdx": "BK72xx BLE Tracker Hub",
+    "ln882h_ble_tracker.mdx": "LN882H BLE Tracker Hub",
+    "sensor/ble_rssi.mdx": "BLE RSSI Sensor",
+    "text_sensor/ble_scanner.mdx": "BLE Scanner Text Sensor",
+}
 
 MANUAL_YAML = {
     "sensor/max44009.mdx": """# Example configuration entry
@@ -126,6 +137,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--manifest", type=Path,
                         help="Generated-template provenance manifest (defaults beside output)")
+    parser.add_argument("--exclusions", type=Path,
+                        help="Documentation URLs to keep excluded (defaults beside output)")
     return parser.parse_args()
 
 
@@ -167,7 +180,19 @@ def clean_existing_yaml(name: str, text: str) -> str:
     return text.strip("\r\n")
 
 
-def load_existing(path: Path, generated_urls: set[str]) -> list[Template]:
+def load_existing_names(path: Path) -> dict[str, str]:
+    root = ET.parse(path).getroot()
+    result: dict[str, str] = {}
+    for node in root.findall("Component"):
+        url = canonical_url(node.findtext("OnlineHelp") or "")
+        name = fix_encoding((node.findtext("Name") or "").strip())
+        if url and name:
+            result[url] = name
+    return result
+
+
+def load_existing(path: Path, generated_urls: set[str],
+                  excluded_urls: set[str]) -> list[Template]:
     root = ET.parse(path).getroot()
     result: list[Template] = []
     for node in root.findall("Component"):
@@ -176,6 +201,8 @@ def load_existing(path: Path, generated_urls: set[str]) -> list[Template]:
             return "" if child is None or child.text is None else child.text
 
         online_help = canonical_url(value("OnlineHelp"))
+        if online_help in excluded_urls:
+            continue
         if online_help and online_help in generated_urls:
             continue
         category = value("Category").strip()
@@ -342,11 +369,82 @@ def unique_name(candidate: str, category: str, source: str, used: set[str]) -> s
     return qualified
 
 
+def shorten_name(name: str, source: str, limit: int = MAX_NAME_LENGTH) -> str:
+    """Return a meaningful component name no longer than *limit*."""
+    candidate = NAME_OVERRIDES_BY_SOURCE.get(source, name).strip()
+    replacements = (
+        ("Bluetooth Low Energy", "BLE"),
+        ("Volatile Organic Compound", "VOC"),
+        ("Time Of Flight", "ToF"),
+        ("Temperature", "Temp"),
+        ("Relative Humidity", "RH"),
+        ("Accelerometer/Gyroscope", "Accel/Gyro"),
+        ("Differential Pressure", "Diff Pressure"),
+        ("Particulate Matter", "PM"),
+        ("Input/Output", "I/O"),
+        ("Channel", "Ch"),
+    )
+    for verbose, concise in replacements:
+        if len(candidate) <= limit:
+            break
+        candidate = candidate.replace(verbose, concise)
+    if len(candidate) <= limit:
+        return candidate
+
+    words = candidate.split()
+    generic = {"Component", "Module", "Platform", "Sensor"}
+    candidate = " ".join(word for word in words if word not in generic)
+    if len(candidate) <= limit:
+        return candidate
+
+    shortened = candidate[:limit + 1].rsplit(" ", 1)[0].rstrip(" -_/&+,")
+    if len(shortened) < 8:
+        shortened = candidate[:limit].rstrip(" -_/&+,")
+    return shortened
+
+
+def qualify_unique_name(candidate: str, category: str, source: str,
+                        used: set[str]) -> str:
+    candidate = shorten_name(candidate, source)
+    if candidate.casefold() not in used:
+        used.add(candidate.casefold())
+        return candidate
+
+    for qualifier in (category, Path(source).stem.replace("_", " ")):
+        suffix = f" ({qualifier})"
+        base = shorten_name(candidate, source, MAX_NAME_LENGTH - len(suffix))
+        qualified = f"{base}{suffix}"
+        if qualified.casefold() not in used:
+            used.add(qualified.casefold())
+            return qualified
+
+    counter = 2
+    while True:
+        suffix = f" #{counter}"
+        base = shorten_name(candidate, source, MAX_NAME_LENGTH - len(suffix))
+        qualified = f"{base}{suffix}"
+        if qualified.casefold() not in used:
+            used.add(qualified.casefold())
+            return qualified
+        counter += 1
+
+
 def load_generated_urls(path: Path) -> set[str]:
     if not path.is_file():
         return set()
     data = json.loads(path.read_text(encoding="utf-8"))
     return {canonical_url(str(item["url"])) for item in data.get("generated", [])}
+
+
+def load_excluded_urls(path: Path) -> set[str]:
+    if not path.is_file():
+        return set()
+    result = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            result.add(canonical_url(line))
+    return result
 
 
 def write_manifest(path: Path, added: list[Template], commit: str, commit_date: str) -> None:
@@ -364,7 +462,8 @@ def write_manifest(path: Path, added: list[Template], commit: str, commit_date: 
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def merge(existing: list[Template], documented: list[Template]) -> tuple[list[Template], list[Template]]:
+def merge(existing: list[Template], documented: list[Template],
+          preferred_names: dict[str, str]) -> tuple[list[Template], list[Template]]:
     result = list(existing)
     added: list[Template] = []
     covered_urls = {item.online_help for item in existing if item.online_help}
@@ -372,7 +471,10 @@ def merge(existing: list[Template], documented: list[Template]) -> tuple[list[Te
     for item in sorted(documented, key=lambda x: (x.category.casefold(), x.name.casefold(), x.source)):
         if item.online_help in covered_urls:
             continue
-        item.name = unique_name(item.name, item.category, item.source, used_names)
+        candidate = preferred_names.get(item.online_help, item.name)
+        if item.source in NAME_OVERRIDES_BY_SOURCE:
+            candidate = NAME_OVERRIDES_BY_SOURCE[item.source]
+        item.name = qualify_unique_name(candidate, item.category, item.source, used_names)
         result.append(item)
         added.append(item)
         covered_urls.add(item.online_help)
@@ -385,7 +487,7 @@ def xml_text(value: str) -> str:
 
 def render_xml(templates: list[Template]) -> str:
     lines = ["<Components>", ""]
-    for item in templates:
+    for item in sorted(templates, key=lambda value: (value.name.casefold(), value.name)):
         if "]]" + ">" in item.yaml_text:
             raise ValueError(f"CDATA terminator in {item.name}")
         normalized_yaml = "\n".join(line.rstrip() for line in item.yaml_text.splitlines())
@@ -433,6 +535,8 @@ def validate(templates: list[Template], xml_output: str, documented: list[Templa
         errors.append(f"Duplicate names: {', '.join(duplicate_names)}")
     required = ("name", "category", "description", "yaml_text")
     for item in templates:
+        if len(item.name) > MAX_NAME_LENGTH:
+            errors.append(f"Name longer than {MAX_NAME_LENGTH}: {item.name}")
         for field in required:
             if not getattr(item, field).strip():
                 errors.append(f"Empty {field}: {item.name or item.source}")
@@ -459,13 +563,20 @@ def validate(templates: list[Template], xml_output: str, documented: list[Templa
     missing_docs = sorted({t.online_help for t in documented} - output_urls)
     if missing_docs:
         errors.append(f"Uncovered documentation URLs: {len(missing_docs)}")
+    rendered_names = [
+        (node.findtext("Name") or "").strip()
+        for node in root.findall("Component")
+    ]
+    if rendered_names != sorted(rendered_names, key=lambda value: (value.casefold(), value)):
+        errors.append("XML components are not sorted by name")
     return errors
 
 
 def write_report(path: Path, *, commit: str, commit_date: str,
                  docs_count: int, documented: list[Template], excluded: list[str],
                  manual: list[str], existing: list[Template], added: list[Template],
-                 merged: list[Template], errors: list[str]) -> None:
+                 merged: list[Template], excluded_urls: set[str],
+                 errors: list[str]) -> None:
     duplicate_doc_urls = sum(count - 1 for count in Counter(t.online_help for t in documented).values() if count > 1)
     local_count = sum(1 for t in existing if not t.online_help)
     lines = [
@@ -485,24 +596,33 @@ def write_report(path: Path, *, commit: str, commit_date: str,
         "",
         "## Generation rules",
         "",
-        "- Existing XML entries remain first and retain their YAML content; known citation/encoding artifacts and invalid obsolete syntax are corrected.",
+        "- Existing XML entries retain their YAML content; known citation/encoding artifacts and invalid obsolete syntax are corrected.",
         "- New entries use the first official fenced YAML example from each component/platform page.",
         "- Known indentation errors and prose ellipses in those examples are normalized into valid YAML.",
         "- Generated-entry provenance is stored in `NppESPHome.generated.json` so subsequent runs update without duplication.",
         "- A documentation URL already represented by an existing entry is not generated twice.",
         "- Names are made unique by adding a category or documentation slug only when needed.",
+        f"- Names are limited to {MAX_NAME_LENGTH} characters and existing concise names are preserved by URL.",
+        "- Components are written in case-insensitive ascending alphabetical order.",
+        "- URLs listed in `NppESPHome.excluded.txt` remain intentionally excluded.",
         "- Root components use the official main-index category; platform pages use their component domain.",
         "",
         "## Regeneration",
         "",
         "```powershell",
         "git clone --depth 1 --branch current https://github.com/esphome/esphome.io.git .tmp/esphome.io-current",
-        "python Tools/GenerateESPHomeTemplates.py --docs-root .tmp/esphome.io-current/src/content/docs/components --input Templates/NppESPHome.xml --output Templates/NppESPHome.xml --report Templates/NppESPHome.coverage.md --manifest Templates/NppESPHome.generated.json",
+        "py -3 Tools/GenerateESPHomeTemplates.py --docs-root .tmp/esphome.io-current/src/content/docs/components --input Templates/NppESPHome.xml --output Templates/NppESPHome.xml --report Templates/NppESPHome.coverage.md --manifest Templates/NppESPHome.generated.json --exclusions Templates/NppESPHome.excluded.txt",
         "```",
+        "",
+        "## Intentionally excluded documentation URLs",
+        "",
+    ]
+    lines.extend(f"- `{url}`" for url in sorted(excluded_urls))
+    lines.extend([
         "",
         "## Manual YAML fallbacks",
         "",
-    ]
+    ])
     lines.extend(f"- `{item}`" for item in manual)
     lines.extend(["", "## Excluded documentation pages", ""])
     lines.extend(f"- `{item}`" for item in excluded)
@@ -519,10 +639,14 @@ def main() -> int:
         raise SystemExit(f"Invalid ESPHome components documentation root: {docs_root}")
 
     manifest_path = args.manifest or args.output.with_name("NppESPHome.generated.json")
+    exclusions_path = args.exclusions or args.output.with_name("NppESPHome.excluded.txt")
     generated_urls = load_generated_urls(manifest_path)
-    existing = load_existing(args.input, generated_urls)
+    excluded_urls = load_excluded_urls(exclusions_path)
+    preferred_names = load_existing_names(args.input)
+    existing = load_existing(args.input, generated_urls, excluded_urls)
     documented, excluded, manual = load_documented(docs_root)
-    merged, added = merge(existing, documented)
+    documented = [item for item in documented if item.online_help not in excluded_urls]
+    merged, added = merge(existing, documented, preferred_names)
     xml_output = render_xml(merged)
     errors = validate(merged, xml_output, documented)
     commit, commit_date = git_metadata(docs_root)
@@ -542,6 +666,7 @@ def main() -> int:
         existing=existing,
         added=added,
         merged=merged,
+        excluded_urls=excluded_urls,
         errors=errors,
     )
 

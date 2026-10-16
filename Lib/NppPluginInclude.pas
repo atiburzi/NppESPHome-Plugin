@@ -19,26 +19,46 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-var
-  PluginLoadErrorName: nppString = 'Plugin load error';
+// =============================================================================
+// This include file implements the standard Notepad++ DLL entry points and
+// delegates lifecycle, command, and notification handling to TNppPlugin.
+// =============================================================================
 
+resourcestring
+  rsPluginLoadErrorName = 'Plugin load error';
+  rsPluginEntryPointFailed = '%s.%s failed: %s: %s';
+  rsNoPluginClassRegistered =
+    'No Notepad++ plugin class has been registered';
+
+var
+  PluginLoadErrorName: nppString;
+
+// *****************************************************************************
+// Purpose: Reports an exception raised across an exported plugin entry point.
+// *****************************************************************************
 procedure ReportPluginException(const EntryPoint: string; E: Exception);
 begin
-  OutputDebugString(PChar(Format('%s.%s failed: %s: %s',
-    [PluginLoadErrorName, EntryPoint, E.ClassName, E.Message])));
+  OutputDebugString(PChar(Format(rsPluginEntryPointFailed,
+    [rsPluginLoadErrorName, EntryPoint, E.ClassName, E.Message])));
 end;
 
+// *****************************************************************************
+// Purpose: Creates the registered plugin class lazily and returns its instance.
+// *****************************************************************************
 function EnsurePlugin: TNppPlugin;
 begin
   if not Assigned(BasePlugin) then
   begin
     if not Assigned(PluginClass) then
-      raise Exception.Create('No Notepad++ plugin class has been registered');
+      raise Exception.Create(rsNoPluginClassRegistered);
     BasePlugin := PluginClass.Create;
   end;
   Result := BasePlugin;
 end;
 
+// *****************************************************************************
+// Purpose: Handles process and thread attach or detach notifications for the DLL.
+// *****************************************************************************
 procedure DLLEntryPoint(dwReason: DWord);
 begin
   case dwReason of
@@ -63,7 +83,9 @@ begin
   end;
 end;
 
-
+// *****************************************************************************
+// Purpose: Forwards a Windows message from Notepad++ to the plugin instance.
+// *****************************************************************************
 function messageProc(msg: Cardinal; _wParam: WPARAM; _lParam: LPARAM): LRESULT; cdecl; export;
 var
   xmsg: TMessage;
@@ -86,7 +108,9 @@ begin
   end;
 end;
 
-
+// *****************************************************************************
+// Purpose: Forwards a Notepad++ notification and releases the plugin after shutdown.
+// *****************************************************************************
 procedure beNotified(sn: PSCNotification); cdecl; export;
 var
   IsShutdownNotification: Boolean;
@@ -109,7 +133,9 @@ begin
   end;
 end;
 
-
+// *****************************************************************************
+// Purpose: Forwards host window data supplied by Notepad++ to the plugin instance.
+// *****************************************************************************
 procedure setInfo(NppData: TNppData); cdecl; export;
 begin
   try
@@ -120,7 +146,9 @@ begin
   end;
 end;
 
-
+// *****************************************************************************
+// Purpose: Exports the command table registered by the plugin.
+// *****************************************************************************
 function getFuncsArray(out nFuncs: Integer): PFuncItem; cdecl; export;
 begin
   nFuncs := 0;
@@ -133,9 +161,15 @@ begin
   end;
 end;
 
-
+// *****************************************************************************
+// Purpose: Exports the display name of the plugin.
+// *****************************************************************************
 function getName(): nppPchar; cdecl; export;
 begin
+  // Keep the localized fallback text in persistent storage: returning a PChar
+  // obtained directly from a resource-string expression would expose a
+  // temporary string after this function returns.
+  PluginLoadErrorName := rsPluginLoadErrorName;
   Result := nppPChar(PluginLoadErrorName);
   try
     Result := EnsurePlugin.GetName;
@@ -145,7 +179,9 @@ begin
   end;
 end;
 
-
+// *****************************************************************************
+// Purpose: Declares that the plugin uses the Unicode Notepad++ interface.
+// *****************************************************************************
 function isUnicode: LongBool; cdecl; export;
 begin
   Result := True;

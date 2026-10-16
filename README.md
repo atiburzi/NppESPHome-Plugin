@@ -338,9 +338,12 @@ the default template collection.
 Toolbar customization is available with Notepad++ 8.0 or newer from
 **Plugins → NppESPHome → Configure Toolbar**.
 
-The dialog and its image resources belong to NppESPHome, while the reusable
-`Npp.Toolbar` framework unit owns layout parsing, stable command IDs,
-configuration-string persistence, and native toolbar synchronization.
+The dialog and its image resources belong to NppESPHome. The reusable
+`TNppPlugin` base class owns its command registry and optional toolbar, while
+`Npp.Toolbar` provides layout parsing, stable command IDs,
+configuration-string generation/application, and native toolbar
+synchronization. Reading and writing `NppESPHome.ini` remains an explicit
+responsibility of NppESPHome.
 
 For every supported plugin command, the dialog can:
 

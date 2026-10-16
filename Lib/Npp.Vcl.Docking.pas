@@ -32,6 +32,9 @@ uses
 
 
 type
+  // ***************************************************************************
+  // Purpose: Integrates a VCL form with the Notepad++ docking manager.
+  // ***************************************************************************
   TNppPluginDocking = class(TNppPluginForm)
   private
     FDlgId: Integer;
@@ -51,12 +54,9 @@ type
     FTbData: TTbData;
     FNppDefaultDockingMask: Cardinal;
 
-    // @todo: change caption and stuff....
     procedure OnWM_NOTIFY(var Msg: TWMNotify); message WM_NOTIFY;
 
   public
-    CmdId: Integer;
-
     constructor Create(NppParent: TNppPlugin); reintroduce; overload; virtual;
     constructor Create(AOwner: TNppPluginForm); reintroduce; overload; virtual;
     constructor Create(NppParent: TNppPlugin; DlgId: Integer); overload; virtual;
@@ -81,16 +81,13 @@ type
 
   end;
 
-  // Generic name for the optional docking integration.
-  TNppDocking = TNppPluginDocking;
-
-
-
 implementation
 
 resourcestring
   rsMessageDoNotUseThisConstructor = 'Do not use this constructor';
   rsMessagePluginFrameworkError = 'Plugin Framework error';
+  rsDockingHostUnavailable =
+    'A docking form cannot be registered before the Notepad++ host is available';
 
 
 // =============================================================================
@@ -101,28 +98,37 @@ resourcestring
 // Create / Destroy
 // -----------------------------------------------------------------------------
 
-// Hide constructors
+// *****************************************************************************
+// Purpose: Rejects construction without the command ID required for docking.
+// *****************************************************************************
 constructor TNppPluginDocking.Create(NppParent: TNppPlugin);
 begin
   raise Exception.Create(rsMessageDoNotUseThisConstructor);
 end;
 
+// *****************************************************************************
+// Purpose: Rejects child-form construction without a docking command ID.
+// *****************************************************************************
 constructor TNppPluginDocking.Create(AOwner: TNppPluginForm);
 begin
   raise Exception.Create(rsMessageDoNotUseThisConstructor);
 end;
 
-// Constructor for main dialogs
+// *****************************************************************************
+// Purpose: Creates and registers a top-level Notepad++ docking form.
+// *****************************************************************************
 constructor TNppPluginDocking.Create(NppParent: TNppPlugin; DlgId: Integer);
 begin
   inherited Create(NppParent);
   DefaultCloseAction := caHide;
   FDlgId := DlgId;
-  CmdId := ParentPlugin.CmdIdFromMenuItemIdx(DlgId);
   RegisterDockingForm(FNppDefaultDockingMask);
   RemoveControlParent(Self);
 end;
 
+// *****************************************************************************
+// Purpose: Releases resources owned by the TNppPluginDocking instance.
+// *****************************************************************************
 destructor TNppPluginDocking.Destroy;
 begin
   // Hide the native docking window while the host is still available. There
@@ -134,13 +140,14 @@ begin
   inherited;
 end;
 
-// Constructor for sub dialogs
+// *****************************************************************************
+// Purpose: Creates and registers a docking form owned by another plugin form.
+// *****************************************************************************
 constructor TNppPluginDocking.Create(AOwner: TNppPluginForm; DlgId: Integer);
 begin
   inherited Create(AOwner);
   DefaultCloseAction := caHide;
   FDlgId := DlgId;
-  CmdId := ParentPlugin.CmdIdFromMenuItemIdx(DlgId);
   RegisterDockingForm(FNppDefaultDockingMask);
   RemoveControlParent(Self);
 end;
@@ -150,13 +157,15 @@ end;
 // -----------------------------------------------------------------------------
 
 // Register docking dialog in Notepad++
+// *****************************************************************************
+// Purpose: Registers the form as a Notepad++ docking panel.
+// *****************************************************************************
 procedure TNppPluginDocking.RegisterDockingForm(MaskStyle: Cardinal = DWS_DF_CONT_LEFT);
 begin
   if FRegisteredDocking then
     Exit;
   if not HostAvailable then
-    raise EInvalidOpException.Create(
-      'A docking form cannot be registered before the Notepad++ host is available');
+    raise EInvalidOpException.Create(rsDockingHostUnavailable);
 
   HandleNeeded;
 
@@ -185,6 +194,9 @@ end;
 // Show / Hide
 // -----------------------------------------------------------------------------
 
+// *****************************************************************************
+// Purpose: Shows both the native docking panel and its VCL form.
+// *****************************************************************************
 procedure TNppPluginDocking.Show;
 begin
   if not FRegisteredDocking and HostAvailable then
@@ -195,6 +207,9 @@ begin
 end;
 
 
+// *****************************************************************************
+// Purpose: Hides both the native docking panel and its VCL form.
+// *****************************************************************************
 procedure TNppPluginDocking.Hide;
 begin
   if FRegisteredDocking and HostAvailable then
@@ -207,6 +222,9 @@ end;
 // Overridden event handlers
 // -----------------------------------------------------------------------------
 
+// *****************************************************************************
+// Purpose: Handles docking close, float, and dock notifications from Notepad++.
+// *****************************************************************************
 procedure TNppPluginDocking.OnWM_NOTIFY(var Msg: TWMNotify);
 begin
   if HostAvailable and (GetHostHandle = Msg.NMHdr.hwndFrom) then
@@ -232,17 +250,26 @@ end;
 // Worker methods
 // -----------------------------------------------------------------------------
 
+// *****************************************************************************
+// Purpose: Updates the optional text displayed for the docking panel.
+// *****************************************************************************
 procedure TNppPluginDocking.UpdateDisplayInfo;
 begin
   UpdateDisplayInfo('');
 end;
 
+// *****************************************************************************
+// Purpose: Updates the optional text displayed for the docking panel.
+// *****************************************************************************
 procedure TNppPluginDocking.UpdateDisplayInfo(Info: String);
 begin
   FAdditionalInfo := Info;
   RefreshDockingInfo;
 end;
 
+// *****************************************************************************
+// Purpose: Submits the current docking metadata to Notepad++.
+// *****************************************************************************
 procedure TNppPluginDocking.RefreshDockingInfo;
 begin
   if not FRegisteredDocking or not HostAvailable then
@@ -251,6 +278,9 @@ begin
   ParentPlugin.Host.SendNpp(NPPM_DMMUPDATEDISPINFO, 0, LPARAM(Self.Handle));
 end;
 
+// *****************************************************************************
+// Purpose: Skips unsupported dark-mode subclassing for docking panels.
+// *****************************************************************************
 procedure TNppPluginDocking.SubclassAndTheme(DmFlag: TNppDarkMode);
 begin
   // Notepad++ themes docking panels itself. Calling
@@ -262,17 +292,17 @@ end;
 // Internal Utils
 // -----------------------------------------------------------------------------
 
-// This hack prevents the Win Dialog default procedure from an endless loop while
-// looking for the prevoius component, while in a floating state.
-// I still don't know why the pointer climbs up to the docking dialog that holds
-// this one but this works for now.
-
+// *****************************************************************************
+// Purpose: Removes WS_EX_CONTROLPARENT recursively to prevent focus loops.
+// *****************************************************************************
 procedure TNppPluginDocking.RemoveControlParent(AControl: TControl);
 var
   WinCtrl: TWinControl;
   Index: Integer;
   ExStyle: NativeInt;
 begin
+  // Floating panels can make Win32 dialog navigation walk back into the panel
+  // itself. Removing this extended style prevents that focus cycle.
   if (AControl is TWinControl) then
   begin
     WinCtrl := AControl as TWinControl;
@@ -289,6 +319,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the Notepad++ window handle associated with the form.
+// *****************************************************************************
 function TNppPluginDocking.GetHostHandle: HWND;
 begin
   Result := 0;
@@ -296,6 +329,9 @@ begin
     Result := ParentPlugin.NppData.NppHandle;
 end;
 
+// *****************************************************************************
+// Purpose: Reports whether Notepad++ has supplied a usable protocol handle.
+// *****************************************************************************
 function TNppPluginDocking.HostAvailable: Boolean;
 begin
   // NppData.NppHandle is supplied by Notepad++ before NPPN_READY. Do not use
@@ -304,8 +340,13 @@ begin
   Result := GetHostHandle <> 0;
 end;
 
+// *****************************************************************************
+// Purpose: Rebuilds pointer-backed docking metadata before sending it to Notepad++.
+// *****************************************************************************
 procedure TNppPluginDocking.SyncDockingData;
 begin
+  // TTbData stores raw character pointers. Keep the backing strings in fields
+  // so their storage remains valid after this method returns.
   FName := Caption;
   FModuleName := ExtractFileName(GetModuleName(HInstance));
   FTbData.ClientHandle := Handle;

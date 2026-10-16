@@ -54,6 +54,9 @@ type
 
   PCharacterRange = ^TCharacterRange;
 
+  // ***************************************************************************
+  // Purpose: Defines a character range for legacy Scintilla interfaces.
+  // ***************************************************************************
   TCharacterRange = record
     cpMin : sciPositionCR;
     cpMax : sciPositionCR;
@@ -62,6 +65,9 @@ type
 
   PCharacterRangeFull = ^TCharacterRangeFull;
 
+  // ***************************************************************************
+  // Purpose: Defines a native-width character range for Scintilla interfaces.
+  // ***************************************************************************
   TCharacterRangeFull = record
     cpMin : sciPosition;
     cpMax : sciPosition;
@@ -70,6 +76,9 @@ type
 
   PTextRange = ^TTextRange;
 
+  // ***************************************************************************
+  // Purpose: Couples a legacy character range with a destination text buffer.
+  // ***************************************************************************
   TTextRange = record
     chrg      : TCharacterRange;
     lpstrText : sciPChar;
@@ -78,6 +87,9 @@ type
 
   PTextRangeFull = ^TTextRangeFull;
 
+  // ***************************************************************************
+  // Purpose: Couples a native-width character range with a text buffer.
+  // ***************************************************************************
   TTextRangeFull = record
     chrg      : TCharacterRangeFull;
     lpstrText : sciPChar;
@@ -86,6 +98,9 @@ type
 
   PTextToFind = ^TTextToFind;
 
+  // ***************************************************************************
+  // Purpose: Describes a legacy Scintilla text search request and result range.
+  // ***************************************************************************
   TTextToFind = record
     chrg      : TCharacterRange;
     lpstrText : sciPChar;
@@ -95,6 +110,9 @@ type
 
   PTextToFindFull = ^TTextToFindFull;
 
+  // ***************************************************************************
+  // Purpose: Describes a native-width Scintilla text search request and result.
+  // ***************************************************************************
   TTextToFindFull = record
     chrg      : TCharacterRangeFull;
     lpstrText : sciPChar;
@@ -104,6 +122,9 @@ type
 
   PRectangle = ^TRectangle;
 
+  // ***************************************************************************
+  // Purpose: Defines the rectangle layout used by Scintilla print messages.
+  // ***************************************************************************
   TRectangle = record
     left   : integer;
     top    : integer;
@@ -114,6 +135,9 @@ type
 
   PRangeToFormat = ^TRangeToFormat;
 
+  // ***************************************************************************
+  // Purpose: Describes a legacy Scintilla page-formatting request.
+  // ***************************************************************************
   TRangeToFormat = record
     hdc       : TSurfaceID;
     hdcTarget : TSurfaceID;
@@ -125,6 +149,9 @@ type
 
   PRangeToFormatFull = ^TRangeToFormatFull;
 
+  // ***************************************************************************
+  // Purpose: Describes a native-width Scintilla page-formatting request.
+  // ***************************************************************************
   TRangeToFormatFull = record
     hdc       : TSurfaceID;
     hdcTarget : TSurfaceID;
@@ -136,6 +163,9 @@ type
 
   PNotifyHeader = ^TNotifyHeader;
 
+  // ***************************************************************************
+  // Purpose: Mirrors the notification header shared by Scintilla and Win32.
+  // ***************************************************************************
   TNotifyHeader = record
     hwndFrom : Pointer;
     idFrom   : uptr_t;
@@ -145,6 +175,9 @@ type
 
   PSCNotification = ^TSCNotification;
 
+  // ***************************************************************************
+  // Purpose: Mirrors the complete notification payload emitted by Scintilla.
+  // ***************************************************************************
   TSCNotification = record
     nmhdr                : TNotifyHeader;
     position             : sciPosition;  // SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK,

@@ -16,12 +16,14 @@ var
   MockCalls: Integer;
   MockPostCalls: Integer;
   LastHandle: HWND;
+  LastMessage: UINT;
 
 function MockTransport(Handle: HWND; Msg: UINT; WParam: WPARAM;
   LParam: LPARAM): LRESULT;
 begin
   Inc(MockCalls);
   LastHandle := Handle;
+  LastMessage := Msg;
   if Msg = NPPM_GETNPPVERSION then
     Result := LRESULT((8 shl 16) or 500)
   else
@@ -33,7 +35,14 @@ function MockPostTransport(Handle: HWND; Msg: UINT; WParam: WPARAM;
 begin
   Inc(MockPostCalls);
   LastHandle := Handle;
+  LastMessage := Msg;
   Result := True;
+end;
+
+function MockToolbarHandle(NppHandle: HWND): HWND;
+begin
+  LastHandle := NppHandle;
+  Result := HWND(104);
 end;
 
 procedure Check(const Condition: Boolean; const MessageText: string);
@@ -69,6 +78,16 @@ begin
     Check(Host.PostNpp(1), 'Injected post transport failed');
     Check((MockPostCalls = 1) and (LastHandle = Data.NppHandle),
       'PostNpp did not use the injectable post transport');
+    Host.GetNppVersion(Major, Minor);
+    Check((Major = 8) and (Minor = 500),
+      'TNppHost did not normalize the Notepad++ version');
+    Host.ToolbarHandleResolver := MockToolbarHandle;
+    Check((Host.GetToolbarHandle = HWND(104)) and
+      (LastHandle = Data.NppHandle),
+      'Injectable toolbar handle resolution failed');
+    Host.PerformMenuCommand(123, 7);
+    Check((MockPostCalls = 2) and (LastMessage = NPPM_MENUCOMMAND),
+      'Native menu command was not routed through PostNpp');
   finally
     Host.Free;
   end;
@@ -81,7 +100,7 @@ begin
     Plugin.GetNppVersion(Major, Minor);
     Check((Major = 8) and (Minor = 500),
       'TNppPlugin did not route version queries through Npp.Host');
-    Check(MockCalls = 4, 'Unexpected host transport call count');
+    Check(MockCalls = 5, 'Unexpected host transport call count');
   finally
     Plugin.Free;
   end;

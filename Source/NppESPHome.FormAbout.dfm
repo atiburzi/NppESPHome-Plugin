@@ -4,8 +4,8 @@ object FormAbout: TFormAbout
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'About...'
-  ClientHeight = 230
-  ClientWidth = 486
+  ClientHeight = 214
+  ClientWidth = 482
   Color = clWhite
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,8 +18,8 @@ object FormAbout: TFormAbout
   object PanelMain: TPanel
     Left = 0
     Top = 0
-    Width = 486
-    Height = 230
+    Width = 482
+    Height = 214
     Align = alClient
     BevelOuter = bvNone
     ParentColor = True

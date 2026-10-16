@@ -83,10 +83,6 @@ type
   // synchronization.
 
   TESPHomePlugin = class(TNppPlugin)
-  private
-    FMenu: TNppCommands;
-    FToolbar: TNppToolbar;
-
   public
     OperationsOngoing: Boolean; // True while plugin-driven file operations should not trigger UI refresh loops
 
@@ -112,19 +108,15 @@ type
     procedure ConfigToolbar;
     procedure AboutWindow;
 
-
   protected
 
     function CreateToolbarIcons(const Entry: TNppMenuEntry; out IconData: TToolbarIconsWithDarkMode): Boolean;
     function CreateDisabledToolbarIcon(SourceIcon: HICON;
       Width, Height: Integer): HICON;
-    function ReadToolbarConfiguration(const DefaultValue: string): string;
-    procedure WriteToolbarConfiguration(const Value: string);
 
     procedure DoNppnReady; override;
     procedure DoNppnShutdown; override;
     procedure DoNppnShortcutRemapped; override;
-    procedure DoNppnToolbarModification; override;
     procedure DoNppnDarkModeChanged; override;
     procedure DoNppnBufferActivated; override;
     procedure DoNppnFileOpened; override;
@@ -136,8 +128,9 @@ type
 
   public
     constructor Create; override;
-    destructor Destroy; override;
     procedure SetInfo(NppData: TNppData); override;
+    procedure LoadToolbarConfiguration;
+    procedure SaveToolbarConfiguration;
 
     procedure DependencyAdd;
     procedure DependencyRemove(const DepFile: string);
@@ -150,9 +143,6 @@ type
 
     function CheckESPHome: Boolean;
     function CheckCurrentProject: Boolean;
-
-    property Commands: TNppCommands read FMenu;
-    property Toolbar: TNppToolbar read FToolbar;
 
   end;
 
@@ -940,7 +930,7 @@ begin
       FormProjects.Hide
     else
       FormProjects.Show;
-    FMenu.SetChecked(fiShowHidePrjWin, FormProjects.Visible);
+    Commands.SetChecked(fiShowHidePrjWin, FormProjects.Visible);
     ConfigIniFile.WriteBool(csSectionGeneral, csKeyProjectWindow, FormProjects.Visible);
   end;
 end;
@@ -957,7 +947,7 @@ begin
       FormConsole.Hide
     else
       FormConsole.Show;
-    FMenu.SetChecked(fiShowHideConsole, FormConsole.Visible);
+    Commands.SetChecked(fiShowHideConsole, FormConsole.Visible);
     ConfigIniFile.WriteBool(csSectionGeneral, csKeyConsoleWindow,
       FormConsole.Visible);
   end;
@@ -1007,11 +997,6 @@ begin
   // From this point on, Notepad++ document notifications can update the UI.
   OperationsOngoing := False;
 
-  // Capture Notepad++ toolbar button templates before rebuilding the toolbar.
-  FToolbar.CaptureNativeButtons;
-  FToolbar.Refresh;
-
-
 //  The initial dock position is saved in %AppData%\Notepad++\config.xml as a GUIConfig element with the DockingManager attribute; e.g.,
 //   {
 //       <GUIConfig name="DockingManager" leftWidth="200" rightWidth="582" topHeight="200" bottomHeight="200">
@@ -1023,9 +1008,10 @@ begin
 //  You should delete this between launches when testing different dlgID.
 
   // Create the docked project window after Notepad++ is fully initialized.
-  FormProjects := TFormProjects.Create(Plugin, FMenu.IndexOf(fiShowHidePrjWin));
+  FormProjects := TFormProjects.Create(Plugin,
+    Commands.IndexOf(fiShowHidePrjWin));
   FormConsole := TFormConsole.Create(Plugin,
-    FMenu.IndexOf(fiShowHideConsole));
+    Commands.IndexOf(fiShowHideConsole));
 
   // Restore the last saved visibility of the project window.
   if ConfigIniFile.ReadBool(csSectionGeneral, csKeyProjectWindow, True) then
@@ -1033,13 +1019,13 @@ begin
   else
     FormProjects.Hide;
 
-  FMenu.SetChecked(fiShowHidePrjWin, FormProjects.Visible);
+  Commands.SetChecked(fiShowHidePrjWin, FormProjects.Visible);
   if ConfigIniFile.ReadBool(csSectionGeneral, csKeyConsoleWindow, False) then
     FormConsole.Show
   else
     FormConsole.Hide;
-  FMenu.SetChecked(fiShowHideConsole, FormConsole.Visible);
-  FMenu.SetEnabled(fiConfigToolbar, Plugin.IsNppMinVersion(8, 0));
+  Commands.SetChecked(fiShowHideConsole, FormConsole.Visible);
+  Commands.SetEnabled(fiConfigToolbar, Plugin.IsNppMinVersion(8, 0));
 
   RefreshNppTitle;
   RefreshPluginMenu;
@@ -1064,8 +1050,6 @@ begin
   FreeAndNil(TemplateList);
   FreeAndNil(ProjectList);
   FreeAndNil(ConfigIniFile);
-  FreeAndNil(FToolbar);
-  FreeAndNil(FMenu);
   FreeAndNil(Resources);
   Plugin := nil;
   inherited;
@@ -1078,16 +1062,6 @@ procedure TESPHomePlugin.DoNppnShortcutRemapped;
 begin
   RefreshNppTitle;
   RefreshPluginMenu;
-end;
-
-// *****************************************************************************
-// Purpose: Receives the Notepad++ toolbar creation/modification notification
-// and prepares the plugin toolbar button model and icon handles.
-// *****************************************************************************
-procedure TESPHomePlugin.DoNppnToolbarModification;
-begin
-  inherited;
-  FToolbar.Initialize;
 end;
 
 // *****************************************************************************
@@ -1104,7 +1078,6 @@ begin
   if Assigned(FormToolbar) then
     FormToolbar.ToggleDarkMode;
 
-  FToolbar.Refresh;
   RefreshPluginMenu;
 end;
 
@@ -1162,14 +1135,15 @@ end;
 // *****************************************************************************
 procedure TESPHomePlugin.DoNppToolbarIconsetChanged;
 begin
+  inherited;
   // Let Notepad++ complete its image-list update, then rebuild from the main
-  // VCL thread. The global guard prevents a queued refresh after shutdown.
+  // VCL thread. The framework refreshes Toolbar; the application only updates
+  // its configuration dialog.
   TThread.ForceQueue(nil,
     procedure
     begin
       if Assigned(Plugin) and not Plugin.IsShuttingDown then
       begin
-        Plugin.FToolbar.Refresh;
         if Assigned(FormToolbar) then
           FormToolbar.ToggleDarkMode;
       end;
@@ -1331,49 +1305,46 @@ constructor TESPHomePlugin.Create;
 begin
   inherited Create;
   try
-    FMenu := TNppCommands.Create(Self);
-    FToolbar := TNppToolbar.Create(Self, FMenu, CreateToolbarIcons,
-      CreateDisabledToolbarIcon, ReadToolbarConfiguration,
-      WriteToolbarConfiguration);
-
     // Suppress document-change refresh handlers while opening a batch of files.
     OperationsOngoing := True;
     PluginName := csPluginName;
 
     // Register menu entries in the exact order they should appear in Notepad++.
-    FMenu.AddCommand(fiProjectAdd, miProjectAdd, _ProjectAdd);
-    FMenu.AddCommand(fiProjectRemove, miProjectRemove, _ProjectRemove);
-    FMenu.AddCommand(fiProjectSelect, miProjectSelect, _ProjectSelect,
+    Commands.AddCommand(fiProjectAdd, miProjectAdd, _ProjectAdd);
+    Commands.AddCommand(fiProjectRemove, miProjectRemove, _ProjectRemove);
+    Commands.AddCommand(fiProjectSelect, miProjectSelect, _ProjectSelect,
       MakeShortcutKey(True, True, False, $79));
-    FMenu.AddSeparator('sep.project.select');
-    FMenu.AddCommand(fiProjectConfigure, miProjectConfigure,
+    Commands.AddSeparator('sep.project.select');
+    Commands.AddCommand(fiProjectConfigure, miProjectConfigure,
       _ProjectConfigure, MakeShortcutKey(True, False, False, $79));
-    FMenu.AddSeparator('sep.project.configure');
-    FMenu.AddCommand(fiProjectOpenFiles, miProjectOpenFiles,
+    Commands.AddSeparator('sep.project.configure');
+    Commands.AddCommand(fiProjectOpenFiles, miProjectOpenFiles,
       _ProjectOpenFiles);
-    FMenu.AddSeparator('sep.project.commands');
-    FMenu.AddCommand(fiCommandRun, miCommandRun, _CommandRun,
+    Commands.AddSeparator('sep.project.commands');
+    Commands.AddCommand(fiCommandRun, miCommandRun, _CommandRun,
       MakeShortcutKey(False, False, False, $78));
-    FMenu.AddCommand(fiCommandCompile, miCommandCompile, _CommandCompile,
+    Commands.AddCommand(fiCommandCompile, miCommandCompile, _CommandCompile,
       MakeShortcutKey(True, False, False, $78));
-    FMenu.AddCommand(fiCommandUpload, miCommandUpload, _CommandUpload,
+    Commands.AddCommand(fiCommandUpload, miCommandUpload, _CommandUpload,
       MakeShortcutKey(False, False, True, $78));
-    FMenu.AddCommand(fiCommandLogs, miCommandLogs, _CommandLogs);
-    FMenu.AddCommand(fiCommandClean, miCommandClean, _CommandClean);
-    FMenu.AddCommand(fiCommandCleanAll, miCommandCleanAll, _CommandCleanAll);
-    FMenu.AddSeparator('sep.commands.start');
-    FMenu.AddCommand(fiStartHelp, miStartHelp, _StartHelp,
+    Commands.AddCommand(fiCommandLogs, miCommandLogs, _CommandLogs);
+    Commands.AddCommand(fiCommandClean, miCommandClean, _CommandClean);
+    Commands.AddCommand(fiCommandCleanAll, miCommandCleanAll, _CommandCleanAll);
+    Commands.AddSeparator('sep.commands.start');
+    Commands.AddCommand(fiStartHelp, miStartHelp, _StartHelp,
       MakeShortcutKey(True, False, False, $70));
-    FMenu.AddCommand(fiStartUpgrade, miStartUpgrade, _StartUpgrade);
-    FMenu.AddSeparator('sep.start.shell');
-    FMenu.AddCommand(fiStartTerminal, miStartTerminal, _StartTerminal);
-    FMenu.AddCommand(fiStartExplorer, miStartExplorer, _StartExplorer);
-    FMenu.AddSeparator('sep.start.windows');
-    FMenu.AddCommand(fiShowHidePrjWin, miShowHidePrjWin, _ShowHidePrjWin);
-    FMenu.AddCommand(fiShowHideConsole, miShowHideConsole, _ShowHideConsole);
-    FMenu.AddSeparator('sep.windows.toolbar');
-    FMenu.AddCommand(fiConfigToolbar, miConfigToolbar, _ConfigToolbar);
-    FMenu.AddCommand(fiAboutWindow, miAboutWindow, _AboutWindow);
+    Commands.AddCommand(fiStartUpgrade, miStartUpgrade, _StartUpgrade);
+    Commands.AddSeparator('sep.start.shell');
+    Commands.AddCommand(fiStartTerminal, miStartTerminal, _StartTerminal);
+    Commands.AddCommand(fiStartExplorer, miStartExplorer, _StartExplorer);
+    Commands.AddSeparator('sep.start.windows');
+    Commands.AddCommand(fiShowHidePrjWin, miShowHidePrjWin, _ShowHidePrjWin);
+    Commands.AddCommand(fiShowHideConsole, miShowHideConsole, _ShowHideConsole);
+    Commands.AddSeparator('sep.windows.toolbar');
+    Commands.AddCommand(fiConfigToolbar, miConfigToolbar, _ConfigToolbar);
+    Commands.AddCommand(fiAboutWindow, miAboutWindow, _AboutWindow);
+
+    ConfigureToolbar(CreateToolbarIcons, CreateDisabledToolbarIcon);
 
     // Publish the singleton only after construction has completed successfully.
     Plugin := Self;
@@ -1381,13 +1352,6 @@ begin
     Plugin := nil;
     raise;
   end;
-end;
-
-destructor TESPHomePlugin.Destroy;
-begin
-  FreeAndNil(FToolbar);
-  FreeAndNil(FMenu);
-  inherited;
 end;
 
 // *****************************************************************************
@@ -1408,6 +1372,7 @@ begin
     // Keep plugin settings beside the Notepad++ plugin configuration directory.
     ConfigIniFile := TIniFile.Create(TPath.Combine(GetPluginConfigDir,
       ChangeFileExt(GetName, '.ini')));
+    LoadToolbarConfiguration;
     TemplateFile := TPath.Combine(GetPluginConfigDir,
       ChangeFileExt(GetName, '.xml'));
     // Shared project/template lists are initialized after host paths are known.
@@ -1496,20 +1461,28 @@ begin
   end;
 end;
 
-function TESPHomePlugin.ReadToolbarConfiguration(
-  const DefaultValue: string): string;
+procedure TESPHomePlugin.LoadToolbarConfiguration;
+var
+  Value: string;
 begin
-  if Assigned(ConfigIniFile) then
-    Result := ConfigIniFile.ReadString(csSectionGeneral, csKeyToolbarConfig,
-      DefaultValue)
-  else
-    Result := DefaultValue;
+  if not Assigned(ConfigIniFile) or not Assigned(Toolbar) then
+    Exit;
+  Value := ConfigIniFile.ReadString(csSectionGeneral, csKeyToolbarConfig, '');
+  try
+    Toolbar.ApplyConfiguration(Value);
+  except
+    on E: EArgumentException do
+      // Unknown/obsolete formats are deliberately not migrated. Keep the INI
+      // value untouched and use the generated default until it is overwritten.
+      Toolbar.ApplyConfiguration('');
+  end;
 end;
 
-procedure TESPHomePlugin.WriteToolbarConfiguration(const Value: string);
+procedure TESPHomePlugin.SaveToolbarConfiguration;
 begin
-  if Assigned(ConfigIniFile) then
-    ConfigIniFile.WriteString(csSectionGeneral, csKeyToolbarConfig, Value);
+  if Assigned(ConfigIniFile) and Assigned(Toolbar) then
+    ConfigIniFile.WriteString(csSectionGeneral, csKeyToolbarConfig,
+      Toolbar.Configuration);
 end;
 
 // ============================================================================
@@ -1541,6 +1514,10 @@ end;
 // Purpose: Appends the current ESPHome project name to the Notepad++ main
 // window title, replacing any previous plugin-added project suffix.
 // *****************************************************************************
+
+resourcestring
+  rsNppPluginTitleTemplate = '%s %s ESPHome Project: %s';
+
 procedure TESPHomePlugin.RefreshNppTitle;
 const
   SepChar = '|';
@@ -1554,7 +1531,7 @@ begin
   if Index > 0 then
     Title := Trim(Copy(Title, 1, Index - 1));
   if Assigned(ProjectList.Current) then
-    Title := Format('%s %s ESPHome Project: %s', [Title, SepChar, ProjectList.Current.FriendlyName]);
+    Title := Format(rsNppPluginTitleTemplate, [Title, SepChar, ProjectList.Current.FriendlyName]);
   SetWindowText(NppData.NppHandle, PChar(Title));
 end;
 
@@ -1572,21 +1549,21 @@ begin
     Text := Format(miProjectConfigureEx, [ProjectList.Current.FriendlyName])
   else
     Text := miProjectConfigure;
-  FMenu.SetCaption(fiProjectConfigure, Text);
+  Commands.SetCaption(fiProjectConfigure, Text);
 
   // SetEnabled updates the native menu and the toolbar model through the
   // framework event, so application code has one source of truth.
-  FMenu.SetEnabled(fiProjectConfigure, ProjectAssigned);
-  FMenu.SetEnabled(fiProjectOpenFiles, ProjectAssigned);
-  FMenu.SetEnabled(fiProjectRemove, ProjectAssigned);
-  FMenu.SetEnabled(fiCommandRun, ProjectAssigned);
-  FMenu.SetEnabled(fiCommandCompile, ProjectAssigned);
-  FMenu.SetEnabled(fiCommandUpload, ProjectAssigned);
-  FMenu.SetEnabled(fiCommandLogs, ProjectAssigned);
-  FMenu.SetEnabled(fiCommandClean, ProjectAssigned);
-  FMenu.SetEnabled(fiCommandCleanAll, ProjectAssigned);
-  FMenu.SetEnabled(fiStartTerminal, ProjectAssigned);
-  FMenu.SetEnabled(fiStartExplorer, ProjectAssigned);
+  Commands.SetEnabled(fiProjectConfigure, ProjectAssigned);
+  Commands.SetEnabled(fiProjectOpenFiles, ProjectAssigned);
+  Commands.SetEnabled(fiProjectRemove, ProjectAssigned);
+  Commands.SetEnabled(fiCommandRun, ProjectAssigned);
+  Commands.SetEnabled(fiCommandCompile, ProjectAssigned);
+  Commands.SetEnabled(fiCommandUpload, ProjectAssigned);
+  Commands.SetEnabled(fiCommandLogs, ProjectAssigned);
+  Commands.SetEnabled(fiCommandClean, ProjectAssigned);
+  Commands.SetEnabled(fiCommandCleanAll, ProjectAssigned);
+  Commands.SetEnabled(fiStartTerminal, ProjectAssigned);
+  Commands.SetEnabled(fiStartExplorer, ProjectAssigned);
 end;
 
 // *****************************************************************************

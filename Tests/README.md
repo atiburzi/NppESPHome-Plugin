@@ -6,12 +6,17 @@ framework without requiring a running Notepad++ process.
 Coverage:
 
 - NppApiAbiTests: ABI sizes, offsets, and pointer-width assumptions.
-- NppHostTests: injectable synchronous/asynchronous host transports.
-- NppPluginLifecycleTests: notifications and idempotent shutdown.
-- NppPluginMenuTests: command registry, stable IDs, state, and listeners.
-- NppPluginToolbarConfigTests: v2 layouts, legacy migration, add/remove merge,
-  and failed native-button deletion.
-- NppPluginFormTests: normal/docking forms and VCL application attachment.
+- NppHostTests: injectable transports, host version queries, native commands,
+  and toolbar-handle resolution.
+- NppPluginLifecycleTests: notifications, owned services, and idempotent shutdown.
+- NppPluginDocumentTests: view-aware file enumeration, safe dark-mode color
+  queries, and explicit read-only state for new and already-open documents.
+- NppPluginMenuTests: the plugin-owned command registry, stable IDs, state, and listeners.
+- NppPluginToolbarConfigTests: current stable-ID format, rejection of obsolete
+  prefixes, add/remove reconciliation, plugin-owned toolbar lifecycle, and
+  failed native-button deletion, stable-ID lookup, and resource reinitialization.
+- NppPluginFormTests: normal/docking forms, shared VCL application attachment,
+  multiple-form lifetime, and out-of-order destruction.
 - NppPluginExportSmokeTests: exported DLL entry points and lazy plugin startup.
 
 After loading the Delphi environment with rsvars.bat, compile a test directly:

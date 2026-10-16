@@ -30,6 +30,9 @@ uses
   Npp.Api, Npp.Plugin;
 
 type
+  // ***************************************************************************
+  // Purpose: Integrates a normal VCL form with the Notepad++ host lifecycle.
+  // ***************************************************************************
   TNppPluginForm = class(TForm)
   private
     FRegistered: Boolean;
@@ -66,47 +69,90 @@ type
 
   end;
 
-  // Generic name for plugins that do not want the historical prefix.
-  TNppForm = TNppPluginForm;
-
 implementation
 
-var
-  VclAttachmentCount: Integer;
-  PreviousApplicationHandle: HWND;
+type
+  // ***************************************************************************
+  // Purpose: Owns the process-wide VCL Application.Handle attachment state.
+  // ***************************************************************************
+  TNppVclApplicationState = class sealed
+  strict private
+    class var FAttachmentCount: Integer;
+    class var FHostHandle: HWND;
+    class var FPreviousHandle: HWND;
+  public
+    class procedure Acquire(AHostHandle: HWND); static;
+    class procedure Release; static;
+  end;
 
+// *****************************************************************************
+// Purpose: Attaches the shared VCL Application object for the first plugin form.
+// *****************************************************************************
+class procedure TNppVclApplicationState.Acquire(AHostHandle: HWND);
+begin
+  if FAttachmentCount = 0 then
+  begin
+    FPreviousHandle := Application.Handle;
+    FHostHandle := AHostHandle;
+    try
+      Application.Handle := FHostHandle;
+    except
+      FPreviousHandle := 0;
+      FHostHandle := 0;
+      raise;
+    end;
+  end;
+  Inc(FAttachmentCount);
+end;
+
+// *****************************************************************************
+// Purpose: Restores the original VCL handle after the last form detaches.
+// *****************************************************************************
+class procedure TNppVclApplicationState.Release;
+begin
+  if FAttachmentCount = 0 then
+    Exit;
+  Dec(FAttachmentCount);
+  if FAttachmentCount <> 0 then
+    Exit;
+  try
+    // Do not overwrite a handle deliberately replaced by another VCL owner
+    // while plugin forms were alive.
+    if Application.Handle = FHostHandle then
+      Application.Handle := FPreviousHandle;
+  finally
+    FPreviousHandle := 0;
+    FHostHandle := 0;
+  end;
+end;
+
+// *****************************************************************************
+// Purpose: Attaches the shared VCL application object to the Notepad++ window.
+// *****************************************************************************
 procedure TNppPluginForm.AttachApplication;
 begin
   if FApplicationAttached then
     Exit;
   if not Assigned(ParentPlugin) then
     Exit;
-  if VclAttachmentCount = 0 then
-  begin
-    PreviousApplicationHandle := Application.Handle;
-    Application.Handle := ParentPlugin.NppData.NppHandle;
-  end;
-  Inc(VclAttachmentCount);
+  TNppVclApplicationState.Acquire(ParentPlugin.NppData.NppHandle);
   FApplicationAttached := True;
 end;
 
+// *****************************************************************************
+// Purpose: Restores the previous VCL application handle when no forms remain.
+// *****************************************************************************
 procedure TNppPluginForm.DetachApplication;
 begin
   if not FApplicationAttached then
     Exit;
   FApplicationAttached := False;
-  if VclAttachmentCount > 0 then
-    Dec(VclAttachmentCount);
-  if VclAttachmentCount = 0 then
-  begin
-    if Assigned(ParentPlugin) and
-      (Application.Handle = ParentPlugin.NppData.NppHandle) then
-      Application.Handle := PreviousApplicationHandle;
-    PreviousApplicationHandle := 0;
-  end;
+  TNppVclApplicationState.Release;
 end;
 
-// Constructor for main dialogs
+// *****************************************************************************
+// Purpose: Creates a top-level plugin form from its DFM resource.
+// *****************************************************************************
 constructor TNppPluginForm.Create(ParentPlugin: TNppPlugin);
 begin
   if not Assigned(ParentPlugin) then
@@ -129,7 +175,9 @@ begin
     ToggleDarkMode;
 end;
 
-// Constructor for sub dialogs
+// *****************************************************************************
+// Purpose: Creates a DFM-backed child form that shares its owner's plugin.
+// *****************************************************************************
 constructor TNppPluginForm.Create(AOwner: TNppPluginForm);
 begin
   if not Assigned(AOwner) then
@@ -150,6 +198,9 @@ begin
     ToggleDarkMode;
 end;
 
+// *****************************************************************************
+// Purpose: Creates a top-level plugin form without loading a DFM resource.
+// *****************************************************************************
 constructor TNppPluginForm.CreateRuntime(ParentPlugin: TNppPlugin;
   Dummy: Integer);
 begin
@@ -173,6 +224,9 @@ begin
     ToggleDarkMode;
 end;
 
+// *****************************************************************************
+// Purpose: Releases resources owned by the TNppPluginForm instance.
+// *****************************************************************************
 destructor TNppPluginForm.Destroy;
 begin
   try
@@ -184,7 +238,9 @@ begin
 end;
 
 
-// Register plugin's dialog in Notepad++
+// *****************************************************************************
+// Purpose: Registers the form as a modeless dialog with Notepad++.
+// *****************************************************************************
 procedure TNppPluginForm.RegisterForm();
 begin
   if not CanRegister then
@@ -195,7 +251,9 @@ end;
 
 
 
-// Unregister plugin's dialog in Notepad++
+// *****************************************************************************
+// Purpose: Removes the form from the Notepad++ modeless-dialog registry.
+// *****************************************************************************
 procedure TNppPluginForm.UnregisterForm();
 begin
   if not FRegistered then
@@ -206,26 +264,34 @@ begin
   FRegistered := False;
 end;
 
+// *****************************************************************************
+// Purpose: Reports whether both host and form handles are ready for registration.
+// *****************************************************************************
 function TNppPluginForm.CanRegister: Boolean;
 begin
   Result := (Assigned(ParentPlugin) and IsWindow(ParentPlugin.NppData.NppHandle) and Self.HandleAllocated);
 end;
 
-// Set caption of GUI controls
+// *****************************************************************************
+// Purpose: Provides an override point for application-owned form localization.
+// *****************************************************************************
 procedure TNppPluginForm.InitLanguage;
 begin
-  // override
+  // Descendants can localize controls after the DFM has been loaded.
 end;
 
-// Remove WS_CHILD window style to allow the Notepad++ UI to get visible
-// when the task bar icon of Notepad++ has been clicked
+// *****************************************************************************
+// Purpose: Adjusts native parameters so the form behaves as a plugin window.
+// *****************************************************************************
 procedure TNppPluginForm.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.Style := Params.Style and (not WS_CHILD);
 end;
 
-// Ensure correct placement of plugin dialogs
+// *****************************************************************************
+// Purpose: Completes form registration, placement, language, and theme setup.
+// *****************************************************************************
 procedure TNppPluginForm.DoCreate;
 var
   ParentHandle: HWND;
@@ -256,7 +322,9 @@ begin
   inherited;
 end;
 
-// Perform close action according to plugin's needs
+// *****************************************************************************
+// Purpose: Applies the configured close action before the VCL close sequence continues.
+// *****************************************************************************
 procedure TNppPluginForm.DoClose(var Action: TCloseAction);
 begin
   if (DefaultCloseAction <> caNone) then
@@ -264,6 +332,9 @@ begin
   inherited;
 end;
 
+// *****************************************************************************
+// Purpose: Chooses initialization or refresh mode for Notepad++ dark theming.
+// *****************************************************************************
 procedure TNppPluginForm.ToggleDarkMode;
 var
   DmFlag: TNppDarkMode;
@@ -279,6 +350,9 @@ begin
     SubclassAndTheme(DmFlag);
 end;
 
+// *****************************************************************************
+// Purpose: Requests Notepad++ dark-mode subclassing for a normal plugin form.
+// *****************************************************************************
 procedure TNppPluginForm.SubclassAndTheme(DmFlag: TNppDarkMode);
 begin
   if Assigned(ParentPlugin) and HandleAllocated then
@@ -286,7 +360,9 @@ begin
       WPARAM(DmFlag), LPARAM(Self.Handle));
 end;
 
-// This is going to help us solve the problems we are having because of N++ handling our messages
+// *****************************************************************************
+// Purpose: Lets Notepad++ process dialog navigation keys from child controls.
+// *****************************************************************************
 function TNppPluginForm.WantChildKey(Child: TControl; var Message: TMessage): Boolean;
 begin
   Result := Assigned(Child) and

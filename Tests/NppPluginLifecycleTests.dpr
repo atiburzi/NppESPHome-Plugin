@@ -8,7 +8,9 @@ uses
   Npp.Scintilla.Api in '..\Lib\Npp.Scintilla.Api.pas',
   Npp.MenuCmdID in '..\Lib\Npp.MenuCmdID.pas',
   FileVersionInfo in '..\Lib\FileVersionInfo.pas',
-  Npp.Plugin in '..\Lib\Npp.Plugin.pas';
+  Npp.Plugin in '..\Lib\Npp.Plugin.pas',
+  Npp.Commands in '..\Lib\Npp.Commands.pas',
+  Npp.Toolbar in '..\Lib\Npp.Toolbar.pas';
 
 type
   TTestPlugin = class(TNppPlugin)
@@ -47,6 +49,10 @@ var
 begin
   Plugin := TTestPlugin.Create;
   try
+    Check(Assigned(Plugin.Commands),
+      'Every plugin must own a command registry');
+    Check(not Assigned(Plugin.Toolbar),
+      'A plugin without toolbar configuration must expose nil Toolbar');
     Check(Plugin.GetFuncsArray(FuncCount) = nil,
       'An empty command table must return nil');
     Check(FuncCount = 0, 'An empty command table must have zero elements');

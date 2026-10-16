@@ -1,6 +1,7 @@
 // Toolbar customization dialog owned by NppESPHome.
-// The reusable toolbar model, parsing, persistence and native synchronization
-// remain in Npp.Toolbar; this unit only presents and edits that model.
+// The reusable toolbar model, parsing and native synchronization remain in
+// Npp.Toolbar. This application-owned dialog also decides when to persist the
+// resulting configuration.
 unit NppESPHome.FormToolbar;
 
 interface
@@ -13,12 +14,12 @@ uses
   Vcl.Controls,
   Vcl.Forms,
   Vcl.Graphics,
-  Vcl.ImgList,
+
   Vcl.StdCtrls,
   Vcl.VirtualImageList,
   Npp.Plugin,
   Npp.Toolbar,
-  Npp.Vcl.Forms, System.ImageList;
+  Npp.Vcl.Forms, System.ImageList, Vcl.ImgList;
 
 type
   // Node order defines toolbar order; checked state defines visibility.
@@ -48,8 +49,6 @@ type
     FDragNode: TTreeNode;
     procedure ApplyConfiguration;
     procedure ClearNodes;
-    function FindToolbarButton(const ItemId: string;
-      out Button: TNppToolbarButton): Boolean;
     function GetToolbar: TNppToolbar;
     procedure LoadConfiguration(const ADefault: Boolean = False);
     procedure MoveNodeAfter(Node, Target: TTreeNode);
@@ -81,19 +80,6 @@ begin
   Result := (ParentPlugin as TESPHomePlugin).Toolbar;
 end;
 
-function TFormToolbar.FindToolbarButton(const ItemId: string;
-  out Button: TNppToolbarButton): Boolean;
-var
-  I: Integer;
-begin
-  Result := False;
-  FillChar(Button, SizeOf(Button), 0);
-  for I := 0 to GetToolbar.ButtonCount - 1 do
-    if GetToolbar.GetButtonInfo(I, Button) and
-       SameText(Button.ItemId, ItemId) then
-      Exit(True);
-end;
-
 function TFormToolbar.TryGetNodeButton(Node: TTreeNode;
   out Button: TNppToolbarButton): Boolean;
 var
@@ -104,7 +90,7 @@ begin
   if not Assigned(Node) or not Assigned(Node.Data) then
     Exit;
   ItemId := PToolbarItemId(Node.Data);
-  Result := FindToolbarButton(ItemId^, Button);
+  Result := GetToolbar.GetButtonInfo(ItemId^, Button);
 end;
 
 procedure TFormToolbar.ClearNodes;
@@ -217,14 +203,14 @@ begin
   if not ParentPlugin.IsNppMinVersion(8, 0) then
     Exit;
 
-  Layout := GetToolbar.LoadLayout(ADefault);
+  Layout := GetToolbar.CreateLayout(ADefault);
   try
     TreeViewToolbar.Items.BeginUpdate;
     try
       ClearNodes;
       for I := 0 to Layout.Count - 1 do
       begin
-        if not FindToolbarButton(Layout[I].ItemId, Button) then
+        if not GetToolbar.GetButtonInfo(Layout[I].ItemId, Button) then
           Continue;
         CaptionText := GetToolbar.CaptionForItem(Button.ItemId);
         if CaptionText = '' then
@@ -273,12 +259,12 @@ begin
         Layout.Add(Button.ItemId, Node.Checked);
       Node := Node.GetNextSibling;
     end;
-    GetToolbar.SaveLayout(Layout);
+    GetToolbar.ApplyLayout(Layout);
+    (ParentPlugin as TESPHomePlugin).SaveToolbarConfiguration;
   finally
     Layout.Free;
   end;
 
-  GetToolbar.Refresh;
   (ParentPlugin as TESPHomePlugin).RefreshPluginMenu;
 end;
 

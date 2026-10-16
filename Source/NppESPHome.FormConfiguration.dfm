@@ -4,8 +4,8 @@ object FormConfig: TFormConfig
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Project Configuration'
-  ClientHeight = 507
-  ClientWidth = 623
+  ClientHeight = 501
+  ClientWidth = 619
   Color = clBtnFace
   ParentFont = True
   ShowHint = True
@@ -104,7 +104,7 @@ object FormConfig: TFormConfig
       Top = 20
       Width = 387
       Height = 277
-      ActiveCard = CardIntConsoleOptions
+      ActiveCard = CardProjectOptions
       BevelOuter = bvNone
       Caption = 'CardPanelOptions'
       ParentColor = True
@@ -133,9 +133,9 @@ object FormConfig: TFormConfig
         end
         object ListBoxDependencies: TListBox
           Left = 24
-          Top = 121
+          Top = 104
           Width = 353
-          Height = 118
+          Height = 145
           Hint = 
             'Project files to be automatically opened and saved by Notepad++ ' +
             'during development'
@@ -148,7 +148,7 @@ object FormConfig: TFormConfig
         end
         object ButtonAddDeps: TButton
           Left = 242
-          Top = 252
+          Top = 254
           Width = 65
           Height = 21
           Hint = 
@@ -160,7 +160,7 @@ object FormConfig: TFormConfig
         end
         object ButtonRemoveDeps: TButton
           Left = 313
-          Top = 252
+          Top = 254
           Width = 65
           Height = 21
           Hint = 
@@ -1012,7 +1012,7 @@ object FormConfig: TFormConfig
           Left = 115
           Top = 136
           Width = 16
-          Height = 22
+          Height = 23
           Associate = EditIntConsoleScrollback
           Min = 500
           Max = 20000
@@ -1091,7 +1091,7 @@ object FormConfig: TFormConfig
   end
   object ColorDialog: TColorDialog
     Options = [cdFullOpen, cdAnyColor]
-    Left = 459
+    Left = 419
     Top = 34
   end
 end

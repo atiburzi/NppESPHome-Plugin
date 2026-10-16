@@ -24,6 +24,12 @@ unit Npp.Api;
 
 interface
 
+// =============================================================================
+// This unit is the exact Delphi binding for the public Notepad++ plugin ABI.
+// Keep message identifiers, record layouts, and calling conventions aligned
+// with the upstream Notepad++ headers; runtime behavior belongs in Npp.Host.
+// =============================================================================
+
 uses
   Winapi.Windows, Winapi.Messages;
 
@@ -1311,15 +1317,18 @@ type
   // Records for data exchange Notepad++ <-> Plugin
   // ---------------------------------------------------------------------------
 
-  // Basic infos for communication between Notepad++ and the plugin
-  // This structure is sent by Npp to the plugin via SetInfo
+  // ***************************************************************************
+  // Purpose: Carries the Notepad++ and Scintilla handles supplied to setInfo.
+  // ***************************************************************************
   TNppData = record
     NppHandle: HWND;
     ScintillaMainHandle: HWND;
     ScintillaSecondHandle: HWND;
   end;
 
-  // Set plugin keyboard shortcut
+  // ***************************************************************************
+  // Purpose: Describes one keyboard shortcut in the Notepad++ plugin ABI.
+  // ***************************************************************************
   PShortcutKey = ^TShortcutKey;
   TShortcutKey = record
     IsCtrl: Boolean;
@@ -1328,13 +1337,17 @@ type
     Key: UCHAR;
   end;
 
-  // Set plugin toolbar icon, deprecated since Npp v8.0
+  // ***************************************************************************
+  // Purpose: Describes the deprecated pre-8.0 toolbar icon payload.
+  // ***************************************************************************
   TToolbarIcons = record
     ToolbarBmp: HBITMAP;
     ToolbarIcon: HICON;
   end;
 
-  // Set plugin toolbar icon, use from Npp v8.0 onwards
+  // ***************************************************************************
+  // Purpose: Describes light and dark toolbar icons for Notepad++ 8.0 or newer.
+  // ***************************************************************************
   TToolbarIconsWithDarkMode = record
     ToolbarBmp: HBITMAP;        // light mode 16x16
     ToolbarIcon: HICON;         // dark mode unfilled 16x16 or 32x32
@@ -1342,6 +1355,9 @@ type
   end;
 
   PNppDarkModeColors = ^TNppDarkModeColors;
+  // ***************************************************************************
+  // Purpose: Carries the color palette exposed by the Notepad++ dark-mode API.
+  // ***************************************************************************
   TNppDarkModeColors = record
     background: COLORREF;
     softerBackground: COLORREF;
@@ -1357,7 +1373,9 @@ type
     disabledEdge: COLORREF;
   end;
 
-  // Dockable dialogs
+  // ***************************************************************************
+  // Purpose: Carries registration metadata for a Notepad++ docking panel.
+  // ***************************************************************************
   TTbData = record
     ClientHandle: HWND;      // dockable dialog handle
     Name: nppPChar;          // name of plugin dialog
@@ -1370,14 +1388,18 @@ type
     ModuleName: nppPChar;    // the name of your plugin module (with extension .dll)
   end;
 
-  // Loading/saving sessions
+  // ***************************************************************************
+  // Purpose: Describes the file list used to load or save a Notepad++ session.
+  // ***************************************************************************
   TSessionInfo = record
     SessionFilePathName: nppPChar;          // the full path name of session file to save
     NumFiles: Integer;                      // the number of files in the session
     Files: PPnppChar;                       // pointer to an array of session file paths
   end;
 
-  // Inter-plugin communication
+  // ***************************************************************************
+  // Purpose: Carries an application-defined message between two plugins.
+  // ***************************************************************************
   TCommunicationInfo = record
     internalMsg: Cardinal;  // message-id (defined by dest-plugin)
     srcModuleName: nppPChar;  // complete module name (with extension .dll) of src-plugin
@@ -1392,6 +1414,9 @@ type
   FuncItemCmdProc = procedure; cdecl;
 
   PFuncItem = ^TFuncItem;
+  // ***************************************************************************
+  // Purpose: Defines one command exported through the Notepad++ plugin ABI.
+  // ***************************************************************************
   TFuncItem = packed record
     ItemName: array[0..FNITEM_NAMELEN - 1] of nppChar;
     Func: FuncItemCmdProc;

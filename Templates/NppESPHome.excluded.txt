@@ -1,0 +1,3 @@
+# Official ESPHome documentation URLs intentionally omitted from the template.
+# Keep one canonical URL per line.
+https://esphome.io/components/esphome/

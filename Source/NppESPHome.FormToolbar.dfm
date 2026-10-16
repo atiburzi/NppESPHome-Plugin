@@ -1,34 +1,29 @@
 object FormToolbar: TFormToolbar
   Left = 0
   Top = 0
-  Margins.Left = 4
-  Margins.Top = 4
-  Margins.Right = 4
-  Margins.Bottom = 4
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Toolbar configuration'
-  ClientHeight = 802
-  ClientWidth = 520
+  ClientHeight = 654
+  ClientWidth = 421
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -15
+  Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poOwnerFormCenter
   OnCreate = FormCreate
-  PixelsPerInch = 120
-  TextHeight = 20
+  TextHeight = 15
   object LabelInfo: TLabel
-    Left = 11
-    Top = 701
-    Width = 503
-    Height = 42
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 9
+    Top = 561
+    Width = 402
+    Height = 33
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     AutoSize = False
     Caption = 
       'Use checkbox to enable/disable the button.'#13#10'Use mouse Drag&&Drop' +
@@ -36,18 +31,18 @@ object FormToolbar: TFormToolbar
     WordWrap = True
   end
   object TreeViewToolbar: TTreeView
-    Left = 11
-    Top = 11
-    Width = 504
-    Height = 680
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 9
+    Top = 9
+    Width = 403
+    Height = 544
+    Margins.Left = 4
+    Margins.Top = 4
+    Margins.Right = 4
+    Margins.Bottom = 4
     CheckBoxes = True
     DragMode = dmAutomatic
     Images = VirtualImageList
-    Indent = 30
+    Indent = 24
     ParentColor = True
     RowSelect = True
     ShowButtons = False
@@ -62,14 +57,10 @@ object FormToolbar: TFormToolbar
     OnStartDrag = TreeViewToolbarStartDrag
   end
   object ButtonOk: TButton
-    Left = 200
-    Top = 773
-    Width = 94
-    Height = 31
-    Margins.Left = 4
-    Margins.Top = 4
-    Margins.Right = 4
-    Margins.Bottom = 4
+    Left = 160
+    Top = 618
+    Width = 75
+    Height = 25
     Caption = 'Ok'
     Default = True
     ModalResult = 1
@@ -77,41 +68,29 @@ object FormToolbar: TFormToolbar
     OnClick = ButtonSaveClick
   end
   object ButtonCancel: TButton
-    Left = 421
-    Top = 773
-    Width = 94
-    Height = 31
-    Margins.Left = 4
-    Margins.Top = 4
-    Margins.Right = 4
-    Margins.Bottom = 4
+    Left = 337
+    Top = 618
+    Width = 75
+    Height = 25
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 4
   end
   object ButtonApply: TButton
-    Left = 301
-    Top = 773
-    Width = 94
-    Height = 31
-    Margins.Left = 4
-    Margins.Top = 4
-    Margins.Right = 4
-    Margins.Bottom = 4
+    Left = 241
+    Top = 618
+    Width = 75
+    Height = 25
     Caption = '&Apply'
     TabOrder = 3
     OnClick = ButtonSaveClick
   end
   object ButtonReset: TButton
-    Left = 11
-    Top = 773
-    Width = 120
-    Height = 31
-    Margins.Left = 4
-    Margins.Top = 4
-    Margins.Right = 4
-    Margins.Bottom = 4
+    Left = 9
+    Top = 618
+    Width = 96
+    Height = 25
     Caption = '&Reset toolbar'
     TabOrder = 1
     OnClick = ButtonResetClick
@@ -119,9 +98,9 @@ object FormToolbar: TFormToolbar
   object VirtualImageList: TVirtualImageList
     AutoFill = True
     Images = <>
-    Width = 40
-    Height = 40
-    Left = 68
-    Top = 40
+    Width = 32
+    Height = 32
+    Left = 54
+    Top = 32
   end
 end

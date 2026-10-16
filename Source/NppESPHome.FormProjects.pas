@@ -12,7 +12,7 @@ uses
   VirtualTrees.Types, Vcl.ActnList,
   Vcl.Buttons, Vcl.ImgList,
   System.UITypes,
-  JvLinkLabel, System.Actions, System.ImageList, JvExControls,
+  JvLinkLabel, JvExControls, System.Actions, System.ImageList,
   VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL, Vcl.ToolWin;
 
 type
@@ -109,7 +109,6 @@ type
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
       var ImageIndex: TImageIndex);
-    procedure VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
     procedure ActionOpenExecute(Sender: TObject);
     procedure ActionAddProjectExecute(Sender: TObject);
     procedure ActionRemoveProjectExecute(Sender: TObject);
@@ -250,7 +249,7 @@ begin
     if Assigned(Node) then
       VirtualStringTreeProjects.AddToSelection(Node, True);
   end;
-  VirtualStringTreeProjects.FullExpand;
+  //VirtualStringTreeProjects.FullExpand;
   VirtualStringTreeProjects.EndUpdate;
   RefreshToolbar;
 end;
@@ -413,15 +412,6 @@ begin
   end
   else
     LabelProjectPath.Caption := '';
-end;
-
-// *****************************************************************************
-// Purpose: Keeps project roots expanded so dependency nodes remain visible.
-// *****************************************************************************
-procedure TFormProjects.VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
-begin
-  inherited;
-  Allowed := False;
 end;
 
 // *****************************************************************************

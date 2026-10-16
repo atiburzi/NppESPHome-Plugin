@@ -2,7 +2,7 @@
 
 Questa cartella contiene un framework riutilizzabile per costruire plugin Notepad++ in Delphi. Le unità non dipendono da NppESPHome: un altro plugin può usarle aggiungendo `Lib` al search path.
 
-Il framework è diviso in un core senza VCL e in un livello VCL opzionale. Il core gestisce ABI, messaggi, comandi, lifecycle e toolbar; il livello VCL aggiunge finestre normali, pannelli docking e un editor pronto all'uso per la toolbar.
+Il framework è diviso in un core senza VCL e in un livello VCL opzionale. Il core gestisce ABI, messaggi, comandi, lifecycle e toolbar; il livello VCL aggiunge finestre normali e pannelli docking. L'eventuale editor della toolbar appartiene all'applicazione.
 
 ## Requisiti e integrazione
 
@@ -20,15 +20,17 @@ Le unità `Npp.Api` e `Npp.Scintilla.Api` sono binding e non devono contenere lo
 | `Npp.Api` | record e costanti ABI | Tipi, notifiche e messaggi ufficiali di Notepad++ | No |
 | `Npp.Scintilla.Api` | binding Scintilla | Costanti e strutture generate da `Scintilla.iface` | No |
 | `Npp.MenuCmdID` | costanti menu | ID dei comandi nativi di Notepad++ | No |
-| `Npp.Host` | `TNppHost` | Trasporto tipizzato per `SendMessage` e `PostMessage` | No |
-| `Npp.Commands` | `TNppCommands` | Registro dei comandi, separatori e stato menu | No |
-| `Npp.Plugin` | `TNppPlugin` | Lifecycle, notifiche, file, buffer e servizi host | No |
-| `Npp.Toolbar` | `TNppToolbar` | Icone, modello, layout persistente e toolbar nativa | No |
-| `Npp.Vcl.Forms` | `TNppPluginForm` / `TNppForm` | Dialog VCL normali integrati con Notepad++ | Sì |
-| `Npp.Vcl.Docking` | `TNppPluginDocking` / `TNppDocking` | Pannelli VCL docking | Sì |
+| `FileVersionInfo` | [`TFileVersionInfo`](Docs/FileVersionInfo.md) | Lettura delle risorse versione di EXE e DLL | No |
+| `Npp.Host` | [`TNppHost`](Docs/Npp.Host.md) | Trasporto, versione host, toolbar HWND e comandi nativi | No |
+| `Npp.Commands` | [`TNppCommands`](Docs/Npp.Commands.md) | Registro, tabella ABI, shortcut, separatori e stato menu | No |
+| `Npp.Plugin` | [`TNppPlugin`](Docs/Npp.Plugin.md) | Lifecycle, notifiche e ownership di comandi/toolbar | No |
+| `Npp.Toolbar` | [`TNppToolbar`](Docs/Npp.Toolbar.md) | Icone, modello, stringa di configurazione e toolbar nativa | No |
+| `Npp.Vcl.Forms` | [`TNppPluginForm`](Docs/Npp.Vcl.Forms.md) | Dialog VCL normali integrati con Notepad++ | Sì |
+| `Npp.Vcl.Docking` | [`TNppPluginDocking`](Docs/Npp.Vcl.Docking.md) | Pannelli VCL docking | Sì |
 | `NppPluginInclude.pas` | entry point DLL | Export standard, creazione lazy e shutdown sicuro | Solo se usato |
 
-`TNppCommands` e `TNppToolbar` sono i nomi pubblici consigliati. `TNppPluginMenu` e `TNppPluginToolbar` restano alias compatibili.
+`TNppCommands`, `TNppToolbar`, `TNppPluginForm` e `TNppPluginDocking` sono i
+nomi pubblici definitivi. Il framework non mantiene alias legacy.
 
 ## Quick start
 
@@ -42,25 +44,18 @@ unit Example.Plugin;
 interface
 
 uses
-  Winapi.Windows, System.Classes, System.IniFiles, System.IOUtils,
+  Winapi.Windows, System.IniFiles, System.IOUtils,
   System.SysUtils, Npp.Api, Npp.Commands, Npp.Plugin, Npp.Toolbar;
 
 type
   TExamplePlugin = class(TNppPlugin)
   private
-    FCommands: TNppCommands;
-    FToolbar: TNppToolbar;
     FIni: TIniFile;
     procedure Hello;
     function CreateToolbarIcons(const Entry: TNppMenuEntry;
       out IconData: TToolbarIconsWithDarkMode): Boolean;
-    function ReadToolbarConfiguration(const DefaultValue: string): string;
-    procedure WriteToolbarConfiguration(const Value: string);
-  protected
-    procedure DoNppnReady; override;
-    procedure DoNppnToolbarModification; override;
-    procedure DoNppnDarkModeChanged; override;
-    procedure DoNppToolbarIconsetChanged; override;
+    procedure LoadToolbarConfiguration;
+    procedure SaveToolbarConfiguration;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -86,10 +81,8 @@ constructor TExamplePlugin.Create;
 begin
   inherited;
   PluginName := 'ExamplePlugin';
-  FCommands := TNppCommands.Create(Self);
-  FCommands.AddCommand(CmdHello, 'Hello', _Hello);
-  FToolbar := TNppToolbar.Create(Self, FCommands, CreateToolbarIcons,
-    nil, ReadToolbarConfiguration, WriteToolbarConfiguration);
+  Commands.AddCommand(CmdHello, 'Hello', _Hello);
+  ConfigureToolbar(CreateToolbarIcons);
   Plugin := Self;
 end;
 
@@ -97,8 +90,6 @@ destructor TExamplePlugin.Destroy;
 begin
   if Plugin = Self then
     Plugin := nil;
-  FreeAndNil(FToolbar);
-  FreeAndNil(FCommands);
   FreeAndNil(FIni);
   inherited;
 end;
@@ -108,6 +99,7 @@ begin
   inherited;
   FIni := TIniFile.Create(TPath.Combine(GetPluginConfigDir,
     string(PluginName) + '.ini'));
+  LoadToolbarConfiguration;
 end;
 
 procedure TExamplePlugin.Hello;
@@ -116,19 +108,16 @@ begin
     MB_OK or MB_ICONINFORMATION);
 end;
 
-function TExamplePlugin.ReadToolbarConfiguration(
-  const DefaultValue: string): string;
+procedure TExamplePlugin.LoadToolbarConfiguration;
 begin
   if Assigned(FIni) then
-    Result := FIni.ReadString('Toolbar', 'Layout', DefaultValue)
-  else
-    Result := DefaultValue;
+    Toolbar.ApplyConfiguration(FIni.ReadString('Toolbar', 'Layout', ''));
 end;
 
-procedure TExamplePlugin.WriteToolbarConfiguration(const Value: string);
+procedure TExamplePlugin.SaveToolbarConfiguration;
 begin
   if Assigned(FIni) then
-    FIni.WriteString('Toolbar', 'Layout', Value);
+    FIni.WriteString('Toolbar', 'Layout', Toolbar.Configuration);
 end;
 
 function TExamplePlugin.CreateToolbarIcons(const Entry: TNppMenuEntry;
@@ -151,40 +140,22 @@ begin
     (IconData.ToolbarIconDarkMode <> 0);
 end;
 
-procedure TExamplePlugin.DoNppnToolbarModification;
-begin
-  inherited;
-  FToolbar.Initialize;
-end;
-
-procedure TExamplePlugin.DoNppnReady;
-begin
-  inherited;
-  FToolbar.CaptureNativeButtons;
-  FToolbar.Refresh;
-end;
-
-procedure TExamplePlugin.DoNppnDarkModeChanged;
-begin
-  inherited;
-  FToolbar.Refresh;
-end;
-
-procedure TExamplePlugin.DoNppToolbarIconsetChanged;
-begin
-  inherited;
-  TThread.ForceQueue(nil,
-    procedure
-    begin
-      if Assigned(Plugin) and not Plugin.IsShuttingDown then
-        Plugin.FToolbar.Refresh;
-    end);
-end;
-
 end.
 ```
 
+`TNppPlugin` crea e distrugge `Commands`. `ConfigureToolbar` crea la toolbar
+opzionale e il lifecycle base esegue automaticamente `Initialize`,
+`CaptureNativeButtons` e `Refresh` nelle notifiche corrette. Gli override delle
+stesse notifiche servono quindi solo per logica applicativa e devono continuare
+a chiamare `inherited`.
+
 Il provider deve restituire handle nuovi e trasferibili. Dopo la chiamata, anche se restituisce `False`, gli handle non nulli appartengono a `TNppToolbar`, che li rilascia con `DeleteObject` o `DestroyIcon`.
+
+Nell'esempio l'INI è deliberatamente gestito dalla classe applicativa. Il
+framework non conosce file, registro o altri sistemi di persistenza:
+`LoadToolbarConfiguration` passa una stringa alla toolbar, mentre
+`SaveToolbarConfiguration` preleva la stringa corrente quando la UI decide di
+salvarla.
 
 ### 2. Esportare la DLL
 
@@ -234,7 +205,9 @@ Le costanti `NPPM_*`, `NPPN_*`, `DWS_*` e `DMN_*` servono quando un wrapper di a
 
 ### Shortcut e ownership
 
-`TNppPlugin` assume la proprietà del `PShortcutKey` e lo libera con `Dispose`. Crearlo con `New` e non liberarlo dopo `AddCommand`:
+`TNppCommands` assume la proprietà del `PShortcutKey` dopo una registrazione
+riuscita e lo libera con `Dispose`. Crearlo con `New` e non liberarlo dopo
+`AddCommand`:
 
 ```pascal
 function NewShortcut(Ctrl, Alt, Shift: Boolean; Key: UCHAR): PShortcutKey;
@@ -271,26 +244,34 @@ Il blocco generato registra versione e SHA-256. I record ABI fuori da quel blocc
 
 `TNppHost` centralizza il trasporto Win32. In produzione usa `SendMessage`/`PostMessage`; nei test accetta funzioni sostitutive.
 
+Complete component manual: [`TNppHost`](Docs/Npp.Host.md).
+
 ```pascal
 Host := TNppHost.Create(NppData);
-Host := TNppHost.Create(NppData, FakeSend, FakePost);
+Host := TNppHost.Create(NppData, FakeSend, FakePost, FakeToolbarResolver);
 ```
 
 ### Proprietà e metodi
 
 | Membro | Descrizione |
 | --- | --- |
-| `Create(AData, ATransport, APostTransport)` | Crea il facade; i trasporti `nil` usano i default Win32 |
+| `Create(AData, ATransport, APostTransport, AToolbarHandleResolver)` | Crea il facade; callback `nil` usano i default Win32 |
 | `Data` | Record `TNppData`; `TNppPlugin.SetInfo` lo sincronizza |
 | `Transport` | Funzione sincrona sostituibile; `nil` ripristina il default |
 | `PostTransport` | Funzione asincrona sostituibile; `nil` ripristina il default |
+| `ToolbarHandleResolver` | Ricerca HWND toolbar sostituibile nei test |
 | `Send(Handle, Msg, WParam, LParam)` | Invia a un qualunque HWND |
 | `Post(Handle, Msg, WParam, LParam)` | Accoda verso un qualunque HWND |
 | `SendNpp(...)`, `PostNpp(...)` | Usano `NppHandle` |
 | `SendMainScintilla(...)` | Usa `ScintillaMainHandle` |
 | `SendSecondScintilla(...)` | Usa `ScintillaSecondHandle` |
+| `GetNppVersion(var Major, Minor)` | Legge e normalizza la versione Notepad++ |
+| `IsNppMinVersion(Major, Minor)` | Verifica la versione minima richiesta |
+| `GetToolbarHandle` | Restituisce l'handle della toolbar nativa |
+| `PerformMenuCommand(Id, Param, Delayed)` | Esegue un comando menu nativo di Notepad++ |
 
-`NppDefaultHostTransport` e `NppDefaultHostPostTransport` sono le implementazioni pubbliche Win32.
+`NppDefaultHostTransport`, `NppDefaultHostPostTransport` e
+`NppDefaultToolbarHandleResolver` sono le implementazioni pubbliche Win32.
 
 ```pascal
 function FakeSend(Handle: HWND; Msg: UINT; WParam: WPARAM;
@@ -308,13 +289,16 @@ Assert(Host.SendNpp(NPPM_GETCURRENTBUFFERID) = 42);
 
 `TNppCommands` registra le voci nell'ordine del menu Plugins e assegna a ciascuna un ID stabile deciso dal plugin. L'ID stabile non è né l'indice della voce né il `CmdID` assegnato da Notepad++.
 
+Complete component manual: [`TNppCommands`](Docs/Npp.Commands.md).
+
 Gli ID sono case-insensitive, devono essere univoci e non possono essere vuoti o contenere `:`, `;` o `|`, riservati al formato toolbar.
 
 ### Registrazione
 
 | Metodo | Risultato / effetto |
 | --- | --- |
-| `Create(APlugin)` | Collega il registro a un `TNppPlugin` non `nil` |
+| `TNppPlugin.Commands` | Registro già creato e posseduto dal plugin |
+| `Create(AHost)` | Costruzione diretta avanzata; collega il registro a un host non `nil` |
 | `AddCommand(Id, Caption, Callback, ShortcutKey, Checked)` | Registra un comando e restituisce il suo indice menu |
 | `AddSeparator(Id)` | Registra un separatore e restituisce l'indice; senza ID genera `Sep$N` |
 
@@ -333,6 +317,8 @@ Gli ID sono case-insensitive, devono essere univoci e non possono essere vuoti o
 | `Caption(Id)` | Caption corrente oppure stringa vuota |
 | `IsChecked(Id)` | Stato check memorizzato |
 | `IsEnabled(Id)` | Stato enabled memorizzato |
+| `GetFuncsArray(out Count)` | Espone la tabella ABI posseduta dal registro |
+| `ApplySeparators` | Converte nel menu nativo le voci registrate come separatori |
 
 `TNppMenuEntry` espone `Id`, `Index`, `IsSeparator`, `Checked` ed `Enabled`.
 
@@ -347,18 +333,22 @@ Gli ID sono case-insensitive, devono essere univoci e non possono essere vuoti o
 | `RemoveEnabledListener(Listener)` | Rimuove la callback corrispondente |
 | `OnEnabledChanged` | Callback singola, aggiuntiva rispetto alla lista |
 
-`TNppToolbar` si registra automaticamente come listener. La fonte di verità per lo stato deve quindi essere `FCommands.SetEnabled`, non una modifica diretta della toolbar.
+`TNppToolbar` si registra automaticamente come listener. La fonte di verità per lo stato deve quindi essere `Commands.SetEnabled`, non una modifica diretta della toolbar.
 
 ```pascal
-FCommands.SetCaption('build', 'Build current document');
-FCommands.SetChecked('watch', True);
-FCommands.SetEnabled('build', FileExists(GetFullCurrentPath));
+Commands.SetCaption('build', 'Build current document');
+Commands.SetChecked('watch', True);
+Commands.SetEnabled('build', FileExists(GetFullCurrentPath));
 ```
 
 Un ID inesistente, un separatore o un duplicato genera `EArgumentException` nei metodi che richiedono un vero comando.
 ## Npp.Plugin
 
-`TNppPlugin` riceve le chiamate ABI, mantiene `TNppData`, inoltra le notifiche ai metodi virtuali e offre wrapper per le operazioni comuni.
+`TNppPlugin` riceve le chiamate ABI, mantiene `TNppData`, possiede i servizi
+`Commands` e `Toolbar`, inoltra le notifiche ai metodi virtuali e offre wrapper
+per le operazioni comuni.
+
+Complete component manual: [`TNppPlugin`](Docs/Npp.Plugin.md).
 
 ### Proprietà
 
@@ -366,6 +356,8 @@ Un ID inesistente, un separatore o un duplicato genera `EArgumentException` nei 
 | --- | --- |
 | `NppData` | Handle forniti da Notepad++ |
 | `Host` | `TNppHost` posseduto dal plugin |
+| `Commands` | `TNppCommands` sempre disponibile e posseduto dal plugin |
+| `Toolbar` | `TNppToolbar` posseduta dal plugin, oppure `nil` se non configurata |
 | `PluginName` | Nome mostrato nel menu Plugins |
 | `PluginMajorVersion`, `PluginMinorVersion` | Componenti della versione |
 | `SCNotification` | Puntatore valido solo durante il callback corrente |
@@ -380,27 +372,24 @@ Questi metodi sono normalmente chiamati da `NppPluginInclude.pas`:
 | --- | --- |
 | `SetInfo(NppData)` | Memorizza gli handle e aggiorna `Host.Data`; un override deve chiamare `inherited` |
 | `GetName` | Restituisce il nome ABI del plugin |
-| `GetFuncsArray(out Count)` | Espone l'array `TFuncItem` |
+| `GetFuncsArray(out Count)` | Delega a `Commands.GetFuncsArray` per l'export ABI |
 | `MessageProc(var Msg)` | Riceve messaggi Windows e applica i separatori |
 | `BeNotified(SN)` | Esegue il dispatch e poi azzera `SCNotification` |
 | `Shutdown` | Esegue una sola volta `DoNppnShutdown` |
-| `GetFuncByIndex(Index)` | Voce o `nil` |
-| `GetFuncByCmdID(CmdID)` | Voce o `nil` |
 | `GetCurrentScintilla` | HWND dell'editor attivo |
 
-### Registrazione e stato UI
+### Configurazione dei servizi
 
-Preferire `TNppCommands` e `TNppToolbar`; questi wrapper restano utili per casi speciali e compatibilità.
+Nel costruttore della classe derivata, registrare prima tutti i comandi tramite
+`Commands`, poi chiamare una sola volta il metodo protetto
+`ConfigureToolbar(IconProvider, DisabledIconProvider)`. Una seconda
+configurazione, un provider icone `nil` o la chiamata durante lo shutdown genera
+un'eccezione.
 
-| Metodo | Funzione |
-| --- | --- |
-| `RegisterFuncItem(...)` | Aggiunge una voce e restituisce l'indice menu |
-| `CmdIdFromMenuItemIdx(Index)` | Converte indice menu in `CmdID` |
-| `CheckMenuItem(Index, State, Delayed)` | Imposta il check |
-| `EnableMenuItem(Index, State)` | Abilita/disabilita la voce |
-| `EnableToolbarItem(Index, State)` | Abilita/disabilita il pulsante relativo |
-| `RegisterToolbarIcon(CmdID, IconData)` | Registra icone legacy o dark-mode |
-| `PerformMenuCommand(MenuCmdId, Param, Delayed)` | Esegue un comando nativo di Notepad++ |
+La registrazione dei `TFuncItem`, lo stato del menu e la risoluzione dei `CmdID`
+sono responsabilità di `Commands`. Registrazione delle icone e stato dei
+pulsanti appartengono a `Toolbar`; i comandi menu nativi appartengono a `Host`.
+`TNppPlugin` non espone più wrapper basati sull'indice menu.
 
 ### Programma e percorsi
 
@@ -444,7 +433,6 @@ Preferire `TNppCommands` e `TNppToolbar`; questi wrapper restano utili per casi 
 | `GetLineFromPosition(View, Pos)` | Riga da posizione |
 | `GetFirstVisibleLine(View)`, `GetLinesOnScreen(View)` | Informazioni viewport |
 | `GetFilePos(out File, out Line, out Column)` | File e posizione correnti |
-| `GetToolbarHandle` | HWND toolbar nativa |
 
 ### Operazioni sui file
 
@@ -478,6 +466,8 @@ Durante un override i dettagli sono in `SCNotification^`. Non conservarne il pun
 
 `TNppToolbarLayout` è il modello indipendente dalla UI. Contiene una sequenza di `TNppToolbarLayoutItem`, ciascuno con `ItemId` e `Visible`.
 
+Complete component manual: [`Npp.Toolbar`](Docs/Npp.Toolbar.md).
+
 | Metodo / proprietà | Descrizione |
 | --- | --- |
 | `Count` | Numero di elementi |
@@ -486,36 +476,40 @@ Durante un override i dettagli sono in `SCNotification^`. Non conservarne il pun
 | `IndexOf(ItemId)` | Ricerca case-insensitive |
 | `Move(FromIndex, ToIndex)` | Sposta mantenendo l'ordine degli altri |
 | `SetVisible(Index, Visible)` | Cambia visibilità |
-| `Serialize` | Produce il formato stabile `v2|` |
+| `Serialize` | Produce il formato corrente basato su ID stabili |
 | `CreateDefault(AvailableIds)` | Crea un layout tutto visibile |
-| `TryParse(Value, AvailableIds, out Layout, out WasLegacy)` | Valida, migra e riconcilia |
+| `TryParse(Value, out Layout)` | Valida e crea un layout dal solo formato corrente |
 
 ```pascal
-Layout := Toolbar.LoadLayout;
+Layout := Toolbar.CreateLayout;
 try
   Layout.Move(Layout.IndexOf('build'), 0);
   Layout.SetVisible(Layout.IndexOf('about'), False);
-  Toolbar.SaveLayout(Layout);
+  Toolbar.ApplyLayout(Layout);
 finally
   Layout.Free;
 end;
-Toolbar.Refresh;
 ```
 
 Il formato corrente usa ID stabili:
 
 ```text
-v2|open:1;build:1;about:0;
+open:1;build:1;about:0;
 ```
 
-`1` significa visibile, `0` nascosto. In lettura:
+`1` significa visibile, `0` nascosto. Non esiste un prefisso di versione e non
+esiste un parser legacy. La forma canonica termina con `;`. Quando la stringa
+viene applicata a una toolbar inizializzata:
 
 - gli ID rimossi dal plugin vengono ignorati;
 - i nuovi ID vengono aggiunti in coda e resi visibili;
-- duplicati, flag diversi da 0/1 e ID invalidi fanno fallire il parsing;
-- il vecchio formato `indice:visibilità;` viene accettato quando coerente e riscritto in v2 se esiste un writer.
+- duplicati, flag diversi da 0/1, ID invalidi e stringhe non canoniche fanno
+  fallire il parsing con `EArgumentException` in `ApplyConfiguration`;
+- configurazioni precedenti devono essere convertite o sostituite
+  dall'applicazione.
 
-Il chiamante possiede il `TNppToolbarLayout` restituito da `CreateDefault`, `TryParse` o `LoadLayout`.
+Il chiamante possiede il `TNppToolbarLayout` restituito da `CreateDefault`,
+`TryParse` o `CreateLayout`.
 
 ## Npp.Toolbar: manager
 
@@ -525,24 +519,24 @@ Il chiamante possiede il `TNppToolbarLayout` restituito da `CreateDefault`, `Try
 | --- | --- |
 | `TNppToolbarIconProvider` | Riceve `TNppMenuEntry`, riempie `TToolbarIconsWithDarkMode` e decide se creare il pulsante |
 | `TNppToolbarDisabledIconProvider` | Riceve un HICON in prestito e restituisce un nuovo HICON disabilitato |
-| `TNppToolbarConfigReader` | Riceve il default serializzato e restituisce la configurazione persistita |
-| `TNppToolbarConfigWriter` | Persiste la configurazione normalizzata |
 
 Il provider disabilitato è opzionale. Non deve distruggere l'HICON di input; l'HICON restituito viene distrutto dal manager dopo la copia nell'image list nativa.
 
 ### Costruzione
 
+Nel normale plugin derivato da `TNppPlugin`:
+
 ```pascal
-Toolbar := TNppToolbar.Create(
-  Plugin,
-  Commands,
+ConfigureToolbar(
   CreateIcons,          // obbligatorio
-  CreateDisabledIcon,   // opzionale
-  ReadConfiguration,    // opzionale
-  WriteConfiguration);  // opzionale
+  CreateDisabledIcon);  // opzionale
 ```
 
-`Plugin`, `Commands` e il provider icone non possono essere `nil`. Il manager non possiede plugin o registro e deve essere distrutto prima di `TNppCommands`.
+La proprietà `Toolbar` diventa disponibile subito dopo la configurazione. Il
+plugin base ne gestisce distruzione e notifiche. Il costruttore pubblico
+`TNppToolbar.Create(Host, Commands, ...)` resta disponibile per usi avanzati
+e test: in quel caso il manager non possiede host o registro e deve essere
+distrutto prima di `Commands`.
 
 ### Metodi
 
@@ -551,35 +545,41 @@ Toolbar := TNppToolbar.Create(
 | `Initialize` | In `NPPN_TBMODIFICATION`: ricrea modello, icone e registrazione |
 | `CaptureNativeButtons` | Dopo la creazione toolbar: acquisisce i template `TTBButton` |
 | `Refresh` | Ricostruisce ordine, visibilità, enabled state e immagini disabilitate |
-| `ReleaseResources` | Distrugge bitmap/icone possedute; è idempotente |
-| `Configuration(Default)` | Layout serializzato corrente o predefinito |
-| `SaveConfiguration(Value)` | Valida, normalizza in v2 e chiama il writer |
-| `LoadLayout(Default)` | Restituisce un layout posseduto dal chiamante |
-| `SaveLayout(Layout)` | Serializza e salva un layout non `nil` |
+| `ReleaseResources` | Distrugge bitmap/icone, svuota il modello e conserva la configurazione per una reinizializzazione; è idempotente |
+| `Configuration` | Restituisce la configurazione corrente normalizzata |
+| `DefaultConfiguration` | Genera la configurazione predefinita, con tutti i pulsanti visibili |
+| `CreateLayout(Default)` | Crea il layout corrente o, con `True`, quello predefinito; il chiamante lo possiede |
+| `ApplyConfiguration(Value)` | Valida, conserva in memoria, riconcilia e applica la stringa alla toolbar nativa |
+| `ApplyLayout(Layout)` | Serializza e applica un layout non `nil` |
 | `SetEnabled(ItemId, State)` | Sincronizza modello e pulsante nativo |
 | `CaptionForItem(ItemId)` | Caption corrente dal registro |
 | `GetButtonInfo(Index, out Button)` | Copia sicura dei dati pulsante |
-| `IsConfigurationValid(Value, ButtonCount)` | Controllo sintattico statico v2/legacy |
+| `GetButtonInfo(ItemId, out Button)` | Lookup case-insensitive e copia sicura tramite ID stabile |
+| `IsConfigurationValid(Value)` | Controllo sintattico statico del formato corrente |
 
 Proprietà e record:
 
 | Membro | Descrizione |
 | --- | --- |
 | `ButtonCount` | Comandi per cui il provider ha restituito icone valide |
-| `Plugin` | Plugin associato, non posseduto |
+| `Host` | Host associato, non posseduto |
 | `Commands` | Registro associato, non posseduto |
 | `Button[Index]` | Puntatore legacy; preferire `GetButtonInfo` |
-| `TNppToolbarButton` | `MenuEntryIndex`, `CommandId`, `ItemId`, `Sequence`, `Visible`, `Enabled`, `NativeButton`, `IconData` |
+| `TNppToolbarButton` | `CommandId`, `ItemId`, `Sequence`, `Visible`, `Enabled`, `NativeButton`, `IconData` |
 
 Il puntatore di `Button[Index]` diventa invalido quando `Initialize` ridimensiona l'array interno.
+
+`TNppToolbar` non legge e non scrive alcun supporto persistente. L'applicazione
+può leggere da INI, registro, JSON o altro e passare il valore a
+`ApplyConfiguration`; quando decide di salvare, persiste `Configuration`.
 
 ### Sequenza lifecycle
 
 ```text
 costruttore plugin
-  -> crea TNppCommands
+  -> TNppPlugin crea Commands
   -> registra i comandi
-  -> crea TNppToolbar
+  -> ConfigureToolbar crea Toolbar (opzionale)
 
 NPPN_TBMODIFICATION
   -> Toolbar.Initialize
@@ -592,9 +592,9 @@ dark mode / nuovo icon set
   -> Toolbar.Refresh
 
 distruzione plugin
-  -> libera form
-  -> libera Toolbar
-  -> libera Commands
+  -> il plugin applicativo libera le proprie form
+  -> TNppPlugin libera Toolbar
+  -> TNppPlugin libera Commands
 ```
 ## UI di configurazione della toolbar
 
@@ -602,23 +602,24 @@ Il framework non fornisce una dialog di configurazione. Aspetto, controlli,
 icone, traduzioni e comportamento dell'editor appartengono al plugin che usa la
 libreria. `Npp.Toolbar` fornisce invece tutto il modello necessario alla UI:
 
-- `LoadLayout` restituisce ordine e visibilità correnti;
-- `LoadLayout(True)` restituisce il layout predefinito;
+- `CreateLayout` restituisce ordine e visibilità correnti;
+- `CreateLayout(True)` restituisce il layout predefinito;
 - `CaptionForItem` risolve la caption visualizzata;
 - `GetButtonInfo` espone ID stabile e dati dell'icona;
-- `SaveLayout` valida, serializza e persiste il risultato;
-- `Refresh` applica il layout alla toolbar nativa.
+- `ApplyLayout` valida, serializza e applica il risultato;
+- `Configuration` espone la stringa che la UI può affidare alla persistenza
+  dell'applicazione.
 
 ```pascal
-Layout := Toolbar.LoadLayout;
+Layout := Toolbar.CreateLayout;
 try
   Layout.Move(OldIndex, NewIndex);
   Layout.SetVisible(NewIndex, CheckBox.Checked);
-  Toolbar.SaveLayout(Layout);
+  Toolbar.ApplyLayout(Layout);
+  Ini.WriteString('Toolbar', 'Layout', Toolbar.Configuration);
 finally
   Layout.Free;
 end;
-Toolbar.Refresh;
 ```
 
 La UI deve conservare `TNppToolbarLayoutItem.ItemId`, non l'indice visivo del
@@ -629,7 +630,9 @@ in `Source/NppESPHome.FormToolbar.pas`.
 
 ## Npp.Vcl.Forms
 
-`TNppPluginForm` è la base per dialog normali. `TNppForm` è un alias breve.
+`TNppPluginForm` è la base per dialog normali.
+
+Complete component manual: [`TNppPluginForm`](Docs/Npp.Vcl.Forms.md).
 
 ### Costruttori
 
@@ -686,7 +689,9 @@ end;
 Creare form solo dopo `SetInfo`; per form non necessarie in startup è preferibile attendere `NPPN_READY`.
 ## Npp.Vcl.Docking
 
-`TNppPluginDocking` deriva da `TNppPluginForm`; `TNppDocking` è l'alias consigliato per nuovo codice.
+`TNppPluginDocking` deriva da `TNppPluginForm`.
+
+Complete component manual: [`TNppPluginDocking`](Docs/Npp.Vcl.Docking.md).
 
 I due costruttori senza `DlgId` esistono per compatibilità ma sollevano un'eccezione. Usare sempre:
 
@@ -699,7 +704,7 @@ Create(AOwner: TNppPluginForm; DlgId: Integer)
 
 ```pascal
 type
-  TOutputDock = class(TNppDocking)
+  TOutputDock = class(TNppPluginDocking)
   public
     constructor Create(APlugin: TNppPlugin;
       AMenuIndex: Integer); reintroduce;
@@ -729,7 +734,6 @@ OutputDock := TOutputDock.Create(Self,
 | `UpdateDisplayInfo` | Azzera il testo informativo |
 | `UpdateDisplayInfo(Info)` | Imposta il testo informativo e aggiorna la scheda |
 | `DlgID` | Indice menu usato alla costruzione |
-| `CmdId` | ID comando nativo calcolato dal menu index |
 | `IsDockingRegistered` | Stato locale della registrazione |
 | `DockingData` | Copia del record `TTbData` |
 | `OnDock`, `OnFloat` | Eventi generati dalle notifiche docking |
@@ -742,21 +746,22 @@ Notepad++ applica direttamente il tema alle docking form; `SubclassAndTheme` è 
 
 | Fase | Operazioni |
 | --- | --- |
-| Costruttore plugin | Impostare `PluginName`, creare registro/toolbar e registrare comandi; non usare ancora HWND host |
+| Costruttore plugin | Impostare `PluginName`, registrare tramite `Commands` e chiamare opzionalmente `ConfigureToolbar`; non usare ancora HWND host |
 | `SetInfo` | Chiamare `inherited`, creare configurazione e servizi che richiedono percorsi Notepad++ |
-| `NPPN_TBMODIFICATION` | Chiamare `Toolbar.Initialize` |
-| `NPPN_READY` | Creare docking form, acquisire pulsanti e chiamare `Toolbar.Refresh` |
+| `NPPN_TBMODIFICATION` | Il framework chiama `Toolbar.Initialize` |
+| `NPPN_READY` | Il framework acquisisce e aggiorna la toolbar; il plugin può creare le proprie form |
 | Runtime | Aggiornare enabled/check/caption tramite `TNppCommands` |
 | `NPPN_SHUTDOWN` | Fermare thread/processi e distruggere le form mentre l'host è valido |
-| Distruttore plugin | Liberare toolbar prima dei comandi e poi chiamare `inherited` |
+| Distruttore plugin | Liberare solo le risorse applicative e poi chiamare `inherited` |
 
 Ownership essenziale:
 
-- `TNppPlugin` possiede `Host` e i `PShortcutKey` registrati.
-- Il plugin applicativo possiede `TNppCommands`, `TNppToolbar` e le proprie form.
+- `TNppPlugin` possiede `Host`, `Commands` e l'eventuale `Toolbar`.
+- `TNppCommands` possiede la tabella `TFuncItem` e i `PShortcutKey` registrati.
+- Il plugin applicativo possiede le proprie form e gli altri servizi specifici.
 - `TNppToolbar` possiede gli handle immagine restituiti dai provider.
 - I layout restituiti sono sempre del chiamante.
-- `TNppCommands` e `TNppToolbar` non possiedono il plugin.
+- `TNppCommands` e `TNppToolbar` non possiedono `Host`.
 - `SCNotification` appartiene all'host ed è valido solo nel callback.
 
 ## Test senza Notepad++

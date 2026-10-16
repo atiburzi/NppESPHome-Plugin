@@ -24,6 +24,11 @@ unit Npp.MenuCmdID;
 
 interface
 
+// =============================================================================
+// This unit mirrors the native Notepad++ menu command identifiers. It contains
+// no runtime logic; numeric values must remain synchronized with menuCmdID.h.
+// =============================================================================
+
 const
   // ---------------------------------------------------------------------------
   // Base id for menu entries

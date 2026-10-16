@@ -628,6 +628,29 @@ sensor:
 </Component>
 
 <Component>
+  <Name>ATC MiThermometer</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/atc_mithermometer/</OnlineHelp>
+  <Description>Instructions for setting up ATC MiThermometer bluetooth-based temperature and humidity sensors in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+esp32_ble_tracker:
+
+sensor:
+  - platform: atc_mithermometer
+    mac_address: "A4:C1:38:XX:XX:XX"
+    temperature:
+      name: "ATC Temperature"
+    humidity:
+      name: "ATC Humidity"
+    battery_level:
+      name: "ATC Battery-Level"
+    battery_voltage:
+      name: "ATC Battery-Voltage"
+]]></YAML>
+</Component>
+
+<Component>
   <Name>Atlas Scientific Peristaltic Pump</Name>
   <Category>Electromechanical</Category>
   <OnlineHelp>https://esphome.io/components/ezo_pmp/</OnlineHelp>
@@ -898,7 +921,7 @@ bedjet:
   <YAML><![CDATA[
 light:
   - platform: beken_spi_led_strip
-    rgb_order: GRB
+    channel_colors: GRB
     pin: P16
     num_leds: 30
     chipset: ws2812
@@ -1108,6 +1131,29 @@ bk72xx:                              # https://docs.libretiny.eu/docs/platform/b
 </Component>
 
 <Component>
+  <Name>BK72xx BLE Tracker Hub</Name>
+  <Category>Bluetooth/BLE</Category>
+  <OnlineHelp>https://esphome.io/components/bk72xx_ble_tracker/</OnlineHelp>
+  <Description>Instructions for setting up BK72xx (BLE 5.x) Bluetooth Low Energy device tracking using ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+bk72xx_ble_tracker:
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>BK72xx Bluetooth Low Energy</Name>
+  <Category>Bluetooth/BLE</Category>
+  <OnlineHelp>https://esphome.io/components/bk72xx_ble/</OnlineHelp>
+  <Description>Instructions for setting up the BK72xx BLE controller in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+bk72xx_ble:
+  enable_on_boot: false
+]]></YAML>
+</Component>
+
+<Component>
   <Name>BL0939 Power Sensor</Name>
   <Category>Sensors</Category>
   <OnlineHelp>https://esphome.io/components/sensor/bl0939/</OnlineHelp>
@@ -1301,6 +1347,81 @@ esp32_ble:
   # auth_req_mode: sc_mitm_bond  # Optional, for advanced security
   # max_key_size: 16  # Optional, encryption key size (7-16)
   # min_key_size: 7   # Optional, encryption key size (7-16)
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>BLE Presence Binary Sensor</Name>
+  <Category>Binary Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/binary_sensor/ble_presence/</OnlineHelp>
+  <Description>Instructions for setting up BLE presence binary sensors in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+esp32_ble_tracker:
+
+binary_sensor:
+  # Presence based on MAC address
+  - platform: ble_presence
+    mac_address: XX:XX:XX:XX:XX:XX
+    name: "ESP32 BLE Tracker Google Home Mini"
+    min_rssi: -80dB
+  # Presence based on Identity Resolving Key (IRK)
+  - platform: ble_presence
+    irk: 1234567890abcdef1234567890abcdef
+    name: "ESP32 BLE Tracker iPhone"
+  # Presence based on BLE Service UUID
+  - platform: ble_presence
+    service_uuid: '11aa'
+    name: "ESP32 BLE Tracker Test Service 16 bit"
+    timeout: 45s
+  # Presence based on iBeacon UUID
+  - platform: ble_presence
+    ibeacon_uuid: '68586f1e-89c2-11eb-8dcd-0242ac130003'
+    name: "ESP32 BLE Tracker Test Service iBeacon"
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>BLE RSSI Sensor</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/ble_rssi/</OnlineHelp>
+  <Description>Instructions for setting up BLE RSSI sensors in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+esp32_ble_tracker:
+
+sensor:
+  # RSSI based on MAC address
+  - platform: ble_rssi
+    mac_address: XX:XX:XX:XX:XX:XX
+    name: "BLE Google Home Mini RSSI value"
+  # RSSI based on Identity Resolving Key (IRK)
+  - platform: ble_rssi
+    irk: 1234567890abcdef1234567890abcdef
+    name: "BLE Tracker iPhone"
+  # RSSI based on Service UUID
+  - platform: ble_rssi
+    service_uuid: '11aa'
+    name: "BLE Test Service 16 bit RSSI value"
+  # RSSI based on iBeacon UUID
+  - platform: ble_rssi
+    ibeacon_uuid: '68586f1e-89c2-11eb-8dcd-0242ac130003'
+    name: "BLE Test Service iBeacon RSSI value"
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>BLE Scanner Text Sensor</Name>
+  <Category>Text Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/text_sensor/ble_scanner/</OnlineHelp>
+  <Description>Instructions for setting up BLE scanner text sensors in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+esp32_ble_tracker:
+
+text_sensor:
+  - platform: ble_scanner
+    name: "BLE Devices Scanner"
 ]]></YAML>
 </Component>
 
@@ -1709,6 +1830,28 @@ bp1658cj:
 bp5758d:
   data_pin: GPIOXX
   clock_pin: GPIOXX
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>BTHome MiThermometer Sensor</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/bthome_mithermometer/</OnlineHelp>
+  <Description>Instructions for setting up BTHome BLE thermometer/hygrometer sensors in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+esp32_ble_tracker:
+
+sensor:
+  - platform: bthome_mithermometer
+    mac_address: "XX:XX:XX:XX:XX:XX"
+    bindkey: "00112233445566778899aabbccddeeff"
+    temperature:
+      name: "BTHome Temperature"
+    humidity:
+      name: "BTHome Humidity"
+    battery_level:
+      name: "BTHome Battery Level"
 ]]></YAML>
 </Component>
 
@@ -2352,6 +2495,25 @@ cover:
 </Component>
 
 <Component>
+  <Name>D01 Particulate Matter Sensor</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/d01/</OnlineHelp>
+  <Description>Instructions for setting up D01 Particulate matter sensors</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+uart:
+  rx_pin: GPIO4 #D2
+  baud_rate: 9600
+
+sensor:
+  - platform: d01
+    name: "D01 PM2.5 Concentration"
+    filters:
+      - lambda: return (x - 5.0) * 0.4;
+]]></YAML>
+</Component>
+
+<Component>
   <Name>DAC7678</Name>
   <Category>Outputs</Category>
   <OnlineHelp>https://esphome.io/components/output/dac7678/</OnlineHelp>
@@ -2789,6 +2951,43 @@ sensor:
 time:
   - platform: ds1307
     id: ds1307_time
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>DS1603L Ultrasonic Distance Sensor</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/ds1603l/</OnlineHelp>
+  <Description>Instructions for setting up DS1603L ultrasonic sensor with ESPHome</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+sensor:
+  - platform: ds1603l
+    name: Distance
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>DS248x 1-Wire Bus Master</Name>
+  <Category>1-Wire Bus</Category>
+  <OnlineHelp>https://esphome.io/components/one_wire/ds248x/</OnlineHelp>
+  <Description>Instructions for setting up DS2482-100, DS2482-101, DS2482-800, and DS2484 1-Wire bridge chips in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example for a single-channel DS2482-100
+ds248x:
+  - id: hub_1wire
+    type: ds2482-100
+
+one_wire:
+  - platform: ds248x
+    ds248x_id: hub_1wire
+    id: hub_1wire_bus
+
+sensor:
+  - platform: dallas_temp
+    one_wire_id: hub_1wire_bus
+    address: 0x1C0000031EDD2A28
+    name: Temperature
 ]]></YAML>
 </Component>
 
@@ -3598,35 +3797,6 @@ esp32_ble_beacon:
 </Component>
 
 <Component>
-  <Name>ESP32 BLE RSSI Sensor</Name>
-  <Category>Sensors</Category>
-  <OnlineHelp>https://esphome.io/components/sensor/ble_rssi/</OnlineHelp>
-  <Description>Instructions for setting up RSSI sensors for the ESP32 BLE.</Description>
-  <YAML><![CDATA[
-# Example configuration entry
-esp32_ble_tracker:
-
-sensor:
-  # RSSI based on MAC address
-  - platform: ble_rssi
-    mac_address: XX:XX:XX:XX:XX:XX
-    name: "BLE Google Home Mini RSSI value"
-  # RSSI based on Identity Resolving Key (IRK)
-  - platform: ble_rssi
-    irk: 1234567890abcdef1234567890abcdef
-    name: "BLE Tracker iPhone"
-  # RSSI based on Service UUID
-  - platform: ble_rssi
-    service_uuid: '11aa'
-    name: "BLE Test Service 16 bit RSSI value"
-  # RSSI based on iBeacon UUID
-  - platform: ble_rssi
-    ibeacon_uuid: '68586f1e-89c2-11eb-8dcd-0242ac130003'
-    name: "BLE Test Service iBeacon RSSI value"
-]]></YAML>
-</Component>
-
-<Component>
   <Name>ESP32 BLE Tracker</Name>
   <Category>Bluetooth</Category>
   <OnlineHelp>https://esphome.io/components/esp32_ble_tracker/</OnlineHelp>
@@ -3676,52 +3846,6 @@ esp32_ble_tracker:
 # Actions to control scanning
 # esp32_ble_tracker.start_scan - start BLE scan
 # esp32_ble_tracker.stop_scan  - stop BLE scan
-]]></YAML>
-</Component>
-
-<Component>
-  <Name>ESP32 Bluetooth Low Energy Device</Name>
-  <Category>Binary Sensors</Category>
-  <OnlineHelp>https://esphome.io/components/binary_sensor/ble_presence/</OnlineHelp>
-  <Description>Instructions for setting up BLE binary sensors for the ESP32.</Description>
-  <YAML><![CDATA[
-# Example configuration entry
-esp32_ble_tracker:
-
-binary_sensor:
-  # Presence based on MAC address
-  - platform: ble_presence
-    mac_address: XX:XX:XX:XX:XX:XX
-    name: "ESP32 BLE Tracker Google Home Mini"
-    min_rssi: -80dB
-  # Presence based on Identity Resolving Key (IRK)
-  - platform: ble_presence
-    irk: 1234567890abcdef1234567890abcdef
-    name: "ESP32 BLE Tracker iPhone"
-  # Presence based on BLE Service UUID
-  - platform: ble_presence
-    service_uuid: '11aa'
-    name: "ESP32 BLE Tracker Test Service 16 bit"
-    timeout: 45s
-  # Presence based on iBeacon UUID
-  - platform: ble_presence
-    ibeacon_uuid: '68586f1e-89c2-11eb-8dcd-0242ac130003'
-    name: "ESP32 BLE Tracker Test Service iBeacon"
-]]></YAML>
-</Component>
-
-<Component>
-  <Name>ESP32 Bluetooth Low Energy Scanner</Name>
-  <Category>Text Sensors</Category>
-  <OnlineHelp>https://esphome.io/components/text_sensor/ble_scanner/</OnlineHelp>
-  <Description>Instructions for setting up BLE text sensors for the ESP32.</Description>
-  <YAML><![CDATA[
-# Example configuration entry
-esp32_ble_tracker:
-
-text_sensor:
-  - platform: ble_scanner
-    name: "BLE Devices Scanner"
 ]]></YAML>
 </Component>
 
@@ -3852,7 +3976,7 @@ light:
   <YAML><![CDATA[
 light:
   - platform: esp32_rmt_led_strip
-    rgb_order: GRB
+    channel_colors: GRB
     pin: GPIOXX
     num_leds: 30
     chipset: ws2812
@@ -4011,10 +4135,14 @@ esp_now:                              # https://esphome.io/components/esp_now.ht
   <OnlineHelp>https://esphome.io/components/ota/esphome/</OnlineHelp>
   <Description>Instructions for setting up ESPHome's Over-The-Air (OTA) platform to allow remote updating of devices.</Description>
   <YAML><![CDATA[
-# Example configuration entry
+# Example configuration entry, encrypted with the API key (recommended)
+api:
+  encryption:
+    key: !secret device_name__encryption_key
+
 ota:
   - platform: esphome
-    password: !secret ota_password
+    encryption:
 ]]></YAML>
 </Component>
 
@@ -4214,7 +4342,7 @@ esp8266:
   <Name>Factory Reset Button</Name>
   <Category>Buttons</Category>
   <OnlineHelp>https://esphome.io/components/button/factory_reset/</OnlineHelp>
-  <Description>Instructions for setting up buttons that can remotely invalidate all ESPHome preferences stored in flash and reboot ESP.</Description>
+  <Description>Instructions for setting up buttons that can remotely invalidate all ESPHome preferences and reboot your device.</Description>
   <YAML><![CDATA[
 # Example configuration entry
 button:
@@ -4227,7 +4355,7 @@ button:
   <Name>Factory Reset Switch</Name>
   <Category>Switches</Category>
   <OnlineHelp>https://esphome.io/components/switch/factory_reset/</OnlineHelp>
-  <Description>Instructions for setting up switches that can remotely invalidate all ESPHome preferences stored in flash and reboot ESP.</Description>
+  <Description>Instructions for setting up switches that can remotely invalidate all ESPHome preferences and reboot your device.</Description>
   <YAML><![CDATA[
 # Example configuration entry
 switch:
@@ -5892,6 +6020,34 @@ sensor:
 </Component>
 
 <Component>
+  <Name>Hörmann Cover</Name>
+  <Category>Covers</Category>
+  <OnlineHelp>https://esphome.io/components/cover/hoermann_hcp/</OnlineHelp>
+  <Description>Setting up Hörmann garage door motors in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+uart:
+  id: uart_bus
+  tx_pin: GPIOXX
+  rx_pin: GPIOXX
+  baud_rate: 57600
+  parity: EVEN
+  stop_bits: 1
+
+modbus:
+  uart_id: uart_bus
+  role: server
+
+hoermann_hcp:
+
+cover:
+  - platform: hoermann_hcp
+    name: Garage Door
+    device_class: garage
+]]></YAML>
+</Component>
+
+<Component>
   <Name>ILI9xxx TFT LCD Series</Name>
   <Category>Displays</Category>
   <OnlineHelp>https://esphome.io/components/display/ili9xxx/</OnlineHelp>
@@ -5978,7 +6134,7 @@ esp32_improv:
   <Description>Instructions for setting up Improv via Serial in ESPHome.</Description>
   <YAML><![CDATA[
 # Example configuration entry
-wifi:
+wifi:  # or another network component, such as ethernet
   # ...
 
 improv_serial:
@@ -6214,7 +6370,7 @@ sensor:
   <Name>Internal Temperature Sensor</Name>
   <Category>Sensors</Category>
   <OnlineHelp>https://esphome.io/components/sensor/internal_temperature/</OnlineHelp>
-  <Description>Instructions for setting up the integrated temperature sensor of the ESP32, RP2040, BK72XX, nRF52 and LN882H.</Description>
+  <Description>Instructions for setting up the integrated temperature sensor of the ESP32, RP2040/RP2350, BK72XX, nRF52 and LN882H.</Description>
   <YAML><![CDATA[
 # Example configuration entry
 sensor:
@@ -6342,22 +6498,6 @@ i2c:
 i2s_audio:
   i2s_lrclk_pin: GPIOXX
   i2s_bclk_pin: GPIOXX
-]]></YAML>
-</Component>
-
-<Component>
-  <Name>I²S Audio Media Player</Name>
-  <Category>Media Players</Category>
-  <OnlineHelp>https://esphome.io/components/media_player/i2s_audio/</OnlineHelp>
-  <Description>Instructions for setting up I²S based media players in ESPHome.</Description>
-  <YAML><![CDATA[
-# Example configuration entry
-media_player:
-  - platform: i2s_audio
-    name: ESPHome I2S Media Player
-    dac_type: external
-    i2s_dout_pin: GPIOXX
-    mode: mono
 ]]></YAML>
 </Component>
 
@@ -6719,6 +6859,18 @@ ld2450:
 </Component>
 
 <Component>
+  <Name>LD6002B 3D Presence Radar</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/ld6002b/</OnlineHelp>
+  <Description>Instructions for setting up LD6002B 3D presence radar sensors.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+ld6002b:
+  id: ld6002b_radar
+]]></YAML>
+</Component>
+
+<Component>
   <Name>LibreTiny PWM Output</Name>
   <Category>Outputs</Category>
   <OnlineHelp>https://esphome.io/components/output/libretiny_pwm/</OnlineHelp>
@@ -6891,6 +7043,29 @@ sensor:
   - platform: lm75b
     name: "Temperature"
     update_interval: 60s
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>LN882H BLE Tracker Hub</Name>
+  <Category>Bluetooth/BLE</Category>
+  <OnlineHelp>https://esphome.io/components/ln882h_ble_tracker/</OnlineHelp>
+  <Description>Instructions for setting up LN882H Bluetooth Low Energy device tracking using ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+ln882h_ble_tracker:
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>LN882H Bluetooth Low Energy</Name>
+  <Category>Bluetooth/BLE</Category>
+  <OnlineHelp>https://esphome.io/components/ln882h_ble/</OnlineHelp>
+  <Description>Instructions for setting up the LN882H BLE controller in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+ln882h_ble:
+  enable_on_boot: false
 ]]></YAML>
 </Component>
 
@@ -8089,12 +8264,14 @@ uart:
   parity: EVEN
   stop_bits: 1
 
+mitsubishi_cn105:
+  id: hp
+  uart_id: ac_uart
+
 climate:
   - platform: mitsubishi_cn105
+    mitsubishi_cn105_id: hp
     name: "Living Room AC"
-    uart_id: ac_uart
-    update_interval: 1s
-    current_temperature_min_interval: 60s
     supported_swing_modes: BOTH
 ]]></YAML>
 </Component>
@@ -8112,6 +8289,24 @@ speaker:
     source_speakers:
       - id: announcement_mixer_input_speaker_id
       - id: media_mixer_input_speaker_id
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Mk2PVRouter Surplus Energy Diverter</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/mk2pvrouter/</OnlineHelp>
+  <Description>Instructions for setting up Mk2PVRouter telemetry and control</Description>
+  <YAML><![CDATA[
+# mk2Wifi-C6 configuration
+uart:
+  rx_pin: GPIO17
+  baud_rate: 9600
+  parity: EVEN
+  data_bits: 7
+  stop_bits: 1
+
+mk2pvrouter:
 ]]></YAML>
 </Component>
 
@@ -8196,6 +8391,21 @@ sensor:
 </Component>
 
 <Component>
+  <Name>Modbus Client</Name>
+  <Category>Miscellaneous Components</Category>
+  <OnlineHelp>https://esphome.io/components/modbus_client/</OnlineHelp>
+  <Description>Instructions for sending ad-hoc Modbus requests from automations with the Modbus Client actions.</Description>
+  <YAML><![CDATA[
+on_...:
+  - modbus_client.send:
+      address: 0x01
+      pdu: [0x03, 0x00, 0x10, 0x00, 0x01]
+      on_response:
+        - lambda: 'ESP_LOGI("modbus", "got %u bytes", response.size());'
+]]></YAML>
+</Component>
+
+<Component>
   <Name>Modbus Component</Name>
   <Category>Miscellaneous Components</Category>
   <OnlineHelp>https://esphome.io/components/modbus/</OnlineHelp>
@@ -8205,6 +8415,11 @@ sensor:
 uart:
   # ...
 modbus:
+  id: my_client_hub
+
+on_...:
+  then:
+    - lambda: id(my_client_hub).queue_pdu(0x07, modbus::helpers::create_write_single_register_pdu(0x05, 0xBEEF));
 ]]></YAML>
 </Component>
 
@@ -8214,47 +8429,13 @@ modbus:
   <OnlineHelp>https://esphome.io/components/modbus_controller/</OnlineHelp>
   <Description>Instructions for setting up the Modbus Controller component.</Description>
   <YAML><![CDATA[
-# Example configuration entry
-uart:
-  # ...
-modbus:
-  flow_control_pin: GPIOXX
-  id: modbus1
-
 modbus_controller:
-- id: modbus_device
-  address: 0x1   ## address of the Modbus slave device on the bus
-  modbus_id: modbus1
-  setup_priority: -10
-
-sensor:
-- platform: modbus_controller
-  modbus_controller_id: modbus_device
-  name: "Battery Capacity"
-  register_type: holding
-  address: 0x9001    ## address of the register inside the Modbus slave device
-  unit_of_measurement: "AH"
-  value_type: U_WORD
-
-switch:
-- platform: modbus_controller
-  modbus_controller_id: modbus_device
-  name: "Reset to Factory Default"
-  register_type: coil
-  address: 0x15
-  bitmask: 1
-
-text_sensor:
-- name: "rtc_clock"
-  platform: modbus_controller
-  modbus_controller_id: modbus_device
-  id: rtc_clock
-  internal: true
-  register_type: holding
-  address: 0x9013
-  register_count: 3
-  raw_encode: HEXBYTES
-  response_size: 6
+  - id: controller1
+    address: 0x1
+    # Reads stream continuously to fill idle bus time; update_interval
+    # becomes the retry cadence if the device stops responding.
+    continuous: true
+    update_interval: 30s
 ]]></YAML>
 </Component>
 
@@ -8268,7 +8449,7 @@ binary_sensor:
 - platform: modbus_controller
   modbus_controller_id: modbus1
   name: "Error status"
-  register_type: read
+  register_type: input
   address: 0x3200
   bitmask: 0x80 #(bit 8)
 ]]></YAML>
@@ -8291,16 +8472,18 @@ number:
 
   - platform: modbus_controller
     modbus_controller_id: modbus1
-    id: battery_capacity_number
-    name: "Battery Cap Number"
-    address: 0x9001
+    id: battery_capacity_number_tenths
+    name: "Battery Cap Number (device stores tenths)"
+    address: 0x9002
     value_type: U_WORD
-    lambda: "return  x * 1.0; "
+    lambda: "return x / 10.0;"
     write_lambda: |-
       ESP_LOGD("main","Modbus Number incoming value = %f",x);
-      uint16_t b_capacity = x ;
-      payload.push_back(b_capacity);
-      return x * 1.0 ;
+      // the device stores tenths: write the scaled value through the entity;
+      // the number still reports x
+      item->write_single_register(0x9002, (uint16_t) (x * 10));
+      // the lambda must return something - return empty, the write is already done
+      return {};
 ]]></YAML>
 </Component>
 
@@ -8348,7 +8531,7 @@ lambda: |-
   name: "PV array input voltage"
   address: 0x3100
   unit_of_measurement: "V" ## for any other unit the value is returned in minutes
-  register_type: read
+  register_type: input
   value_type: U_WORD
   accuracy_decimals: 1
   filters:
@@ -8398,7 +8581,7 @@ text_sensor:
     raw_encode: HEXBYTES
     name: Register 1002 (Text)
     lambda: |-
-      uint16_t value = modbus_controller::word_from_hex_str(x, 0);
+      uint16_t value = modbus::helpers::word_from_hex_str(x, 0);
       switch (value) {
         case 1: return std::string("ready");
         case 2: return std::string("EV is present");
@@ -8418,8 +8601,8 @@ text_sensor:
   <YAML><![CDATA[
 uart:
   - id: uart_modbus_server
-    tx_pin: 25
-    rx_pin: 35
+    tx_pin: GPIOXX
+    rx_pin: GPIOXX
 
 modbus:
   - uart_id: uart_modbus_server
@@ -9227,6 +9410,44 @@ openthread:                           # https://esphome.io/components/openthread
 </Component>
 
 <Component>
+  <Name>OpenThread Info Sensor</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/openthread_info/</OnlineHelp>
+  <Description>Instructions for setting up OpenThread info diagnostic sensors.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+sensor:
+  - platform: openthread_info
+    parent_average_rssi:
+      name: "Thread Parent Average RSSI"
+    parent_last_rssi:
+      name: "Thread Parent Last RSSI"
+    parent_link_quality_in:
+      name: "Thread Parent Link Quality In"
+    parent_link_quality_out:
+      name: "Thread Parent Link Quality Out"
+    tx_total:
+      name: "Thread TX Total"
+    tx_retries:
+      name: "Thread TX Retries"
+    tx_err_cca:
+      name: "Thread TX CCA Errors"
+    tx_err_abort:
+      name: "Thread TX Abort Errors"
+    rx_total:
+      name: "Thread RX Total"
+    rx_err_fcs:
+      name: "Thread RX FCS Errors"
+    attach_attempts:
+      name: "Thread Attach Attempts"
+    parent_changes:
+      name: "Thread Parent Changes"
+    partition_id_changes:
+      name: "Thread Partition ID Changes"
+]]></YAML>
+</Component>
+
+<Component>
   <Name>OpenThread Info Text Sensor</Name>
   <Category>Text Sensors</Category>
   <OnlineHelp>https://esphome.io/components/text_sensor/openthread_info/</OnlineHelp>
@@ -9870,6 +10091,18 @@ pn7160_spi:
 power_supply:
   - id: 'power_supply1'
     pin: GPIOXX
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Preferences</Name>
+  <Category>ESPHome Components</Category>
+  <OnlineHelp>https://esphome.io/components/preferences/</OnlineHelp>
+  <Description>Instructions for setting up how ESPHome stores state that persists across device reboots.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+preferences:
+  flash_write_interval: 1min
 ]]></YAML>
 </Component>
 
@@ -10575,6 +10808,17 @@ speaker:
 </Component>
 
 <Component>
+  <Name>RP2 BLE Tracker</Name>
+  <Category>Bluetooth/BLE</Category>
+  <OnlineHelp>https://esphome.io/components/rp2_ble_tracker/</OnlineHelp>
+  <Description>Instructions for setting up the RP2 BLE tracker to scan for Bluetooth Low Energy devices on the Raspberry Pi Pico W.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+rp2_ble_tracker:
+]]></YAML>
+</Component>
+
+<Component>
   <Name>RP2040</Name>
   <Category>Microcontrollers</Category>
   <OnlineHelp>https://esphome.io/components/rp2/</OnlineHelp>
@@ -10620,7 +10864,7 @@ light:
     pin: GPIOXX
     num_leds: 10
     pio: 0
-    rgb_order: GRB
+    channel_colors: GRB
     chipset: WS2812B
 ]]></YAML>
 </Component>
@@ -11095,10 +11339,10 @@ sensor:
       name: Temperature
     humidity:
       name: Humidity
-    voc:
-      name: VOC
-    nox:
-      name: NOX
+    voc_index:
+      name: VOC Index
+    nox_index:
+      name: NOx Index
 ]]></YAML>
 </Component>
 
@@ -11124,10 +11368,10 @@ sensor:
       name: Temperature
     humidity:
       name: Humidity
-    voc:
-      name: VOC
-    nox:
-      name: NOx
+    voc_index:
+      name: VOC Index
+    nox_index:
+      name: NOx Index
     co2:
       name: Carbon Dioxide
     formaldehyde:
@@ -11158,6 +11402,26 @@ sendspin:
 media_player:
   - platform: sendspin
     name: "Sendspin Group"
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Sendspin Image</Name>
+  <Category>Images</Category>
+  <OnlineHelp>https://esphome.io/components/image/sendspin/</OnlineHelp>
+  <Description>Instructions for displaying Sendspin album and artist artwork in ESPHome.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+sendspin:
+
+image:
+  - platform: sendspin
+    id: album_slot
+    format: JPEG
+    type: RGB565
+    resize: 240x240
+    current_image:
+      id: album_art
 ]]></YAML>
 </Component>
 
@@ -11327,6 +11591,24 @@ sensor:
 </Component>
 
 <Component>
+  <Name>SFA40 Formaldehyde Sensor</Name>
+  <Category>Sensors</Category>
+  <OnlineHelp>https://esphome.io/components/sensor/sfa40/</OnlineHelp>
+  <Description>Instructions for setting up SFA40 formaldehyde sensors with ESPHome</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+sensor:
+  - platform: sfa40
+    formaldehyde:
+      name: "Formaldehyde"
+    temperature:
+      name: "Temperature"
+    humidity:
+      name: "Humidity"
+]]></YAML>
+</Component>
+
+<Component>
   <Name>SGP30 CO₂ + VOC Sensor</Name>
   <Category>Sensors</Category>
   <OnlineHelp>https://esphome.io/components/sensor/sgp30/</OnlineHelp>
@@ -11351,9 +11633,9 @@ sensor:
 # Example configuration entry
 sensor:
   - platform: sgp4x
-    voc:
+    voc_index:
       name: "VOC Index"
-    nox:
+    nox_index:
       name: "NOx Index"
 ]]></YAML>
 </Component>
@@ -11747,6 +12029,28 @@ switch:
       # Use pin number 0
       number: 0
       inverted: false
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Snapshot Display</Name>
+  <Category>Displays</Category>
+  <OnlineHelp>https://esphome.io/components/display/snapshot/</OnlineHelp>
+  <Description>Instructions for setting up a snapshot display, which draws into memory and writes image files</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+esphome:
+  name: snapshot
+
+host:
+
+display:
+  - platform: snapshot
+    id: my_display
+    show_test_card: true
+    dimensions:
+      width: 320
+      height: 240
 ]]></YAML>
 </Component>
 
@@ -12883,6 +13187,39 @@ button:
 </Component>
 
 <Component>
+  <Name>Template Climate</Name>
+  <Category>Climate</Category>
+  <OnlineHelp>https://esphome.io/components/climate/template/</OnlineHelp>
+  <Description>Instructions for setting up template climate controllers in ESPHome.</Description>
+  <YAML><![CDATA[
+climate:
+  - platform: template
+    name: "Living Room Climate"
+    optimistic: true
+    supported_modes:
+      - "OFF"
+      - HEAT
+      - COOL
+    supported_fan_modes:
+      - AUTO
+      - LOW
+      - HIGH
+    set_mode_action:
+      - logger.log:
+          format: "Mode requested: %d"
+          args: ["(int) x"]
+    set_target_temperature_action:
+      - logger.log:
+          format: "Target temperature requested: %.1f"
+          args: ["x"]
+    visual:
+      min_temperature: 16.0
+      max_temperature: 30.0
+      temperature_step: 0.5
+]]></YAML>
+</Component>
+
+<Component>
   <Name>Template Cover</Name>
   <Category>Covers</Category>
   <OnlineHelp>https://esphome.io/components/cover/template/</OnlineHelp>
@@ -14007,6 +14344,32 @@ text_sensor:
 </Component>
 
 <Component>
+  <Name>Tuya Water Heater</Name>
+  <Category>Water Heaters</Category>
+  <OnlineHelp>https://esphome.io/components/water_heater/tuya/</OnlineHelp>
+  <Description>Instructions for setting up a Tuya water heater device.</Description>
+  <YAML><![CDATA[
+water_heater:
+  - platform: tuya
+    name: "My Water Heater"
+    switch_datapoint: 1
+    target_temperature_datapoint: 2
+    current_temperature_datapoint: 3
+    mode_datapoint: 4
+    eco_value: 0        # the enum value that means ECO on this device
+    electric_value: 2   # the enum value that means ELECTRIC on this device
+    supported_modes:
+      - "OFF"
+      - ECO
+      - ELECTRIC
+    visual:
+      min_temperature: 30
+      max_temperature: 75
+      target_temperature_step: 1
+]]></YAML>
+</Component>
+
+<Component>
   <Name>TX20/TX23 Wind Speed/Direction</Name>
   <Category>Sensors</Category>
   <OnlineHelp>https://esphome.io/components/sensor/tx20/</OnlineHelp>
@@ -14946,6 +15309,27 @@ zephyr_ble_server:
           args: [passkey]
       - ble_server.numeric_comparison_reply:
           accept: true
+]]></YAML>
+</Component>
+
+<Component>
+  <Name>Zephyr PWM Output</Name>
+  <Category>Outputs</Category>
+  <OnlineHelp>https://esphome.io/components/output/zephyr_pwm/</OnlineHelp>
+  <Description>Instructions for setting up Zephyr hardware PWMs.</Description>
+  <YAML><![CDATA[
+# Example configuration entry
+output:
+  - platform: zephyr_pwm
+    pin: P0.02
+    frequency: 1kHz
+    id: pwm_output
+
+# Example usage in a light
+light:
+  - platform: monochromatic
+    output: pwm_output
+    name: "Kitchen Light"
 ]]></YAML>
 </Component>
 

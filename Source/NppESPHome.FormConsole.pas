@@ -9,8 +9,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ComCtrls, Npp.Plugin, Npp.Vcl.Docking, NppESPHome.ConPty,
-  Vcl.ToolWin, System.ImageList, Vcl.ImgList, Vcl.VirtualImageList,
-  Vcl.VirtualImage, Vcl.Buttons, Vcl.Dialogs;
+  Vcl.VirtualImageList,
+  Vcl.Buttons, Vcl.Dialogs, System.ImageList, Vcl.ImgList;
 
 const
   WM_CONSOLE_SCROLL_BOTTOM = WM_APP + $523;

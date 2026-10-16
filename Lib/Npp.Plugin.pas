@@ -23,16 +23,20 @@ unit Npp.Plugin;
 
 interface
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.StrUtils, System.IOUtils, System.Types, Npp.Scintilla.Api, Npp.Api,
-  Npp.MenuCmdID, Npp.Host;
+  Winapi.Windows, Winapi.Messages, System.SysUtils,
+  System.IOUtils, System.Types, Npp.Scintilla.Api, Npp.Api,
+  Npp.Host, Npp.Commands, Npp.Toolbar;
 
 
 type
-  // Plugin metaclass
-  // Eleminates the need to edit the file NppPluginInclude.pas for every new plugin
+  // ***************************************************************************
+  // Purpose: Identifies the concrete plugin class created by the DLL exports.
+  // ***************************************************************************
   TNppPluginClass = class of TNppPlugin;
 
-  // Plugin base class
+  // ***************************************************************************
+  // Purpose: Coordinates plugin lifecycle, notifications, host, commands, and toolbar.
+  // ***************************************************************************
   TNppPlugin = class(TObject)
   private
     FNppData: TNppData;
@@ -43,20 +47,20 @@ type
     FPluginBuildNumber: Integer;
     FPluginCopyright: string;
     FSCNotification: PSCNotification;
-    FFuncItemArray: array of TFuncItem;
     FShutdownStarted: Boolean;
     FShutdownComplete: Boolean;
     FHost: TNppHost;
+    FCommands: TNppCommands;
+    FToolbar: TNppToolbar;
+    FToolbarRefreshState: IInterface;
 
     function GetVarSizeStringValue(DirType: cardinal; MaxSize: cardinal = $0000FFFF): string;
 
   protected
     // Internal utils
     procedure GetVersionInfo;
-    function AddFuncItem(ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer; overload;
-    function AddFuncItem(ItemIndex: Integer; ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer; overload;
-    procedure AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIcons); overload;
-    procedure AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode); overload;
+    procedure ConfigureToolbar(const IconProvider: TNppToolbarIconProvider;
+      const DisabledIconProvider: TNppToolbarDisabledIconProvider = nil);
 
     // Notepad++ notification handlers
     procedure DoNppnReady; virtual;
@@ -100,7 +104,6 @@ type
 
     // Basic plugin properties
     property NppData: TNppData read FNppData;
-    // Typed SendMessage facade. Replace Transport in hostless tests.
     property Host: TNppHost read FHost;
     property PluginName: nppString read FPluginName write FPluginName;
     property PluginMajorVersion: Integer read FPluginMajorVersion write FPluginMajorVersion;
@@ -108,6 +111,8 @@ type
     property SCNotification: PSCNotification read FSCNotification;
     property IsShuttingDown: Boolean read FShutdownStarted;
     property IsShutdownComplete: Boolean read FShutdownComplete;
+    property Commands: TNppCommands read FCommands;
+    property Toolbar: TNppToolbar read FToolbar;
 
     // Plugin interface methods
     procedure MessageProc(var Msg: TMessage); virtual;
@@ -115,23 +120,8 @@ type
     procedure Shutdown;
     procedure SetInfo(NppData: TNppData); virtual;
     function GetFuncsArray(out FuncsCount: Integer): PFuncItem;
-    function GetFuncByIndex(const Index: Integer): PFuncItem;
-    function GetFuncByCmdID(const CmdID: Integer): PFuncItem;
     function GetName: nppPChar;
     function GetCurrentScintilla: HWND;
-
-    // Utils and Npp message wrappers
-    function CmdIdFromMenuItemIdx(MenuItemIdx: Integer): Integer;
-
-    procedure CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
-    procedure EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
-    procedure EnableToolbarItem(MenuItemIdx: Integer; State: Boolean); virtual;
-    procedure RegisterToolbarIcon(CmdID: Cardinal; var ToolbarIcon: TToolbarIcons); overload;
-    procedure RegisterToolbarIcon(CmdID: Cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode); overload;
-    function RegisterFuncItem(ItemName: nppString; Func: FuncItemCmdProc;
-      ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
-
-    procedure PerformMenuCommand(MenuCmdId: Integer; Param: Integer = 0; Delayed: Boolean = true);
 
     function GetMajorVersion: Integer;
     function GetMinorVersion: Integer;
@@ -157,7 +147,6 @@ type
     function GetFileNameWithoutExt: string;
     function GetFileNameExt: string;
 
-    function GetToolbarHandle: HWND; virtual;
     function GetEncoding: Integer;
     function GetEOLFormat: Integer;
     function GetLanguageType: Integer;
@@ -204,7 +193,60 @@ type
 
 implementation
 uses
-  FileVersionInfo, System.Math, Winapi.CommCtrl;
+  FileVersionInfo, System.Math, System.Classes;
+
+resourcestring
+  rsToolbarConfigurationDuringShutdown =
+    'The toolbar cannot be configured while the plugin is shutting down';
+  rsToolbarAlreadyConfigured = 'The toolbar is already configured';
+
+type
+  // ***************************************************************************
+  // Purpose: Protects queued toolbar refreshes from accessing a destroyed plugin.
+  // ***************************************************************************
+  IToolbarRefreshState = interface
+    ['{EF4D540A-5D74-439A-9E12-08BB110F49F1}']
+    function GetPlugin: TNppPlugin;
+    procedure Deactivate;
+    property Plugin: TNppPlugin read GetPlugin;
+  end;
+
+  // ***************************************************************************
+  // Purpose: Implements the shared lifetime guard captured by queued callbacks.
+  // ***************************************************************************
+  TToolbarRefreshState = class(TInterfacedObject, IToolbarRefreshState)
+  private
+    FPlugin: TNppPlugin;
+  public
+    constructor Create(APlugin: TNppPlugin);
+    function GetPlugin: TNppPlugin;
+    procedure Deactivate;
+  end;
+
+// *****************************************************************************
+// Purpose: Creates and initializes the TToolbarRefreshState instance.
+// *****************************************************************************
+constructor TToolbarRefreshState.Create(APlugin: TNppPlugin);
+begin
+  inherited Create;
+  FPlugin := APlugin;
+end;
+
+// *****************************************************************************
+// Purpose: Clears the weak plugin reference used by queued toolbar refreshes.
+// *****************************************************************************
+procedure TToolbarRefreshState.Deactivate;
+begin
+  FPlugin := nil;
+end;
+
+// *****************************************************************************
+// Purpose: Returns the plugin instance while asynchronous refreshes remain active.
+// *****************************************************************************
+function TToolbarRefreshState.GetPlugin: TNppPlugin;
+begin
+  Result := FPlugin;
+end;
 
 // =============================================================================
 // Class TNppPlugin
@@ -214,6 +256,9 @@ uses
 // Create / Destroy
 // -----------------------------------------------------------------------------
 
+// *****************************************************************************
+// Purpose: Creates and initializes the TNppPlugin instance.
+// *****************************************************************************
 constructor TNppPlugin.Create;
 var
   EmptyData: TNppData;
@@ -221,23 +266,49 @@ begin
   inherited;
   FillChar(EmptyData, SizeOf(EmptyData), 0);
   FHost := TNppHost.Create(EmptyData);
+  FCommands := TNppCommands.Create(FHost);
+  FToolbarRefreshState := TToolbarRefreshState.Create(Self);
   FShutdownStarted := False;
   FShutdownComplete := False;
 end;
 
+// *****************************************************************************
+// Purpose: Releases resources owned by the TNppPlugin instance.
+// *****************************************************************************
 destructor TNppPlugin.Destroy;
 var
-  Index: Integer;
+  RefreshState: IToolbarRefreshState;
 begin
-  for Index := 0 to Length(FFuncItemArray) - 1 do
-  begin
-    if Assigned(FFuncItemArray[Index].ShortcutKey) then
-      Dispose(FFuncItemArray[Index].ShortcutKey);
-  end;
+  if Supports(FToolbarRefreshState, IToolbarRefreshState, RefreshState) then
+    RefreshState.Deactivate;
+  FToolbarRefreshState := nil;
+  FreeAndNil(FToolbar);
+  FreeAndNil(FCommands);
   FHost.Free;
   inherited;
 end;
 
+// *****************************************************************************
+// Purpose: Creates the optional toolbar service owned by the plugin.
+// *****************************************************************************
+procedure TNppPlugin.ConfigureToolbar(const IconProvider: TNppToolbarIconProvider;
+  const DisabledIconProvider: TNppToolbarDisabledIconProvider);
+begin
+  if FShutdownStarted then
+    raise EInvalidOpException.Create(
+      rsToolbarConfigurationDuringShutdown);
+  if Assigned(FToolbar) then
+    raise EInvalidOpException.Create(rsToolbarAlreadyConfigured);
+  if not Assigned(IconProvider) then
+    raise EArgumentNilException.Create('IconProvider');
+
+  FToolbar := TNppToolbar.Create(FHost, FCommands, IconProvider,
+    DisabledIconProvider);
+end;
+
+// *****************************************************************************
+// Purpose: Invalidates asynchronous state before object destruction begins.
+// *****************************************************************************
 procedure TNppPlugin.BeforeDestruction;
 begin
   inherited;
@@ -247,21 +318,19 @@ end;
 // Plugin interface
 // -----------------------------------------------------------------------------
 
+// *****************************************************************************
+// Purpose: Processes a Windows message forwarded by the Notepad++ plugin entry point.
+// *****************************************************************************
 procedure TNppPlugin.MessageProc(var Msg: TMessage);
-var
-  Menu: HMENU;
-  Index: Integer;
 begin
   if (Msg.Msg = WM_CREATE) then
-  begin
-    Menu := GetMenu(NppData.NppHandle);
-    for Index := 0 to Length(FFuncItemArray) - 1 do
-      if (FFuncItemArray[Index].ItemName[0] = '-') then
-        ModifyMenu(Menu, FFuncItemArray[Index].CmdID, MF_BYCOMMAND or MF_SEPARATOR, 0, nil);
-  end;
+    FCommands.ApplySeparators;
   Dispatch(Msg);
 end;
 
+// *****************************************************************************
+// Purpose: Dispatches a Notepad++ notification to the matching virtual handler.
+// *****************************************************************************
 procedure TNppPlugin.BeNotified(SN: PSCNotification);
 begin
   if not Assigned(SN) then
@@ -310,12 +379,19 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Runs the plugin shutdown sequence exactly once.
+// *****************************************************************************
 procedure TNppPlugin.Shutdown;
+var
+  RefreshState: IToolbarRefreshState;
 begin
   if FShutdownStarted then
     Exit;
 
   FShutdownStarted := True;
+  if Supports(FToolbarRefreshState, IToolbarRefreshState, RefreshState) then
+    RefreshState.Deactivate;
   try
     DoNppnShutdown;
   finally
@@ -323,46 +399,34 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Stores the handles supplied by Notepad++ and synchronizes the host facade.
+// *****************************************************************************
 procedure TNppPlugin.SetInfo(NppData: TNppData);
 begin
   Self.FNppData := NppData;
   FHost.Data := NppData;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the contiguous function-item array required by Notepad++.
+// *****************************************************************************
 function TNppPlugin.GetFuncsArray(out FuncsCount: Integer): PFuncItem;
 begin
-  FuncsCount := Length(FFuncItemArray);
-  if FuncsCount = 0 then
-    Result := nil
-  else
-    Result := @FFuncItemArray[0];
+  Result := FCommands.GetFuncsArray(FuncsCount);
 end;
 
-function TNppPlugin.GetFuncByIndex(const Index: Integer): PFuncItem;
-begin
-  Result := nil;
-  if (Index >= 0) and (Index < Length(FFuncItemArray)) then
-    Result := @FFuncItemArray[Index];
-end;
-
-function TNppPlugin.GetFuncByCmdID(const CmdID: Integer): PFuncItem;
-var
-  Idx: Integer;
-begin
-  Result := nil;
-  for Idx := 0 to High(FFuncItemArray) do
-    if FFuncItemArray[Idx].CmdID = CmdID then
-    begin
-      Result := @FFuncItemArray[Idx];
-      Exit;
-    end;
-end;
-
+// *****************************************************************************
+// Purpose: Returns the plugin name buffer required by the Notepad++ ABI.
+// *****************************************************************************
 function TNppPlugin.GetName: nppPChar;
 begin
   Result := nppPChar(PluginName);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the window handle of the currently active Scintilla view.
+// *****************************************************************************
 function TNppPlugin.GetCurrentScintilla: HWND;
 var
   Idx: Integer;
@@ -374,10 +438,9 @@ begin
     Result := Self.NppData.ScintillaSecondHandle;
 end;
 
-// -----------------------------------------------------------------------------
-// Internal utils
-// -----------------------------------------------------------------------------
-
+// *****************************************************************************
+// Purpose: Reads version metadata from the current plugin module.
+// *****************************************************************************
 procedure TNppPlugin.GetVersionInfo;
 var
   lptstrFilename: string;
@@ -393,158 +456,49 @@ begin
   TFileVersionInfo.GetVersionInfo(lptstrFilename, fvitLegalCopyright, wLangId, FPluginCopyright);
 end;
 
-function TNppPlugin.AddFuncItem(ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
-begin
-  Result := Length(FFuncItemArray);
-  SetLength(FFuncItemArray, Result + 1);
-  StringToWideChar(ItemName, FFuncItemArray[Result].ItemName, Length(FFuncItemArray[Result].ItemName));
-  FFuncItemArray[Result].Func := Func;
-  FFuncItemArray[Result].ShortcutKey := ShortcutKey;
-  FFuncItemArray[Result].Checked := Checked;
-end;
-
-function TNppPlugin.AddFuncItem(ItemIndex: Integer; ItemName: nppString; Func: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil; Checked: Boolean = False): Integer;
-begin
-  if ItemIndex < 0 then
-    raise EArgumentOutOfRangeException.Create('ItemIndex must not be negative');
-  if Length(FFuncItemArray) <= ItemIndex then
-    SetLength(FFuncItemArray, ItemIndex + 1);
-  if Assigned(FFuncItemArray[ItemIndex].ShortcutKey) and
-     (FFuncItemArray[ItemIndex].ShortcutKey <> ShortcutKey) then
-    Dispose(FFuncItemArray[ItemIndex].ShortcutKey);
-  StringToWideChar(ItemName, FFuncItemArray[ItemIndex].ItemName, Length(FFuncItemArray[ItemIndex].ItemName));
-  FFuncItemArray[ItemIndex].Func := Func;
-  FFuncItemArray[ItemIndex].ShortcutKey := ShortcutKey;
-  FFuncItemArray[ItemIndex].Checked := Checked;
-  Result := ItemIndex;
-end;
-
-procedure TNppPlugin.AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIcons);
-begin
-  Host.SendNpp(NPPM_ADDTOOLBARICON_DEPRECATED, WPARAM(CmdID), LPARAM(@ToolbarIcon));
-end;
-
-procedure TNppPlugin.AddToolbarIcon(CmdID: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode);
-begin
-  Host.SendNpp(NPPM_ADDTOOLBARICON_FORDARKMODE, WPARAM(CmdID), LPARAM(@ToolbarIcon));
-end;
-
-procedure TNppPlugin.RegisterToolbarIcon(CmdID: Cardinal;
-  var ToolbarIcon: TToolbarIcons);
-begin
-  AddToolbarIcon(CmdID, ToolbarIcon);
-end;
-
-procedure TNppPlugin.RegisterToolbarIcon(CmdID: Cardinal;
-  var ToolbarIcon: TToolbarIconsWithDarkMode);
-begin
-  AddToolbarIcon(CmdID, ToolbarIcon);
-end;
-
-function TNppPlugin.RegisterFuncItem(ItemName: nppString;
-  Func: FuncItemCmdProc; ShortcutKey: PShortcutKey; Checked: Boolean): Integer;
-begin
-  Result := AddFuncItem(ItemName, Func, ShortcutKey, Checked);
-end;
-
-// -----------------------------------------------------------------------------
-// Utils and message wrapper methods
-// -----------------------------------------------------------------------------
-
-function TNppPlugin.CmdIdFromMenuItemIdx(MenuItemIdx: Integer): Integer;
-begin
-  Result := -1;
-  if (Length(FFuncItemArray) > MenuItemIdx) and (MenuItemIdx >= 0) then
-    Result := FFuncItemArray[MenuItemIdx].CmdID;
-end;
-
-function EnumChildProc(Wnd: HWND; LParam: LPARAM): BOOL; stdcall;
-var
-  ClassName: array[0..255] of Char;
-  ToolbarHandle: ^HWND;
-begin
-  // The Win32 API expects a character count, not a byte size. Passing
-  // SizeOf(ClassName) doubled the limit for Unicode builds and could overrun
-  // the fixed buffer for unusually long class names.
-  GetClassName(Wnd, ClassName, Length(ClassName));
-  if StrComp(ClassName, TOOLBARCLASSNAME) = 0 then
-  begin
-    ToolbarHandle := Pointer(LParam);
-    ToolbarHandle^ := Wnd;
-    Result := False;
-  end
-  else
-    Result := True;
-end;
-
-function TNppPlugin.GetToolbarHandle: HWND;
-begin
-  Result := 0;
-  EnumChildWindows(NppData.NppHandle, @EnumChildProc, LPARAM(@Result));
-end;
-
-procedure TNppPlugin.EnableMenuItem(MenuItemIdx: Integer; State: Boolean);
-var
-  PluginMenu: HMENU;
-begin
-  PluginMenu := HMENU(Host.SendNpp(NPPM_GETMENUHANDLE, NPPPLUGINMENU, 0));
-  if PluginMenu <> 0 then
-  begin
-    Winapi.Windows.EnableMenuItem(PluginMenu, CmdIdFromMenuItemIdx(MenuItemIdx), MF_BYCOMMAND or IfThen(State, MF_ENABLED, MF_GRAYED));
-    DrawMenuBar(NppData.NppHandle);
-  end;
-end;
-
-procedure TNppPlugin.EnableToolbarItem(MenuItemIdx: Integer; State: Boolean);
-var
-  Toolbar: HWND;
-begin
-  Toolbar := GetToolbarHandle;
-  if Toolbar <> 0 then
-    Host.Send(Toolbar, TB_ENABLEBUTTON, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
-end;
-
-procedure TNppPlugin.CheckMenuItem(MenuItemIdx: Integer; State: Boolean; Delayed: Boolean = true);
-begin
-  if Delayed then
-    Host.PostNpp(NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State))
-  else
-    Host.SendNpp(NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
-end;
-
-procedure TNppPlugin.PerformMenuCommand(MenuCmdId: Integer; Param: Integer = 0; Delayed: Boolean = true);
-begin
-  if Delayed then
-    Host.PostNpp(NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
-  else
-    Host.SendNpp(NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
-end;
-
+// *****************************************************************************
+// Purpose: Returns the major component of the plugin module version.
+// *****************************************************************************
 function TNppPlugin.GetMajorVersion: Integer;
 begin
   Result := FPluginMajorVersion;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the minor component of the plugin module version.
+// *****************************************************************************
 function TNppPlugin.GetMinorVersion: Integer;
 begin
   Result := FPluginMinorVersion;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the release component of the plugin module version.
+// *****************************************************************************
 function TNppPlugin.GetReleaseNumber: Integer;
 begin
   Result := FPluginReleaseNumber;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the build component of the plugin module version.
+// *****************************************************************************
 function TNppPlugin.GetBuildNumber: Integer;
 begin
   Result := FPluginBuildNumber;
 end;
 
+// *****************************************************************************
+// Purpose: Returns copyright text read from the plugin module version resource.
+// *****************************************************************************
 function TNppPlugin.GetCopyright: string;
 begin
   Result := FPluginCopyright;
 end;
 
+// *****************************************************************************
+// Purpose: Reads a variable-length string returned by a Notepad++ message.
+// *****************************************************************************
 function TNppPlugin.GetVarSizeStringValue(DirType: Cardinal; MaxSize: Cardinal = $0000FFFF): string;
 var
   Buf: nppString;
@@ -571,34 +525,25 @@ begin
   SetString(Result, nppPChar(Buf), StrLen(nppPChar(Buf)));
 end;
 
+// *****************************************************************************
+// Purpose: Delegates normalized Notepad++ version retrieval to the host facade.
+// *****************************************************************************
 function TNppPlugin.GetNppVersion(var MajorVersion, MinorVersion: Integer): Integer;
-var
-  Version: LRESULT;
 begin
-  Version := Host.SendNpp(NPPM_GETNPPVERSION, WPARAM(0), LPARAM(0));
-  MajorVersion := HiWord(Version);
-  MinorVersion := LoWord(Version);
-  if MinorVersion < 10 then
-    MinorVersion := MinorVersion * 100
-  else if MinorVersion < 100 then
-    MinorVersion := MinorVersion * 10;
-  Result := MajorVersion;
+  Result := Host.GetNppVersion(MajorVersion, MinorVersion);
 end;
 
+// *****************************************************************************
+// Purpose: Reports whether the host satisfies a required Notepad++ version.
+// *****************************************************************************
 function TNppPlugin.IsNppMinVersion(AMajorVersion, AMinorVersion: Integer): Boolean;
-var
-  MajorVersion: Integer;
-  MinorVersion: Integer;
 begin
-  GetNppVersion(MajorVersion, MinorVersion);
-  if MajorVersion > AMajorVersion then
-    Result := true
-  else if (MajorVersion = AMajorVersion) and (MinorVersion >= AMinorVersion) then
-    Result := true
-  else
-    Result := false;
+  Result := Host.IsNppMinVersion(AMajorVersion, AMinorVersion);
 end;
 
+// *****************************************************************************
+// Purpose: Reports whether Notepad++ currently has dark mode enabled.
+// *****************************************************************************
 function TNppPlugin.IsDarkModeEnabled: Boolean;
 begin
   Result := false;
@@ -606,11 +551,17 @@ begin
     Result := Host.SendNpp(NPPM_ISDARKMODEENABLED, 0, LPARAM(0)) > 0;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the Notepad++ installation directory.
+// *****************************************************************************
 function TNppPlugin.GetNppDir: string;
 begin
   Result := GetVarSizeStringValue(NPPM_GETNPPDIRECTORY);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the Notepad++ plugin directory.
+// *****************************************************************************
 function TNppPlugin.GetPluginDir: string;
 var
   szBuf: string;
@@ -639,16 +590,25 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the writable configuration directory assigned to plugins.
+// *****************************************************************************
 function TNppPlugin.GetPluginConfigDir: string;
 begin
   Result := GetVarSizeStringValue(NPPM_GETPLUGINSCONFIGDIR);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the documentation directory assigned to the current plugin.
+// *****************************************************************************
 function TNppPlugin.GetPluginDocDir: string;
 begin
   Result := TPath.Combine(GetPluginDir(), 'doc');
 end;
 
+// *****************************************************************************
+// Purpose: Returns the absolute path of the current plugin DLL.
+// *****************************************************************************
 function TNppPlugin.GetPluginDllPath: string;
 var
   Buffer: string;
@@ -669,6 +629,9 @@ begin
   SetString(Result, PChar(Buffer), CharsWritten);
 end;
 
+// *****************************************************************************
+// Purpose: Reads the current caption of the Notepad++ main window.
+// *****************************************************************************
 function TNppPlugin.GetNppWindowTitle: string;
 var
   Len: Integer;
@@ -678,41 +641,65 @@ begin
   GetWindowText(NppData.NppHandle, PChar(Result), Len + 1);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the absolute path of the active document.
+// *****************************************************************************
 function TNppPlugin.GetFullCurrentPath: string;
 begin
   Result := GetVarSizeStringValue(NPPM_GETFULLCURRENTPATH);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the directory containing the active document.
+// *****************************************************************************
 function TNppPlugin.GetCurrentDirectory: string;
 begin
   Result := GetVarSizeStringValue(NPPM_GETCURRENTDIRECTORY);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the active document name including its extension.
+// *****************************************************************************
 function TNppPlugin.GetFullFileName: string;
 begin
   Result := GetVarSizeStringValue(NPPM_GETFILENAME);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the active document name without its extension.
+// *****************************************************************************
 function TNppPlugin.GetFileNameWithoutExt: string;
 begin
   Result := GetVarSizeStringValue(NPPM_GETNAMEPART);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the extension of the active document.
+// *****************************************************************************
 function TNppPlugin.GetFileNameExt: string;
 begin
   Result := GetVarSizeStringValue(NPPM_GETEXTPART);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the encoding mode of the active document.
+// *****************************************************************************
 function TNppPlugin.GetEncoding: Integer;
 begin
   Result := Host.SendNpp(NPPM_GETBUFFERENCODING, WPARAM(GetCurrentBufferId), LPARAM(0));
 end;
 
+// *****************************************************************************
+// Purpose: Returns the end-of-line format of the active document.
+// *****************************************************************************
 function TNppPlugin.GetEOLFormat: Integer;
 begin
   Result := Host.SendNpp(NPPM_GETBUFFERFORMAT, WPARAM(GetCurrentBufferId), LPARAM(0));
 end;
 
+// *****************************************************************************
+// Purpose: Returns the language identifier of the active document.
+// *****************************************************************************
 function TNppPlugin.GetLanguageType: Integer;
 begin
   Result := Host.SendNpp(NPPM_GETBUFFERLANGTYPE, WPARAM(GetCurrentBufferId), LPARAM(0));
@@ -720,6 +707,9 @@ begin
     Result := C_NO_LANGUAGE;
 end;
 
+// *****************************************************************************
+// Purpose: Resolves a language identifier to its Notepad++ language name.
+// *****************************************************************************
 function TNppPlugin.GetLanguageName(ALangType: TNppLang): string;
 var
   BufLen: LRESULT;
@@ -732,6 +722,9 @@ begin
   SetLength(Result, BufLen);
 end;
 
+// *****************************************************************************
+// Purpose: Resolves a language identifier to its Notepad++ description.
+// *****************************************************************************
 function TNppPlugin.GetLanguageDesc(ALangType: TNppLang): string;
 var
   BufLen: LRESULT;
@@ -744,11 +737,17 @@ begin
   SetLength(Result, BufLen);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the index of the currently active Scintilla view.
+// *****************************************************************************
 function TNppPlugin.GetCurrentViewIdx: Integer;
 begin
   Result := Host.SendNpp(NPPM_GETCURRENTVIEW, WPARAM(0), LPARAM(0));
 end;
 
+// *****************************************************************************
+// Purpose: Maps a Scintilla window handle to its Notepad++ view index.
+// *****************************************************************************
 function TNppPlugin.GetCurrentViewIdx(ScHandle: HWND): Integer;
 begin
   if ScHandle = NppData.ScintillaMainHandle then
@@ -761,31 +760,49 @@ begin
     Result := -1;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the active document index within a Notepad++ view.
+// *****************************************************************************
 function TNppPlugin.GetCurrentDocIndex(AViewIdx: Integer): Integer;
 begin
   Result := Host.SendNpp(NPPM_GETCURRENTDOCINDEX, WPARAM(0), LPARAM(AViewIdx));
 end;
 
+// *****************************************************************************
+// Purpose: Returns the zero-based line containing the current caret.
+// *****************************************************************************
 function TNppPlugin.GetCurrentLine: NativeInt;
 begin
   Result := Host.SendNpp(NPPM_GETCURRENTLINE, WPARAM(0), LPARAM(0));
 end;
 
+// *****************************************************************************
+// Purpose: Returns the zero-based column containing the current caret.
+// *****************************************************************************
 function TNppPlugin.GetCurrentColumn: LongInt;
 begin
   Result := Host.SendNpp(NPPM_GETCURRENTCOLUMN, WPARAM(0), LPARAM(0));
 end;
 
+// *****************************************************************************
+// Purpose: Returns the stable Notepad++ buffer identifier of the active document.
+// *****************************************************************************
 function TNppPlugin.GetCurrentBufferId: NativeInt;
 begin
   Result := Host.SendNpp(NPPM_GETCURRENTBUFFERID, WPARAM(0), LPARAM(0));
 end;
 
+// *****************************************************************************
+// Purpose: Resolves a view and document position to a Notepad++ buffer ID.
+// *****************************************************************************
 function TNppPlugin.GetBufferIdFromPos(AViewIdx, ADocIdx: Integer): NativeInt;
 begin
   Result := Host.SendNpp(NPPM_GETBUFFERIDFROMPOS, WPARAM(ADocIdx), LPARAM(AViewIdx));
 end;
 
+// *****************************************************************************
+// Purpose: Resolves a buffer ID to its document and view positions.
+// *****************************************************************************
 function TNppPlugin.GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: Integer): Integer;
 var
   Pos: LRESULT;
@@ -800,6 +817,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Resolves a Notepad++ buffer ID to its absolute file path.
+// *****************************************************************************
 function TNppPlugin.GetFullPathFromBufferId(ABufferId: NativeInt): string;
 var
   BufLen: LRESULT;
@@ -817,6 +837,9 @@ begin
     SetLength(Result, BufLen);
 end;
 
+// *****************************************************************************
+// Purpose: Reports whether the active buffer in a view has unsaved changes.
+// *****************************************************************************
 function TNppPlugin.GetCurrentBufferDirty(AViewIdx: Integer): Boolean;
 begin
   case AViewIdx of
@@ -829,35 +852,55 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Retrieves the current Notepad++ dark-mode color palette.
+// *****************************************************************************
 function TNppPlugin.GetDarkModeColors(PColors: PNppDarkModeColors): Boolean;
 begin
   Result := false;
+  if not Assigned(PColors) then
+    Exit;
   if IsDarkModeEnabled then
-    Result := Host.SendNpp(NPPM_GETDARKMODECOLORS, SizeOf(TNppDarkModeColors), LParam(PColors)) > 0;
+    Result := Host.SendNpp(NPPM_GETDARKMODECOLORS,
+      SizeOf(TNppDarkModeColors), LParam(PColors)) > 0;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the toolbar icon family and size selected by the user.
+// *****************************************************************************
 function TNppPlugin.GetToolbarIconSetChoice: Integer;
 begin
   Result := Host.SendNpp(NPPM_GETTOOLBARICONSETCHOICE, 0, 0);
 end;
 
+// *****************************************************************************
+// Purpose: Returns the number of open files for the requested view scope.
+// *****************************************************************************
 function TNppPlugin.GetOpenFilesCnt(CntType: Integer): Integer;
 begin
   Result := Host.SendNpp(NPPM_GETNBOPENFILES, WPARAM(0), LParam(CntType));
 end;
 
+// *****************************************************************************
+// Purpose: Returns the paths currently open in one or both Notepad++ views.
+// *****************************************************************************
 function TNppPlugin.GetOpenFiles(CntType: Integer): TStringDynArray;
-  procedure AppendView(const ViewType: Integer);
+  // ***************************************************************************
+  // Purpose: Appends every valid document path from one Notepad++ view.
+  // ***************************************************************************
+  procedure AppendView(const CountType, ViewIndex: Integer);
   var
     FileCount: Integer;
-    ViewIndex: Integer;
+    DocumentIndex: Integer;
     BufferId: NativeInt;
     FileName: string;
   begin
-    FileCount := GetOpenFilesCnt(ViewType);
-    for ViewIndex := 0 to FileCount - 1 do
+    FileCount := GetOpenFilesCnt(CountType);
+    for DocumentIndex := 0 to FileCount - 1 do
     begin
-      BufferId := GetBufferIdFromPos(ViewType, ViewIndex);
+      // NPPM_GETNBOPENFILES and NPPM_GETBUFFERIDFROMPOS deliberately use
+      // different constant families: PRIMARY/SECOND versus MAIN/SUB.
+      BufferId := GetBufferIdFromPos(ViewIndex, DocumentIndex);
       if BufferId = 0 then
         Continue;
       FileName := GetFullPathFromBufferId(BufferId);
@@ -869,17 +912,23 @@ function TNppPlugin.GetOpenFiles(CntType: Integer): TStringDynArray;
   end;
 
 begin
+  SetLength(Result, 0);
   case CntType of
-    ALL_OPEN_FILES:
+    Npp.Api.ALL_OPEN_FILES:
       begin
-        AppendView(PRIMARY_VIEW);
-        AppendView(SECOND_VIEW);
+        AppendView(Npp.Api.PRIMARY_VIEW, Npp.Api.MAIN_VIEW);
+        AppendView(Npp.Api.SECOND_VIEW, Npp.Api.SUB_VIEW);
       end;
-    PRIMARY_VIEW, SECOND_VIEW:
-      AppendView(CntType);
+    Npp.Api.PRIMARY_VIEW:
+      AppendView(Npp.Api.PRIMARY_VIEW, Npp.Api.MAIN_VIEW);
+    Npp.Api.SECOND_VIEW:
+      AppendView(Npp.Api.SECOND_VIEW, Npp.Api.SUB_VIEW);
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the number of lines in the requested Scintilla view.
+// *****************************************************************************
 function TNppPlugin.GetLineCount(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
@@ -892,6 +941,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the current caret position in the requested Scintilla view.
+// *****************************************************************************
 function TNppPlugin.GetCurrentPos(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
@@ -904,6 +956,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Maps a Scintilla character position to its zero-based line number.
+// *****************************************************************************
 function TNppPlugin.GetLineFromPosition(AViewIdx: Integer; APosition: NativeInt): NativeInt;
 begin
   case AViewIdx of
@@ -916,6 +971,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the first visible display line in a Scintilla view.
+// *****************************************************************************
 function TNppPlugin.GetFirstVisibleLine(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
@@ -928,6 +986,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the number of display lines visible in a Scintilla view.
+// *****************************************************************************
 function TNppPlugin.GetLinesOnScreen(AViewIdx: Integer): NativeInt;
 begin
   case AViewIdx of
@@ -940,6 +1001,9 @@ begin
   end;
 end;
 
+// *****************************************************************************
+// Purpose: Returns the active file path, line, and column in one operation.
+// *****************************************************************************
 procedure TNppPlugin.GetFilePos(out FileName: string; out Line: NativeInt; out Column: LongInt);
 begin
   FileName := GetFullCurrentPath();
@@ -947,6 +1011,9 @@ begin
   Column := GetCurrentColumn();
 end;
 
+// *****************************************************************************
+// Purpose: Returns the word currently selected or located under the caret.
+// *****************************************************************************
 function TNppPlugin.GetCurrentWord: string;
 begin
   // A corrupt/non-host transport must not make a word query grow toward a
@@ -955,35 +1022,45 @@ begin
   Result := GetVarSizeStringValue(NPPM_GETCURRENTWORD, $00100000);
 end;
 
+// *****************************************************************************
+// Purpose: Opens or activates a file and applies the requested options.
+// *****************************************************************************
 function TNppPlugin.OpenFile(FileName: string; ReadOnly: Boolean = false): Boolean;
 var
   Cnt: Integer;
-  Ret: Integer;
+  Found: Boolean;
   FileNames: TStringDynArray;
+  ScintillaHandle: HWND;
 
 begin
-  // Ask if we are not already opened
-  FileNames := GetOpenFiles(ALL_OPEN_FILES);
-
+  Result := False;
+  Found := False;
+  FileNames := GetOpenFiles(Npp.Api.ALL_OPEN_FILES);
   for Cnt := Low(FileNames) to High(FileNames) do
-  begin
     if SameFileName(FileNames[Cnt], FileName) then
     begin
-      // Activate document tab and exit
-      SwitchToFile(FileName);
-      Exit(true);
+      Found := True;
+      Result := SwitchToFile(FileName);
+      Break;
     end;
-  end;
 
-  // Open the file
-  Ret := Host.SendNpp(NPPM_DOOPEN, WPARAM(0), LPARAM(nppPChar(FileName)));
-  Result := (Ret <> 0);
+  if not Found then
+    Result := Host.SendNpp(NPPM_DOOPEN, WPARAM(0),
+      LPARAM(nppPChar(FileName))) <> 0;
 
-  // If requested set read-only state
+  // Set the editor state explicitly. The corresponding menu command toggles
+  // state and is therefore unsafe when the document is already read-only.
   if Result and ReadOnly then
-    PerformMenuCommand(IDM_EDIT_SETREADONLY, 1);
+  begin
+    ScintillaHandle := GetCurrentScintilla;
+    if ScintillaHandle <> 0 then
+      Host.Send(ScintillaHandle, SCI_SETREADONLY, WPARAM(True), 0);
+  end;
 end;
 
+// *****************************************************************************
+// Purpose: Opens or activates a file and applies the requested options.
+// *****************************************************************************
 function TNppPlugin.OpenFile(FileName: string; Line: NativeInt; ReadOnly: Boolean = false): Boolean;
 var
   Ret: Boolean;
@@ -1002,31 +1079,49 @@ begin
   Result := Ret;
 end;
 
+// *****************************************************************************
+// Purpose: Saves the specified document through Notepad++.
+// *****************************************************************************
 function TNppPlugin.SaveFile(FileName: string): Boolean;
 begin
   Result := Host.SendNpp(NPPM_SAVEFILE, WPARAM(0), LPARAM(nppPChar(FileName))) <> 0;
 end;
 
+// *****************************************************************************
+// Purpose: Saves the active document through Notepad++.
+// *****************************************************************************
 function TNppPlugin.SaveCurrentFile: Boolean;
 begin
   Result := Host.SendNpp(NPPM_SAVECURRENTFILE, WPARAM(0), LPARAM(0)) <> 0;
 end;
 
+// *****************************************************************************
+// Purpose: Saves every modified document through Notepad++.
+// *****************************************************************************
 function TNppPlugin.SaveAllFiles: Boolean;
 begin
   Result := Host.SendNpp(NPPM_SAVEALLFILES, WPARAM(0), LPARAM(0)) <> 0;
 end;
 
+// *****************************************************************************
+// Purpose: Activates an already open document by absolute path.
+// *****************************************************************************
 function TNppPlugin.SwitchToFile(FileName: string): Boolean;
 begin
   Result := Host.SendNpp(NPPM_SWITCHTOFILE, 0, LPARAM(nppPChar(FileName))) <> 0;
 end;
 
+// *****************************************************************************
+// Purpose: Reloads a specified document and optionally warns about data loss.
+// *****************************************************************************
 procedure TNppPlugin.ReloadFile(FileName: string; Alert: Boolean);
 begin
   Host.SendNpp(NPPM_RELOADFILE, WPARAM(Alert), LPARAM(nppPChar(FileName)));
 end;
 
+// *****************************************************************************
+// Purpose: Reloads the active document and optionally warns about data loss.
+// *****************************************************************************
 procedure TNppPlugin.ReloadCurrentFile(Alert: Boolean);
 begin
   Host.SendNpp(NPPM_RELOADBUFFERID, WPARAM(GetCurrentBufferId()), LPARAM(Alert));
@@ -1041,6 +1136,9 @@ end;
 // Notifies plugins that all the procedures of launching notepad++
 // completed succesfully
 // hwndFrom = HWND hwndNpp
+// *****************************************************************************
+// Purpose: Handles NPPN_READY and finalizes host-dependent plugin services.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnReady;
 begin
   // When overriding this ensure to call "inherited"
@@ -1048,163 +1146,210 @@ begin
   // Retrieve version infos from plugin's DLL file
   // and write them to internal variables
   GetVersionInfo();
+  if Assigned(FToolbar) then
+  begin
+    FToolbar.CaptureNativeButtons;
+    FToolbar.Refresh;
+  end;
 end;
 
 // Notifies plugins that toolbar icons can be registered.
 // hwndFrom = HWND hwndNpp
+// *****************************************************************************
+// Purpose: Handles NPPN_TBMODIFICATION by registering configured toolbar icons.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnToolbarModification;
 begin
-  // override this
+  if Assigned(FToolbar) then
+    FToolbar.Initialize;
 end;
 
 // Notifies plugins that Npp shutdown has been triggered,
 // files have not been closed yet
 // hwndFrom = HWND hwndNpp
+// *****************************************************************************
+// Purpose: Handles NPPN_BEFORESHUTDOWN and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnBeforeShutDown;
 begin
-  // override this
 end;
 
 // Notifies plugins that Notepad++ shut down has been cancelled
 // hwndFrom = HWND hwndNpp
+// *****************************************************************************
+// Purpose: Handles NPPN_CANCELSHUTDOWN and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnCancelShutDown;
 begin
-  // override this
 end;
 
 // Notifies plugins that Notepad++ is about to shut down
 // hwndFrom = HWND hwndNpp
+// *****************************************************************************
+// Purpose: Handles NPPN_SHUTDOWN and provides an override point for cleanup.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnShutdown;
 begin
-  // override this
 end;
 
 // Notifies plugins that a file is about to be loaded
 // hwndFrom = HWND hwndNpp
 // idFrom   = NULL
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEBEFORELOAD and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileBeforeLoad;
 begin
-  // override this
 end;
 
 // Notifies plugins that the file load operation failed
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILELOADFAILED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileLoadFailed;
 begin
-  // override this
 end;
 
 // Notifies plugins that a file is about to be opened
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEBEFOREOPEN and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileBeforeOpen;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file just opened
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEOPENED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileOpened;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file is about to be closed
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEBEFORECLOSE and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileBeforeClose;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file is just closed
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILECLOSED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileClosed;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file is about to be saved
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEBEFORESAVE and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileBeforeSave;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file was just saved
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILESAVED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileSaved;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file is about to be renamed
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEBEFORERENAME and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileBeforeRename;
 begin
-  // override this
 end;
 
 // Notifies plugins that user cancelled the file rename operation
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILERENAMECANCEL and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileRenameCancel;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file was just renamed
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILERENAMED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileRenamed;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file is about to be deleted
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEBEFOREDELETE and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileBeforeDelete;
 begin
-  // override this
 end;
 
 // Notifies plugins that the file delete operation failed
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEDELETEFAILED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileDeleteFailed;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current file was just deleted
 // hwndFrom = HWND hwndNpp
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_FILEDELETED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnFileDeleted;
 begin
-  // override this
 end;
 
 // Notifies plugins that a buffer was activated (put to foreground).
 // hwndFrom = HWND hwndNpp
 // idFrom   = int activatedBufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_BUFFERACTIVATED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnBufferActivated;
 begin
-  // override this
 end;
 
 // Notifies plugins that the language in the current doc just changed.
 // hwndFrom = HWND hwndNpp
 // idFrom   = int currentBufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_LANGCHANGED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnLangChanged;
 begin
-  // override this
 end;
 
 // Notifies plugins that the read-only state of the current buffer was changed
@@ -1212,9 +1357,11 @@ end;
 // idFrom   = int docStatus   can be combined by
 // DOCSTATUS_READONLY = 1
 // DOCSTATUS_BUFFERDIRTY = 2
+// *****************************************************************************
+// Purpose: Handles NPPN_READONLYCHANGED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnReadOnlyChanged;
 begin
-  // override this
 end;
 
 // Notifies plugins that document order is changed,
@@ -1224,50 +1371,64 @@ end;
 // Tab moved by menu command: buffer bufferID having index newIndex.
 // hwndFrom = int newIndex
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_DOCORDERCHANGED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnDocOrderChanged;
 begin
-  // override this
 end;
 
 // Notifies plugins that a plugin command shortcut is remapped.
 // hwndFrom = PShortcutKey ShortcutKeyStructure
 // idFrom   = int cmdID
+// *****************************************************************************
+// Purpose: Handles NPPN_SHORTCUTREMAPPED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnShortcutRemapped;
 begin
-  // override this
 end;
 
 // Notifies plugins that user initiated a WordStyleDlg change.
 // hwndFrom = HWND hwndNpp
 // idFrom   = int currentBufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_WORDSTYLESUPDATED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnWordStylesUpdated;
 begin
-  // override this
 end;
 
 // Notifies plugins that a snapshot dirty file is loaded on startup.
 // hwndFrom = NULL
 // idFrom   = int bufferID
+// *****************************************************************************
+// Purpose: Handles NPPN_SNAPSHOTDIRTYFILELOADED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnSnapshotDirtyFileLoaded;
 begin
-  // override this
 end;
 
 // Notifies plugins that Dark Mode was enabled/disabled. Use NPPM_ISDARKMODEENABLED
 // to query Dark Mode status.
 // hwndFrom = HWND hwndNpp
+// *****************************************************************************
+// Purpose: Handles NPPN_DARKMODECHANGED and refreshes the optional toolbar.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnDarkModeChanged;
 begin
-  // override this
+  if Assigned(FToolbar) then
+    FToolbar.Refresh;
 end;
 
 // Notifies plugins that command line contains an argument for plugins (in the
 // form -pluginMessage="YOUR_PLUGIN_ARGUMENT")
 // hwndFrom = HWND hwndNpp
 // idFrom   = wchar_t *pluginMessage
+// *****************************************************************************
+// Purpose: Handles NPPN_CMDLINEPLUGINMSG and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppnCmdLinePluginMsg;
 begin
-  // override this
 end;
 
 // Notifies lexer plugins that the buffer (in idFrom) is just applied to an
@@ -1275,9 +1436,11 @@ end;
 // scnNotification->nmhdr.code = NPPN_EXTERNALLEXERBUFFER;
 // scnNotification->nmhdr.hwndFrom = hwndNpp;
 // scnNotification->nmhdr.idFrom = BufferID;
+// *****************************************************************************
+// Purpose: Handles NPPN_EXTERNALLEXERBUFFER and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppExternalLexerBuffer;
 begin
-  // override this
 end;
 
 // Notifies plugins that the current document is just modified by Replace All action.
@@ -1286,9 +1449,11 @@ end;
 // scnNotification->nmhdr.code = NPPN_GLOBALMODIFIED;
 // scnNotification->nmhdr.hwndFrom = BufferID;
 // scnNotification->nmhdr.idFrom = 0; // preserved for future use, must be zero
+// *****************************************************************************
+// Purpose: Handles NPPN_GLOBALMODIFIED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppGlobalModified;
 begin
-  // override this
 end;
 
 // To notify plugins that the current native language is just changed to another one.
@@ -1297,9 +1462,11 @@ end;
 //scnNotification->nmhdr.code = NPPN_NATIVELANGCHANGED;
 //scnNotification->nmhdr.hwndFrom = hwndNpp
 //scnNotification->nmhdr.idFrom = 0; // preserved for the future use, must be zero
+// *****************************************************************************
+// Purpose: Handles NPPN_NATIVELANGCHANGED and provides an override point.
+// *****************************************************************************
 procedure TNppPlugin.DoNppNativeLangChanged;
 begin
-  // override this
 end;
 
 // To notify plugins that toolbar icon set selection has changed
@@ -1308,9 +1475,31 @@ end;
 //scnNotification->nmhdr.idFrom = iconSetChoice;
 // where iconSetChoice could be 1 of 5 possible values:
 // 0 (Fluent UI: small), 1 (Fluent UI: large), 2 (Filled Fluent UI: small), 3 (Filled Fluent UI: large) and 4 (Standard icons: small).
+// *****************************************************************************
+// Purpose: Handles NPPN_TOOLBARICONSETCHANGED after native image-list replacement.
+// *****************************************************************************
 procedure TNppPlugin.DoNppToolbarIconsetChanged;
+var
+  RefreshState: IToolbarRefreshState;
 begin
-  // override this
+  if not Assigned(FToolbar) or FShutdownStarted then
+    Exit;
+  if not Supports(FToolbarRefreshState, IToolbarRefreshState,
+    RefreshState) then
+    Exit;
+
+  // Notepad++ is still replacing its image lists while delivering this
+  // notification. Refresh once that host update has completed.
+  TThread.ForceQueue(nil,
+    procedure
+    var
+      CurrentPlugin: TNppPlugin;
+    begin
+      CurrentPlugin := RefreshState.Plugin;
+      if Assigned(CurrentPlugin) and not CurrentPlugin.IsShuttingDown and
+        Assigned(CurrentPlugin.FToolbar) then
+        CurrentPlugin.FToolbar.Refresh;
+    end);
 end;
 
 end.

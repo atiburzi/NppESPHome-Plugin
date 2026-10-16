@@ -2,8 +2,8 @@ object FormConsole: TFormConsole
   Left = 0
   Top = 0
   Caption = 'Console'
-  ClientHeight = 280
-  ClientWidth = 720
+  ClientHeight = 264
+  ClientWidth = 716
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,8 +16,8 @@ object FormConsole: TFormConsole
   object RichEditConsole: TRichEdit
     Left = 0
     Top = 37
-    Width = 720
-    Height = 243
+    Width = 716
+    Height = 227
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
@@ -44,7 +44,7 @@ object FormConsole: TFormConsole
   object PanelCommands: TPanel
     Left = 0
     Top = 0
-    Width = 720
+    Width = 716
     Height = 37
     Align = alTop
     BevelEdges = [beBottom]
@@ -53,9 +53,8 @@ object FormConsole: TFormConsole
     ParentBackground = False
     ParentColor = True
     TabOrder = 1
-    ExplicitWidth = 718
     object SpeedButtonStop: TSpeedButton
-      Left = 652
+      Left = 650
       Top = 0
       Width = 68
       Height = 35
@@ -75,9 +74,10 @@ object FormConsole: TFormConsole
       Spacing = 5
       Visible = False
       OnClick = SpeedButtonStopClick
+      ExplicitLeft = 652
     end
     object SpeedButtonClear: TSpeedButton
-      Left = 584
+      Left = 582
       Top = 0
       Width = 68
       Height = 35
@@ -89,9 +89,10 @@ object FormConsole: TFormConsole
       Images = VirtualImageList
       Flat = True
       OnClick = SpeedButtonClearClick
+      ExplicitLeft = 584
     end
     object SpeedButtonSave: TSpeedButton
-      Left = 504
+      Left = 502
       Top = 0
       Width = 80
       Height = 35
@@ -105,9 +106,10 @@ object FormConsole: TFormConsole
       Flat = True
       Spacing = 5
       OnClick = SpeedButtonSaveClick
+      ExplicitLeft = 504
     end
     object SpeedButtonCopy: TSpeedButton
-      Left = 424
+      Left = 422
       Top = 0
       Width = 80
       Height = 35
@@ -121,9 +123,10 @@ object FormConsole: TFormConsole
       Flat = True
       Spacing = 5
       OnClick = SpeedButtonCopyClick
+      ExplicitLeft = 424
     end
     object SpeedButtonSelectAll: TSpeedButton
-      Left = 326
+      Left = 324
       Top = 0
       Width = 98
       Height = 35
@@ -136,9 +139,10 @@ object FormConsole: TFormConsole
       Flat = True
       Spacing = 5
       OnClick = SpeedButtonSelectAllClick
+      ExplicitLeft = 326
     end
     object SpeedButtonFollow: TSpeedButton
-      Left = 238
+      Left = 236
       Top = 0
       Width = 80
       Height = 35
@@ -154,9 +158,10 @@ object FormConsole: TFormConsole
       Flat = True
       Spacing = 5
       OnClick = SpeedButtonFollowClick
+      ExplicitLeft = 238
     end
     object PanelSpace: TPanel
-      Left = 318
+      Left = 316
       Top = 0
       Width = 8
       Height = 35
@@ -164,6 +169,7 @@ object FormConsole: TFormConsole
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 0
+      ExplicitLeft = 314
     end
     object PanelIndicator: TPanel
       Left = 0
@@ -187,7 +193,7 @@ object FormConsole: TFormConsole
     object PanelSession: TPanel
       Left = 36
       Top = 0
-      Width = 202
+      Width = 200
       Height = 35
       Align = alClient
       BevelOuter = bvNone
@@ -195,10 +201,11 @@ object FormConsole: TFormConsole
       ParentBackground = False
       ParentColor = True
       TabOrder = 2
+      ExplicitWidth = 198
       object LabelTitle: TLabel
         Left = 6
         Top = 0
-        Width = 196
+        Width = 194
         Height = 17
         Align = alTop
         AutoSize = False
@@ -211,11 +218,12 @@ object FormConsole: TFormConsole
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlBottom
+        ExplicitWidth = 196
       end
       object LabelStatus: TLabel
         Left = 6
         Top = 17
-        Width = 196
+        Width = 194
         Height = 18
         Align = alClient
         AutoSize = False
@@ -227,6 +235,7 @@ object FormConsole: TFormConsole
         Font.Name = 'Segoe UI'
         Font.Style = []
         ParentFont = False
+        ExplicitWidth = 196
       end
     end
   end

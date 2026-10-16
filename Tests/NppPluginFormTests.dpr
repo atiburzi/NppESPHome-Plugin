@@ -74,6 +74,7 @@ var
   Plugin: TTestPlugin;
   NppData: TNppData;
   Form: TTestForm;
+  SecondForm: TTestForm;
   Docking: TTestDocking;
   ChildMessage: TMessage;
   PreviousApplicationHandle: HWND;
@@ -100,11 +101,21 @@ begin
       FillChar(ChildMessage, SizeOf(ChildMessage), 0);
       Check(not Form.WantChildKey(nil, ChildMessage),
         'WantChildKey must reject a nil child');
+
+      SecondForm := TTestForm.Create(Plugin);
+      try
+        Form.Free;
+        Form := nil;
+        Check(Application.Handle = NppData.NppHandle,
+          'Destroying one form detached the VCL application too early');
+      finally
+        SecondForm.Free;
+      end;
     finally
       Form.Free;
     end;
     Check(Application.Handle = PreviousApplicationHandle,
-      'VCL application handle was not restored after the last form');
+      'VCL application handle was not restored after the last of two forms');
 
     Docking := TTestDocking.Create(Plugin, 0);
     try

@@ -9,12 +9,15 @@ unit Npp.Commands;
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, Npp.Api, Npp.Plugin;
+  Winapi.Windows, System.SysUtils, Npp.Api, Npp.Host;
 
 type
   TNppCommandEnabledChanged = procedure(const Id: string;
     Enabled: Boolean) of object;
 
+  // ***************************************************************************
+  // Purpose: Stores application metadata associated with one ABI menu item.
+  // ***************************************************************************
   TNppMenuEntry = record
     Id: string;
     Index: Integer;
@@ -23,17 +26,28 @@ type
     Enabled: Boolean;
   end;
 
-  TNppPluginMenu = class
+  // ***************************************************************************
+  // Purpose: Owns plugin commands, shortcuts, menu state, and the ABI array.
+  // ***************************************************************************
+  TNppCommands = class
   private
-    FPlugin: TNppPlugin;
+    FHost: TNppHost;
+    FFuncItemArray: TArray<TFuncItem>;
     FEntries: TArray<TNppMenuEntry>;
     FOnEnabledChanged: TNppCommandEnabledChanged;
     FEnabledListeners: TArray<TNppCommandEnabledChanged>;
     function GetCount: Integer;
     function GetEntry(Index: Integer): TNppMenuEntry;
     function ShortcutText(CommandId: Integer): string;
+    function AddFunctionItem(const Caption: nppString;
+      Callback: FuncItemCmdProc; ShortcutKey: PShortcutKey;
+      Checked: Boolean): Integer;
+    function FunctionItemAt(Index: Integer): PFuncItem;
+    class function SameEnabledListener(const Left,
+      Right: TNppCommandEnabledChanged): Boolean; static;
   public
-    constructor Create(APlugin: TNppPlugin);
+    constructor Create(AHost: TNppHost);
+    destructor Destroy; override;
 
     function AddCommand(const Id: string; const Caption: nppString;
       Callback: FuncItemCmdProc; ShortcutKey: PShortcutKey = nil;
@@ -47,6 +61,8 @@ type
     function Caption(const Id: string): string;
     function IsChecked(const Id: string): Boolean;
     function IsEnabled(const Id: string): Boolean;
+    function GetFuncsArray(out Count: Integer): PFuncItem;
+    procedure ApplySeparators;
 
     procedure SetCaption(const Id: string; const Caption: nppString;
       PreserveShortcut: Boolean = True);
@@ -62,41 +78,148 @@ type
       read FOnEnabledChanged write FOnEnabledChanged;
   end;
 
-  // Generic name; TNppPluginMenu remains as a source-compatible name for
-  // existing plugins.
-  TNppCommands = TNppPluginMenu;
-
 implementation
 
-function SameEnabledListener(const Left,
+resourcestring
+  rsMenuEntryIndexOutOfRange = 'Menu entry index %d is out of range';
+  rsMenuCommandIdentifierRequired = 'A menu command identifier is required';
+  rsMenuCommandIdentifierReserved =
+    'Menu command identifier contains a reserved character: %s';
+  rsDuplicateMenuCommandIdentifier =
+    'Duplicate menu command identifier: %s';
+  rsMenuCommandCallbackRequired =
+    'Menu command %s must provide a callback';
+  rsMenuEntryIdentifierReserved =
+    'Menu entry identifier contains a reserved character: %s';
+  rsDuplicateMenuEntryIdentifier =
+    'Duplicate menu entry identifier: %s';
+  rsUnknownMenuCommandIdentifier = 'Unknown menu command identifier: %s';
+
+// *****************************************************************************
+// Purpose: Compares two enabled-state listeners by code address and instance.
+// *****************************************************************************
+class function TNppCommands.SameEnabledListener(const Left,
   Right: TNppCommandEnabledChanged): Boolean;
 begin
   Result := (TMethod(Left).Code = TMethod(Right).Code) and
     (TMethod(Left).Data = TMethod(Right).Data);
 end;
 
-constructor TNppPluginMenu.Create(APlugin: TNppPlugin);
+// *****************************************************************************
+// Purpose: Creates and initializes the TNppCommands instance.
+// *****************************************************************************
+constructor TNppCommands.Create(AHost: TNppHost);
 begin
-  if not Assigned(APlugin) then
-    raise EArgumentNilException.Create('APlugin');
+  if not Assigned(AHost) then
+    raise EArgumentNilException.Create('AHost');
   inherited Create;
-  FPlugin := APlugin;
+  FHost := AHost;
 end;
 
-function TNppPluginMenu.GetCount: Integer;
+// *****************************************************************************
+// Purpose: Releases resources owned by the TNppCommands instance.
+// *****************************************************************************
+destructor TNppCommands.Destroy;
+var
+  Index: Integer;
+begin
+  // Shortcut pointers are allocated by MakeShortcutKey and transferred to the
+  // registry together with their function items.
+  for Index := 0 to High(FFuncItemArray) do
+    if Assigned(FFuncItemArray[Index].ShortcutKey) then
+      Dispose(FFuncItemArray[Index].ShortcutKey);
+  inherited;
+end;
+
+// *****************************************************************************
+// Purpose: Appends one ABI-compatible function item to the exported command array.
+// *****************************************************************************
+function TNppCommands.AddFunctionItem(const Caption: nppString;
+  Callback: FuncItemCmdProc; ShortcutKey: PShortcutKey;
+  Checked: Boolean): Integer;
+begin
+  Result := Length(FFuncItemArray);
+  // Notepad++ consumes this as a contiguous C-compatible array. Keep the ABI
+  // record and the application metadata in separate parallel structures.
+  SetLength(FFuncItemArray, Result + 1);
+  StringToWideChar(Caption, FFuncItemArray[Result].ItemName,
+    Length(FFuncItemArray[Result].ItemName));
+  FFuncItemArray[Result].Func := Callback;
+  FFuncItemArray[Result].ShortcutKey := ShortcutKey;
+  FFuncItemArray[Result].Checked := Checked;
+end;
+
+// *****************************************************************************
+// Purpose: Returns a pointer to a function item by validated array index.
+// *****************************************************************************
+function TNppCommands.FunctionItemAt(Index: Integer): PFuncItem;
+begin
+  Result := nil;
+  if (Index >= 0) and (Index < Length(FFuncItemArray)) then
+    Result := @FFuncItemArray[Index];
+end;
+
+// *****************************************************************************
+// Purpose: Returns the contiguous function-item array required by Notepad++.
+// *****************************************************************************
+function TNppCommands.GetFuncsArray(out Count: Integer): PFuncItem;
+begin
+  Count := Length(FFuncItemArray);
+  if Count = 0 then
+    Result := nil
+  else
+    Result := @FFuncItemArray[0];
+end;
+
+// *****************************************************************************
+// Purpose: Converts placeholder function items into native menu separators.
+// *****************************************************************************
+procedure TNppCommands.ApplySeparators;
+var
+  Menu: HMENU;
+  Index: Integer;
+  Item: PFuncItem;
+begin
+  if FHost.Data.NppHandle = 0 then
+    Exit;
+  Menu := GetMenu(FHost.Data.NppHandle);
+  if Menu = 0 then
+    Exit;
+  // Separator identity is application metadata. A regular caption may legally
+  // begin with '-', so its display text must never determine menu semantics.
+  for Index := 0 to High(FEntries) do
+    if FEntries[Index].IsSeparator then
+    begin
+      Item := FunctionItemAt(FEntries[Index].Index);
+      if Assigned(Item) then
+        ModifyMenu(Menu, Item^.CmdID,
+          MF_BYCOMMAND or MF_SEPARATOR, 0, nil);
+    end;
+end;
+
+// *****************************************************************************
+// Purpose: Returns the number of registered items.
+// *****************************************************************************
+function TNppCommands.GetCount: Integer;
 begin
   Result := Length(FEntries);
 end;
 
-function TNppPluginMenu.GetEntry(Index: Integer): TNppMenuEntry;
+// *****************************************************************************
+// Purpose: Returns a validated copy of a registered menu entry.
+// *****************************************************************************
+function TNppCommands.GetEntry(Index: Integer): TNppMenuEntry;
 begin
   if (Index < 0) or (Index >= Length(FEntries)) then
     raise EArgumentOutOfRangeException.CreateFmt(
-      'Menu entry index %d is out of range', [Index]);
+      rsMenuEntryIndexOutOfRange, [Index]);
   Result := FEntries[Index];
 end;
 
-function TNppPluginMenu.IndexOf(const Id: string): Integer;
+// *****************************************************************************
+// Purpose: Returns the index associated with a stable identifier.
+// *****************************************************************************
+function TNppCommands.IndexOf(const Id: string): Integer;
 var
   I: Integer;
 begin
@@ -108,30 +231,38 @@ begin
       Exit(I);
 end;
 
-function TNppPluginMenu.IdFromIndex(Index: Integer): string;
+// *****************************************************************************
+// Purpose: Returns the stable identifier stored at a command index.
+// *****************************************************************************
+function TNppCommands.IdFromIndex(Index: Integer): string;
 begin
   Result := '';
   if (Index >= 0) and (Index < Length(FEntries)) then
     Result := FEntries[Index].Id;
 end;
 
-function TNppPluginMenu.AddCommand(const Id: string; const Caption: nppString;
+// *****************************************************************************
+// Purpose: Registers a command under a stable application-defined identifier.
+// *****************************************************************************
+function TNppCommands.AddCommand(const Id: string; const Caption: nppString;
   Callback: FuncItemCmdProc; ShortcutKey: PShortcutKey;
   Checked: Boolean): Integer;
 begin
   if Id = '' then
-    raise EArgumentException.Create('A menu command identifier is required');
+    raise EArgumentException.Create(rsMenuCommandIdentifierRequired);
+  // These delimiters belong to the toolbar configuration grammar; rejecting
+  // them here guarantees that every command ID can be serialized safely.
   if (Pos(':', Id) > 0) or (Pos(';', Id) > 0) or (Pos('|', Id) > 0) then
     raise EArgumentException.CreateFmt(
-      'Menu command identifier contains a reserved character: %s', [Id]);
+      rsMenuCommandIdentifierReserved, [Id]);
   if IndexOf(Id) >= 0 then
     raise EArgumentException.CreateFmt(
-      'Duplicate menu command identifier: %s', [Id]);
+      rsDuplicateMenuCommandIdentifier, [Id]);
   if not Assigned(Callback) then
     raise EArgumentException.CreateFmt(
-      'Menu command %s must provide a callback', [Id]);
+      rsMenuCommandCallbackRequired, [Id]);
 
-  Result := FPlugin.RegisterFuncItem(Caption, Callback, ShortcutKey, Checked);
+  Result := AddFunctionItem(Caption, Callback, ShortcutKey, Checked);
   SetLength(FEntries, Length(FEntries) + 1);
   FEntries[High(FEntries)].Id := Id;
   FEntries[High(FEntries)].Index := Result;
@@ -140,7 +271,10 @@ begin
   FEntries[High(FEntries)].Enabled := True;
 end;
 
-function TNppPluginMenu.AddSeparator(const Id: string): Integer;
+// *****************************************************************************
+// Purpose: Registers a separator while preserving command-array ordering.
+// *****************************************************************************
+function TNppCommands.AddSeparator(const Id: string): Integer;
 var
   EntryId: string;
 begin
@@ -150,12 +284,12 @@ begin
   if (Pos(':', EntryId) > 0) or (Pos(';', EntryId) > 0) or
      (Pos('|', EntryId) > 0) then
     raise EArgumentException.CreateFmt(
-      'Menu entry identifier contains a reserved character: %s', [EntryId]);
+      rsMenuEntryIdentifierReserved, [EntryId]);
   if IndexOf(EntryId) >= 0 then
     raise EArgumentException.CreateFmt(
-      'Duplicate menu entry identifier: %s', [EntryId]);
+      rsDuplicateMenuEntryIdentifier, [EntryId]);
 
-  Result := FPlugin.RegisterFuncItem('-', nil, nil);
+  Result := AddFunctionItem('-', nil, nil, False);
   SetLength(FEntries, Length(FEntries) + 1);
   FEntries[High(FEntries)].Id := EntryId;
   FEntries[High(FEntries)].Index := Result;
@@ -164,27 +298,37 @@ begin
   FEntries[High(FEntries)].Enabled := False;
 end;
 
-function TNppPluginMenu.CommandId(const Id: string): Integer;
+// *****************************************************************************
+// Purpose: Returns the command identifier assigned by Notepad++.
+// *****************************************************************************
+function TNppCommands.CommandId(const Id: string): Integer;
 var
-  EntryIndex: Integer;
+  Item: PFuncItem;
 begin
-  EntryIndex := IndexOf(Id);
-  if EntryIndex < 0 then
-    Exit(-1);
-  Result := FPlugin.CmdIdFromMenuItemIdx(FEntries[EntryIndex].Index);
+  Item := FunctionItem(Id);
+  if Assigned(Item) then
+    Result := Item^.CmdID
+  else
+    Result := -1;
 end;
 
-function TNppPluginMenu.FunctionItem(const Id: string): PFuncItem;
+// *****************************************************************************
+// Purpose: Returns the ABI function item associated with a stable identifier.
+// *****************************************************************************
+function TNppCommands.FunctionItem(const Id: string): PFuncItem;
 var
   EntryIndex: Integer;
 begin
   Result := nil;
   EntryIndex := IndexOf(Id);
   if EntryIndex >= 0 then
-    Result := FPlugin.GetFuncByIndex(FEntries[EntryIndex].Index);
+    Result := FunctionItemAt(FEntries[EntryIndex].Index);
 end;
 
-function TNppPluginMenu.Caption(const Id: string): string;
+// *****************************************************************************
+// Purpose: Returns the current caption of a registered command.
+// *****************************************************************************
+function TNppCommands.Caption(const Id: string): string;
 var
   Item: PFuncItem;
 begin
@@ -195,7 +339,10 @@ begin
     Result := '';
 end;
 
-function TNppPluginMenu.IsChecked(const Id: string): Boolean;
+// *****************************************************************************
+// Purpose: Reports whether a registered command is checked.
+// *****************************************************************************
+function TNppCommands.IsChecked(const Id: string): Boolean;
 var
   EntryIndex: Integer;
 begin
@@ -203,7 +350,10 @@ begin
   Result := (EntryIndex >= 0) and FEntries[EntryIndex].Checked;
 end;
 
-function TNppPluginMenu.IsEnabled(const Id: string): Boolean;
+// *****************************************************************************
+// Purpose: Reports whether a registered command is enabled.
+// *****************************************************************************
+function TNppCommands.IsEnabled(const Id: string): Boolean;
 var
   EntryIndex: Integer;
 begin
@@ -211,7 +361,10 @@ begin
   Result := (EntryIndex >= 0) and FEntries[EntryIndex].Enabled;
 end;
 
-function TNppPluginMenu.ShortcutText(CommandId: Integer): string;
+// *****************************************************************************
+// Purpose: Formats the current Notepad++ shortcut assigned to a command.
+// *****************************************************************************
+function TNppCommands.ShortcutText(CommandId: Integer): string;
 var
   Shortcut: TShortcutKey;
   Parts: TArray<string>;
@@ -219,7 +372,7 @@ var
 begin
   Result := '';
   FillChar(Shortcut, SizeOf(Shortcut), 0);
-  if FPlugin.Host.SendNpp(NPPM_GETSHORTCUTBYCMDID, WPARAM(CommandId),
+  if FHost.SendNpp(NPPM_GETSHORTCUTBYCMDID, WPARAM(CommandId),
     LPARAM(@Shortcut)) = 0 then
     Exit;
   if Shortcut.IsCtrl then
@@ -237,7 +390,10 @@ begin
   Result := string.Join('+', Parts);
 end;
 
-procedure TNppPluginMenu.SetCaption(const Id: string; const Caption: nppString;
+// *****************************************************************************
+// Purpose: Updates a command caption and preserves its shortcut when requested.
+// *****************************************************************************
+procedure TNppCommands.SetCaption(const Id: string; const Caption: nppString;
   PreserveShortcut: Boolean);
 var
   EntryIndex: Integer;
@@ -249,20 +405,22 @@ begin
   EntryIndex := IndexOf(Id);
   if (EntryIndex < 0) or FEntries[EntryIndex].IsSeparator then
     raise EArgumentException.CreateFmt(
-      'Unknown menu command identifier: %s', [Id]);
+      rsUnknownMenuCommandIdentifier, [Id]);
   Item := FunctionItem(Id);
   if not Assigned(Item) then
     raise EArgumentException.CreateFmt(
-      'Unknown menu command identifier: %s', [Id]);
+      rsUnknownMenuCommandIdentifier, [Id]);
   StringToWideChar(Caption, Item^.ItemName, Length(Item^.ItemName));
-  NppHandle := FPlugin.NppData.NppHandle;
+  NppHandle := FHost.Data.NppHandle;
   if NppHandle = 0 then
     Exit;
-  PluginMenu := HMENU(FPlugin.Host.SendNpp(NPPM_GETMENUHANDLE,
+  PluginMenu := HMENU(FHost.SendNpp(NPPM_GETMENUHANDLE,
     Npp.Api.NPPPLUGINMENU, 0));
   if PluginMenu <> 0 then
   begin
     DisplayCaption := string(Caption);
+    // ModifyMenu replaces the entire visible label, so the shortcut text must
+    // be appended again when the caption changes at runtime.
     if PreserveShortcut then
     begin
       Shortcut := ShortcutText(Item^.CmdID);
@@ -275,7 +433,10 @@ begin
   end;
 end;
 
-procedure TNppPluginMenu.SetChecked(const Id: string; Checked: Boolean;
+// *****************************************************************************
+// Purpose: Updates the stored and native checked state of a command.
+// *****************************************************************************
+procedure TNppCommands.SetChecked(const Id: string; Checked: Boolean;
   Delayed: Boolean);
 var
   Item: PFuncItem;
@@ -284,38 +445,69 @@ begin
   EntryIndex := IndexOf(Id);
   if (EntryIndex < 0) or FEntries[EntryIndex].IsSeparator then
     raise EArgumentException.CreateFmt(
-      'Unknown menu command identifier: %s', [Id]);
+      rsUnknownMenuCommandIdentifier, [Id]);
   if FEntries[EntryIndex].Checked = Checked then
     Exit;
-  Item := FPlugin.GetFuncByIndex(FEntries[EntryIndex].Index);
+  Item := FunctionItemAt(FEntries[EntryIndex].Index);
   if Assigned(Item) then
   begin
     Item^.Checked := Checked;
     FEntries[EntryIndex].Checked := Checked;
-    FPlugin.CheckMenuItem(FEntries[EntryIndex].Index, Checked, Delayed);
+    if Delayed then
+      FHost.PostNpp(NPPM_SETMENUITEMCHECK, WPARAM(Item^.CmdID),
+        LPARAM(Checked))
+    else
+      FHost.SendNpp(NPPM_SETMENUITEMCHECK, WPARAM(Item^.CmdID),
+        LPARAM(Checked));
   end;
 end;
 
-procedure TNppPluginMenu.SetEnabled(const Id: string; Enabled: Boolean);
+// *****************************************************************************
+// Purpose: Updates command availability and notifies toolbar listeners.
+// *****************************************************************************
+procedure TNppCommands.SetEnabled(const Id: string; Enabled: Boolean);
 var
   EntryIndex, I: Integer;
+  Item: PFuncItem;
+  PluginMenu: HMENU;
+  Flags: UINT;
 begin
   EntryIndex := IndexOf(Id);
   if (EntryIndex < 0) or FEntries[EntryIndex].IsSeparator then
     raise EArgumentException.CreateFmt(
-      'Unknown menu command identifier: %s', [Id]);
+      rsUnknownMenuCommandIdentifier, [Id]);
   if FEntries[EntryIndex].Enabled = Enabled then
     Exit;
   FEntries[EntryIndex].Enabled := Enabled;
-  FPlugin.EnableMenuItem(FEntries[EntryIndex].Index, Enabled);
+  Item := FunctionItemAt(FEntries[EntryIndex].Index);
+  if Assigned(Item) then
+  begin
+    PluginMenu := HMENU(FHost.SendNpp(NPPM_GETMENUHANDLE,
+      Npp.Api.NPPPLUGINMENU, 0));
+    if PluginMenu <> 0 then
+    begin
+      Flags := MF_BYCOMMAND;
+      if Enabled then
+        Flags := Flags or MF_ENABLED
+      else
+        Flags := Flags or MF_GRAYED;
+      Winapi.Windows.EnableMenuItem(PluginMenu, Item^.CmdID, Flags);
+      DrawMenuBar(FHost.Data.NppHandle);
+    end;
+  end;
   if Assigned(FOnEnabledChanged) then
     FOnEnabledChanged(Id, Enabled);
+  // Notify every registered service after the menu state is authoritative.
+  // TNppToolbar uses this path to mirror availability without index mapping.
   for I := 0 to High(FEnabledListeners) do
     if Assigned(FEnabledListeners[I]) then
       FEnabledListeners[I](Id, Enabled);
 end;
 
-procedure TNppPluginMenu.AddEnabledListener(
+// *****************************************************************************
+// Purpose: Adds a command-state listener unless it is already registered.
+// *****************************************************************************
+procedure TNppCommands.AddEnabledListener(
   const Listener: TNppCommandEnabledChanged);
 var
   I: Integer;
@@ -329,7 +521,10 @@ begin
   FEnabledListeners[High(FEnabledListeners)] := Listener;
 end;
 
-procedure TNppPluginMenu.RemoveEnabledListener(
+// *****************************************************************************
+// Purpose: Removes a previously registered command-state listener.
+// *****************************************************************************
+procedure TNppCommands.RemoveEnabledListener(
   const Listener: TNppCommandEnabledChanged);
 var
   I, J: Integer;
