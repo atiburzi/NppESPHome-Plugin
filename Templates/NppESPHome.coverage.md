@@ -2,32 +2,39 @@
 
 Generated from the official `esphome/esphome.io` `current` branch.
 
-- Source commit: `7c494bb0d85d51bb946415cdd7e46a7cd345a9ef`
-- Source commit date: `2026-08-06T08:08:57+12:00`
-- MDX component pages scanned: **719**
-- Configurable/documented pages represented: **712**
-- Existing templates preserved: **41** (3 without an online documentation URL)
-- New templates generated: **676**
-- Final XML templates: **717**
+- Source commit: `0525ea5715e7a307775a0feda79c83c288ad0c42`
+- Source commit date: `2026-10-08T12:22:49+13:00`
+- MDX component pages scanned: **740**
+- Configurable/documented pages represented: **732**
+- Existing templates preserved: **37** (0 without an online documentation URL)
+- New templates generated: **697**
+- Final XML templates: **734**
 - Duplicate documentation URLs collapsed: **0**
 - Validation: **PASS**
 
 ## Generation rules
 
-- Existing XML entries remain first and retain their YAML content; known citation/encoding artifacts and invalid obsolete syntax are corrected.
+- Existing XML entries retain their YAML content; known citation/encoding artifacts and invalid obsolete syntax are corrected.
 - New entries use the first official fenced YAML example from each component/platform page.
 - Known indentation errors and prose ellipses in those examples are normalized into valid YAML.
 - Generated-entry provenance is stored in `NppESPHome.generated.json` so subsequent runs update without duplication.
 - A documentation URL already represented by an existing entry is not generated twice.
 - Names are made unique by adding a category or documentation slug only when needed.
+- Names are limited to 35 characters and existing concise names are preserved by URL.
+- Components are written in case-insensitive ascending alphabetical order.
+- URLs listed in `NppESPHome.excluded.txt` remain intentionally excluded.
 - Root components use the official main-index category; platform pages use their component domain.
 
 ## Regeneration
 
 ```powershell
 git clone --depth 1 --branch current https://github.com/esphome/esphome.io.git .tmp/esphome.io-current
-python Tools/GenerateESPHomeTemplates.py --docs-root .tmp/esphome.io-current/src/content/docs/components --input Templates/NppESPHome.xml --output Templates/NppESPHome.xml --report Templates/NppESPHome.coverage.md --manifest Templates/NppESPHome.generated.json
+py -3 Tools/GenerateESPHomeTemplates.py --docs-root .tmp/esphome.io-current/src/content/docs/components --input Templates/NppESPHome.xml --output Templates/NppESPHome.xml --report Templates/NppESPHome.coverage.md --manifest Templates/NppESPHome.generated.json --exclusions Templates/NppESPHome.excluded.txt
 ```
+
+## Intentionally excluded documentation URLs
+
+- `https://esphome.io/components/esphome/`
 
 ## Manual YAML fallbacks
 

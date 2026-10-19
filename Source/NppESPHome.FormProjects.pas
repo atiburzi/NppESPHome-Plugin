@@ -6,13 +6,13 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, NppESPHome.Plugin, NppESPHome.Shared, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,  NppPluginDockingForm,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,  Npp.Vcl.Docking,
   Vcl.StdCtrls, Vcl.VirtualImageList,
   Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Menus, VirtualTrees.BaseTree, VirtualTrees,
   VirtualTrees.Types, Vcl.ActnList,
   Vcl.Buttons, Vcl.ImgList,
   System.UITypes,
-  JvLinkLabel, System.Actions, System.ImageList, JvExControls,
+  JvLinkLabel, JvExControls, System.Actions, System.ImageList,
   VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL, Vcl.ToolWin;
 
 type
@@ -30,7 +30,7 @@ type
   // Main dockable plugin window containing the project and template browsers.
   // It coordinates selection with Notepad++, exposes project commands, and lets
   // users filter or insert reusable YAML templates.
-  TFormProjects = class(TNppPluginDockingForm)
+  TFormProjects = class(TNppPluginDocking)
     VirtualImageList32: TVirtualImageList;
     ToolBarCommands: TToolBar;
     ToolButtonRun: TToolButton;
@@ -109,7 +109,6 @@ type
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
       var ImageIndex: TImageIndex);
-    procedure VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
     procedure ActionOpenExecute(Sender: TObject);
     procedure ActionAddProjectExecute(Sender: TObject);
     procedure ActionRemoveProjectExecute(Sender: TObject);
@@ -178,7 +177,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Types, System.StrUtils, NppMessages, NppScintilla, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
+  System.Types, System.StrUtils, Npp.Api, Npp.Scintilla.Api, Math, System.IOUtils, Winapi.ShellAPI, TDMB;
 
 // *****************************************************************************
 // Purpose: Persists that the docked project window was hidden when Notepad++
@@ -250,7 +249,7 @@ begin
     if Assigned(Node) then
       VirtualStringTreeProjects.AddToSelection(Node, True);
   end;
-  VirtualStringTreeProjects.FullExpand;
+  //VirtualStringTreeProjects.FullExpand;
   VirtualStringTreeProjects.EndUpdate;
   RefreshToolbar;
 end;
@@ -413,15 +412,6 @@ begin
   end
   else
     LabelProjectPath.Caption := '';
-end;
-
-// *****************************************************************************
-// Purpose: Keeps project roots expanded so dependency nodes remain visible.
-// *****************************************************************************
-procedure TFormProjects.VirtualStringTreeProjectsCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean);
-begin
-  inherited;
-  Allowed := False;
 end;
 
 // *****************************************************************************
@@ -609,13 +599,13 @@ begin
     if Assigned(Data) then
     begin
       // Resolve the active Scintilla view before inserting UTF-8 YAML text.
-      SendMessage(Plugin.NppData.NppHandle, NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@currentScintilla));
+      Plugin.Host.Send(Plugin.NppData.NppHandle, NPPM_GETCURRENTSCINTILLA, 0, LPARAM(@currentScintilla));
       if currentScintilla = 0 then
         hSci := Plugin.NppData.ScintillaMainHandle
       else
         hSci := Plugin.NppData.ScintillaSecondHandle;
       Utf8 := UTF8String(Data^.YAML);
-      SendMessage(hSci, SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Utf8)));
+      Plugin.Host.Send(hSci, SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Utf8)));
     end;
   end;
 end;

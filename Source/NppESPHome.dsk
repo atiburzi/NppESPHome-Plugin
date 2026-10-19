@@ -18,8 +18,8 @@ File_14=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resou
 [Modules]
 Module0=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormProjects.pas
 Module1=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dproj
-Module2=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPluginForms.pas
-Module3=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPlugin.pas
+Module2=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Vcl.Forms.pas
+Module3=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas
 Module4=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas
 Module5=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormAbout.pas
 Module6=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitFormConfig.pas
@@ -36,10 +36,10 @@ ModuleType=TSourceModule
 [H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.dproj]
 ModuleType=TBaseProject
 
-[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPluginForms.pas]
+[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Vcl.Forms.pas]
 ModuleType=TSourceModule
 
-[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPlugin.pas]
+[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas]
 ModuleType=TSourceModule
 
 [H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomePlugin.pas]
@@ -123,14 +123,14 @@ EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\ESPHomeP
 
 [View1]
 CustomEditViewType=TEditView
-Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPlugin.pas
+Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas
 CursorX=1
 CursorY=262
 TopLine=1
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPlugin.pas
+EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas
 
 [View2]
 CustomEditViewType=TEditView
@@ -211,14 +211,14 @@ EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\UnitForm
 
 [View9]
 CustomEditViewType=TEditView
-Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPluginForms.pas
+Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Vcl.Forms.pas
 CursorX=1
 CursorY=50
 TopLine=41
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\NppPluginForms.pas
+EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Vcl.Forms.pas
 
 [View10]
 CustomEditViewType=TEditView
@@ -878,4 +878,3 @@ StayOnTop=0
 TabPosition=1
 ActiveTabID=ToolForm
 TabDockClients=ToolForm,TemplateView
-

@@ -161,10 +161,10 @@ project filename to `esphome.exe`.
 
 | Command | Generated ESPHome command | Project-specific options |
 |---|---|---|
-| Run | `run` | Target device, `--reset`, `--no-logs`, extra parameters |
+| Run | `run` | Target device, `--reset`, `--no-logs`, `--no-states`, extra parameters |
 | Compile | `compile` | `--only-generate`, extra parameters |
 | Upload | `upload` | Target device, extra parameters |
-| Logs | `logs` | Target device, `--reset`, extra parameters |
+| Logs | `logs` | Target device, `--reset`, `--no-states`, extra parameters |
 | Clean | `clean` | Extra parameters |
 | Clean-All | `clean-all` | Requires explicit confirmation |
 
@@ -338,6 +338,13 @@ the default template collection.
 Toolbar customization is available with Notepad++ 8.0 or newer from
 **Plugins → NppESPHome → Configure Toolbar**.
 
+The dialog and its image resources belong to NppESPHome. The reusable
+`TNppPlugin` base class owns its command registry and optional toolbar, while
+`Npp.Toolbar` provides layout parsing, stable command IDs,
+configuration-string generation/application, and native toolbar
+synchronization. Reading and writing `NppESPHome.ini` remains an explicit
+responsibility of NppESPHome.
+
 For every supported plugin command, the dialog can:
 
 - show or hide its toolbar button using a checkbox;
@@ -426,6 +433,12 @@ The Delphi project is in [`Source`](Source), with shared Notepad++ plugin base
 classes in [`Lib`](Lib), bundled third-party source and object files in
 [`External`](External), default snippets in [`Templates`](Templates), and
 prebuilt DLLs in [`Bin`](Bin).
+
+The reusable framework has a dedicated
+[`Lib` API and usage guide](Lib/README.md), including a complete plugin
+example, command and toolbar lifecycle, method reference, ownership rules,
+normal/docking VCL forms, and integration of an application-owned toolbar
+configuration UI.
 
 The current development baseline is:
 

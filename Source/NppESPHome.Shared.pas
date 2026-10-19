@@ -6,7 +6,7 @@ interface
 
 uses
   System.Classes, System.Generics.Collections, Winapi.Windows, Vcl.ComCtrls, Vcl.Graphics, Vcl.VirtualImage, Vcl.ImageCollection, Vcl.VirtualImageList, XMLIntf, IniFiles,
-  System.UITypes, NppMessages;
+  System.UITypes, Npp.Api;
 
 const
   PingTimeout = 3 * 1000; // Timeout for pinging devices, in milliseconds
@@ -71,6 +71,7 @@ const
   csKeyESPHomeTargetDevice = 'ESPHomeTargetDevice';
   csKeyESPHomeExtraParameters = 'ESPHomeExtraParameters';
   csKeyRunNoLogs = 'RunNoLogs';
+  csKeyRunNoStates = 'RunNoStates';
   csKeyRunReset = 'RunReset';
   csKeyRunExtraParameters = 'RunExtraParameters';
   csKeyCompileGenerateOnly = 'CompileGenerateOnly';
@@ -78,6 +79,7 @@ const
   csKeyCompileExtraParameters = 'CompileExtraParameters';
   csKeyCleanExtraParameters = 'CleanExtraParameters';
   csKeyLogsReset = 'LogsReset';
+  csKeyLogsNoStates = 'LogsNoStates';
   csKeyLogsExtraParameters = 'LogsExtraParameters';
   csKeyDependencyPrefix = 'Dependency';
 
@@ -421,9 +423,12 @@ end;
 // project in UI elements like dropdown menus or ListViews.
 // Format: "FriendlyName - ("filename.yaml" in "C:\Path\To\Project")"
 // *****************************************************************************
+resourcestring
+  rsUINameTemplate = '%s - ("%s" in "%s")';
+
 function TProject.GetUIName: string;
 begin
-  Result := Format('%s - ("%s" in "%s")', [FriendlyName, ExtractFileName(FileName), ExtractFilePath(FileName)]);
+  Result := Format(rsUINameTemplate, [FriendlyName, ExtractFileName(FileName), ExtractFilePath(FileName)]);
 end;
 
 // Resource strings for the Description properties
@@ -965,7 +970,8 @@ end;
 
 // *****************************************************************************
 // Purpose: Allocates and initializes a Notepad++ shortcut definition. The
-// returned pointer is passed to AddFuncItem when registering commands.
+// returned pointer is passed to Commands.AddCommand; TNppCommands owns it
+// after a successful registration.
 // *****************************************************************************
 function MakeShortcutKey(const Ctrl, Alt, Shift: Boolean; const AKey: UCHAR): PShortcutKey;
 begin
@@ -1200,8 +1206,8 @@ begin
     Result := ShortName;
 end;
 
-resourcestring
-  rsTemplatesGitHubUrl = 'https://raw.githubusercontent.com/atiburzi/NppESPHome-Plugin/refs/heads/main/Templates/NppESPHome.xml';
+const
+  rcTemplatesGitHubUrl = 'https://raw.githubusercontent.com/atiburzi/NppESPHome-Plugin/refs/heads/main/Templates/NppESPHome.xml';
 
 // *****************************************************************************
 // Purpose: Downloads the default XML templates file directly from the GitHub
@@ -1216,7 +1222,7 @@ begin
   HTTP := TNetHTTPClient.Create(nil);
   try
     // Execute GET request
-    Response := HTTP.Get(rsTemplatesGitHubUrl);
+    Response := HTTP.Get(rcTemplatesGitHubUrl);
     // Open a file stream on the disk to write the data
     FileStream := TFileStream.Create(TemplateFile, fmCreate);
     try

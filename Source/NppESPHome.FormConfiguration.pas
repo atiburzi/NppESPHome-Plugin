@@ -6,7 +6,7 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, NppPlugin, NppPluginForm, Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Npp.Plugin, Npp.Vcl.Forms, Vcl.StdCtrls, Vcl.ComCtrls,
   Vcl.VirtualImageList, JvListComb,
   Vcl.WinXPanels, Vcl.ExtCtrls,
   JvEdit,
@@ -25,6 +25,8 @@ type
     LabelOptionRunAdditionalParameters: TLabel;
     CheckBoxOptionRunNoLogs: TCheckBox;
     LabelOptionRunNoLogs: TLabel;
+    CheckBoxOptionRunNoStates: TCheckBox;
+    LabelOptionRunNoStates: TLabel;
     CheckBoxOptionRunReset: TCheckBox;
     LabelOptionRunReset: TLabel;
     GroupBoxOptions: TGroupBox;
@@ -51,6 +53,8 @@ type
     LabelOptionESPHomeAdditionalParameters: TLabel;
     CheckBoxOptionLogsReset: TCheckBox;
     LabelOptionLogsReset: TLabel;
+    CheckBoxOptionLogsNoStates: TCheckBox;
+    LabelOptionLogsNoStates: TLabel;
     CheckBoxOptionCompileGenerateOnly: TCheckBox;
     LabelOptionCompileGenerateOnly: TLabel;
     EditOptionESPHomeAdditionalParameters: TJvEdit;
@@ -104,6 +108,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);
+    procedure CheckBoxOptionRunNoStatesClick(Sender: TObject);
     procedure ComboBoxDeviceChange(Sender: TObject);
     procedure ComboBoxOptionAutosaveChange(Sender: TObject);
     procedure ButtonAddDepsClick(Sender: TObject);
@@ -115,6 +120,7 @@ type
     procedure CheckBoxOptionCompileGenerateOnlyClick(Sender: TObject);
     procedure EditOptionUploadAdditionalParametersChange(Sender: TObject);
     procedure CheckBoxOptionLogsResetClick(Sender: TObject);
+    procedure CheckBoxOptionLogsNoStatesClick(Sender: TObject);
     procedure EditOptionLogsAdditionalParametersChange(Sender: TObject);
     procedure TreeViewOptionsCollapsing(Sender: TObject; Node: TTreeNode; var AllowCollapse: Boolean);
     procedure TreeViewOptionsChange(Sender: TObject; Node: TTreeNode);
@@ -150,7 +156,7 @@ implementation
 
 uses
   NppESPHome.Shared, NppESPHome.Plugin, NppESPHome.FormProjects,
-  NppESPHome.FormConsole, NppMessages, Registry, Math, Winapi.ShellAPI;
+  NppESPHome.FormConsole, Npp.Api, Registry, Math, Winapi.ShellAPI;
 
 // *****************************************************************************
 // Purpose: Measures all list-box items and sets a horizontal scroll width wide
@@ -400,6 +406,15 @@ begin
 end;
 
 // *****************************************************************************
+// Purpose: Persists whether the logs command should hide entity state changes.
+// *****************************************************************************
+procedure TFormConfig.CheckBoxOptionLogsNoStatesClick(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyLogsNoStates, CheckBoxOptionLogsNoStates.Checked);
+end;
+
+// *****************************************************************************
 // Purpose: Persists whether the logs command should reset the connected device.
 // *****************************************************************************
 procedure TFormConfig.CheckBoxOptionLogsResetClick(Sender: TObject);
@@ -415,6 +430,15 @@ procedure TFormConfig.CheckBoxOptionRunNoLogsClick(Sender: TObject);
 begin
   inherited;
   ProjectList.Current.SetOption(csKeyRunNoLogs, CheckBoxOptionRunNoLogs.Checked);
+end;
+
+// *****************************************************************************
+// Purpose: Persists whether the run command should hide entity state changes.
+// *****************************************************************************
+procedure TFormConfig.CheckBoxOptionRunNoStatesClick(Sender: TObject);
+begin
+  inherited;
+  ProjectList.Current.SetOption(csKeyRunNoStates, CheckBoxOptionRunNoStates.Checked);
 end;
 
 // *****************************************************************************
@@ -634,6 +658,7 @@ begin
     cbDefaultIntConsoleClearOnStart);
 
   CheckBoxOptionRunNoLogs.Checked := ProjectList.Current.GetOption(csKeyRunNoLogs, False);
+  CheckBoxOptionRunNoStates.Checked := ProjectList.Current.GetOption(csKeyRunNoStates, False);
   CheckBoxOptionRunReset.Checked := ProjectList.Current.GetOption(csKeyRunReset, False);
   EditOptionRunAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyRunExtraParameters, csDefaultEmpty);
 
@@ -644,6 +669,7 @@ begin
   EditOptionCleanAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyCleanExtraParameters, csDefaultEmpty);
 
   CheckBoxOptionLogsReset.Checked := ProjectList.Current.GetOption(csKeyLogsReset, False);
+  CheckBoxOptionLogsNoStates.Checked := ProjectList.Current.GetOption(csKeyLogsNoStates, False);
   EditOptionLogsAdditionalParameters.Text := ProjectList.Current.GetOption(csKeyLogsExtraParameters, csDefaultEmpty);
 
   PopulateComboDevice;

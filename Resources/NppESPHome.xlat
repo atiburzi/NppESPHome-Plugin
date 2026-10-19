@@ -3655,14 +3655,14 @@
               </property>
             </properties>
           </item>
-          <item name="NppPluginDockingForms_rsMessageDoNotUseThisConstructor">
+          <item name="NppPluginDocking_rsMessageDoNotUseThisConstructor">
             <properties>
               <property status="skip">
                 <value>Do not use this constructor</value>
               </property>
             </properties>
           </item>
-          <item name="NppPluginDockingForms_rsMessagePluginFrameworkError">
+          <item name="NppPluginDocking_rsMessagePluginFrameworkError">
             <properties>
               <property status="skip">
                 <value>Plugin Framework error</value>
@@ -13228,171 +13228,11 @@
               </property>
             </properties>
           </item>
-          <item name="FormToolbar.VirtualImageList.Images[0]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>add</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>add</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[1]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>clean</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>clean</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[10]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>select</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>select</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[11]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>showhide</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>showhide</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[12]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>logs</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>logs</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[13]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>terminal</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>terminal</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[14]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>upgrade</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>upgrade</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[15]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>upload</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>upload</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[2]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>cleanall</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>cleanall</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[3]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>compile</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>compile</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[4]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>configure</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>configure</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[5]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>explorer</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>explorer</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[6]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>help</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>help</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[7]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>open</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>open</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[8]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>remove</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>remove</value>
-              </property>
-            </properties>
-          </item>
-          <item name="FormToolbar.VirtualImageList.Images[9]" type="TVirtualImageList">
-            <properties>
-              <property name="CollectionName" status="skip">
-                <value>run</value>
-              </property>
-              <property name="Name" status="skip">
-                <value>run</value>
-              </property>
-            </properties>
-          </item>
         </items>
       </module>
-      <module name="TNPPPLUGINDOCKINGFORM" type="form">
+      <module name="TNPPPLUGINDOCKING" type="form">
         <items>
-          <item name="NppPluginDockingForm" type="TNppPluginDockingForm">
+          <item name="NppPluginDocking" type="TNppPluginDocking">
             <properties>
               <property name="Font.Name" status="skip">
                 <value>MS Sans Serif</value>

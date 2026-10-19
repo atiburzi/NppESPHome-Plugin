@@ -20,11 +20,12 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppScintilla;
+unit Npp.Scintilla.Api;
 
 
 // =============================================================================
-// Scintilla v5.5.0 as of Notepad++ v8.6.6
+// Scintilla API synchronized with the headers bundled by Notepad++ on
+// 2026-09-05. Text buffers exchanged with Scintilla are byte/UTF-8 buffers.
 // =============================================================================
 
 interface
@@ -40,11 +41,11 @@ type
 
   sciPosition   = NativeInt;
   sciPositionU  = NativeUInt;
-  sciPositionCR = NativeUInt;   // Changed from LongInt to NativeUInt since Npp v8.3
+  sciPositionCR = NativeInt;
 
-  sciString     = WideString;
-  sciChar       = WChar;
-  sciPChar      = PWChar;
+  sciString     = AnsiString;
+  sciChar       = AnsiChar;
+  sciPChar      = PAnsiChar;
 
   sciBString    = AnsiString;
   sciBChar      = AnsiChar;
@@ -53,6 +54,9 @@ type
 
   PCharacterRange = ^TCharacterRange;
 
+  // ***************************************************************************
+  // Purpose: Defines a character range for legacy Scintilla interfaces.
+  // ***************************************************************************
   TCharacterRange = record
     cpMin : sciPositionCR;
     cpMax : sciPositionCR;
@@ -61,6 +65,9 @@ type
 
   PCharacterRangeFull = ^TCharacterRangeFull;
 
+  // ***************************************************************************
+  // Purpose: Defines a native-width character range for Scintilla interfaces.
+  // ***************************************************************************
   TCharacterRangeFull = record
     cpMin : sciPosition;
     cpMax : sciPosition;
@@ -69,40 +76,55 @@ type
 
   PTextRange = ^TTextRange;
 
+  // ***************************************************************************
+  // Purpose: Couples a legacy character range with a destination text buffer.
+  // ***************************************************************************
   TTextRange = record
     chrg      : TCharacterRange;
-    lpstrText : PChar;
+    lpstrText : sciPChar;
   end;
 
 
   PTextRangeFull = ^TTextRangeFull;
 
+  // ***************************************************************************
+  // Purpose: Couples a native-width character range with a text buffer.
+  // ***************************************************************************
   TTextRangeFull = record
     chrg      : TCharacterRangeFull;
-    lpstrText : PChar;
+    lpstrText : sciPChar;
   end;
 
 
   PTextToFind = ^TTextToFind;
 
+  // ***************************************************************************
+  // Purpose: Describes a legacy Scintilla text search request and result range.
+  // ***************************************************************************
   TTextToFind = record
     chrg      : TCharacterRange;
-    lpstrText : PChar;
+    lpstrText : sciPChar;
     chrgText  : TCharacterRange;
   end;
 
 
   PTextToFindFull = ^TTextToFindFull;
 
+  // ***************************************************************************
+  // Purpose: Describes a native-width Scintilla text search request and result.
+  // ***************************************************************************
   TTextToFindFull = record
     chrg      : TCharacterRangeFull;
-    lpstrText : PChar;
+    lpstrText : sciPChar;
     chrgText  : TCharacterRangeFull;
   end;
 
 
   PRectangle = ^TRectangle;
 
+  // ***************************************************************************
+  // Purpose: Defines the rectangle layout used by Scintilla print messages.
+  // ***************************************************************************
   TRectangle = record
     left   : integer;
     top    : integer;
@@ -113,6 +135,9 @@ type
 
   PRangeToFormat = ^TRangeToFormat;
 
+  // ***************************************************************************
+  // Purpose: Describes a legacy Scintilla page-formatting request.
+  // ***************************************************************************
   TRangeToFormat = record
     hdc       : TSurfaceID;
     hdcTarget : TSurfaceID;
@@ -124,6 +149,9 @@ type
 
   PRangeToFormatFull = ^TRangeToFormatFull;
 
+  // ***************************************************************************
+  // Purpose: Describes a native-width Scintilla page-formatting request.
+  // ***************************************************************************
   TRangeToFormatFull = record
     hdc       : TSurfaceID;
     hdcTarget : TSurfaceID;
@@ -135,6 +163,9 @@ type
 
   PNotifyHeader = ^TNotifyHeader;
 
+  // ***************************************************************************
+  // Purpose: Mirrors the notification header shared by Scintilla and Win32.
+  // ***************************************************************************
   TNotifyHeader = record
     hwndFrom : Pointer;
     idFrom   : uptr_t;
@@ -144,6 +175,9 @@ type
 
   PSCNotification = ^TSCNotification;
 
+  // ***************************************************************************
+  // Purpose: Mirrors the complete notification payload emitted by Scintilla.
+  // ***************************************************************************
   TSCNotification = record
     nmhdr                : TNotifyHeader;
     position             : sciPosition;  // SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK,
@@ -156,7 +190,7 @@ type
     modifiers            : Integer;      // SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK,
                                          // SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE
     modificationType     : Integer;      // SCN_MODIFIED
-    text                 : PChar;        // SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED
+    text                 : sciPChar;     // SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED
     length               : sciPosition;  // SCN_MODIFIED
     linesAdded           : sciPosition;  // SCN_MODIFIED
     message              : Integer;      // SCN_MACRORECORD
@@ -1440,6 +1474,50 @@ const
   SCN_AUTOCCOMPLETED                               = 2030;
   SCN_MARGINRIGHTCLICK                             = 2031;
   SCN_AUTOCSELECTIONCHANGE                         = 2032;
+  SC_STATUS_OUTSIDE_DOCUMENT                       = 3;
+  SCTD_CONTROLCHAR                                 = 2;
+  SC_STRETCH_ULTRA_CONDENSED                       = 1;
+  SC_STRETCH_EXTRA_CONDENSED                       = 2;
+  SC_STRETCH_CONDENSED                             = 3;
+  SC_STRETCH_SEMI_CONDENSED                        = 4;
+  SC_STRETCH_NORMAL                                = 5;
+  SC_STRETCH_SEMI_EXPANDED                         = 6;
+  SC_STRETCH_EXPANDED                              = 7;
+  SC_STRETCH_EXTRA_EXPANDED                        = 8;
+  SC_STRETCH_ULTRA_EXPANDED                        = 9;
+  SCI_STYLESETSTRETCH                              = 2258;
+  SCI_STYLEGETSTRETCH                              = 2259;
+  SCI_CUTALLOWLINE                                 = 2810;
+  SCI_SETCOPYSEPARATOR                             = 2811;
+  SCI_GETCOPYSEPARATOR                             = 2812;
+  SCI_LINEINDENT                                   = 2813;
+  SCI_LINEDEDENT                                   = 2814;
+  SCI_AUTOCSETIMAGESCALE                           = 2815;
+  SCI_AUTOCGETIMAGESCALE                           = 2816;
+  SCI_SCROLLVERTICAL                               = 2817;
+  SCI_GETDRAGDROPENABLED                           = 2818;
+  SCI_SETDRAGDROPENABLED                           = 2819;
+  SCALE_TECHNIQUE_DEFAULT                          = 0;
+  SCALE_TECHNIQUE_PIXEL_ALIGNED                    = 1;
+  SCI_SETSCALETECHNIQUE                            = 2820;
+  SCI_GETSCALETECHNIQUE                            = 2821;
+  SCI_AUTOCSETSTYLE                                = 2109;
+  SCI_AUTOCGETSTYLE                                = 2120;
+  SC_UNDO_SELECTION_HISTORY_DISABLED               = 0;
+  SC_UNDO_SELECTION_HISTORY_ENABLED                = 1;
+  SC_UNDO_SELECTION_HISTORY_SCROLL                 = 2;
+  SCI_SETUNDOSELECTIONHISTORY                      = 2782;
+  SCI_GETUNDOSELECTIONHISTORY                      = 2783;
+  SCI_SETSELECTIONSERIALIZED                       = 2784;
+  SCI_GETSELECTIONSERIALIZED                       = 2785;
+  SCI_GETUNDOSEQUENCE                              = 2799;
+  SC_TECHNOLOGY_DIRECT_WRITE_1                     = 4;
+  SC_MASK_HISTORY                                  = $01E00000;
+  SC_UPDATE_TEXT                                   = $10;
+  SC_UPDATE_LINE_COUNT                             = $20;
+  SC_SEARCHRESULT_LINEBUFFERMAXLENGTH              = 2048;
+  SCI_GETBOOSTREGEXERRMSG                          = 5000;
+  SCN_FOLDINGSTATECHANGED                          = 2081;
   SC_BIDIRECTIONAL_DISABLED                        = 0;
   SC_BIDIRECTIONAL_L2R                             = 1;
   SC_BIDIRECTIONAL_R2L                             = 2;

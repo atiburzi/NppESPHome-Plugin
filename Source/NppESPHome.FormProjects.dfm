@@ -3,8 +3,8 @@ object FormProjects: TFormProjects
   Top = 0
   Anchors = [akTop, akRight]
   Caption = 'NppESPHome Plugin'
-  ClientHeight = 1106
-  ClientWidth = 481
+  ClientHeight = 1090
+  ClientWidth = 477
   Color = clBtnFace
   DoubleBuffered = True
   DoubleBufferedMode = dbmRequested
@@ -19,8 +19,8 @@ object FormProjects: TFormProjects
   TextHeight = 15
   object Splitter: TSplitter
     Left = 0
-    Top = 529
-    Width = 481
+    Top = 536
+    Width = 477
     Height = 8
     Cursor = crVSplit
     Align = alTop
@@ -28,17 +28,19 @@ object FormProjects: TFormProjects
     Beveled = True
     ResizeStyle = rsUpdate
     OnMoved = SplitterMoved
+    ExplicitTop = 529
+    ExplicitWidth = 481
   end
   object ToolBarCommands: TToolBar
     Left = 0
     Top = 0
-    Width = 481
-    Height = 29
+    Width = 477
+    Height = 36
     Margins.Left = 4
     Margins.Top = 4
     Margins.Right = 4
     Margins.Bottom = 4
-    ButtonHeight = 39
+    ButtonHeight = 32
     ButtonWidth = 40
     DoubleBuffered = True
     DrawingStyle = dsGradient
@@ -59,7 +61,7 @@ object FormProjects: TFormProjects
       Action = ActionOpen
     end
     object ToolButtonSep0: TToolButton
-      Left = 33
+      Left = 34
       Top = 0
       Width = 8
       ImageIndex = 10
@@ -67,24 +69,24 @@ object FormProjects: TFormProjects
       Style = tbsSeparator
     end
     object ToolButtonAddDeps: TToolButton
-      Left = 41
+      Left = 42
       Top = 0
       Action = ActionAddDeps
     end
     object ToolButtonRemoveDep: TToolButton
-      Left = 74
+      Left = 76
       Top = 0
       Action = ActionRemoveDep
     end
     object ToolButtonSep1: TToolButton
-      Left = 106
+      Left = 110
       Top = 0
       Width = 5
       ImageName = 'remove'
       Style = tbsSeparator
     end
     object ToolButtonRun: TToolButton
-      Left = 111
+      Left = 115
       Top = 0
       HelpType = htKeyword
       Margins.Left = 4
@@ -94,7 +96,7 @@ object FormProjects: TFormProjects
       Action = ActionRun
     end
     object ToolButtonCompile: TToolButton
-      Left = 144
+      Left = 149
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -103,7 +105,7 @@ object FormProjects: TFormProjects
       Action = ActionCompile
     end
     object ToolButtonUpload: TToolButton
-      Left = 177
+      Left = 183
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -112,7 +114,7 @@ object FormProjects: TFormProjects
       Action = ActionUpload
     end
     object ToolButtonShowLogs: TToolButton
-      Left = 210
+      Left = 217
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -121,7 +123,7 @@ object FormProjects: TFormProjects
       Action = ActionShowLogs
     end
     object ToolButtonClean: TToolButton
-      Left = 242
+      Left = 251
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -130,37 +132,37 @@ object FormProjects: TFormProjects
       Action = ActionClean
     end
     object ToolButtonSep2: TToolButton
-      Left = 275
+      Left = 285
       Top = 0
       Width = 7
       Style = tbsSeparator
     end
     object ToolButtonAddPrj: TToolButton
-      Left = 282
+      Left = 292
       Top = 0
       Action = ActionAddProject
     end
     object ToolButtonRemovePrj: TToolButton
-      Left = 315
+      Left = 326
       Top = 0
       Action = ActionRemoveProject
     end
     object ToolButtonSep3: TToolButton
-      Left = 348
+      Left = 360
       Top = 0
       Width = 8
       Style = tbsSeparator
     end
     object ToolButtonSettings: TToolButton
-      Left = 356
+      Left = 368
       Top = 0
       Action = ActionSettings
     end
   end
   object PanelTop: TPanel
     Left = 0
-    Top = 29
-    Width = 481
+    Top = 36
+    Width = 477
     Height = 500
     Align = alTop
     BevelOuter = bvNone
@@ -172,17 +174,18 @@ object FormProjects: TFormProjects
     object GroupBoxProjects: TGroupBox
       Left = 0
       Top = 0
-      Width = 481
+      Width = 479
       Height = 494
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Active Project'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
+      ExplicitWidth = 477
       object VirtualStringTreeProjects: TVirtualStringTree
         Left = 2
         Top = 17
-        Width = 477
+        Width = 475
         Height = 456
         Align = alClient
         BorderStyle = bsNone
@@ -201,10 +204,11 @@ object FormProjects: TFormProjects
         Images = VirtualImageList20
         ParentColor = True
         TabOrder = 0
-        TreeOptions.PaintOptions = [toHideFocusRect, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toFullVertGridLines]
+        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale]
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toInitOnSave, toWheelPanning]
+        TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages, toFullVertGridLines]
         TreeOptions.SelectionOptions = [toFullRowSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval]
         OnChange = VirtualStringTreeProjectsChange
-        OnCollapsing = VirtualStringTreeProjectsCollapsing
         OnCompareNodes = VirtualStringTreeProjectsCompareNodes
         OnDblClick = VirtualStringTreeProjectsDblClick
         OnGetText = VirtualStringTreeProjectsGetText
@@ -214,24 +218,24 @@ object FormProjects: TFormProjects
         OnNodeClick = VirtualStringTreeProjectsNodeClick
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-        ExplicitTop = 18
+        ExplicitWidth = 473
         Columns = <>
       end
       object PanelProjectPath: TPanel
         Left = 2
         Top = 473
-        Width = 477
+        Width = 475
         Height = 19
         Align = alBottom
         BevelOuter = bvNone
         ParentBackground = False
-        ParentColor = False
         TabOrder = 1
+        ExplicitWidth = 473
         object LabelProjectPath: TLabel
           AlignWithMargins = True
           Left = 6
           Top = 0
-          Width = 465
+          Width = 463
           Height = 19
           Margins.Left = 6
           Margins.Top = 0
@@ -240,18 +244,18 @@ object FormProjects: TFormProjects
           Align = alClient
           AutoSize = False
           EllipsisPosition = epPathEllipsis
-          ParentFont = True
           Transparent = True
           Layout = tlCenter
+          ExplicitWidth = 465
         end
       end
     end
   end
   object PanelBottom: TPanel
     Left = 0
-    Top = 537
-    Width = 481
-    Height = 569
+    Top = 544
+    Width = 477
+    Height = 546
     Align = alClient
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
@@ -259,21 +263,20 @@ object FormProjects: TFormProjects
     ParentColor = True
     TabOrder = 2
     DesignSize = (
-      481
-      569)
+      477
+      546)
     object GroupBoxTemplates: TGroupBox
       Left = 0
       Top = 6
-      Width = 477
-      Height = 556
+      Width = 473
+      Height = 533
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Templates'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
-      ExplicitHeight = 557
       DesignSize = (
-        477
-        556)
+        473
+        533)
       object LabelFilter: TLabel
         Left = 11
         Top = 24
@@ -290,7 +293,7 @@ object FormProjects: TFormProjects
         FocusControl = ComboBoxCategories
       end
       object ButtonMenuTemplates: TSpeedButton
-        Left = 449
+        Left = 445
         Top = 22
         Width = 20
         Height = 48
@@ -300,11 +303,12 @@ object FormProjects: TFormProjects
         Images = VirtualImageList32
         Flat = True
         OnClick = ButtonMenuTemplatesClick
+        ExplicitLeft = 449
       end
       object EditTextFilter: TButtonedEdit
         Left = 115
         Top = 22
-        Width = 331
+        Width = 327
         Height = 20
         Anchors = [akLeft, akTop, akRight]
         AutoSelect = False
@@ -324,8 +328,8 @@ object FormProjects: TFormProjects
       object ComboBoxCategories: TComboBox
         Left = 115
         Top = 48
-        Width = 331
-        Height = 26
+        Width = 327
+        Height = 22
         Style = csOwnerDrawFixed
         Anchors = [akLeft, akTop, akRight]
         ParentColor = True
@@ -335,17 +339,16 @@ object FormProjects: TFormProjects
       end
       object PanelStaticText: TPanel
         Left = 6
-        Top = 472
-        Width = 464
+        Top = 449
+        Width = 460
         Height = 79
         Anchors = [akLeft, akRight, akBottom]
         ParentColor = True
         TabOrder = 2
-        ExplicitTop = 473
         object StaticTextDescription: TJvLinkLabel
           Left = 1
           Top = 1
-          Width = 462
+          Width = 460
           Height = 77
           Caption = ''
           Text.Strings = (
@@ -356,23 +359,23 @@ object FormProjects: TFormProjects
           LinkColorHot = clRed
           OnLinkClick = StaticTextDescriptionLinkClick
           Align = alClient
+          ExplicitWidth = 462
         end
       end
       object PanelTemplates: TPanel
         Left = 6
         Top = 77
-        Width = 464
-        Height = 390
+        Width = 460
+        Height = 367
         Anchors = [akLeft, akTop, akRight, akBottom]
         ParentColor = True
         ShowCaption = False
         TabOrder = 3
-        ExplicitHeight = 391
         object VirtualStringTreeTemplates: TVirtualStringTree
           Left = 1
           Top = 1
-          Width = 462
-          Height = 388
+          Width = 460
+          Height = 373
           Align = alClient
           Colors.GridLineColor = clMedGray
           DefaultNodeHeight = 19
@@ -399,7 +402,8 @@ object FormProjects: TFormProjects
           OnGetHint = VirtualStringTreeTemplatesGetHint
           Touch.InteractiveGestures = [igPan, igPressAndTap]
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-          ExplicitHeight = 389
+          ExplicitWidth = 458
+          ExplicitHeight = 365
           Columns = <
             item
               CheckType = ctNone

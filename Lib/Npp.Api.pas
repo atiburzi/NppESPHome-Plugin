@@ -19,10 +19,16 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 }
 
-unit NppMessages;
+unit Npp.Api;
 
 
 interface
+
+// =============================================================================
+// This unit is the exact Delphi binding for the public Notepad++ plugin ABI.
+// Keep message identifiers, record layouts, and calling conventions aligned
+// with the upstream Notepad++ headers; runtime behavior belongs in Npp.Host.
+// =============================================================================
 
 uses
   Winapi.Windows, Winapi.Messages;
@@ -293,6 +299,9 @@ const
   // Returns TRUE
 
   NPPM_ADDTOOLBARICON_DEPRECATED = (NPPMSG + 41);
+  // Compatibility alias used by the official header. New code should use
+  // NPPM_ADDTOOLBARICON_FORDARKMODE.
+  NPPM_ADDTOOLBARICON = NPPM_ADDTOOLBARICON_DEPRECATED;
   // BOOL NPPM_ADDTOOLBARICON_DEPRECATED(UINT cmdID, TToolbarIcons *icon)
   // see TToolbarIcons
   // Add an icon to the toolbar.
@@ -354,7 +363,7 @@ const
   NPPM_MENUCOMMAND               = (NPPMSG + 48);
   // BOOL NPPM_MENUCOMMAND(int param, UINT cmdID)
   // This message allows plugins to call all the Notepad++ menu commands.
-  // See the command symbols defined in "NppMenuCmdID.pas" file
+  // See the command symbols defined in "Npp.MenuCmdID.pas" file
   // to access all the Notepad++ menu command items
   // Returns TRUE
 
@@ -1203,6 +1212,7 @@ const
   DWS_ICONTAB   = $00000001; // Icon for tabs are available
   DWS_ICONBAR   = $00000002; // Icon for icon bar are available (currently not supported)
   DWS_ADDINFO   = $00000004; // Additional information are in use
+  DWS_USEOWNDARKMODE = $00000008; // Plugin manages dark mode for the docking panel
   DWS_PARAMSALL = $00000007;
 
   // default docking values for first call of plugin
@@ -1226,6 +1236,9 @@ const
                                //nmhdr.hwndFrom = hwndNpp;
                                //nmhdr.idFrom = ctrlIdNpp;
 
+  DOCSTATUS_READONLY = $00000001;
+  DOCSTATUS_BUFFERDIRTY = $00000002;
+
 
 type
   // ---------------------------------------------------------------------------
@@ -1234,6 +1247,7 @@ type
   nppString = WideString;
   nppChar = WChar;
   nppPChar = PWChar;
+  PPnppChar = ^nppPChar;
 
   // ---------------------------------------------------------------------------
   // Languages enumeration, s.a. Notepad++ menu Language
@@ -1246,7 +1260,7 @@ type
     L_JSP, L_COFFEESCRIPT, L_JSON, L_JAVASCRIPT, L_FORTRAN_77, L_BAANC, L_SREC, L_IHEX, L_TEHEX, L_SWIFT, L_ASN1, L_AVS,
     L_BLITZBASIC, L_PUREBASIC, L_FREEBASIC, L_CSOUND, L_ERLANG, L_ESCRIPT, L_FORTH, L_LATEX, L_MMIXAL, L_NIM,
     L_NNCRONTAB, L_OSCRIPT, L_REBOL, L_REGISTRY, L_RUST, L_SPICE, L_TXT2TAGS, L_VISUALPROLOG, L_TYPESCRIPT, L_JSON5,
-    L_MSSQL, L_GDSCRIPT, L_HOLLYWOOD, L_GOLANG, L_RAKU,
+    L_MSSQL, L_GDSCRIPT, L_HOLLYWOOD, L_GOLANG, L_RAKU, L_TOML, L_SAS, L_ERRORLIST, L_ESCSEQ,
     // The end of enumerated language type, so it should be always at the end
     L_EXTERNAL);
 
@@ -1303,15 +1317,18 @@ type
   // Records for data exchange Notepad++ <-> Plugin
   // ---------------------------------------------------------------------------
 
-  // Basic infos for communication between Notepad++ and the plugin
-  // This structure is sent by Npp to the plugin via SetInfo
+  // ***************************************************************************
+  // Purpose: Carries the Notepad++ and Scintilla handles supplied to setInfo.
+  // ***************************************************************************
   TNppData = record
     NppHandle: HWND;
     ScintillaMainHandle: HWND;
     ScintillaSecondHandle: HWND;
   end;
 
-  // Set plugin keyboard shortcut
+  // ***************************************************************************
+  // Purpose: Describes one keyboard shortcut in the Notepad++ plugin ABI.
+  // ***************************************************************************
   PShortcutKey = ^TShortcutKey;
   TShortcutKey = record
     IsCtrl: Boolean;
@@ -1320,13 +1337,17 @@ type
     Key: UCHAR;
   end;
 
-  // Set plugin toolbar icon, deprecated since Npp v8.0
+  // ***************************************************************************
+  // Purpose: Describes the deprecated pre-8.0 toolbar icon payload.
+  // ***************************************************************************
   TToolbarIcons = record
     ToolbarBmp: HBITMAP;
     ToolbarIcon: HICON;
   end;
 
-  // Set plugin toolbar icon, use from Npp v8.0 onwards
+  // ***************************************************************************
+  // Purpose: Describes light and dark toolbar icons for Notepad++ 8.0 or newer.
+  // ***************************************************************************
   TToolbarIconsWithDarkMode = record
     ToolbarBmp: HBITMAP;        // light mode 16x16
     ToolbarIcon: HICON;         // dark mode unfilled 16x16 or 32x32
@@ -1334,6 +1355,9 @@ type
   end;
 
   PNppDarkModeColors = ^TNppDarkModeColors;
+  // ***************************************************************************
+  // Purpose: Carries the color palette exposed by the Notepad++ dark-mode API.
+  // ***************************************************************************
   TNppDarkModeColors = record
     background: COLORREF;
     softerBackground: COLORREF;
@@ -1349,7 +1373,9 @@ type
     disabledEdge: COLORREF;
   end;
 
-  // Dockable dialogs
+  // ***************************************************************************
+  // Purpose: Carries registration metadata for a Notepad++ docking panel.
+  // ***************************************************************************
   TTbData = record
     ClientHandle: HWND;      // dockable dialog handle
     Name: nppPChar;          // name of plugin dialog
@@ -1358,18 +1384,22 @@ type
     IconTab: HICON;          // handle to the icon to display on the dialog's tab
     AdditionalInfo: nppPChar;// pointer to a string joined to the caption using " - ", if not NULL
     FloatRect: TRect;        // internal, don't use
-    PrevContainer: Cardinal; // internal, don't use
+    PrevContainer: Integer;  // internal, don't use
     ModuleName: nppPChar;    // the name of your plugin module (with extension .dll)
   end;
 
-  // Loading/saving sessions
+  // ***************************************************************************
+  // Purpose: Describes the file list used to load or save a Notepad++ session.
+  // ***************************************************************************
   TSessionInfo = record
-    SessionFilePathName: nppPChar;           // the full path name of session file to save
-    NumFiles: Integer;            // the number of files in the session
-    Files: array of nppPChar;  // session files' full path
+    SessionFilePathName: nppPChar;          // the full path name of session file to save
+    NumFiles: Integer;                      // the number of files in the session
+    Files: PPnppChar;                       // pointer to an array of session file paths
   end;
 
-  // Inter-plugin communication
+  // ***************************************************************************
+  // Purpose: Carries an application-defined message between two plugins.
+  // ***************************************************************************
   TCommunicationInfo = record
     internalMsg: Cardinal;  // message-id (defined by dest-plugin)
     srcModuleName: nppPChar;  // complete module name (with extension .dll) of src-plugin
@@ -1384,11 +1414,15 @@ type
   FuncItemCmdProc = procedure; cdecl;
 
   PFuncItem = ^TFuncItem;
+  // ***************************************************************************
+  // Purpose: Defines one command exported through the Notepad++ plugin ABI.
+  // ***************************************************************************
   TFuncItem = packed record
     ItemName: array[0..FNITEM_NAMELEN - 1] of nppChar;
     Func: FuncItemCmdProc;
     CmdID: Integer;
-    Checked: LongBool;
+    Checked: Boolean;
+    CheckedPadding: array[0..2] of Byte; // C++ bool followed by pointer alignment padding
     ShortcutKey: PShortcutKey;
   end;
 

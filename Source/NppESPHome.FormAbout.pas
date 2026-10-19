@@ -7,7 +7,7 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, NppPlugin, NppPluginForm,
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls, Npp.Plugin, Npp.Vcl.Forms,
   Vcl.VirtualImage, Vcl.ImageCollection, Vcl.BaseImageCollection;
 
 type
@@ -51,7 +51,7 @@ implementation
 {$R *.dfm}
 
 uses
-  NppMessages, NppESPHome.Shared, Winapi.ShellAPI;
+  Npp.Api, NppESPHome.Shared, Winapi.ShellAPI;
 
 resourcestring
   // Localized caption prefix used for the plugin version label

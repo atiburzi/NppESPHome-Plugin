@@ -4,14 +4,15 @@ object FormToolbar: TFormToolbar
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Toolbar configuration'
-  ClientHeight = 647
-  ClientWidth = 418
+  ClientHeight = 654
+  ClientWidth = 421
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Position = poOwnerFormCenter
   OnCreate = FormCreate
   TextHeight = 15
   object LabelInfo: TLabel
@@ -64,7 +65,7 @@ object FormToolbar: TFormToolbar
     Default = True
     ModalResult = 1
     TabOrder = 2
-    OnClick = ButtonOkClick
+    OnClick = ButtonSaveClick
   end
   object ButtonCancel: TButton
     Left = 337
@@ -83,7 +84,7 @@ object FormToolbar: TFormToolbar
     Height = 25
     Caption = '&Apply'
     TabOrder = 3
-    OnClick = ButtonOkClick
+    OnClick = ButtonSaveClick
   end
   object ButtonReset: TButton
     Left = 9
@@ -96,90 +97,10 @@ object FormToolbar: TFormToolbar
   end
   object VirtualImageList: TVirtualImageList
     AutoFill = True
-    Images = <
-      item
-        CollectionIndex = 0
-        CollectionName = 'add'
-        Name = 'add'
-      end
-      item
-        CollectionIndex = 1
-        CollectionName = 'clean'
-        Name = 'clean'
-      end
-      item
-        CollectionIndex = 2
-        CollectionName = 'cleanall'
-        Name = 'cleanall'
-      end
-      item
-        CollectionIndex = 3
-        CollectionName = 'compile'
-        Name = 'compile'
-      end
-      item
-        CollectionIndex = 4
-        CollectionName = 'configure'
-        Name = 'configure'
-      end
-      item
-        CollectionIndex = 5
-        CollectionName = 'explorer'
-        Name = 'explorer'
-      end
-      item
-        CollectionIndex = 6
-        CollectionName = 'help'
-        Name = 'help'
-      end
-      item
-        CollectionIndex = 7
-        CollectionName = 'open'
-        Name = 'open'
-      end
-      item
-        CollectionIndex = 8
-        CollectionName = 'remove'
-        Name = 'remove'
-      end
-      item
-        CollectionIndex = 9
-        CollectionName = 'run'
-        Name = 'run'
-      end
-      item
-        CollectionIndex = 10
-        CollectionName = 'select'
-        Name = 'select'
-      end
-      item
-        CollectionIndex = 11
-        CollectionName = 'showhide'
-        Name = 'showhide'
-      end
-      item
-        CollectionIndex = 12
-        CollectionName = 'logs'
-        Name = 'logs'
-      end
-      item
-        CollectionIndex = 13
-        CollectionName = 'terminal'
-        Name = 'terminal'
-      end
-      item
-        CollectionIndex = 14
-        CollectionName = 'upgrade'
-        Name = 'upgrade'
-      end
-      item
-        CollectionIndex = 15
-        CollectionName = 'upload'
-        Name = 'upload'
-      end>
+    Images = <>
     Width = 32
     Height = 32
-    Left = 68
-    Top = 40
+    Left = 54
+    Top = 32
   end
 end
