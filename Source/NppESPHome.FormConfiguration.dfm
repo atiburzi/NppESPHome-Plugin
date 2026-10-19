@@ -4,7 +4,7 @@ object FormConfig: TFormConfig
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Project Configuration'
-  ClientHeight = 501
+  ClientHeight = 506
   ClientWidth = 619
   Color = clBtnFace
   ParentFont = True
@@ -347,7 +347,7 @@ object FormConfig: TFormConfig
         TabOrder = 5
         object LabelOptionRunAdditionalParameters: TLabel
           Left = 22
-          Top = 109
+          Top = 158
           Width = 347
           Height = 52
           AutoSize = False
@@ -367,9 +367,20 @@ object FormConfig: TFormConfig
             'and.'
           FocusControl = CheckBoxOptionRunNoLogs
         end
-        object LabelOptionRunReset: TLabel
+        object LabelOptionRunNoStates: TLabel
           Left = 50
           Top = 59
+          Width = 265
+          Height = 30
+          AutoSize = False
+          Caption =
+            'No States (Hide entity state changes)'#13#10'Add "--no-states" swit' +
+            'ch to "Run" command.'
+          FocusControl = CheckBoxOptionRunNoStates
+        end
+        object LabelOptionRunReset: TLabel
+          Left = 50
+          Top = 108
           Width = 229
           Height = 30
           AutoSize = False
@@ -386,24 +397,32 @@ object FormConfig: TFormConfig
           TabOrder = 1
           OnClick = CheckBoxOptionRunNoLogsClick
         end
-        object CheckBoxOptionRunReset: TCheckBox
+        object CheckBoxOptionRunNoStates: TCheckBox
           Left = 22
           Top = 59
-          Width = 75
+          Width = 123
           Height = 17
           TabOrder = 2
+          OnClick = CheckBoxOptionRunNoStatesClick
+        end
+        object CheckBoxOptionRunReset: TCheckBox
+          Left = 22
+          Top = 108
+          Width = 75
+          Height = 17
+          TabOrder = 3
           OnClick = CheckBoxOptionRunResetClick
         end
         object EditOptionRunAdditionalParameters: TJvEdit
           Left = 22
-          Top = 146
+          Top = 195
           Width = 347
           Height = 21
           Flat = True
           ParentFlat = False
           AutoSize = False
           ParentColor = True
-          TabOrder = 3
+          TabOrder = 4
           Text = ''
           OnChange = EditOptionRunAdditionalParametersChange
         end
@@ -561,13 +580,24 @@ object FormConfig: TFormConfig
         end
         object LabelOptionLogsAdditionalParameters: TLabel
           Left = 22
-          Top = 59
+          Top = 108
           Width = 347
           Height = 86
           AutoSize = False
           Caption = 
             'Manually specify additional command line switches'#13#10'when "Logs" c' +
             'ommand is executed:'
+        end
+        object LabelOptionLogsNoStates: TLabel
+          Left = 45
+          Top = 57
+          Width = 265
+          Height = 30
+          AutoSize = False
+          Caption =
+            'No States (Hide entity state changes)'#13#10'Add "--no-states" swit' +
+            'ch to "Logs" command.'
+          FocusControl = CheckBoxOptionLogsNoStates
         end
         object CheckBoxOptionLogsReset: TCheckBox
           Left = 22
@@ -577,16 +607,24 @@ object FormConfig: TFormConfig
           TabOrder = 0
           OnClick = CheckBoxOptionLogsResetClick
         end
+        object CheckBoxOptionLogsNoStates: TCheckBox
+          Left = 22
+          Top = 57
+          Width = 123
+          Height = 17
+          TabOrder = 2
+          OnClick = CheckBoxOptionLogsNoStatesClick
+        end
         object EditOptionLogsAdditionalParameters: TJvEdit
           Left = 22
-          Top = 98
+          Top = 147
           Width = 347
           Height = 21
           Flat = True
           ParentFlat = False
           AutoSize = False
           ParentColor = True
-          TabOrder = 2
+          TabOrder = 3
           Text = ''
           OnChange = EditOptionLogsAdditionalParametersChange
         end

@@ -71,6 +71,7 @@ const
   csKeyESPHomeTargetDevice = 'ESPHomeTargetDevice';
   csKeyESPHomeExtraParameters = 'ESPHomeExtraParameters';
   csKeyRunNoLogs = 'RunNoLogs';
+  csKeyRunNoStates = 'RunNoStates';
   csKeyRunReset = 'RunReset';
   csKeyRunExtraParameters = 'RunExtraParameters';
   csKeyCompileGenerateOnly = 'CompileGenerateOnly';
@@ -78,6 +79,7 @@ const
   csKeyCompileExtraParameters = 'CompileExtraParameters';
   csKeyCleanExtraParameters = 'CleanExtraParameters';
   csKeyLogsReset = 'LogsReset';
+  csKeyLogsNoStates = 'LogsNoStates';
   csKeyLogsExtraParameters = 'LogsExtraParameters';
   csKeyDependencyPrefix = 'Dependency';
 

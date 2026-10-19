@@ -181,6 +181,7 @@ resourcestring
 
   rsNoProjectSelected = 'No ESPHome project is currently selected.';
   rsNoProjectSelected2 = 'To use this command, please select the current project and try again.'#13#13#10'You can select it through the menu command:'#13#10'"Plugins" -> "NppESPHome" -> "Select Project..."';
+  rsPipNotFound = 'pip.exe was not found.';
 
 {$REGION 'Callback Wrappers'}
 
@@ -503,6 +504,8 @@ begin
           Switch := Trim(GetOption(csKeyRunExtraParameters, csDefaultEmpty));
           if GetOption(csKeyRunReset, False) then
             Switch := Concat('--reset ', Switch);
+          if GetOption(csKeyRunNoStates, False) then
+            Switch := Concat('--no-states ', Switch);
           if GetOption(csKeyRunNoLogs, False) then
             Switch := Concat('--no-logs ', Switch);
           if Device <> csDefaultEmpty then
@@ -525,6 +528,8 @@ begin
           Switch := Trim(GetOption(csKeyLogsExtraParameters, csDefaultEmpty));
           if GetOption(csKeyLogsReset, False) then
             Switch := Concat('--reset ', Switch);
+          if GetOption(csKeyLogsNoStates, False) then
+            Switch := Concat('--no-states ', Switch);
           if Device <> csDefaultEmpty then
             Switch := Concat(Device, ' ', Switch);
         end;
@@ -866,19 +871,58 @@ end;
 // *****************************************************************************
 procedure TESPHomePlugin.StartUpgrade;
 var
+  PipFile: string;
+  ComSpec: string;
+  UpgradeCommand: string;
   JvCreateProcess: TJvCreateProcess;
 begin
   if not CheckESPHome then
     Exit;
 
-  // Launch the upgrade in a visible console so pip output and errors stay readable.
+  // Preferisce il pip della stessa installazione di ESPHome.
+  PipFile := TPath.Combine(ExtractFileDir(ESPHomeFile), 'pip.exe');
+
+  if not FileExists(PipFile) then
+    PipFile := FindFileInPath('pip.exe');
+
+  if not FileExists(PipFile) then
+  begin
+    MessageDlg(rsPipNotFound, mtError, [mbOK], 0);
+    Exit;
+  end;
+
+  ComSpec := GetEnvironmentVariable('ComSpec');
+
+  UpgradeCommand := Format('"%s" --disable-pip-version-check --no-input ' + 'install --upgrade esphome && "%s" version', [ExpandFileName(PipFile),
+    ExpandFileName(ESPHomeFile)]);
+
+  // Usa la console integrata solo quando è già visibile,
+  // come per gli altri comandi ESPHome.
+  if Assigned(FormConsole) and FormConsole.Visible and TConPtySession.IsSupported then
+  begin
+    FormConsole.StartCommand(Format('"%s" /d /s /c "%s"', [ComSpec, UpgradeCommand]), ExtractFileDir(ESPHomeFile), miStartUpgrade);
+    Commands.SetChecked(fiShowHideConsole, True);
+    ConfigIniFile.WriteBool(csSectionGeneral, csKeyConsoleWindow, True);
+    Exit;
+  end;
+
+  // Console integrata nascosta o ConPTY non disponibile:
+  // apre la tradizionale console esterna.
   JvCreateProcess := TJvCreateProcess.Create(nil);
-  JvCreateProcess.ApplicationName := GetEnvironmentVariable('ComSpec');
-  JvCreateProcess.CommandLine := Format('/c pip.exe install --upgrade esphome & "%s" --version & pause', [ExpandFileName(ESPHomeFile)]);
-  JvCreateProcess.StartupInfo.Title := miStartUpgrade;
-  JvCreateProcess.Run;
-  JvCreateProcess.Free;
+  try
+    JvCreateProcess.ApplicationName := ComSpec;
+    JvCreateProcess.CommandLine := Format('/d /s /c "%s & pause"', [UpgradeCommand]);
+    JvCreateProcess.CurrentDirectory := ExtractFileDir(ESPHomeFile);
+    JvCreateProcess.CreationFlags := JvCreateProcess.CreationFlags + [cfNewConsole];
+    JvCreateProcess.StartupInfo.Title := miStartUpgrade;
+    JvCreateProcess.Run;
+  finally
+    JvCreateProcess.Free;
+  end;
 end;
+
+
+
 
 // *****************************************************************************
 // Purpose: Opens a command shell in the current project folder and injects

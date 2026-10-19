@@ -161,10 +161,10 @@ project filename to `esphome.exe`.
 
 | Command | Generated ESPHome command | Project-specific options |
 |---|---|---|
-| Run | `run` | Target device, `--reset`, `--no-logs`, extra parameters |
+| Run | `run` | Target device, `--reset`, `--no-logs`, `--no-states`, extra parameters |
 | Compile | `compile` | `--only-generate`, extra parameters |
 | Upload | `upload` | Target device, extra parameters |
-| Logs | `logs` | Target device, `--reset`, extra parameters |
+| Logs | `logs` | Target device, `--reset`, `--no-states`, extra parameters |
 | Clean | `clean` | Extra parameters |
 | Clean-All | `clean-all` | Requires explicit confirmation |
 
