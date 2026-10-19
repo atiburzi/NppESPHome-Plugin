@@ -18,7 +18,6 @@ type
   // Event handlers persist changes immediately, while dynamic controls mirror
   // devices, monitors, dependencies, and theme resources discovered at runtime.
   TFormConfig = class(TNppPluginForm)
-    ButtonClose: TButton;
     GroupBoxProject: TGroupBox;
     VirtualImageList: TVirtualImageList;
     FileOpenDialogDependency: TFileOpenDialog;
@@ -105,6 +104,8 @@ type
     ButtonIntConsoleDefaults: TButton;
     ColorDialog: TColorDialog;
     LabelIntConsoleClearOnStart: TLabel;
+    PanelButtons: TPanel;
+    ButtonClose: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ToggleDarkMode; override;
     procedure CheckBoxOptionRunNoLogsClick(Sender: TObject);

@@ -50,9 +50,6 @@ Coordinates=10,10,139,124
 [CardRunOptions]
 Coordinates=819,348,110,58
 
-[ButtonClose]
-Coordinates=489,144,85,58
-
 [LabelOptionESPHomeAdditionalParameters]
 Coordinates=714,10,267,58
 
@@ -102,7 +99,7 @@ Coordinates=0,454,175,36
 Coordinates=277,212,112,58
 
 []
-Coordinates=713,490,140,36
+Coordinates=489,144,85,58
 
 [VirtualImageList]
 Coordinates=187,490,139,36

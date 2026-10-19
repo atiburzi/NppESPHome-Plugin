@@ -11,17 +11,6 @@ object FormConfig: TFormConfig
   ShowHint = True
   OnCreate = FormCreate
   TextHeight = 15
-  object ButtonClose: TButton
-    Left = 542
-    Top = 477
-    Width = 75
-    Height = 25
-    Hint = 'Closes current window'
-    Cancel = True
-    Caption = 'Close'
-    ModalResult = 1
-    TabOrder = 2
-  end
   object GroupBoxProject: TGroupBox
     Left = 8
     Top = 8
@@ -373,9 +362,9 @@ object FormConfig: TFormConfig
           Width = 265
           Height = 30
           AutoSize = False
-          Caption =
-            'No States (Hide entity state changes)'#13#10'Add "--no-states" swit' +
-            'ch to "Run" command.'
+          Caption = 
+            'No States (Hide entity state changes)'#13#10'Add "--no-states" switch ' +
+            'to "Run" command.'
           FocusControl = CheckBoxOptionRunNoStates
         end
         object LabelOptionRunReset: TLabel
@@ -594,9 +583,9 @@ object FormConfig: TFormConfig
           Width = 265
           Height = 30
           AutoSize = False
-          Caption =
-            'No States (Hide entity state changes)'#13#10'Add "--no-states" swit' +
-            'ch to "Logs" command.'
+          Caption = 
+            'No States (Hide entity state changes)'#13#10'Add "--no-states" switch ' +
+            'to "Logs" command.'
           FocusControl = CheckBoxOptionLogsNoStates
         end
         object CheckBoxOptionLogsReset: TCheckBox
@@ -1077,6 +1066,28 @@ object FormConfig: TFormConfig
           OnClick = CheckBoxIntConsoleClearOnStartClick
         end
       end
+    end
+  end
+  object PanelButtons: TPanel
+    Left = 0
+    Top = 465
+    Width = 619
+    Height = 41
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 2
+    ExplicitTop = 457
+    ExplicitWidth = 617
+    object ButtonClose: TButton
+      Left = 536
+      Top = 8
+      Width = 75
+      Height = 25
+      Hint = 'Closes current window'
+      Cancel = True
+      Caption = 'Close'
+      ModalResult = 1
+      TabOrder = 0
     end
   end
   object VirtualImageList: TVirtualImageList
