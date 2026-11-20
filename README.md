@@ -51,7 +51,7 @@ replace ESPHome and does not include the ESPHome runtime.
 - Multiple ESPHome projects with a persistent current-project selection
 - Recursive YAML/include validation and extraction of project metadata
 - Automatic dependency discovery plus unrestricted manual dependency management
-- Direct **Run**, **Compile**, **Upload**, **Logs**, **Clean**, and
+- Direct **Run**, **Compile**, **Config**, **Upload**, **Logs**, **Clean**, and
   **Clean-All** commands
 - Interactive dockable console with ANSI colors, UTF-8 output, keyboard input,
   live status, elapsed time, and process controls
@@ -125,7 +125,8 @@ provided by Notepad++ rather than beside the installed DLL.
 5. Enable **Show/Hide ESPHome Console** if you want commands to run in the
    integrated docking form.
 6. Execute an ESPHome command from the plugin menu, the Notepad++ toolbar, or
-   the dockable project window.
+   the dockable project window. Use **Config** to validate the project and
+   inspect its resolved configuration without compiling or uploading firmware.
 7. Double-click a template to insert its YAML at the current editor selection.
 
 Removing a project or dependency removes only its registration from the plugin;
@@ -197,6 +198,7 @@ project filename to `esphome.exe`.
 |---|---|---|
 | Run | `run` | Target device, `--reset`, `--no-logs`, `--no-states`, extra parameters |
 | Compile | `compile` | `--only-generate`, extra parameters |
+| Config | `config` | No command-specific options; uses the shared auto-save and global ESPHome settings |
 | Upload | `upload` | Target device, extra parameters |
 | Logs | `logs` | Target device, `--reset`, `--no-states`, extra parameters |
 | Clean | `clean` | Extra parameters |
@@ -207,6 +209,24 @@ The selected ESPHome log level is added before the command with `-l` and can be
 separate global extra-parameters field is also inserted before the command;
 **Run**, **Compile**, **Upload**, **Logs**, and **Clean** also have their own
 additional-parameters fields.
+
+### Config: Validate and Inspect
+
+**Config** invokes `esphome config` for the current project. ESPHome validates
+the configuration and displays the resolved YAML, including values supplied by
+includes, packages, substitutions, and schema defaults. Large projects can
+therefore produce thousands of output lines even when validation succeeds.
+
+The command is available from the plugin menu, the configurable Notepad++
+toolbar, and the Projects window toolbar. It follows the same integrated- or
+external-console selection rules as the other commands and does not compile
+or upload firmware. No command-specific options or default keyboard shortcut
+are assigned to Config.
+
+**Config** is distinct from **Configure Project**: Config runs ESPHome's
+validation, whereas Configure Project opens NppESPHome's per-project settings.
+The plugin's own YAML analysis extracts project metadata and dependencies; it
+does not replace ESPHome's full configuration validation.
 
 ### Target Device
 
@@ -254,8 +274,19 @@ The terminal view provides:
 - horizontal and vertical scrollbars with word wrapping intentionally disabled;
 - optional automatic following of the newest output, suspended when the user
   scrolls back and resumed with the **Follow** button;
-- a bounded scrollback buffer: after roughly two million characters, the
-  oldest portion is removed in line-aligned blocks.
+- a configurable scrollback line limit and a separate safety cap of roughly
+  two million characters; older content is removed in line-aligned blocks.
+
+Incoming ConPTY output is queued and rendered in batches of up to 16 KB at the
+UI timer cadence. Ordinary same-style text, including CRLF line breaks, is
+inserted in blocks, while terminal control sequences continue through the
+ANSI/VT parser. UTF-8 buffering avoids per-byte reallocations, and selection,
+scrollback, and display updates are grouped per batch. These optimizations
+apply to all commands, including large **Config** dumps.
+
+The console uses RichEdit's internal character offsets for cursor positioning
+and guards against non-progressing line-creation loops if an insertion is
+rejected. Terminal output does not accumulate an undo history.
 
 The console is interactive. Normal text is sent to the pseudoconsole together
 with Enter, Backspace, Tab, navigation keys, Insert/Delete, Page Up/Down, and
@@ -273,6 +304,9 @@ The secondary status line reports **Ready**, **Running**, **Completed**,
 **Stopped**, startup failures, and non-zero exit codes. While a command is
 running it also shows elapsed time and a three-bar activity animation. Stopped
 and error states use the same red visual treatment.
+
+The completion status is displayed after pending output has been rendered.
+Starting a new session discards stale queued output from the previous session.
 
 The header toolbar contains:
 
@@ -328,7 +362,8 @@ The project tree provides:
 - selection and opening of the represented file;
 - add/remove project and dependency actions;
 - project configuration and open-all-files actions;
-- direct ESPHome command buttons;
+- direct **Run**, **Compile**, **Config**, **Upload**, **Logs**, and **Clean**
+  command buttons;
 - shortcuts to a terminal and File Explorer in the project directory.
 
 The window visibility and the project/template splitter height are persisted.
@@ -391,6 +426,11 @@ The toolbar rebuild preserves the command association and enabled state. Icons
 are refreshed when Notepad++ switches between Light and Dark mode or changes
 among its Fluent UI, Filled Fluent UI, and Standard toolbar icon sets.
 
+**Config** has dedicated standard and low-resolution icons. When a newly
+available button is missing from a saved toolbar layout, it is appended as
+visible without discarding the existing order and visibility settings. Use
+the toolbar configuration dialog to reposition or hide it.
+
 ---
 
 ## Menu Commands and Default Shortcuts
@@ -409,7 +449,7 @@ dynamic **Configure Project** menu caption.
 | ESPHome Documentation | `Ctrl+F1` |
 
 Other menu entries include adding/removing projects, opening project files,
-Logs, Clean, Clean-All, upgrading ESPHome, opening a project terminal or File
+Config, Logs, Clean, Clean-All, upgrading ESPHome, opening a project terminal or File
 Explorer, independently showing/hiding the project and console docking forms,
 opening the plugin configuration file, configuring the toolbar, and About.
 
