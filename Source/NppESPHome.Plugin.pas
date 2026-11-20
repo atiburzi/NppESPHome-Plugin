@@ -23,6 +23,7 @@ const
 
   fiCommandRun = 'run';
   fiCommandCompile = 'compile';
+  fiCommandConfig = 'config';
   fiCommandUpload = 'upload';
   fiCommandLogs = 'logs';
   fiCommandClean = 'clean';
@@ -51,6 +52,7 @@ resourcestring
 
   miCommandRun = 'Run';
   miCommandCompile = 'Compile';
+  miCommandConfig = 'Config';
   miCommandUpload = 'Upload';
   miCommandLogs = 'Show Logs';
   miCommandClean = 'Clean';
@@ -101,6 +103,7 @@ type
 
     procedure CommandRun;
     procedure CommandCompile;
+    procedure CommandConfig;
     procedure CommandUpload;
     procedure CommandLogs;
     procedure CommandClean;
@@ -262,6 +265,15 @@ end;
 procedure _CommandCompile; cdecl;
 begin
 	Plugin.CommandCompile;
+end;
+
+// *****************************************************************************
+// Purpose: Forwards the Notepad++ command callback to
+// TESPHomePlugin.CommandConfig.
+// *****************************************************************************
+procedure _CommandConfig; cdecl;
+begin
+	Plugin.CommandConfig;
 end;
 
 // *****************************************************************************
@@ -460,7 +472,7 @@ end;
 // *****************************************************************************
 procedure ExecuteESPHomeCommand(const Command: Integer);
 const
-  CommandStr: array [scRun .. scCleanAll] of string = ('Run', 'Compile', 'Upload', 'Logs', 'Clean', 'Clean-All');
+  CommandStr: array [scRun .. scCleanAll] of string = ('Run', 'Compile', 'Config', 'Upload', 'Logs', 'Clean', 'Clean-All');
 var
   ConsoleHandle: HWND;
   CommandLine, Switch, Device, ConsoleTitle: string;
@@ -538,6 +550,10 @@ begin
           if GetOption(csKeyCompileGenerateOnly, False) then
             Switch := Concat('--only-generate ', Switch);
         end;
+      scConfig:
+        begin
+          Switch := csDefaultEmpty;
+        end;
       scUpload:
         begin
           Switch := Trim(GetOption(csKeyUploadExtraParameters, csDefaultEmpty));
@@ -606,6 +622,7 @@ begin
     case Command of
       scRun: ConsoleTitle := rsConsoleCommandRun;
       scCompile: ConsoleTitle := rsConsoleCommandCompile;
+      scConfig: ConsoleTitle := rsConsoleCommandConfig;
       scUpload: ConsoleTitle := rsConsoleCommandUpload;
       scLogs: ConsoleTitle := rsConsoleCommandLogs;
       scClean: ConsoleTitle := rsConsoleCommandClean;
@@ -896,6 +913,15 @@ begin
 end;
 
 // *****************************************************************************
+// Purpose: Runs the ESPHome config command for the current project.
+// *****************************************************************************
+procedure TESPHomePlugin.CommandConfig;
+begin
+  if CheckESPHome and CheckCurrentProject then
+    ExecuteESPHomeCommand(scConfig);
+end;
+
+// *****************************************************************************
 // Purpose: Uploads the current project using the configured ESPHome target
 // device.
 // *****************************************************************************
@@ -1010,8 +1036,6 @@ begin
     JvCreateProcess.Free;
   end;
 end;
-
-
 
 
 // *****************************************************************************
@@ -1483,6 +1507,7 @@ begin
       MakeShortcutKey(False, False, False, $78));
     Commands.AddCommand(fiCommandCompile, miCommandCompile, _CommandCompile,
       MakeShortcutKey(True, False, False, $78));
+    Commands.AddCommand(fiCommandConfig, miCommandConfig, _CommandConfig);
     Commands.AddCommand(fiCommandUpload, miCommandUpload, _CommandUpload,
       MakeShortcutKey(False, False, True, $78));
     Commands.AddCommand(fiCommandLogs, miCommandLogs, _CommandLogs);
@@ -1717,6 +1742,7 @@ begin
   Commands.SetEnabled(fiProjectRemove, ProjectAssigned);
   Commands.SetEnabled(fiCommandRun, ProjectAssigned);
   Commands.SetEnabled(fiCommandCompile, ProjectAssigned);
+  Commands.SetEnabled(fiCommandConfig, ProjectAssigned);
   Commands.SetEnabled(fiCommandUpload, ProjectAssigned);
   Commands.SetEnabled(fiCommandLogs, ProjectAssigned);
   Commands.SetEnabled(fiCommandClean, ProjectAssigned);

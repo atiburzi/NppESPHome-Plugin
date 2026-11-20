@@ -1,35 +1,35 @@
 ﻿[Closed Files]
-File_0=TSourceModule,'c:\program files (x86)\embarcadero\studio\37.0\SOURCE\VCL\Vcl.Dialogs.pas',0,1,4966,1,5015,0,0,,
-File_1=TSourceModule,'c:\program files (x86)\embarcadero\studio\37.0\SOURCE\RTL\SYS\System.pas',0,1,26620,1,26666,0,0,,
-File_2=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormSelectProject.pas',0,1,1,17,13,0,0,,
-File_3=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormConfiguration.pas',0,1,758,77,792,0,0,,
-File_4=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormToolbar.pas',0,1,1,1,1,0,0,,
-File_5=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormAbout.pas',0,1,1,1,1,0,0,,
-File_6=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormProjects.pas',0,1,702,24,711,0,0,,
-File_7=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Vcl.Forms.pas',0,1,41,1,50,0,0,,
-File_8=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\FileVersionInfo.pas',0,1,1,1,1,0,0,,
-File_9=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas',0,1,824,52,874,0,0,,
-File_10=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormConfiguration.dfm',0,1,1040,16,1090,0,0,,
-File_11=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resources\Toolbar\ShowHide_Light.ico',0,1,1,1,1,0,0,,
-File_12=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resources\Toolbar\ShowHide_Dark.ico',0,1,1,1,1,0,0,,
-File_13=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resources\Toolbar\ShowHide.bmp',0,1,1,1,1,0,0,,
-File_14=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resources\Toolbar\Configure_Light.ico',0,1,1,1,1,0,0,,
+File_0=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Plugin.pas',0,1,522,114,562,0,0,{{201,0}
+File_1=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormProjects.pas',0,1,711,5,724,0,0,,
+File_2=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormToolbar.pas',0,1,1,1,1,0,0,,
+File_3=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Shared.pas',0,1,274,149,64,0,0,,
+File_4=TSourceModule,'c:\program files (x86)\embarcadero\studio\37.0\SOURCE\VCL\Vcl.Dialogs.pas',0,1,4966,1,5015,0,0,,
+File_5=TSourceModule,'c:\program files (x86)\embarcadero\studio\37.0\SOURCE\RTL\SYS\System.pas',0,1,26620,1,26666,0,0,,
+File_6=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormSelectProject.pas',0,1,1,17,13,0,0,,
+File_7=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormConfiguration.pas',0,1,758,77,792,0,0,,
+File_8=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormAbout.pas',0,1,1,1,1,0,0,,
+File_9=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Vcl.Forms.pas',0,1,41,1,50,0,0,,
+File_10=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\FileVersionInfo.pas',0,1,1,1,1,0,0,,
+File_11=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.FormConfiguration.dfm',0,1,1040,16,1090,0,0,,
+File_12=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resources\Toolbar\ShowHide_Light.ico',0,1,1,1,1,0,0,,
+File_13=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resources\Toolbar\ShowHide_Dark.ico',0,1,1,1,1,0,0,,
+File_14=TSourceModule,'H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Resources\Toolbar\ShowHide.bmp',0,1,1,1,1,0,0,,
 
 [Modules]
-Module0=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Shared.pas
-Module1=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Plugin.pas
+Module0=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas
+Module1=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Toolbar.pas
 Count=2
 EditWindowCount=1
 
-[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Shared.pas]
+[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas]
 ModuleType=TSourceModule
 
-[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Plugin.pas]
+[H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Toolbar.pas]
 ModuleType=TSourceModule
 
 [EditWindow0]
 ViewCount=2
-CurrentView=-1
+CurrentEditView=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas
 View0=0
 View1=1
 PercentageSizes=1
@@ -45,8 +45,8 @@ MaxLeft=-1
 MaxTop=-1
 ClientWidth=9948
 ClientHeight=9386
-TBDockHeight=9386
-LRDockWidth=9948
+TBDockHeight=3710
+LRDockWidth=3018
 Dockable=1
 StayOnTop=0
 DockedToMainForm=1
@@ -67,25 +67,25 @@ BottomMiddelPanelData=0000080001020200000009000000446F636B5369746530100000004772
 
 [View0]
 CustomEditViewType=TEditView
-Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Shared.pas
-CursorX=1
-CursorY=1070
-TopLine=1074
+Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas
+CursorX=29
+CursorY=307
+TopLine=263
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Shared.pas
+EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Plugin.pas
 
 [View1]
 CustomEditViewType=TEditView
-Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Plugin.pas
+Module=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Toolbar.pas
 CursorX=1
-CursorY=750
-TopLine=703
+CursorY=313
+TopLine=94
 LeftCol=1
-Elisions={{198,0},{383,11},{'Callback Wrappers'}}
+Elisions=
 Bookmarks=
-EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Plugin.pas
+EditViewName=H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Lib\Npp.Toolbar.pas
 
 [Watches]
 Count=0
@@ -112,8 +112,7 @@ Dockable=1
 StayOnTop=0
 
 [Breakpoints]
-Count=1
-Breakpoint0='H:\Documenti\Embarcadero\Studio\Projects\NppESPHome\Source\NppESPHome.Plugin.pas',749,'',0,1,'',1,0,0,'',1,'','','',0,''
+Count=0
 
 [EmbarcaderoWin32Debugger_AddressBreakpoints]
 Count=0
@@ -223,7 +222,7 @@ ClientWidth=1896
 ClientHeight=5195
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=9214
+TBDockHeight=3538
 LRDockWidth=1896
 Dockable=1
 StayOnTop=0
@@ -237,12 +236,12 @@ Docked=1
 State=0
 Left=0
 Top=0
-Width=1664
-Height=7505
+Width=1997
+Height=3362
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1664
-ClientHeight=7505
+ClientWidth=1997
+ClientHeight=3362
 TBDockHeight=5957
 LRDockWidth=2510
 Dockable=1
@@ -254,8 +253,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=-3446
-Top=591
+Left=0
+Top=0
 Width=276
 Height=362
 MaxLeft=-1
@@ -442,12 +441,12 @@ Docked=1
 State=0
 Left=0
 Top=0
-Width=1664
-Height=7505
+Width=1997
+Height=3362
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1664
-ClientHeight=7505
+ClientWidth=1997
+ClientHeight=3362
 TBDockHeight=4881
 LRDockWidth=7148
 Dockable=1
@@ -459,8 +458,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=748
-Top=1665
+Left=0
+Top=0
 Width=2857
 Height=3210
 MaxLeft=-1
@@ -592,8 +591,8 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=0
-Top=36
+Left=8
+Top=8
 Width=3823
 Height=1419
 MaxLeft=-1
@@ -628,7 +627,7 @@ ClientWidth=1997
 ClientHeight=4848
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=9214
+TBDockHeight=3538
 LRDockWidth=1997
 Dockable=1
 StayOnTop=0
@@ -654,7 +653,7 @@ ClientWidth=1896
 ClientHeight=3800
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=9214
+TBDockHeight=3538
 LRDockWidth=1896
 Dockable=1
 StayOnTop=0
@@ -680,7 +679,7 @@ ClientWidth=1997
 ClientHeight=4148
 PixelsPerInch=120
 MonitorNum=0
-TBDockHeight=9214
+TBDockHeight=3538
 LRDockWidth=1997
 Dockable=1
 StayOnTop=0

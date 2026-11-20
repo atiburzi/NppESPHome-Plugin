@@ -41,7 +41,7 @@ object FormProjects: TFormProjects
     Margins.Right = 4
     Margins.Bottom = 4
     ButtonHeight = 32
-    ButtonWidth = 40
+    ButtonWidth = 34
     DoubleBuffered = True
     DrawingStyle = dsGradient
     Flat = False
@@ -104,8 +104,13 @@ object FormProjects: TFormProjects
       Margins.Bottom = 4
       Action = ActionCompile
     end
-    object ToolButtonUpload: TToolButton
+    object ToolButtonConfig: TToolButton
       Left = 183
+      Top = 0
+      Action = ActionConfig
+    end
+    object ToolButtonUpload: TToolButton
+      Left = 217
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -114,7 +119,7 @@ object FormProjects: TFormProjects
       Action = ActionUpload
     end
     object ToolButtonShowLogs: TToolButton
-      Left = 217
+      Left = 251
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -123,7 +128,7 @@ object FormProjects: TFormProjects
       Action = ActionShowLogs
     end
     object ToolButtonClean: TToolButton
-      Left = 251
+      Left = 285
       Top = 0
       Margins.Left = 4
       Margins.Top = 4
@@ -132,29 +137,29 @@ object FormProjects: TFormProjects
       Action = ActionClean
     end
     object ToolButtonSep2: TToolButton
-      Left = 285
+      Left = 319
       Top = 0
       Width = 7
       Style = tbsSeparator
     end
     object ToolButtonAddPrj: TToolButton
-      Left = 292
+      Left = 326
       Top = 0
       Action = ActionAddProject
     end
     object ToolButtonRemovePrj: TToolButton
-      Left = 326
+      Left = 360
       Top = 0
       Action = ActionRemoveProject
     end
     object ToolButtonSep3: TToolButton
-      Left = 360
+      Left = 394
       Top = 0
       Width = 8
       Style = tbsSeparator
     end
     object ToolButtonSettings: TToolButton
-      Left = 368
+      Left = 402
       Top = 0
       Action = ActionSettings
     end
@@ -171,21 +176,22 @@ object FormProjects: TFormProjects
     ParentColor = True
     ParentDoubleBuffered = False
     TabOrder = 1
+    ExplicitWidth = 475
     object GroupBoxProjects: TGroupBox
       Left = 0
       Top = 0
-      Width = 479
+      Width = 477
       Height = 494
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Active Project'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
-      ExplicitWidth = 477
+      ExplicitWidth = 475
       object VirtualStringTreeProjects: TVirtualStringTree
         Left = 2
         Top = 17
-        Width = 475
+        Width = 473
         Height = 456
         Align = alClient
         BorderStyle = bsNone
@@ -218,24 +224,23 @@ object FormProjects: TFormProjects
         OnNodeClick = VirtualStringTreeProjectsNodeClick
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-        ExplicitWidth = 473
         Columns = <>
       end
       object PanelProjectPath: TPanel
         Left = 2
         Top = 473
-        Width = 475
+        Width = 473
         Height = 19
         Align = alBottom
         BevelOuter = bvNone
         ParentBackground = False
         TabOrder = 1
-        ExplicitWidth = 473
+        ExplicitWidth = 471
         object LabelProjectPath: TLabel
           AlignWithMargins = True
           Left = 6
           Top = 0
-          Width = 463
+          Width = 461
           Height = 19
           Margins.Left = 6
           Margins.Top = 0
@@ -262,6 +267,8 @@ object FormProjects: TFormProjects
     DoubleBufferedMode = dbmRequested
     ParentColor = True
     TabOrder = 2
+    ExplicitWidth = 475
+    ExplicitHeight = 538
     DesignSize = (
       477
       546)
@@ -274,6 +281,8 @@ object FormProjects: TFormProjects
       Caption = 'Templates'
       DoubleBufferedMode = dbmRequested
       TabOrder = 0
+      ExplicitWidth = 471
+      ExplicitHeight = 525
       DesignSize = (
         473
         533)
@@ -298,7 +307,7 @@ object FormProjects: TFormProjects
         Width = 20
         Height = 48
         Anchors = [akTop, akRight]
-        ImageIndex = 37
+        ImageIndex = 30
         ImageName = 'more'
         Images = VirtualImageList32
         Flat = True
@@ -324,6 +333,7 @@ object FormProjects: TFormProjects
         TabOrder = 0
         OnChange = EditTextFilterChange
         OnRightButtonClick = EditTextFilterRightButtonClick
+        ExplicitWidth = 325
       end
       object ComboBoxCategories: TComboBox
         Left = 115
@@ -336,6 +346,7 @@ object FormProjects: TFormProjects
         Sorted = True
         TabOrder = 1
         OnChange = ComboBoxCategoriesChange
+        ExplicitWidth = 325
       end
       object PanelStaticText: TPanel
         Left = 6
@@ -345,10 +356,12 @@ object FormProjects: TFormProjects
         Anchors = [akLeft, akRight, akBottom]
         ParentColor = True
         TabOrder = 2
+        ExplicitTop = 441
+        ExplicitWidth = 458
         object StaticTextDescription: TJvLinkLabel
           Left = 1
           Top = 1
-          Width = 460
+          Width = 458
           Height = 77
           Caption = ''
           Text.Strings = (
@@ -371,11 +384,13 @@ object FormProjects: TFormProjects
         ParentColor = True
         ShowCaption = False
         TabOrder = 3
+        ExplicitWidth = 458
+        ExplicitHeight = 359
         object VirtualStringTreeTemplates: TVirtualStringTree
           Left = 1
           Top = 1
-          Width = 460
-          Height = 373
+          Width = 458
+          Height = 365
           Align = alClient
           Colors.GridLineColor = clMedGray
           DefaultNodeHeight = 19
@@ -402,8 +417,6 @@ object FormProjects: TFormProjects
           OnGetHint = VirtualStringTreeTemplatesGetHint
           Touch.InteractiveGestures = [igPan, igPressAndTap]
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
-          ExplicitWidth = 458
-          ExplicitHeight = 365
           Columns = <
             item
               CheckType = ctNone
@@ -545,183 +558,153 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 23
-        CollectionName = 'mc_bk72xx'
-        Name = 'mc_bk72xx'
-      end
-      item
-        CollectionIndex = 24
-        CollectionName = 'mc_esp32'
-        Name = 'mc_esp32'
-      end
-      item
-        CollectionIndex = 25
-        CollectionName = 'mc_esp8266'
-        Name = 'mc_esp8266'
-      end
-      item
-        CollectionIndex = 26
-        CollectionName = 'mc_host'
-        Name = 'mc_host'
-      end
-      item
-        CollectionIndex = 27
-        CollectionName = 'mc_ln882x'
-        Name = 'mc_ln882x'
-      end
-      item
-        CollectionIndex = 28
-        CollectionName = 'mc_rp2040'
-        Name = 'mc_rp2040'
-      end
-      item
-        CollectionIndex = 29
-        CollectionName = 'mc_rtl87xx'
-        Name = 'mc_rtl87xx'
-      end
-      item
-        CollectionIndex = 30
         CollectionName = 'mi_bk72xx'
         Name = 'mi_bk72xx'
       end
       item
-        CollectionIndex = 31
+        CollectionIndex = 24
         CollectionName = 'mi_esp32'
         Name = 'mi_esp32'
       end
       item
-        CollectionIndex = 32
+        CollectionIndex = 25
         CollectionName = 'mi_esp8266'
         Name = 'mi_esp8266'
       end
       item
-        CollectionIndex = 33
+        CollectionIndex = 26
         CollectionName = 'mi_host'
         Name = 'mi_host'
       end
       item
-        CollectionIndex = 34
+        CollectionIndex = 27
         CollectionName = 'mi_ln882x'
         Name = 'mi_ln882x'
       end
       item
-        CollectionIndex = 35
+        CollectionIndex = 28
         CollectionName = 'mi_rp2040'
         Name = 'mi_rp2040'
       end
       item
-        CollectionIndex = 36
+        CollectionIndex = 29
         CollectionName = 'mi_rtl87xx'
         Name = 'mi_rtl87xx'
       end
       item
-        CollectionIndex = 37
+        CollectionIndex = 30
         CollectionName = 'more'
         Name = 'more'
       end
       item
-        CollectionIndex = 38
+        CollectionIndex = 31
         CollectionName = 'none'
         Name = 'none'
       end
       item
-        CollectionIndex = 39
+        CollectionIndex = 32
         CollectionName = 'npp'
         Name = 'npp'
       end
       item
-        CollectionIndex = 40
+        CollectionIndex = 33
         CollectionName = 'nppesphome'
         Name = 'nppesphome'
       end
       item
-        CollectionIndex = 41
+        CollectionIndex = 34
         CollectionName = 'open'
         Name = 'open'
       end
       item
-        CollectionIndex = 42
+        CollectionIndex = 35
         CollectionName = 'project'
         Name = 'project'
       end
       item
-        CollectionIndex = 43
+        CollectionIndex = 36
         CollectionName = 'refreshusb'
         Name = 'refreshusb'
       end
       item
-        CollectionIndex = 44
+        CollectionIndex = 37
         CollectionName = 'removedep'
         Name = 'removedep'
       end
       item
-        CollectionIndex = 45
+        CollectionIndex = 38
         CollectionName = 'removeprj'
         Name = 'removeprj'
       end
       item
-        CollectionIndex = 46
+        CollectionIndex = 39
         CollectionName = 'run'
         Name = 'run'
       end
       item
-        CollectionIndex = 47
+        CollectionIndex = 40
         CollectionName = 'save'
         Name = 'save'
       end
       item
-        CollectionIndex = 48
+        CollectionIndex = 41
         CollectionName = 'scrolldown'
         Name = 'scrolldown'
       end
       item
-        CollectionIndex = 49
+        CollectionIndex = 42
         CollectionName = 'select'
         Name = 'select'
       end
       item
-        CollectionIndex = 50
+        CollectionIndex = 43
         CollectionName = 'selectall'
         Name = 'selectall'
       end
       item
-        CollectionIndex = 51
+        CollectionIndex = 44
         CollectionName = 'serial'
         Name = 'serial'
       end
       item
-        CollectionIndex = 52
+        CollectionIndex = 45
         CollectionName = 'showhide'
         Name = 'showhide'
       end
       item
-        CollectionIndex = 53
+        CollectionIndex = 46
         CollectionName = 'stop'
         Name = 'stop'
       end
       item
-        CollectionIndex = 54
+        CollectionIndex = 47
         CollectionName = 'terminal'
         Name = 'terminal'
       end
       item
-        CollectionIndex = 55
+        CollectionIndex = 48
         CollectionName = 'upgrade'
         Name = 'upgrade'
       end
       item
-        CollectionIndex = 56
+        CollectionIndex = 49
         CollectionName = 'upload'
         Name = 'upload'
       end
       item
-        CollectionIndex = 57
+        CollectionIndex = 50
         CollectionName = 'wifi'
         Name = 'wifi'
       end
       item
-        CollectionIndex = 58
+        CollectionIndex = 51
         CollectionName = 'window'
         Name = 'window'
+      end
+      item
+        CollectionIndex = 52
+        CollectionName = 'config'
+        Name = 'config'
       end>
     ImageCollection = Resources.StandardImages
     PreserveItems = True
@@ -852,183 +835,153 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 23
-        CollectionName = 'mc_bk72xx'
-        Name = 'mc_bk72xx'
-      end
-      item
-        CollectionIndex = 24
-        CollectionName = 'mc_esp32'
-        Name = 'mc_esp32'
-      end
-      item
-        CollectionIndex = 25
-        CollectionName = 'mc_esp8266'
-        Name = 'mc_esp8266'
-      end
-      item
-        CollectionIndex = 26
-        CollectionName = 'mc_host'
-        Name = 'mc_host'
-      end
-      item
-        CollectionIndex = 27
-        CollectionName = 'mc_ln882x'
-        Name = 'mc_ln882x'
-      end
-      item
-        CollectionIndex = 28
-        CollectionName = 'mc_rp2040'
-        Name = 'mc_rp2040'
-      end
-      item
-        CollectionIndex = 29
-        CollectionName = 'mc_rtl87xx'
-        Name = 'mc_rtl87xx'
-      end
-      item
-        CollectionIndex = 30
         CollectionName = 'mi_bk72xx'
         Name = 'mi_bk72xx'
       end
       item
-        CollectionIndex = 31
+        CollectionIndex = 24
         CollectionName = 'mi_esp32'
         Name = 'mi_esp32'
       end
       item
-        CollectionIndex = 32
+        CollectionIndex = 25
         CollectionName = 'mi_esp8266'
         Name = 'mi_esp8266'
       end
       item
-        CollectionIndex = 33
+        CollectionIndex = 26
         CollectionName = 'mi_host'
         Name = 'mi_host'
       end
       item
-        CollectionIndex = 34
+        CollectionIndex = 27
         CollectionName = 'mi_ln882x'
         Name = 'mi_ln882x'
       end
       item
-        CollectionIndex = 35
+        CollectionIndex = 28
         CollectionName = 'mi_rp2040'
         Name = 'mi_rp2040'
       end
       item
-        CollectionIndex = 36
+        CollectionIndex = 29
         CollectionName = 'mi_rtl87xx'
         Name = 'mi_rtl87xx'
       end
       item
-        CollectionIndex = 37
+        CollectionIndex = 30
         CollectionName = 'more'
         Name = 'more'
       end
       item
-        CollectionIndex = 38
+        CollectionIndex = 31
         CollectionName = 'none'
         Name = 'none'
       end
       item
-        CollectionIndex = 39
+        CollectionIndex = 32
         CollectionName = 'npp'
         Name = 'npp'
       end
       item
-        CollectionIndex = 40
+        CollectionIndex = 33
         CollectionName = 'nppesphome'
         Name = 'nppesphome'
       end
       item
-        CollectionIndex = 41
+        CollectionIndex = 34
         CollectionName = 'open'
         Name = 'open'
       end
       item
-        CollectionIndex = 42
+        CollectionIndex = 35
         CollectionName = 'project'
         Name = 'project'
       end
       item
-        CollectionIndex = 43
+        CollectionIndex = 36
         CollectionName = 'refreshusb'
         Name = 'refreshusb'
       end
       item
-        CollectionIndex = 44
+        CollectionIndex = 37
         CollectionName = 'removedep'
         Name = 'removedep'
       end
       item
-        CollectionIndex = 45
+        CollectionIndex = 38
         CollectionName = 'removeprj'
         Name = 'removeprj'
       end
       item
-        CollectionIndex = 46
+        CollectionIndex = 39
         CollectionName = 'run'
         Name = 'run'
       end
       item
-        CollectionIndex = 47
+        CollectionIndex = 40
         CollectionName = 'save'
         Name = 'save'
       end
       item
-        CollectionIndex = 48
+        CollectionIndex = 41
         CollectionName = 'scrolldown'
         Name = 'scrolldown'
       end
       item
-        CollectionIndex = 49
+        CollectionIndex = 42
         CollectionName = 'select'
         Name = 'select'
       end
       item
-        CollectionIndex = 50
+        CollectionIndex = 43
         CollectionName = 'selectall'
         Name = 'selectall'
       end
       item
-        CollectionIndex = 51
+        CollectionIndex = 44
         CollectionName = 'serial'
         Name = 'serial'
       end
       item
-        CollectionIndex = 52
+        CollectionIndex = 45
         CollectionName = 'showhide'
         Name = 'showhide'
       end
       item
-        CollectionIndex = 53
+        CollectionIndex = 46
         CollectionName = 'stop'
         Name = 'stop'
       end
       item
-        CollectionIndex = 54
+        CollectionIndex = 47
         CollectionName = 'terminal'
         Name = 'terminal'
       end
       item
-        CollectionIndex = 55
+        CollectionIndex = 48
         CollectionName = 'upgrade'
         Name = 'upgrade'
       end
       item
-        CollectionIndex = 56
+        CollectionIndex = 49
         CollectionName = 'upload'
         Name = 'upload'
       end
       item
-        CollectionIndex = 57
+        CollectionIndex = 50
         CollectionName = 'wifi'
         Name = 'wifi'
       end
       item
-        CollectionIndex = 58
+        CollectionIndex = 51
         CollectionName = 'window'
         Name = 'window'
+      end
+      item
+        CollectionIndex = 52
+        CollectionName = 'config'
+        Name = 'config'
       end>
     ImageCollection = Resources.StandardImages
     PreserveItems = True
@@ -1089,14 +1042,14 @@ object FormProjects: TFormProjects
     object ActionOpen: TAction
       Caption = 'Open project files'
       Hint = 'Open project files (main file and dependencies)'
-      ImageIndex = 41
+      ImageIndex = 34
       ImageName = 'open'
       OnExecute = ActionOpenExecute
     end
     object ActionRun: TAction
       Caption = 'Run project'
       Hint = 'Starts ESPHome console with "run" command'
-      ImageIndex = 46
+      ImageIndex = 39
       ImageName = 'run'
       OnExecute = ActionRunExecute
     end
@@ -1107,10 +1060,17 @@ object FormProjects: TFormProjects
       ImageName = 'compile'
       OnExecute = ActionCompileExecute
     end
+    object ActionConfig: TAction
+      Caption = 'Check the project syntax'
+      Hint = 'Starts ESPHome console with "config" command'
+      ImageIndex = 52
+      ImageName = 'config'
+      OnExecute = ActionConfigExecute
+    end
     object ActionUpload: TAction
       Caption = 'Upload last compile project'
       Hint = 'Starts ESPHome console with "upload" command'
-      ImageIndex = 56
+      ImageIndex = 49
       ImageName = 'upload'
       OnExecute = ActionUploadExecute
     end
@@ -1152,7 +1112,7 @@ object FormProjects: TFormProjects
     object ActionRemoveProject: TAction
       Caption = 'Remove selected project'
       Hint = 'Remove the current ESPHome project from the known ones'
-      ImageIndex = 45
+      ImageIndex = 38
       ImageName = 'removeprj'
       OnExecute = ActionRemoveProjectExecute
     end
@@ -1166,14 +1126,14 @@ object FormProjects: TFormProjects
     object ActionRemoveDep: TAction
       Caption = 'Remove selected dependency'
       Hint = 'Remove the selected dependency file from the related project'
-      ImageIndex = 44
+      ImageIndex = 37
       ImageName = 'removedep'
       OnExecute = ActionRemoveDepExecute
     end
     object ActionTerminal: TAction
       Caption = 'Open an ESPHome Console'
       Hint = 'Open an Command Console from the project folder'
-      ImageIndex = 54
+      ImageIndex = 47
       ImageName = 'terminal'
     end
     object ActionExplorer: TAction
@@ -1327,183 +1287,153 @@ object FormProjects: TFormProjects
       end
       item
         CollectionIndex = 23
-        CollectionName = 'mc_bk72xx'
-        Name = 'mc_bk72xx'
-      end
-      item
-        CollectionIndex = 24
-        CollectionName = 'mc_esp32'
-        Name = 'mc_esp32'
-      end
-      item
-        CollectionIndex = 25
-        CollectionName = 'mc_esp8266'
-        Name = 'mc_esp8266'
-      end
-      item
-        CollectionIndex = 26
-        CollectionName = 'mc_host'
-        Name = 'mc_host'
-      end
-      item
-        CollectionIndex = 27
-        CollectionName = 'mc_ln882x'
-        Name = 'mc_ln882x'
-      end
-      item
-        CollectionIndex = 28
-        CollectionName = 'mc_rp2040'
-        Name = 'mc_rp2040'
-      end
-      item
-        CollectionIndex = 29
-        CollectionName = 'mc_rtl87xx'
-        Name = 'mc_rtl87xx'
-      end
-      item
-        CollectionIndex = 30
         CollectionName = 'mi_bk72xx'
         Name = 'mi_bk72xx'
       end
       item
-        CollectionIndex = 31
+        CollectionIndex = 24
         CollectionName = 'mi_esp32'
         Name = 'mi_esp32'
       end
       item
-        CollectionIndex = 32
+        CollectionIndex = 25
         CollectionName = 'mi_esp8266'
         Name = 'mi_esp8266'
       end
       item
-        CollectionIndex = 33
+        CollectionIndex = 26
         CollectionName = 'mi_host'
         Name = 'mi_host'
       end
       item
-        CollectionIndex = 34
+        CollectionIndex = 27
         CollectionName = 'mi_ln882x'
         Name = 'mi_ln882x'
       end
       item
-        CollectionIndex = 35
+        CollectionIndex = 28
         CollectionName = 'mi_rp2040'
         Name = 'mi_rp2040'
       end
       item
-        CollectionIndex = 36
+        CollectionIndex = 29
         CollectionName = 'mi_rtl87xx'
         Name = 'mi_rtl87xx'
       end
       item
-        CollectionIndex = 37
+        CollectionIndex = 30
         CollectionName = 'more'
         Name = 'more'
       end
       item
-        CollectionIndex = 38
+        CollectionIndex = 31
         CollectionName = 'none'
         Name = 'none'
       end
       item
-        CollectionIndex = 39
+        CollectionIndex = 32
         CollectionName = 'npp'
         Name = 'npp'
       end
       item
-        CollectionIndex = 40
+        CollectionIndex = 33
         CollectionName = 'nppesphome'
         Name = 'nppesphome'
       end
       item
-        CollectionIndex = 41
+        CollectionIndex = 34
         CollectionName = 'open'
         Name = 'open'
       end
       item
-        CollectionIndex = 42
+        CollectionIndex = 35
         CollectionName = 'project'
         Name = 'project'
       end
       item
-        CollectionIndex = 43
+        CollectionIndex = 36
         CollectionName = 'refreshusb'
         Name = 'refreshusb'
       end
       item
-        CollectionIndex = 44
+        CollectionIndex = 37
         CollectionName = 'removedep'
         Name = 'removedep'
       end
       item
-        CollectionIndex = 45
+        CollectionIndex = 38
         CollectionName = 'removeprj'
         Name = 'removeprj'
       end
       item
-        CollectionIndex = 46
+        CollectionIndex = 39
         CollectionName = 'run'
         Name = 'run'
       end
       item
-        CollectionIndex = 47
+        CollectionIndex = 40
         CollectionName = 'save'
         Name = 'save'
       end
       item
-        CollectionIndex = 48
+        CollectionIndex = 41
         CollectionName = 'scrolldown'
         Name = 'scrolldown'
       end
       item
-        CollectionIndex = 49
+        CollectionIndex = 42
         CollectionName = 'select'
         Name = 'select'
       end
       item
-        CollectionIndex = 50
+        CollectionIndex = 43
         CollectionName = 'selectall'
         Name = 'selectall'
       end
       item
-        CollectionIndex = 51
+        CollectionIndex = 44
         CollectionName = 'serial'
         Name = 'serial'
       end
       item
-        CollectionIndex = 52
+        CollectionIndex = 45
         CollectionName = 'showhide'
         Name = 'showhide'
       end
       item
-        CollectionIndex = 53
+        CollectionIndex = 46
         CollectionName = 'stop'
         Name = 'stop'
       end
       item
-        CollectionIndex = 54
+        CollectionIndex = 47
         CollectionName = 'terminal'
         Name = 'terminal'
       end
       item
-        CollectionIndex = 55
+        CollectionIndex = 48
         CollectionName = 'upgrade'
         Name = 'upgrade'
       end
       item
-        CollectionIndex = 56
+        CollectionIndex = 49
         CollectionName = 'upload'
         Name = 'upload'
       end
       item
-        CollectionIndex = 57
+        CollectionIndex = 50
         CollectionName = 'wifi'
         Name = 'wifi'
       end
       item
-        CollectionIndex = 58
+        CollectionIndex = 51
         CollectionName = 'window'
         Name = 'window'
+      end
+      item
+        CollectionIndex = 52
+        CollectionName = 'config'
+        Name = 'config'
       end>
     ImageCollection = Resources.StandardImages
     PreserveItems = True

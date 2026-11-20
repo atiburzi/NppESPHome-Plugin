@@ -4,7 +4,7 @@ object FormToolbar: TFormToolbar
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Toolbar configuration'
-  ClientHeight = 665
+  ClientHeight = 732
   ClientWidth = 418
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,8 +16,8 @@ object FormToolbar: TFormToolbar
   OnCreate = FormCreate
   TextHeight = 15
   object LabelInfo: TLabel
-    Left = 9
-    Top = 586
+    Left = 16
+    Top = 642
     Width = 402
     Height = 33
     Margins.Left = 4
@@ -34,7 +34,7 @@ object FormToolbar: TFormToolbar
     Left = 9
     Top = 9
     Width = 403
-    Height = 569
+    Height = 625
     Margins.Left = 4
     Margins.Top = 4
     Margins.Right = 4
@@ -58,14 +58,12 @@ object FormToolbar: TFormToolbar
   end
   object PanelButtons: TPanel
     Left = 0
-    Top = 632
+    Top = 699
     Width = 418
     Height = 33
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 992
-    ExplicitWidth = 705
     object ButtonApply: TButton
       Left = 241
       Top = 2

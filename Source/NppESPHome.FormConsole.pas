@@ -10,7 +10,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ComCtrls, Npp.Plugin, Npp.Vcl.Docking, NppESPHome.ConPty,
   Vcl.VirtualImageList,
-  Vcl.Buttons, Vcl.Dialogs, System.ImageList, Vcl.ImgList;
+  Vcl.Buttons, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
+  System.Generics.Collections;
 
 const
   WM_CONSOLE_SCROLL_BOTTOM = WM_APP + $523;
@@ -73,6 +74,11 @@ type
     FParserState: TAnsiParserState;
     FCsiBuffer: AnsiString;
     FUtf8Buffer: TBytes;
+    FUtf8Count: Integer;
+    FOutputQueue: TObjectQueue<TConPtyOutputChunk>;
+    FExitPending: Boolean;
+    FExitCode: Cardinal;
+    FRenderingOutput: Boolean;
     FCurrentStyle: TTerminalStyle;
     FDefaultForeground: TColor;
     FDefaultBackground: TColor;
@@ -130,6 +136,8 @@ type
     procedure NotifyOutputActivity;
     procedure ProcessByte(const Value: Byte);
     procedure ProcessOutput(const Data: TBytes);
+    procedure RenderPendingOutput;
+    function TryAppendRun(const Data: TBytes; var Index: Integer): Boolean;
     procedure ReplaceAtCursor(const Text: string);
     procedure ResetActivityIndicator;
     procedure ResetAnsiStyle;
@@ -304,9 +312,12 @@ constructor TFormConsole.Create(NppParent: TNppPlugin; DlgId: Integer);
 begin
   FNppDefaultDockingMask := DWS_DF_CONT_BOTTOM;
   inherited Create(NppParent, DlgId);
+  FOutputQueue := TObjectQueue<TConPtyOutputChunk>.Create;
   DefaultCloseAction := caHide;
   RichEditConsole.MaxLength := MaxTerminalCharacters +
     TerminalCharacterHeadroom;
+  // Terminal output is not user-editable and must not accumulate undo data.
+  SendMessage(RichEditConsole.Handle, EM_SETUNDOLIMIT, 0, 0);
   FDefaultForeground := RichEditConsole.Font.Color;
   FDefaultBackground := RichEditConsole.Color;
   FActivityColor := RGB(22, 131, 79);
@@ -360,6 +371,7 @@ begin
     FreeAndNil(FSession);
   end;
   DrainPendingMessages;
+  FreeAndNil(FOutputQueue);
   inherited;
 end;
 
@@ -592,6 +604,10 @@ procedure TFormConsole.StartCommand(const CommandLine, CurrentDirectory,
 begin
   if not Assigned(FSession) then
     raise EInvalidOperation.Create(rsConsoleNotInitialized);
+  FSession.Stop;
+  DrainPendingMessages;
+  FOutputQueue.Clear;
+  FExitPending := False;
   ApplyPreferences;
   SetFollowOutput(True, False);
   if FClearOnCommandStart then
@@ -723,8 +739,8 @@ begin
   try
     if Assigned(FSession) and (Chunk.Generation = FSession.Generation) then
     begin
-      ProcessOutput(Chunk.Data);
-      NotifyOutputActivity;
+      FOutputQueue.Enqueue(Chunk);
+      Chunk := nil;
     end;
   finally
     Chunk.Free;
@@ -736,16 +752,69 @@ end;
 // completed, interrupted, or error console state.
 // *****************************************************************************
 procedure TFormConsole.WMConPtyExit(var Message: TMessage);
-var
-  ExitCode: Cardinal;
-  WasStopped: Boolean;
 begin
   if not Assigned(FSession) or
     (Cardinal(Message.LParam) <> FSession.Generation) then
     Exit;
-  ExitCode := Cardinal(Message.WParam);
+  // Stop can post a final ConPTY frame. The timer completes the command only
+  // after all posted output has been queued and rendered.
+  if not FExitPending then
+  begin
+    FExitPending := True;
+    FExitCode := Cardinal(Message.WParam);
+    FSession.Stop;
+  end;
+end;
+
+// Render bounded batches at the UI timer cadence, not for each pipe read.
+procedure TFormConsole.RenderPendingOutput;
+const
+  MaxBatchBytes = 16384;
+var
+  Chunk: TConPtyOutputChunk;
+  Data: TBytes;
+  Count, Size: Integer;
+  ExitCode: Cardinal;
+  WasStopped: Boolean;
+begin
+  if not Assigned(FOutputQueue) then
+    Exit;
+  if (FOutputQueue.Count = 0) and not FExitPending then
+    Exit;
+  Count := 0;
+  SetLength(Data, MaxBatchBytes);
+  while FOutputQueue.Count > 0 do
+  begin
+    Chunk := FOutputQueue.Peek;
+    Size := Length(Chunk.Data);
+    if (Count > 0) and (Count + Size > MaxBatchBytes) then
+      Break;
+    if Count + Size > Length(Data) then
+      SetLength(Data, Count + Size);
+    if Size > 0 then
+      Move(Chunk.Data[0], Data[Count], Size);
+    Inc(Count, Size);
+    FOutputQueue.Dequeue; // owning queue frees the consumed chunk
+    if Count >= MaxBatchBytes then
+      Break;
+  end;
+  if Count > 0 then
+  begin
+    SetLength(Data, Count);
+    ProcessOutput(Data);
+    NotifyOutputActivity;
+  end;
+  if not FExitPending or (FOutputQueue.Count <> 0) then
+    Exit;
+  FExitPending := False;
+  RichEditConsole.ReadOnly := False;
+  try
+    FlushUtf8(True);
+  finally
+    RichEditConsole.ReadOnly := True;
+  end;
+  ExitCode := FExitCode;
   WasStopped := FStopRequested;
-  FSession.Stop;
   FStopRequested := False;
   if WasStopped then
     SetStatus(rsConsoleStatusStopped, csInterrupted)
@@ -762,12 +831,15 @@ end;
 // without changing the lifecycle state of the active session.
 // *****************************************************************************
 procedure TFormConsole.ClearTerminal;
+var
+  WasReadOnly: Boolean;
 begin
+  WasReadOnly := RichEditConsole.ReadOnly;
   RichEditConsole.ReadOnly := False;
   try
     RichEditConsole.Clear;
   finally
-    RichEditConsole.ReadOnly := True;
+    RichEditConsole.ReadOnly := WasReadOnly;
   end;
   FCursorPosition := 0;
   FSavedCursorPosition := 0;
@@ -808,6 +880,8 @@ end;
 // *****************************************************************************
 procedure TFormConsole.RichEditConsoleSelectionChange(Sender: TObject);
 begin
+  if FRenderingOutput then
+    Exit;
   UpdateCopyButton;
 end;
 
@@ -866,6 +940,7 @@ procedure TFormConsole.TimerUITimer(Sender: TObject);
 var
   CurrentTick: UInt64;
 begin
+  RenderPendingOutput;
   CurrentTick := GetTickCount64;
   UpdateRunningStatus;
 
@@ -980,6 +1055,7 @@ begin
   FParserState := apsText;
   FCsiBuffer := '';
   SetLength(FUtf8Buffer, 0);
+  FUtf8Count := 0;
   FPendingCarriageReturn := False;
   ResetAnsiStyle;
 end;
@@ -1000,8 +1076,10 @@ var
   BufferLength: Integer;
 begin
   BufferLength := Length(FUtf8Buffer);
-  SetLength(FUtf8Buffer, BufferLength + 1);
-  FUtf8Buffer[BufferLength] := Value;
+  if FUtf8Count = BufferLength then
+    SetLength(FUtf8Buffer, Max(256, BufferLength * 2));
+  FUtf8Buffer[FUtf8Count] := Value;
+  Inc(FUtf8Count);
 end;
 
 // *****************************************************************************
@@ -1014,19 +1092,20 @@ var
   CompleteBytes: TBytes;
   Text: string;
 begin
-  if Length(FUtf8Buffer) = 0 then
+  if FUtf8Count = 0 then
     Exit;
   if FlushIncomplete then
-    ByteCount := Length(FUtf8Buffer)
+    ByteCount := FUtf8Count
   else
-    ByteCount := CompleteUtf8Length(FUtf8Buffer);
+    ByteCount := CompleteUtf8Length(Copy(FUtf8Buffer, 0, FUtf8Count));
   if ByteCount = 0 then
     Exit;
 
   CompleteBytes := Copy(FUtf8Buffer, 0, ByteCount);
   Text := TEncoding.UTF8.GetString(CompleteBytes);
-  FUtf8Buffer := Copy(FUtf8Buffer, ByteCount,
-    Length(FUtf8Buffer) - ByteCount);
+  Dec(FUtf8Count, ByteCount);
+  if FUtf8Count > 0 then
+    Move(FUtf8Buffer[ByteCount], FUtf8Buffer[0], FUtf8Count);
   if Text <> '' then
     ReplaceAtCursor(Text);
 end;
@@ -1056,11 +1135,17 @@ begin
     SavedSelectionLength := RichEditConsole.SelLength;
   end;
 
+  FRenderingOutput := True;
   RichEditConsole.ReadOnly := False;
   SendMessage(RichEditConsole.Handle, WM_SETREDRAW, 0, 0);
   try
-    for Index := 0 to Length(Data) - 1 do
-      ProcessByte(Data[Index]);
+    Index := 0;
+    while Index < Length(Data) do
+      if not TryAppendRun(Data, Index) then
+      begin
+        ProcessByte(Data[Index]);
+        Inc(Index);
+      end;
     FlushUtf8(False);
     TrimmedCharacters := TrimScrollback;
     if FFollowOutput then
@@ -1081,6 +1166,7 @@ begin
     UpdateCopyButton;
     UpdateSaveButton;
   finally
+    FRenderingOutput := False;
     RichEditConsole.ReadOnly := True;
     SendMessage(RichEditConsole.Handle, WM_SETREDRAW, 1, 0);
     RichEditConsole.Invalidate;
@@ -1103,6 +1189,50 @@ begin
       end;
     end;
   end;
+end;
+
+// Ordinary output at the end of the document needs no terminal overwrite
+// operations. Append whole same-style runs, including CRLF, in one edit.
+// Controls, cursor movement, split UTF-8 and lone CR/LF use the VT parser.
+function TFormConsole.TryAppendRun(const Data: TBytes;
+  var Index: Integer): Boolean;
+var
+  Finish, Count, StartPosition: Integer;
+  Bytes: TBytes;
+  Text: string;
+  Selection: TCharRange;
+begin
+  Result := False;
+  if (FParserState <> apsText) or FPendingCarriageReturn or
+    (FUtf8Count <> 0) then
+    Exit;
+  if FCursorPosition <> GetTextLength then
+    Exit;
+  Finish := Index;
+  while Finish < Length(Data) do
+    if (Data[Finish] >= 32) and (Data[Finish] <> 127) then
+      Inc(Finish)
+    else if (Data[Finish] = 13) and (Finish + 1 < Length(Data)) and
+      (Data[Finish + 1] = 10) then
+      Inc(Finish, 2)
+    else
+      Break;
+  if Finish = Index then
+    Exit;
+  Bytes := Copy(Data, Index, Finish - Index);
+  Count := CompleteUtf8Length(Bytes);
+  if Count = 0 then
+    Exit;
+  Text := TEncoding.UTF8.GetString(Bytes, 0, Count);
+  StartPosition := FCursorPosition;
+  SendMessage(RichEditConsole.Handle, EM_SETSEL, StartPosition, StartPosition);
+  SendMessage(RichEditConsole.Handle, EM_REPLACESEL, 0, LPARAM(PChar(Text)));
+  // RichEdit stores CRLF as a single paragraph marker; use its actual cursor.
+  SendMessage(RichEditConsole.Handle, EM_EXGETSEL, 0, LPARAM(@Selection));
+  FCursorPosition := Selection.cpMax;
+  ApplyCurrentStyle(StartPosition, FCursorPosition - StartPosition);
+  Inc(Index, Count);
+  Result := True;
 end;
 
 // *****************************************************************************
@@ -1427,8 +1557,15 @@ end;
 // content.
 // *****************************************************************************
 function TFormConsole.GetTextLength: Integer;
+var
+  Options: TGetTextLengthEx;
 begin
-  Result := SendMessage(RichEditConsole.Handle, WM_GETTEXTLENGTH, 0, 0);
+  // Match EM_EXGETSEL/EM_LINEINDEX offsets: one character per paragraph,
+  // not the exported CRLF representation returned by WM_GETTEXTLENGTH.
+  Options.flags := GTL_PRECISE or GTL_NUMCHARS;
+  Options.codepage := 1200;
+  Result := SendMessage(RichEditConsole.Handle, EM_GETTEXTLENGTHEX,
+    WPARAM(@Options), 0);
 end;
 
 // *****************************************************************************
@@ -1463,6 +1600,10 @@ begin
     SendMessage(RichEditConsole.Handle, EM_SETSEL, TextEnd, TextEnd);
     SendMessage(RichEditConsole.Handle, EM_REPLACESEL, 0,
       LPARAM(PChar(sLineBreak)));
+    // A rejected insertion (text limit, for example) must never spin forever
+    // on the UI thread. Scrollback trimming runs after the current batch.
+    if GetTextLength <= TextEnd then
+      Break;
   end;
 end;
 
@@ -1499,6 +1640,7 @@ var
   LineEnd: Integer;
   ReplaceLength: Integer;
   StartPosition: Integer;
+  Selection: TCharRange;
 begin
   if Text = '' then
     Exit;
@@ -1510,8 +1652,9 @@ begin
   SendMessage(RichEditConsole.Handle, EM_SETSEL, StartPosition,
     StartPosition + ReplaceLength);
   SendMessage(RichEditConsole.Handle, EM_REPLACESEL, 0, LPARAM(PChar(Text)));
-  ApplyCurrentStyle(StartPosition, Length(Text));
-  FCursorPosition := StartPosition + Length(Text);
+  SendMessage(RichEditConsole.Handle, EM_EXGETSEL, 0, LPARAM(@Selection));
+  FCursorPosition := Selection.cpMax;
+  ApplyCurrentStyle(StartPosition, FCursorPosition - StartPosition);
 end;
 
 // *****************************************************************************

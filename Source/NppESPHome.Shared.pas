@@ -87,10 +87,11 @@ const
 const
   scRun = 0;
   scCompile = 1;
-  scUpload = 2;
-  scLogs = 3;
-  scClean = 4;
-  scCleanAll = 5;
+  scConfig = 2;
+  scUpload = 3;
+  scLogs = 4;
+  scClean = 5;
+  scCleanAll = 6;
 
 // UI Icon name mappings
 const
@@ -103,6 +104,7 @@ const
 resourcestring
   rsConsoleCommandRun = 'ESPHome - Run';
   rsConsoleCommandCompile = 'ESPHome - Compile';
+  rsConsoleCommandConfig = 'ESPHome - Config';
   rsConsoleCommandUpload = 'ESPHome - Upload';
   rsConsoleCommandLogs = 'ESPHome - Show Logs';
   rsConsoleCommandClean = 'ESPHome - Clean';

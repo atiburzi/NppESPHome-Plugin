@@ -104,6 +104,8 @@ type
     PanelTemplates: TPanel;
     PanelProjectPath: TPanel;
     LabelProjectPath: TLabel;
+    ActionConfig: TAction;
+    ToolButtonConfig: TToolButton;
     procedure FormCreate(Sender: TObject);
     procedure VirtualStringTreeProjectsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualStringTreeProjectsGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
@@ -153,6 +155,7 @@ type
     procedure VirtualStringTreeProjectsGetHint(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex;
       var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
+    procedure ActionConfigExecute(Sender: TObject);
 
 
   private
@@ -718,6 +721,15 @@ procedure TFormProjects.ActionCompileExecute(Sender: TObject);
 begin
   inherited;
   Plugin.CommandCompile;
+end;
+
+// *****************************************************************************
+// Purpose: Config the current ESPHome project.
+// *****************************************************************************
+procedure TFormProjects.ActionConfigExecute(Sender: TObject);
+begin
+  inherited;
+  Plugin.CommandConfig;
 end;
 
 // *****************************************************************************
